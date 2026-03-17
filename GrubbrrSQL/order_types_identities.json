@@ -1,0 +1,66 @@
+{"orderTypes": {
+    "options": {
+        "ord-type-60051674": {
+            "label": "Dine In",
+            "externalDeliveryMode": "1",
+            "orderIdentity": {
+                "customerIdentityMode": 0,
+                "customerIdentityModes": [],
+                "orderIdentityMode": 0,
+                "nameIdSettings": {
+                    "askBeforeOrder": false,
+                    "makeCustomerNameOptional": false,
+                    "makePhoneNumberOptional": false,
+                    "makeEmailOptional": false,
+                    "makeDateOfBirthOptional": false,
+                    "makeLastFourSsnOptional": false,
+                    "makeAddressLine1Optional": true,
+                    "makeAddressLine2Optional": true,
+                    "makeCityOptional": true,
+                    "makeStateOptional": true,
+                    "makeZipCodeOptional": true,
+                    "makeCountryOptional": true
+                },
+                "orderIdPrefix": ""
+            },
+            "enabled": true,
+            "localizedLabel": {
+                "translations": {}
+            },
+            "posChannel": null
+        },
+        "ord-type-04197994": {
+            "label": "Take Out",
+            "externalDeliveryMode": "2",
+            "orderIdentity": {
+                "customerIdentityMode": 0,
+                "customerIdentityModes": [],
+                "orderIdentityMode": 0,
+                "nameIdSettings": {
+                    "askBeforeOrder": false,
+                    "makeCustomerNameOptional": false,
+                    "makePhoneNumberOptional": false,
+                    "makeEmailOptional": false,
+                    "makeDateOfBirthOptional": false,
+                    "makeLastFourSsnOptional": false,
+                    "makeAddressLine1Optional": true,
+                    "makeAddressLine2Optional": true,
+                    "makeCityOptional": true,
+                    "makeStateOptional": true,
+                    "makeZipCodeOptional": true,
+                    "makeCountryOptional": true
+                },
+                "orderIdPrefix": ""
+            },
+            "enabled": true,
+            "localizedLabel": {
+                "translations": {}
+            },
+            "posChannel": null
+        }
+    },
+    "orderTokenSettings": {
+        "orderNumberStart": 100,
+        "allotment": 100
+    }
+    
