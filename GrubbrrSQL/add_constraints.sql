@@ -49,8 +49,9 @@ ALTER TABLE dim.frequentcustomer
 ADD CONSTRAINT frequent_customer_pk PRIMARY key (frequentcustomerid);
 
 ALTER TABLE fact.transactionheader
-ADD CONSTRAINT frequent_customer_fk FOREIGN key (frequentcustomerid) REFERENCES dim.frequentcustomer(frequentcustomerid)
+DROP CONSTRAINT frequent_customer_fk FOREIGN key (frequentcustomerid) REFERENCES dim.frequentcustomer(frequentcustomerid)
 
+SELECT * FROM dim.frequentcustomer WHERE frequentcustomerid = 'gfc-202603190904991';
 
 ALTER TABLE fact.transactionheader
 add charityamount  NUMERIC(7,3),

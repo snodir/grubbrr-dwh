@@ -25,7 +25,10 @@ CREATE INDEX IF NOT EXISTS idx_fact_pipelinerunstatus_correlationid
 
 select * from fact.pipelinerunstatus;
 
-
+UPDATE fact.pipelinerunstatus 
+SET pipelinetriggertime = '2026-03-18 11:13:40.947455' :: TIMESTAMP,
+    pipelinecompletedtime = '2026-03-18 11:18:40.947455' :: TIMESTAMP
+WHERE pipelinename in ('AbortedItemsToPG','AbortedEventsToPG')
 
 --UPDATE fact.pipelinerunstatus 
 SET pipelinerunid = case when correlationid is null then '@{pipeline().RunId}' else pipelinerunid end, 

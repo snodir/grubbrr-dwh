@@ -1129,3 +1129,85 @@ LEFT JOIN loc_mdfr_itm_agg AS lmia
 LEFT JOIN org_mdfr_itm_agg AS omia
     ON m.organizationid = omia.organizationid
    AND m.modifierid = omia.modifierid;
+
+
+/**
+9. Item-Modifier-Group-Modifier-Mapping dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
+   Naming Convention: modifiers-yyww.parquet
+   yyww - stands for year and week of observation date period, for example, 
+   2026 year and 10 th week would be formatted as yyww = 2610, 
+   the first yy means the last 2 digits of year (26 in case of 2026) 
+   and week number ww --> 10 --> 2610
+   File: Item-Modifier-Group-Modifier-Mapping dataset dataset (modifier-level, weekly snapshot)
+   File hierarchy: ml-training-data/org-abcd/loc-abcd/item-modifier-group-modifier-mapping-yyww.parquet
+***/
+
+
+WITH org_loc_lookup AS (
+    SELECT DISTINCT
+        ol.organizationid,
+        ol.organizationname,
+        ol.locationid,
+        ol.locationname
+    FROM dim.organizationlocation AS ol
+    WHERE 1=1
+      AND (
+          CASE 
+              WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' 
+              THEN ol.organizationid 
+              ELSE ol.locationid 
+          END
+      ) = '{$pdf_orgid}'
+      AND ol.organizationtype = 0
+),
+
+org_loc_ctlg AS (
+    SELECT 
+        ol.*,
+        c.catalogid,
+        c.catalogname
+    FROM org_loc_lookup AS ol
+    INNER JOIN dim.catalog AS c
+        ON ol.organizationid = c.organizationid
+       AND ol.locationid = c.gem_location_id
+)
+SELECT olc.organizationid,
+       olc.organizationname,
+       olc.locationid,
+       olc.locationname,
+       imgm.catalogid,
+       olc.catalogname,
+       {$pdf_yyyy} AS yyyy,
+       {$pdf_ww} AS ww,
+       imgm.menuitemid,
+       imgm.modifiergroupid,
+       imgm.modifierid,
+       imgm.itm_modgrp_min_selection,
+       imgm.itm_modgrp_max_selection,
+       imgm.itm_modgrp_free_count,
+       imgm.is_itm_modgrp_active,
+       imgm.is_itm_modgrp_deleted,
+       imgm.itm_modgrp_created_on,
+       imgm.itm_modgrp_modified_on,
+       imgm.is_itm_modgrp_invisible,
+       imgm.is_default,
+       imgm.min_quantity,
+       imgm.max_quantity,
+       imgm.allow_quantity_increment,
+       imgm.increment_step,
+       imgm.default_quantity,
+       imgm.is_modgrp_modfr_active,
+       imgm.is_modgrp_modfr_deleted,
+       imgm.modgrp_modfr_created_on,
+       imgm.modgrp_modfr_modified_on,
+       imgm.is_modgrp_modfr_invisible
+FROM org_loc_ctlg as olc 
+LEFT JOIN dim.item_modifier_group_modifier_mapping as imgm
+        ON olc.catalogid = imgm.catalogid
+WHERE (
+        EXTRACT(YEAR FROM imgm.modgrp_modfr_created_on)::INTEGER = {$pdf_yyyy}
+        AND EXTRACT(WEEK FROM imgm.modgrp_modfr_created_on)::INTEGER <= {$pdf_ww}
+    )
+    OR (
+        EXTRACT(YEAR FROM imgm.modgrp_modfr_created_on)::INTEGER < {$pdf_yyyy}
+    )

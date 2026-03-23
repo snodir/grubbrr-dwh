@@ -1,5 +1,5 @@
 select ol.organizationId, ol.organizationname, 
-       th.locationid, ol.locationname,
+       --th.locationid, ol.locationname,
 	   --EXTRACT(YEAR FROM th.businessdate)::INTEGER as yyyy,
        --EXTRACT(WEEK FROM th.businessdate)::INTEGER as ww,
        count(1) as ordercounts, sum(ordertotal) as amtspent, avg(ordertotal) as avg_amtspent,
@@ -9,11 +9,11 @@ from (select * from fact.transactionheader WHERE businessdate >= '2022-01-01') a
 inner join (select * from dim.organizationlocation where organizationtype = 0) as ol 
         on th.locationid = ol.locationid
 where 1=1
-and ol.organizationid = 'org-ug5zsn9mpq'
+--and ol.organizationid = 'org-ug5zsn9mpq'
 --and th.locationid = 'loc-8ead49a8-798b-4786-988a-90bbbb4775c7'-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
 and th.orderstatus = 'order-placed'
 and th.businessdate BETWEEN '2023-01-01' and CURRENT_DATE :: date--'2025-07-13' --
-group by ol.organizationId, ol.organizationname, th.locationid, ol.locationname
+group by ol.organizationId, ol.organizationname--, th.locationid, ol.locationname
    		 --EXTRACT(YEAR FROM th.businessdate)::INTEGER,
          --EXTRACT(WEEK FROM th.businessdate)::INTEGER
 order by latest_order_time DESC--, ordercounts DESC, 

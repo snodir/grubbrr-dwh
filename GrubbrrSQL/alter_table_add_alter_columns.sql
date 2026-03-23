@@ -248,6 +248,35 @@ CREATE TABLE IF NOT EXISTS fact.location_statistics(
 ALTER TABLE fact.location_statistics
 OWNER to citus;
 
+CREATE TABLE if not EXISTS dim.item_modifier_group_modifier_mapping(
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    menuitemid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    itm_modgrp_min_selection integer,
+    itm_modgrp_max_selection integer,
+    itm_modgrp_free_count integer,
+    is_itm_modgrp_active boolean,
+    is_itm_modgrp_deleted boolean,
+    itm_modgrp_created_on timestamp without time zone,
+    itm_modgrp_modified_on timestamp without time zone,
+    is_itm_modgrp_invisible boolean,
+    is_default BOOLEAN,
+    min_quantity integer,
+    max_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    default_quantity integer,
+    is_modgrp_modfr_active boolean NOT NULL,
+    is_modgrp_modfr_deleted boolean NOT NULL,
+    modgrp_modfr_created_on timestamp without time zone,
+    modgrp_modfr_modified_on timestamp without time zone,
+    is_modgrp_modfr_invisible boolean,
+    sysinserttime TIMESTAMP WITHOUT TIME ZONE
+);
+
+ALTER TABLE dim.item_modifier_group_modifier_mapping
+OWNER to citus;
 
 
 CREATE TABLE IF NOT EXISTS fact.cep_incidents(
@@ -761,7 +790,7 @@ $BODY$;
 -- DROP PROCEDURE IF EXISTS fact.usp_update_datetime_fields();
 
 --CALL fact.usp_update_datetime_fields();
-
+/*
 UPDATE fact.transactionitem
    SET orderdatelocal = th.orderdatelocal,
        businessdate = th.businessdate
@@ -770,7 +799,7 @@ WHERE transactionitem.locationid = th.locationid
   AND transactionitem.transactionheaderid = th.transactionheaderid
   AND (transactionitem.orderdatelocal IS NULL OR transactionitem.businessdate IS NULL);
 
-/*
+
 UPDATE fact.cep_incidents
 SET severity = de.severity
 FROM fact.deviceevent as de 
