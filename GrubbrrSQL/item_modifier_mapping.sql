@@ -179,7 +179,26 @@ WHERE 1=1
   AND img.menuitemid = 'itm-bfc98578-a9c7-4d82-a6f6-1fc187e43476'
   AND img.modifiergroupid = 'modgrp-58788338-8abb-4418-8fb7-1920e92dc527'
 
+/*
+modifier_nested_modifier_group_glue
 
+
+MG master
+Modifier Group (MGA) -> Modifierl, Modifier2 = modifier_group_modifier_glue[mGId, rest --
+
+Modifier1 -> Modifier Groups ->MGB, MGC =
+
+Modifier Group(MGB)-> Modifier3 -> MGGC->MO2->MGD-MOD3, MOD3 - what - POS end
+
+Item master
+Item - Modifier Groups ->MGB - item_modifier_group_glue
+
+item master
+item_modifier_group_glue
+public.modifier_group_master
+modifier_group_modifier_glue
+modifier_nested_modifier_group_glue
+*/
 
 SELECT DISTINCT
        img.catalog_id AS catalogid,
@@ -223,5 +242,20 @@ LEFT JOIN public.modifier_master AS mm
        AND mm.id = mg.modifier_master_id
 WHERE img.catalog_id = 'catlg-72d9629f-b501-4707-84c9-cd31943837b7'
   AND img.item_master_id = 'itm-bfc98578-a9c7-4d82-a6f6-1fc187e43476'
-  AND img.modifier_group_master_id = 'modgrp-58788338-8abb-4418-8fb7-1920e92dc527'
+  --AND img.modifier_group_master_id = 'modgrp-58788338-8abb-4418-8fb7-1920e92dc527'
 LIMIT 100;
+
+SELECT count(1) --24,445,228
+FROM public.item_modifier_group_glue AS img
+INNER JOIN public.item_master AS im
+        ON im.catalog_id = img.catalog_id
+       AND im.id = img.item_master_id
+INNER JOIN public.modifier_group_master AS mgm
+        ON mgm.catalog_id = img.catalog_id
+       AND mgm.id = img.modifier_group_master_id
+INNER JOIN public.modifier_group_modifier_glue AS mg
+        ON img.catalog_id = mg.catalog_id
+       AND img.modifier_group_master_id = mg.modifier_group_master_id
+LEFT JOIN public.modifier_master AS mm
+        ON mm.catalog_id = mg.catalog_id
+       AND mm.id = mg.modifier_master_id
