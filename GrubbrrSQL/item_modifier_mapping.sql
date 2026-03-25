@@ -178,3 +178,50 @@ WHERE 1=1
   AND img.catalogid = 'catlg-72d9629f-b501-4707-84c9-cd31943837b7'
   AND img.menuitemid = 'itm-bfc98578-a9c7-4d82-a6f6-1fc187e43476'
   AND img.modifiergroupid = 'modgrp-58788338-8abb-4418-8fb7-1920e92dc527'
+
+
+
+SELECT DISTINCT
+       img.catalog_id AS catalogid,
+       img.item_master_id AS menuitemid,
+       im.name AS item_name,
+       img.modifier_group_master_id AS modifiergroupid,
+       mgm.name AS modifier_group_name,
+       mg.modifier_master_id AS modifierid,
+       mm.name AS modifier_name,
+       img.min_selection AS itm_modgrp_min_selection,
+       img.max_selection AS itm_modgrp_max_selection,
+       img.free_count AS itm_modgrp_free_count,
+       img.is_active AS is_itm_modgrp_active,
+       img.is_deleted AS is_itm_modgrp_deleted,
+       img.created_on AS itm_modgrp_created_on,
+       img.modified_on AS itm_modgrp_modified_on,
+       img.is_invisible AS is_itm_modgrp_invisible,
+       mg.is_default,
+       mg.min_quantity,
+       mg.max_quantity,
+       mg.allow_quantity_increment,
+       mg.increment_step,
+       mg.default_quantity,
+       mg.is_active AS is_modgrp_modfr_active,
+       mg.is_deleted AS is_modgrp_modfr_deleted,
+       mg.created_on AS modgrp_modfr_created_on,
+       mg.modified_on AS modgrp_modfr_modified_on,
+       mg.is_invisible AS is_modgrp_modfr_invisible
+FROM public.item_modifier_group_glue AS img
+INNER JOIN public.item_master AS im
+        ON im.catalog_id = img.catalog_id
+       AND im.id = img.item_master_id
+INNER JOIN public.modifier_group_master AS mgm
+        ON mgm.catalog_id = img.catalog_id
+       AND mgm.id = img.modifier_group_master_id
+INNER JOIN public.modifier_group_modifier_glue AS mg
+        ON img.catalog_id = mg.catalog_id
+       AND img.modifier_group_master_id = mg.modifier_group_master_id
+LEFT JOIN public.modifier_master AS mm
+        ON mm.catalog_id = mg.catalog_id
+       AND mm.id = mg.modifier_master_id
+WHERE img.catalog_id = 'catlg-72d9629f-b501-4707-84c9-cd31943837b7'
+  AND img.item_master_id = 'itm-bfc98578-a9c7-4d82-a6f6-1fc187e43476'
+  AND img.modifier_group_master_id = 'modgrp-58788338-8abb-4418-8fb7-1920e92dc527'
+LIMIT 100;
