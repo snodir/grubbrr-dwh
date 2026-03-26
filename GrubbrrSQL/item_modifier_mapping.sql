@@ -36,8 +36,8 @@ SELECT DISTINCT
        mg.created_on as modgrp_modfr_created_on,
        mg.modified_on as modgrp_modfr_modified_on,
        mg.is_invisible as is_modgrp_modfr_invisible
-FROM public.item_modifier_group_glue as img 
-INNER JOIN public.modifier_group_modifier_glue as mg
+FROM public.item_modifier_group_glue as img --item => modgrp
+INNER JOIN public.modifier_group_modifier_glue as mg -- modgrp => modfr
         ON img.catalog_id = mg.catalog_id
         AND img.modifier_group_master_id = mg.modifier_group_master_id
 WHERE 1=1 
@@ -75,7 +75,8 @@ CREATE TABLE if not EXISTS dim.item_modifier_group_modifier_mapping(
     is_modgrp_modfr_deleted boolean NOT NULL,
     modgrp_modfr_created_on timestamp without time zone,
     modgrp_modfr_modified_on timestamp without time zone,
-    is_modgrp_modfr_invisible boolean
+    is_modgrp_modfr_invisible boolean,
+    sysinserttime TIMESTAMP WITHOUT TIME ZONE
 );
 
 ALTER TABLE dim.item_modifier_group_modifier_mapping
@@ -83,14 +84,14 @@ OWNER to citus;
 
 SELECT --mgmg.modifier_group_master_id, mgmg.modifier_master_id, 
        count(*)
-FROM public.modifier_group_modifier_glue as mgmg --3,502,461///Stage**791,667
+FROM public.modifier_group_modifier_glue as mgmg --3,502,461   ///Stage**791,667
 GROUP BY mgmg.modifier_group_master_id, mgmg.modifier_master_id
 HAVING count(*) > 1
 LIMIT 1000;
 
 SELECT --mgmg.item_master_id, mgmg.modifier_group_master_id,
       count(*)
-FROM public.item_modifier_group_glue as mgmg --1,473,202///Stage**455,885
+FROM public.item_modifier_group_glue as mgmg --1,473,202    ///Stage**455,885
 GROUP BY mgmg.item_master_id, mgmg.modifier_group_master_id
 HAVING count(*) > 1
 LIMIT 1000;
