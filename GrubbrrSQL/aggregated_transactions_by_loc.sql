@@ -2,7 +2,7 @@ select ol.organizationId, ol.organizationname,
        th.locationid, ol.locationname, th.businessdate,
 	   --EXTRACT(YEAR FROM th.businessdate)::INTEGER as yyyy,
        --EXTRACT(WEEK FROM th.businessdate)::INTEGER as ww,
-       --count(1) as ordercounts, sum(ordertotal) as amtspent, avg(ordertotal) as avg_amtspent,
+       count(1) as ordercounts, sum(ordertotal) as amtspent, avg(ordertotal) as avg_amtspent,
 	   min(orderdatelocal) as first_order_time,
 	   max(orderdatelocal) as latest_order_time
 from (select * from fact.transactionheader WHERE businessdate >= '2022-01-01') as th
