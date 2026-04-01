@@ -1,6 +1,7 @@
 SELECT *-- wt.watermarktablename, wt.watermarkcolumn, wt.watermarkvalue, wt.ticks, wt.ts
-from fact.watermarktable as wt;
+FROM fact.watermarktable as wt;
 
+SELECT * FROM fact.pipelinerunstatus;
 /*
 1769755658
 1769669258
