@@ -63,15 +63,26 @@ ALTER TABLE fact.occasionsurveydetail
 --DROP COLUMN ngesyscosmosts,
 --DROP COLUMN gemsyscosmosts
 --add syscosmosts BIGINT--- ngesyscosmosts BIGINT, add gemsyscosmosts BIGINT,
-ADD COLUMN IF NOT EXISTS surveytype INTEGER
+ADD COLUMN IF NOT EXISTS surveytype INTEGER, --number-based feedback = 1; text-based feedback = 2
+ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default"
+
+SELECT * FROM dim.feedbackstatus;
+SELECT * FROM dim.feedbackrating;
 
 UPDATE fact.occasionsurveydetail
-   SET surveytype = CASE WHEN surveyrating ~ '^-?\d+$' THEN 1 ELSE 2 END;
+SET ordersessionid = th.ordersessionid
+    --surveytype = CASE WHEN surveyrating ~ '^-?\d+$' THEN 1 ELSE 2 END; --number-based feedback = 1; text-based feedback = 2
+FROM fact.transactionheader as th 
+WHERE occasionsurveydetail.locationid = th.locationid
+  AND occasionsurveydetail.orderid = th.transactionheaderid
 
-SELECT orderid, surveytransid, surveyrating, surveytype, surveytransstatus, syscosmosts
+
+SELECT *-- orderid, surveytransid, surveyrating, surveytype, surveytransstatus, syscosmosts, sysinserttime
 FROM fact.occasionsurveydetail
 WHERE syscosmosts is NOT NULL
 ORDER BY syscosmosts DESC;
+
+SELECT * FROM fact.transactionheader th WHERE th.transactionheaderid = 'ordevt-ZKZU1UN7E4CS30UT'
 
 /*
 create table dim.feedbackstatus
