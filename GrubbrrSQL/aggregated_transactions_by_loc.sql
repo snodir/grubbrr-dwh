@@ -1,8 +1,8 @@
 select ol.organizationId, ol.organizationname, 
-       th.locationid, ol.locationname,
+       th.locationid, ol.locationname, th.businessdate,
 	   --EXTRACT(YEAR FROM th.businessdate)::INTEGER as yyyy,
        --EXTRACT(WEEK FROM th.businessdate)::INTEGER as ww,
-       count(1) as ordercounts, sum(ordertotal) as amtspent, avg(ordertotal) as avg_amtspent,
+       --count(1) as ordercounts, sum(ordertotal) as amtspent, avg(ordertotal) as avg_amtspent,
 	   min(orderdatelocal) as first_order_time,
 	   max(orderdatelocal) as latest_order_time
 from (select * from fact.transactionheader WHERE businessdate >= '2022-01-01') as th
@@ -12,15 +12,15 @@ where 1=1
 --and ol.organizationid = 'org-ug5zsn9mpq'
 --and th.locationid = 'loc-8ead49a8-798b-4786-988a-90bbbb4775c7'-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
 and th.orderstatus = 'order-placed'
-and th.businessdate BETWEEN '2023-01-01' and CURRENT_DATE :: date--'2025-07-13' --
-group by ol.organizationId, ol.organizationname, th.locationid, ol.locationname
+and th.businessdate = '2026-03-30' :: DATE-- BETWEEN '2023-01-01' and CURRENT_DATE :: date--'2025-07-13' --
+group by ol.organizationId, ol.organizationname, th.locationid, ol.locationname, th.businessdate
    		 --EXTRACT(YEAR FROM th.businessdate)::INTEGER
          --EXTRACT(WEEK FROM th.businessdate)::INTEGER
-order by latest_order_time DESC--, ordercounts DESC, 
+order by first_order_time ASC--, ordercounts DESC, 
 
 SELECT *
 FROM dim.organization
-WHERE id = 'org-2ad9799e-2df3-4ebb-9563-8772f5638552';
+WHERE id = 'loc-003bf5fc-1391-4afd-ac29-bbf18f9ae2c3';
 ["loc-73ad6e86-1f5c-4123-adbb-4b12339ea171","loc-8ead49a8-798b-4786-988a-90bbbb4775c7","loc-26335157-cfac-40a3-b901-2bca43618bc6","loc-96f0d639-95a2-4e42-b9ba-35e836bec523","loc-353c730c-36ca-4575-95f8-38516cdc9de7","loc-f8417e68-4a8a-4fa6-8c9b-780564b86a90","loc-d30b1e76-3b2b-42cf-b357-f4790df19159"]
 select to_jsonb(array_agg(locationname)) as locations,
 	   to_jsonb(array_agg(locationid)) as locationids,
@@ -63,6 +63,23 @@ CASE WHEN EXISTS
 				)
 	 THEN 1 ELSE 0 END has_data
 
+
+select ol.organizationId, ol.organizationname, 
+       th.locationid, ol.locationname, th.businessdate,
+	   min(orderdateutc) :: timestamp as first_order_time,
+       min(orderdateutc) :: timestamp with time zone AT TIME ZONE 'America/New_York' as NY_first_order_time,
+       max(orderdateutc) :: timestamp as latest_order_time,
+       max(orderdateutc) :: timestamp with time zone AT TIME ZONE 'America/New_York' as NY_last_order_time
+from fact.transactionheader as th
+inner join (select * from dim.organizationlocation where organizationtype = 0) as ol 
+        on th.locationid = ol.locationid
+where 1=1
+--and ol.organizationid = 'org-ug5zsn9mpq'
+--and th.locationid = 'loc-8ead49a8-798b-4786-988a-90bbbb4775c7'-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
+and th.orderstatus = 'order-placed'
+and th.businessdate = '2026-03-30' :: DATE
+group by ol.organizationId, ol.organizationname, th.locationid, ol.locationname, th.businessdate
+order by first_order_time ASC
 
 /*
 org-2ad9799e-2df3-4ebb-9563-8772f5638552	Rohan's Org	loc-96abd656-679f-41dc-a5ef-7bca8ffc5333	BurgerKing par	998
