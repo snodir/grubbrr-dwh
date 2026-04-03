@@ -278,6 +278,32 @@ CREATE TABLE if not EXISTS dim.item_modifier_group_modifier_mapping(
 ALTER TABLE dim.item_modifier_group_modifier_mapping
 OWNER to citus;
 
+CREATE TABLE IF NOT EXISTS fact.modifier_interactions
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    orderitemid text COLLATE pg_catalog."default" NOT NULL,
+    menuitemid text COLLATE pg_catalog."default",
+    modifiergroupid text COLLATE pg_catalog."default" NOT NULL,
+    modifierid text COLLATE pg_catalog."default" NOT NULL,
+    modifiername text COLLATE pg_catalog."default",
+    modifierquantity smallint,
+    modifierprice numeric(12,3),
+    freequantity integer,
+    selectiontype text COLLATE pg_catalog."default",
+    action text COLLATE pg_catalog."default",
+    businessdate date,
+    orderdatelocal timestamp,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT trxnid_itemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, orderitemid, modifiergroupid, modifierid)
+);
+
+ALTER TABLE fact.modifier_interactions
+OWNER to citus;
 
 CREATE TABLE IF NOT EXISTS fact.cep_incidents(
 incidentkey BIGINT,
