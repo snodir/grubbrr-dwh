@@ -76,11 +76,62 @@ select mrc.locationid,
 from stg.modifier_recommendation_sessions as mrc
 where not exists (select 1 from fact.modifier_recommendations as mr where mr.locationid = mrc.locationid and mr.transactionheaderid = mrc.transactionheaderid);
 
+update fact.modifier_recommendations
+set orderdatelocal = orderdateutc::TIMESTAMPTZ AT TIME ZONE l.timezone
+from (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone from dim.location) as l
+where modifier_recommendations.locationid = l.locationid 
+  and modifier_recommendations.orderdatelocal is null;
+
 END;
 $BODY$;
 
 ALTER PROCEDURE fact.usp_recommendations_stage_to_fact()
 OWNER TO citus;
+
+
+--CALL fact.usp_recommendations_stage_to_fact();
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendation_analysis()
+LANGUAGE plpgsql
+AS $BODY$
+
+WITH modifier_impressions AS (
+SELECT mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       outer_elem->>'itemId'                 AS menuitemid,
+       rec->>'modifierId'                    AS modifierid,
+       outer_elem->>'parentModifierId'       AS parent_modifier_id,
+       outer_elem->>'selectionType'          AS selection_type,
+      (outer_elem->>'nestingDepth')::INTEGER AS nesting_depth,    
+      (rec->>'position')::INTEGER            AS position,
+      (rec->>'score')::numeric               AS score,
+       outer_elem->>'strategy'               AS strategy,
+       outer_elem->>'context'                AS context,
+      (rec->>'selected')::boolean            AS selected,
+      (rec->>'preDeselected')::boolean       AS pre_deselected,
+      (rec->>'confirmedRemoved')::boolean    AS confirmed_removed,
+      (rec->>'preSelected')::boolean         AS pre_selected
+       mrc.businessdate, 
+       mrc.orderdatelocal,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime    
+FROM fact.modifier_recommendations as mrc,
+    -- Step 1: unnest the top-level array
+    jsonb_array_elements(modifier_impression) AS outer_elem,
+    -- Step 2: unnest the nested recommendations array
+    jsonb_array_elements(outer_elem->'recommendations') AS rec;
+)
+
+
+
+
+
+
+
+
+
 
 CREATE TABLE IF NOT EXISTS fact.modifier_impressions
 (
@@ -88,22 +139,25 @@ CREATE TABLE IF NOT EXISTS fact.modifier_impressions
     transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
     ordersessionid text COLLATE pg_catalog."default",
     orderid text COLLATE pg_catalog."default",
-    orderitemid text COLLATE pg_catalog."default" NOT NULL,
     menuitemid text COLLATE pg_catalog."default",
-    modifiergroupid text COLLATE pg_catalog."default" NOT NULL,
     modifierid text COLLATE pg_catalog."default" NOT NULL,
-    modifiername text COLLATE pg_catalog."default",
-    modifierquantity smallint,
-    modifierprice numeric(12,3),
-    freequantity integer,
-    selectiontype text COLLATE pg_catalog."default",
-    action text COLLATE pg_catalog."default",
+    parent_modifier_id text COLLATE pg_catalog."default" NOT NULL,
+    selection_type text COLLATE pg_catalog."default",
+    nesting_depth INTEGER,
+    position INTEGER,
+    score NUMERIC(5, 3),
+    strategy text COLLATE pg_catalog."default",
+    context text COLLATE pg_catalog."default",
+    selected BOOLEAN,
+    pre_deselected BOOLEAN,
+    confirmed_removed BOOLEAN,
+    pre_selected BOOLEAN,
     businessdate date,
     orderdatelocal timestamp,
     frequentcustomerid text COLLATE pg_catalog."default",
+    syscosmosts BIGINT,
     sysinserttime timestamp without time zone,
-    sysupdatetime timestamp without time zone,
-    CONSTRAINT trxnid_itemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, orderitemid, modifiergroupid, modifierid)
+    sysupdatetime timestamp without time zone
 );
 
 ALTER TABLE fact.modifier_interactions
