@@ -15,6 +15,17 @@ TABLESPACE pg_default;
 ALTER TABLE dim.locationcatalog
     OWNER to citus;
 
+SELECT o.organizationid, o.organizationname,
+       o.locationid, o.locationname,
+       loc.createdon, loc.modifiedon, loc.active as is_loc_active,
+       CASE loc.status WHEN 0 THEN 'Draft' WHEN 1 THEN 'Onboarding' WHEN 2 THEN 'Live' WHEN 3 THEN 'Cancelled' END as location_status
+FROM (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as o 
+INNER JOIN (SELECT * FROM dim.organization WHERE status <> 2) as loc 
+        ON o.locationid = loc.id
+WHERE 1=1
+  AND active = False
+ORDER by createdon desc;
+
 --/TRUNCATE TABLE dim.locationcatalog;
 
 select organizationid, count(*)
