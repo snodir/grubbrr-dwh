@@ -112,14 +112,33 @@ WHERE organizationlocation.organizationid = cte.organizationid
   AND organizationlocation.locationid = cte.locationid
 
 
-SELECT * 
-from dim.organization
-where 1=1
---and isdeleted = False
---and active = True
+SELECT o.organizationid, o.organizationname,
+       o.locationid, o.locationname,
+       loc.createdon, loc.modifiedon, loc.active as is_loc_active, org.active as is_org_active
+FROM (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as o 
+LEFT JOIN (SELECT * FROM dim.organization WHERE active = False) as loc 
+        ON o.locationid = loc.id
+LEFT JOIN (SELECT * FROM dim.organization WHERE active = False) as org 
+        ON o.organizationid = org.id
+WHERE 1=1
+  AND active = False
+ORDER by createdon desc;
+
+SELECT o.organizationid, o.organizationname,
+       o.locationid, o.locationname,
+       loc.createdon, loc.modifiedon, loc.active as is_loc_active,
+       CASE loc.status WHEN 0 THEN 'Draft' WHEN 1 THEN 'Onboarding' WHEN 2 THEN 'Live' WHEN 3 THEN 'Cancelled' END as location_status
+FROM (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as o 
+INNER JOIN (SELECT * FROM dim.organization WHERE status <> 2) as loc 
+        ON o.locationid = loc.id
+WHERE 1=1
+  AND active = False
+ORDER by createdon desc;
+
 --and organizationtype = 1
 --and roundupforcharity is not null
-ORDER by createdon desc;
+--and isdeleted = False
+
 
 select *, count(*) over(partition by locationid) as count_by_loc
 from dim.organizationlocation 

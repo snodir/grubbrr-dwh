@@ -82,6 +82,11 @@ FROM fact.occasionsurveydetail
 WHERE syscosmosts is NOT NULL
 ORDER BY syscosmosts DESC;
 
+SELECT *-- orderid, surveytransid, surveyrating, surveytype, surveytransstatus, syscosmosts, sysinserttime
+FROM fact.itemssurvey
+WHERE sysinserttime is NOT NULL
+ORDER BY sysinserttime DESC;
+
 SELECT * FROM fact.transactionheader th WHERE th.transactionheaderid = 'ordevt-ZKZU1UN7E4CS30UT'
 
 /*

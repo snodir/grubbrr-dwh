@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS fact.modifier_recommendations
     transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
     ordersessionid text COLLATE pg_catalog."default",
     orderid text COLLATE pg_catalog."default",
-    modifier_impressions text COLLATE pg_catalog."default",
-    modifier_interactions text COLLATE pg_catalog."default",
+    modifier_impressions jsonb,
+    modifier_interactions jsonb,
     businessdate date,
     orderdateutc text COLLATE pg_catalog."default",
     orderdatelocal TIMESTAMP,
@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS fact.modifier_recommendations
 ALTER TABLE fact.modifier_recommendations
 OWNER TO citus;
 
+SELECT * FROM fact.modifier_recommendations
 --CALL fact.usp_recommendations_stage_to_fact();
 CREATE OR REPLACE PROCEDURE fact.usp_recommendations_stage_to_fact()
 LANGUAGE plpgsql
@@ -105,7 +106,7 @@ SELECT mrc.locationid,
        outer_elem->>'selectionType'          AS selection_type,
       (outer_elem->>'nestingDepth')::INTEGER AS nesting_depth,    
       (rec->>'position')::INTEGER            AS position,
-      (rec->>'score')::numeric               AS score,
+      (rec->>'score')::NUMERIC(5, 3)         AS score,
        outer_elem->>'strategy'               AS strategy,
        outer_elem->>'context'                AS context,
       (rec->>'selected')::boolean            AS selected,
@@ -121,8 +122,10 @@ FROM fact.modifier_recommendations as mrc,
     -- Step 1: unnest the top-level array
     jsonb_array_elements(modifier_impression) AS outer_elem,
     -- Step 2: unnest the nested recommendations array
-    jsonb_array_elements(outer_elem->'recommendations') AS rec;
+    jsonb_array_elements(outer_elem->'recommendations') AS rec
 )
+INSERT INTO fact.modifier_impression
+SELECT ()
 
 
 
@@ -177,3 +180,35 @@ AND LOWER(de.actiontype) LIKE '%modifier%'
 --AND de.dateid = 2026022014
 ORDER BY de.eventinstant DESC 
 LIMIT 1000
+
+
+INSERT INTO fact.modifier_recommendations (
+    locationid,
+    transactionheaderid,
+    ordersessionid,
+    orderid,
+    modifier_impressions,
+    modifier_interactions,
+    businessdate,
+    orderdateutc,
+    orderdatelocal,
+    frequentcustomerid,
+    syscosmosts,
+    sysinserttime,
+    sysupdatetime
+)
+VALUES (
+    'loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e',
+    'ordevt-RDNOLBCL2HQDCLN2',
+    'RDNOLBCL2HQDCLN2',
+    'ord-0253178a-ca9a-4957-9f2a-b4bdc82173b3',
+    '[{"itemId":"itm-5d097ea8-f777-4133-9611-78a242c27a62","selectionType":"default","nestingDepth":0,"parentModifierId":null,"strategy":"default","recommendations":[{"modifierId":"modfr-667d144f-1609-4445-a00e-14385a589632","score":0,"position":0,"selected":true,"preDeselected":null,"confirmedRemoved":null,"preSelected":null},{"modifierId":"modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69","score":0,"position":1,"selected":true,"preDeselected":null,"confirmedRemoved":null,"preSelected":null},{"modifierId":"modfr-761dff41-eec7-4ee0-942c-15dffef94b00","score":0,"position":2,"selected":true,"preDeselected":null,"confirmedRemoved":null,"preSelected":null},{"modifierId":"modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33","score":0,"position":3,"selected":null,"preDeselected":null,"confirmedRemoved":null,"preSelected":null},{"modifierId":"modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d","score":0,"position":4,"selected":null,"preDeselected":null,"confirmedRemoved":null,"preSelected":null}],"context":null}]':: jsonb,
+    '[{"itemId":"itm-5d097ea8-f777-4133-9611-78a242c27a62","modifierId":"modfr-667d144f-1609-4445-a00e-14385a589632","modifierGroupId":"modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63","selectionType":"optional","action":"added","nestingDepth":0,"parentModifierId":null,"recordedAt":null},{"itemId":"itm-5d097ea8-f777-4133-9611-78a242c27a62","modifierId":"modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69","modifierGroupId":"modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63","selectionType":"optional","action":"added","nestingDepth":0,"parentModifierId":null,"recordedAt":null},{"itemId":"itm-5d097ea8-f777-4133-9611-78a242c27a62","modifierId":"modfr-761dff41-eec7-4ee0-942c-15dffef94b00","modifierGroupId":"modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63","selectionType":"optional","action":"added","nestingDepth":0,"parentModifierId":null,"recordedAt":null}]' :: jsonb,
+    '2026-04-02',
+    '2026-04-02T21:16:22.4537275Z',
+    NULL,   -- orderdatelocal: not present in source; populate if a local TZ conversion is available
+    NULL,   -- frequentcustomerid: null in source
+    NULL,   -- syscosmosts: system-generated, populate as needed
+    NOW(),  -- sysinserttime
+    NOW()   -- sysupdatetime
+);

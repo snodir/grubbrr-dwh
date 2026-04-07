@@ -1,6 +1,7 @@
 /*fact.modifier_interactions*/
 
 SELECT * FROM fact.modifier_interactions LIMIT 1000;
+SELECT * FROM fact.itemmodifier LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS fact.modifier_interactions
 (
