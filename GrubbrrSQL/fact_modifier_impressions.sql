@@ -95,7 +95,14 @@ CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendation_analysis()
 LANGUAGE plpgsql
 AS $BODY$
 
-WITH modifier_impressions AS (
+WITH delta_impressions AS (
+SELECT *
+FROM fact.modifier_recommendations as mrc
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions')
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_impressions as mim 
+                  WHERE mim.locationid = mrc.locationid
+                    AND mim.transactionheaderid = mrc.transactionheaderid)
+), modifier_impressions AS (
 SELECT mrc.locationid,
        mrc.transactionheaderid,
        mrc.ordersessionid,
@@ -112,7 +119,43 @@ SELECT mrc.locationid,
       (rec->>'selected')::boolean            AS selected,
       (rec->>'preDeselected')::boolean       AS pre_deselected,
       (rec->>'confirmedRemoved')::boolean    AS confirmed_removed,
-      (rec->>'preSelected')::boolean         AS pre_selected
+      (rec->>'preSelected')::boolean         AS pre_selected,
+       mrc.businessdate, 
+       mrc.orderdatelocal,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime    
+FROM delta_impressions as mrc,
+    -- Step 1: unnest the top-level array
+    jsonb_array_elements(modifier_impressions) AS outer_elem,
+    -- Step 2: unnest the nested recommendations array
+    jsonb_array_elements(outer_elem->'recommendations') AS rec
+)
+INSERT INTO fact.modifier_impression
+SELECT *, NULL :: TIMESTAMP as sysupdatetime
+FROM modifier_impressions;
+
+
+WITH delta_interactions AS (
+SELECT *
+FROM fact.modifier_recommendations as mrc
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions')
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_impressions as mim 
+                  WHERE mim.locationid = mrc.locationid
+                    AND mim.transactionheaderid = mrc.transactionheaderid)
+), modifier_interactions AS (
+SELECT mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       outer_elem->>'itemId' as menuitemid,
+       outer_elem->>'action' as action,
+       outer_elem->>'modifierId' as modifierid,
+       outer_elem->>'recordedAt'::TIMESTAMP as recorded_at,
+       outer_elem->>'nestingDepth' :: INTEGER as nesting_depth,
+       outer_elem->>'selectionType' as selection_type,
+       outer_elem->>'modifierGroupId' as modifiergroupid,
+       outer_elem->>'parentModifierId' as parent_modifier_id,
        mrc.businessdate, 
        mrc.orderdatelocal,
        mrc.frequentcustomerid,
@@ -120,14 +163,21 @@ SELECT mrc.locationid,
        mrc.sysinserttime    
 FROM fact.modifier_recommendations as mrc,
     -- Step 1: unnest the top-level array
-    jsonb_array_elements(modifier_impression) AS outer_elem,
-    -- Step 2: unnest the nested recommendations array
-    jsonb_array_elements(outer_elem->'recommendations') AS rec
+    jsonb_array_elements(modifier_interactions) AS outer_elem,
 )
-INSERT INTO fact.modifier_impression
-SELECT ()
 
-
+/*
+{
+        "action": "added",
+        "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+        "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
+        "recordedAt": null,
+        "nestingDepth": 0,
+        "selectionType": "optional",
+        "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+        "parentModifierId": null
+    }
+*/
 
 
 
@@ -181,6 +231,8 @@ AND LOWER(de.actiontype) LIKE '%modifier%'
 ORDER BY de.eventinstant DESC 
 LIMIT 1000
 
+UPDATE fact.modifier_recommendations
+SET syscosmosts = 1775164585
 
 INSERT INTO fact.modifier_recommendations (
     locationid,

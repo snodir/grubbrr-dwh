@@ -31,9 +31,9 @@ WHERE watermarktable.watermarktablename = tr.tablename
   AND watermarktable.source = 'gsh';*/
 
 /*UPDATE fact.watermarktable
-SET ts = NULL,
-    watermarkvalue = '2026-01-30 19:00:50.711' :: TIMESTAMP
-WHERE watermarktablename = 'fact.devicetelemetry'*/
+SET ts = 1775164585,
+    watermarkvalue = NULL
+WHERE watermarktablename = 'fact.modifier_recommendations'*/
 
 UPDATE fact.watermarktable
 SET source = CASE WHEN watermarktablename in ('fact.transactionrefunds','fact.transactionheader','fact.recommendations') THEN 'nge'
@@ -68,7 +68,10 @@ select MAX(busdate) as busdate, max(syscosmosts) as syscosmosts from fact.userbe
 WHERE watermarktablename = 'fact.ordertiming'
 
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, source, ts/*, ticks*/)
-VALUES('fact.transactionheader', 'syscosmosts', 'gem', 1720000300)
+VALUES('fact.modifier_impressions', 'syscosmosts', 'nge', 1720000300),
+      ('fact.modifier_interactions', 'syscosmosts', 'nge', 1720000300),
+      ('fact.modifier_recommendations', 'syscosmosts', 'nge', 1720000300)
+      ('fact.transactionheader', 'syscosmosts', 'gem', 1720000300)
       ('fact.ordertiming', 'syscosmosts', 'gem', 1720000300)
       ('fact.occasionsurveydetail', 'syscosmosts', 'nge', 1720000300),
       ('fact.occasionsurveydetail', 'syscosmosts', 'gem', 1720000300)
