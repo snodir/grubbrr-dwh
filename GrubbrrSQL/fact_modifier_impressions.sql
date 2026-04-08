@@ -40,7 +40,7 @@ OWNER TO citus;
 
 SELECT * FROM fact.modifier_recommendations
 --CALL fact.usp_recommendations_stage_to_fact();
-CREATE OR REPLACE PROCEDURE fact.usp_recommendations_stage_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
 LANGUAGE plpgsql
 AS $BODY$
 
@@ -60,6 +60,19 @@ select rc.transactionheaderid,
 from stg.recommendations as rc
 where not exists (select 1 from fact.recommendations as th where th.transactionheaderid = rc.transactionheaderid and th.recommendationid = rc.recommendationid);
 
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_item_recommendations_stage_to_fact()
+OWNER TO citus;
+
+--CALL fact.usp_modifier_recommendations_stage_to_fact();
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
 insert into fact.modifier_recommendations 
 (locationid, transactionheaderid, ordersessionid, orderid, modifier_impressions, modifier_interactions, 
  businessdate, orderdateutc, frequentcustomerid, syscosmosts, sysinserttime)
@@ -77,23 +90,31 @@ select mrc.locationid,
 from stg.modifier_recommendation_sessions as mrc
 where not exists (select 1 from fact.modifier_recommendations as mr where mr.locationid = mrc.locationid and mr.transactionheaderid = mrc.transactionheaderid);
 
-update fact.modifier_recommendations
-set orderdatelocal = orderdateutc::TIMESTAMPTZ AT TIME ZONE l.timezone
-from (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone from dim.location) as l
-where modifier_recommendations.locationid = l.locationid 
-  and modifier_recommendations.orderdatelocal is null;
+UPDATE fact.modifier_recommendations
+SET orderdatelocal = orderdateutc::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone from dim.location) as l
+WHERE modifier_recommendations.locationid = l.locationid 
+  AND modifier_recommendations.orderdatelocal is null;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) FROM fact.modifier_recommendations)
+WHERE watermarktablename = 'fact.modifier_recommendations'
+  AND source = 'nge';
 
 END;
 $BODY$;
 
-ALTER PROCEDURE fact.usp_recommendations_stage_to_fact()
+ALTER PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
 OWNER TO citus;
 
-
---CALL fact.usp_recommendations_stage_to_fact();
+SELECT * FROM fact.modifier_impressions;
+SELECT * FROM fact.modifier_interactions;
+--CALL fact.usp_modifier_recommendation_analysis();
 CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendation_analysis()
 LANGUAGE plpgsql
 AS $BODY$
+
+BEGIN
 
 WITH delta_impressions AS (
 SELECT *
@@ -131,16 +152,20 @@ FROM delta_impressions as mrc,
     -- Step 2: unnest the nested recommendations array
     jsonb_array_elements(outer_elem->'recommendations') AS rec
 )
-INSERT INTO fact.modifier_impression
+INSERT INTO fact.modifier_impressions
 SELECT *, NULL :: TIMESTAMP as sysupdatetime
 FROM modifier_impressions;
 
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_impressions)
+WHERE watermarktablename = 'fact.modifier_impressions'
+  AND source = 'nge';
 
 WITH delta_interactions AS (
 SELECT *
 FROM fact.modifier_recommendations as mrc
-WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions')
-  AND NOT EXISTS (SELECT 1 FROM fact.modifier_impressions as mim 
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions')
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mim 
                   WHERE mim.locationid = mrc.locationid
                     AND mim.transactionheaderid = mrc.transactionheaderid)
 ), modifier_interactions AS (
@@ -151,8 +176,8 @@ SELECT mrc.locationid,
        outer_elem->>'itemId' as menuitemid,
        outer_elem->>'action' as action,
        outer_elem->>'modifierId' as modifierid,
-       outer_elem->>'recordedAt'::TIMESTAMP as recorded_at,
-       outer_elem->>'nestingDepth' :: INTEGER as nesting_depth,
+       (outer_elem->>'recordedAt')::TIMESTAMP as recorded_at,
+       (outer_elem->>'nestingDepth') :: INTEGER as nesting_depth,
        outer_elem->>'selectionType' as selection_type,
        outer_elem->>'modifierGroupId' as modifiergroupid,
        outer_elem->>'parentModifierId' as parent_modifier_id,
@@ -161,10 +186,55 @@ SELECT mrc.locationid,
        mrc.frequentcustomerid,
        mrc.syscosmosts,
        mrc.sysinserttime    
-FROM fact.modifier_recommendations as mrc,
+FROM delta_interactions as mrc,
     -- Step 1: unnest the top-level array
-    jsonb_array_elements(modifier_interactions) AS outer_elem,
+    jsonb_array_elements(modifier_interactions) AS outer_elem
+), trxn_enrichment AS (
+SELECT mi.locationid,
+       mi.transactionheaderid,
+       mi.ordersessionid,
+       mi.orderid,
+       imd.itemid as orderitemid,
+       mi.menuitemid,
+       mi.modifiergroupid,
+       mi.modifierid,
+       imd.modifiername,
+       mi.parent_modifier_id,
+       mi.nesting_depth,
+       imd.modifierquantity,
+       imd.modifierprice,
+       imd.freequantity,
+       mi.selection_type,
+       mi.action,
+       mi.recorded_at as session_recorded_at,
+       mi.businessdate,
+       mi.orderdatelocal,
+       mi.frequentcustomerid,
+       mi.syscosmosts,
+       mi.sysinserttime
+    FROM modifier_interactions as mi 
+    LEFT JOIN fact.transactionitem as ti 
+        ON mi.locationid = ti.locationid
+        AND mi.transactionheaderid = ti.transactionheaderid
+        AND mi.menuitemid = ti.dimmenuitemid
+    LEFT JOIN fact.itemmodifier as imd 
+        ON mi.transactionheaderid = imd.transactionheaderid
+        AND ti.itemid = imd.itemid
+        AND mi.modifiergroupid = imd.modifiergroupid
+        AND mi.modifierid = imd.modifierid
 )
+INSERT INTO fact.modifier_interactions
+SELECT *, NULL :: TIMESTAMP as sysupdatetime
+FROM trxn_enrichment;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions)
+WHERE watermarktablename = 'fact.modifier_interactions'
+  AND source = 'nge';
+
+END;
+$BODY$;
+
 
 /*
 {
@@ -194,7 +264,7 @@ CREATE TABLE IF NOT EXISTS fact.modifier_impressions
     orderid text COLLATE pg_catalog."default",
     menuitemid text COLLATE pg_catalog."default",
     modifierid text COLLATE pg_catalog."default" NOT NULL,
-    parent_modifier_id text COLLATE pg_catalog."default" NOT NULL,
+    parent_modifier_id text COLLATE pg_catalog."default",
     selection_type text COLLATE pg_catalog."default",
     nesting_depth INTEGER,
     position INTEGER,
@@ -211,6 +281,37 @@ CREATE TABLE IF NOT EXISTS fact.modifier_impressions
     syscosmosts BIGINT,
     sysinserttime timestamp without time zone,
     sysupdatetime timestamp without time zone
+);
+
+ALTER TABLE fact.modifier_impressions
+OWNER to citus;
+
+CREATE TABLE IF NOT EXISTS fact.modifier_interactions
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    orderitemid text COLLATE pg_catalog."default",
+    menuitemid text COLLATE pg_catalog."default",
+    modifiergroupid text COLLATE pg_catalog."default" NOT NULL,
+    modifierid text COLLATE pg_catalog."default" NOT NULL,
+    modifiername text COLLATE pg_catalog."default",
+    parent_modifier_id text COLLATE pg_catalog."default",
+    nesting_depth INTEGER,
+    modifierquantity INTEGER,
+    modifierprice numeric(12,3),
+    freequantity integer,
+    selection_type text COLLATE pg_catalog."default",
+    action text COLLATE pg_catalog."default",
+    session_recorded_at text COLLATE pg_catalog."default",
+    businessdate date,
+    orderdatelocal timestamp,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    syscosmosts BIGINT,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT trxnid_menuitemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, menuitemid, modifiergroupid, modifierid)
 );
 
 ALTER TABLE fact.modifier_interactions

@@ -9,22 +9,25 @@ CREATE TABLE IF NOT EXISTS fact.modifier_interactions
     transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
     ordersessionid text COLLATE pg_catalog."default",
     orderid text COLLATE pg_catalog."default",
-    orderitemid text COLLATE pg_catalog."default" NOT NULL,
+    orderitemid text COLLATE pg_catalog."default",
     menuitemid text COLLATE pg_catalog."default",
     modifiergroupid text COLLATE pg_catalog."default" NOT NULL,
     modifierid text COLLATE pg_catalog."default" NOT NULL,
     modifiername text COLLATE pg_catalog."default",
-    modifierquantity smallint,
+    parent_modifier_id text COLLATE pg_catalog."default",
+    nesting_depth INTEGER,
+    modifierquantity INTEGER,
     modifierprice numeric(12,3),
     freequantity integer,
-    selectiontype text COLLATE pg_catalog."default",
+    selection_type text COLLATE pg_catalog."default",
     action text COLLATE pg_catalog."default",
+    session_recorded_at text COLLATE pg_catalog."default",
     businessdate date,
     orderdatelocal timestamp,
     frequentcustomerid text COLLATE pg_catalog."default",
     sysinserttime timestamp without time zone,
     sysupdatetime timestamp without time zone,
-    CONSTRAINT trxnid_itemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, orderitemid, modifiergroupid, modifierid)
+    CONSTRAINT trxnid_menuitemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, menuitemid, modifiergroupid, modifierid)
 );
 
 ALTER TABLE fact.modifier_interactions

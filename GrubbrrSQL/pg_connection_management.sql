@@ -19,3 +19,16 @@ BEGIN
     END LOOP;
 END
 $$;
+
+-- Check for blocking locks
+SELECT 
+    blocked.pid,
+    blocked.query AS blocked_query,
+    blocking.pid AS blocking_pid,
+    blocking.query AS blocking_query
+FROM pg_stat_activity blocked
+JOIN pg_stat_activity blocking 
+    ON blocking.pid = ANY(pg_blocking_pids(blocked.pid))
+WHERE cardinality(pg_blocking_pids(blocked.pid)) > 0;
+
+SELECT pg_terminate_backend(<blocking_pid>);
