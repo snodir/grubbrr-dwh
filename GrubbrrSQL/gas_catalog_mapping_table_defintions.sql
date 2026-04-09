@@ -156,8 +156,8 @@ ALTER TABLE IF EXISTS dim.modifier
     OWNER to citus;
 
 ALTER TABLE IF EXISTS dim.modifier
-DROP COLUMN IF EXISTS modifierkey;
---ADD CONSTRAINT modifierid_unq UNIQUE (modifierid);
+--DROP COLUMN IF EXISTS modifierkey;
+ADD CONSTRAINT modifierid_unq UNIQUE (modifierid);
 --DROP CONSTRAINT modifier_master_pkey
 
 

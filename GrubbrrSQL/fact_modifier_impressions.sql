@@ -68,6 +68,7 @@ $BODY$;
 ALTER PROCEDURE fact.usp_item_recommendations_stage_to_fact()
 OWNER TO citus;
 
+SELECT * FROM fact.watermarktable;
 --CALL fact.usp_modifier_recommendations_stage_to_fact();
 CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
 LANGUAGE plpgsql

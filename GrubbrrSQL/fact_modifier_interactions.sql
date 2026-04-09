@@ -5,7 +5,7 @@ SELECT * FROM fact.itemmodifier LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS fact.modifier_interactions
 (
-    locationid text COLLATE pg_catalog."default" NOT NULL,
+    locationid text COLLATE pg_catalog."default",
     transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
     ordersessionid text COLLATE pg_catalog."default",
     orderid text COLLATE pg_catalog."default",
@@ -32,6 +32,13 @@ CREATE TABLE IF NOT EXISTS fact.modifier_interactions
 
 ALTER TABLE fact.modifier_interactions
 OWNER to citus;
+
+ALTER TABLE fact.modifier_interactions
+DROP CONSTRAINT trxnid_menuitemid_modfrgrpid_modfrid_pk;
+
+ALTER TABLE fact.modifier_interactions
+ALTER COLUMN locationid DROP NOT NULL,
+ALTER COLUMN menuitemid DROP NOT NULL;
 
 WITH modfr_trxn AS (
     SELECT ti.locationid,
@@ -132,6 +139,13 @@ WHERE itemmodifier.transactionheaderid = ti.transactionheaderid
   AND itemmodifier.itemid = ti.itemid
   AND itemmodifier.locationid IS NULL;
 
+-- 1. Let Postgres clean up the dead tuples from 6.1M updates
+VACUUM ANALYZE fact.transactionitem;
+
+-- 2. Then add the partial index for ongoing maintenance
+CREATE INDEX CONCURRENTLY idx_ti_null_orderdate
+  ON fact.transactionitem (locationid, transactionheaderid)
+  WHERE orderdatelocal IS NULL;
 
 -- Index: fact.itemmodifieridx
 CREATE INDEX IF NOT EXISTS itemmodifieridx
