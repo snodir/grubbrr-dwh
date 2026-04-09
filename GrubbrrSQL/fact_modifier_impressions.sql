@@ -38,7 +38,9 @@ CREATE TABLE IF NOT EXISTS fact.modifier_recommendations
 ALTER TABLE fact.modifier_recommendations
 OWNER TO citus;
 
-SELECT * FROM fact.modifier_recommendations
+SELECT * FROM fact.modifier_recommendations;
+SELECT * FROM fact.modifier_impressions;
+SELECT * FROM fact.modifier_interactions;
 --CALL fact.usp_recommendations_stage_to_fact();
 CREATE OR REPLACE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
 LANGUAGE plpgsql
@@ -101,12 +103,18 @@ SET ts = (SELECT max(syscosmosts) FROM fact.modifier_recommendations)
 WHERE watermarktablename = 'fact.modifier_recommendations'
   AND source = 'nge';
 
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) FROM fact.itemmodifier)
+WHERE watermarktablename = 'fact.itemmodifier'
+  AND source = 'nge';
+
 END;
 $BODY$;
 
 ALTER PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
 OWNER TO citus;
 
+SELECT * FROM fact.modifier_recommendations;
 SELECT * FROM fact.modifier_impressions;
 SELECT * FROM fact.modifier_interactions;
 --CALL fact.usp_modifier_recommendation_analysis();
@@ -164,7 +172,7 @@ WHERE watermarktablename = 'fact.modifier_impressions'
 WITH delta_interactions AS (
 SELECT *
 FROM fact.modifier_recommendations as mrc
-WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions')
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge')
   AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mim 
                   WHERE mim.locationid = mrc.locationid
                     AND mim.transactionheaderid = mrc.transactionheaderid)
@@ -228,14 +236,83 @@ SELECT *, NULL :: TIMESTAMP as sysupdatetime
 FROM trxn_enrichment;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions)
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
 WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge';
+
+
+WITH delta_modifier_trxns AS (
+SELECT *
+FROM fact.itemmodifier as im
+WHERE (syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options') OR
+       syscosmosts IS NULL)
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mint 
+                  WHERE mint.locationid = mrc.locationid
+                    AND mint.transactionheaderid = mrc.transactionheaderid)
+), modfr_enrichment AS (
+SELECT mt.locationid,
+       mt.transactionheaderid,
+       ti.ordersessionid,
+       ti.orderid,
+       ti.itemid as orderitemid,
+       ti.dimmenuitemid as menuitemid,
+       mt.modifiergroupid,
+       mt.modifierid,
+       mt.modifiername,
+       NULL :: TEXT as parent_modifier_id,
+       NULL :: INTEGER as nesting_depth,
+       mt.modifierquantity,
+       mt.modifierprice,
+       mt.freequantity,
+       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 THEN 'optional'
+            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 THEN 'default' END selection_type,
+       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 AND mt.modifierquantity > 0 THEN 'added'
+            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
+            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,
+       NULL :: TEXT as session_recorded_at,
+       mt.businessdate,
+       ti.orderdatelocal,
+       ti.frequentcustomerid,
+       mt.syscosmosts,
+       mt.sysinserttime
+FROM delta_modifier_trxns as mt
+LEFT JOIN dim.modifier as m 
+    ON mt.modifierid = m.modifierid
+LEFT JOIN fact.transactionitem as ti 
+    ON mt.transactionheaderid = ti.transactionheaderid
+    AND mt.itemid = ti.itemid
+)
+INSERT INTO fact.modifier_interactions
+SELECT * FROM modfr_enrichment;
+
+UPDATE fact.modifier_interactions
+SET modifierquantity = im.modifierquantity,
+    modifierprice = im.modifierprice,
+    freequantity = im.freequantity
+FROM fact.itemmodifier as im 
+WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
+  AND modifier_interactions.orderid = im.orderid 
+  AND modifier_interactions.modifiergroupid = im.modifiergroupid
+  AND modifier_interactions.modifierid = im.modifierid
+  AND modifier_interactions.modifierquantity IS NULL
+  AND modifier_interactions.modifierprice IS NULL
+  AND modifier_interactions.freequantity IS NULL;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+WHERE watermarktablename = 'fact.modifier_interactions'
+  AND source = 'nge-Options';
 
 END;
 $BODY$;
 
+SELECT DISTINCT min_quantity, max_quantity, is_modifier_default
+FROM dim.modifier 
+LIMIT 100;
 
+SELECT * FROM dim.modifier_group_mapping LIMIT 100;
+SELECT * FROM fact.itemmodifier LIMIT 100;
+SELECT * FROM fact.modifier_interactions LIMIT 100;
 /*
 {
         "action": "added",

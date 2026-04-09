@@ -64,11 +64,14 @@ add ticks BIGINT,
 add ts BIGINT
 select MAX(busdate) as busdate, max(syscosmosts) as syscosmosts from fact.userbehaviour
 
---DELETE FROM fact.watermarktable 
-WHERE watermarktablename = 'fact.ordertiming'
+--DELETE-- FROM fact.watermarktable WHERE watermarktablename = 'fact.ordertiming'
+ALTER TABLE fact.watermarktable
+ALTER COLUMN source TYPE CHARACTER VARYING(50);
 
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, source, ts/*, ticks*/)
-VALUES('fact.modifier_impressions', 'syscosmosts', 'nge', 1720000300),
+VALUES('fact.modifier_interactions', 'syscosmosts', 'nge-Options', 1720000300)
+      ('fact.itemmodifier', 'syscosmosts', 'nge', 1720000300)
+      ('fact.modifier_impressions', 'syscosmosts', 'nge', 1720000300),
       ('fact.modifier_interactions', 'syscosmosts', 'nge', 1720000300),
       ('fact.modifier_recommendations', 'syscosmosts', 'nge', 1720000300)
       ('fact.transactionheader', 'syscosmosts', 'gem', 1720000300)

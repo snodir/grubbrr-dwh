@@ -44,6 +44,54 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS dim.catalog
     OWNER to citus;
 
+-- Table: dim.category_hierarchy
+
+-- DROP TABLE IF EXISTS dim.category_hierarchy;
+
+CREATE TABLE IF NOT EXISTS dim.category_hierarchy
+(
+    --id bigint NOT NULL,
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    mapping_created_on timestamp without time zone,
+    mapping_modified_on timestamp without time zone,
+    is_mapping_active boolean,
+    is_mapping_deleted boolean,
+    catalogid text COLLATE pg_catalog."default",
+    catalogname text COLLATE pg_catalog."default",
+    catalog_created_on timestamp without time zone,
+    catalog_modified_on timestamp without time zone,
+    is_catalog_active boolean,
+    is_catalog_deleted boolean,
+    categoryid text COLLATE pg_catalog."default" NOT NULL,
+    categoryname text COLLATE pg_catalog."default",
+    category_created_on timestamp without time zone,
+    category_modified_on timestamp without time zone,
+    is_category_active boolean,
+    is_category_deleted boolean,
+    menuitemid text COLLATE pg_catalog."default",
+    entitytype text COLLATE pg_catalog."default",
+    item_class_type integer,
+    menuitemname text COLLATE pg_catalog."default",
+    item_created_on timestamp without time zone,
+    item_modified_on timestamp without time zone,
+    is_item_active boolean,
+    is_item_deleted boolean,
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    --CONSTRAINT category_hierarchy_pkey PRIMARY KEY (id),
+    CONSTRAINT location_category_menuitem_unq UNIQUE (locationid, categoryid, menuitemid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.category_hierarchy
+    OWNER to citus;
+
+ALTER TABLE IF EXISTS dim.category_hierarchy
+DROP COLUMN id;
+
 /*
 SELECT mm.id as modifierid,
        mm.catalog_id as catalogid,
@@ -75,7 +123,7 @@ LIMIT 100;
 
 CREATE TABLE IF NOT EXISTS dim.modifier
 (
-    modifierkey BIGINT,
+    --modifierkey BIGINT,
     modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
     catalogid character varying(50) COLLATE pg_catalog."default",
     modifiername character varying(255) COLLATE pg_catalog."default",
@@ -103,6 +151,11 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS dim.modifier
     OWNER to citus;
+
+ALTER TABLE IF EXISTS dim.modifier
+DROP COLUMN IF EXISTS modifierkey;
+--ADD CONSTRAINT modifierid_unq UNIQUE (modifierid);
+--DROP CONSTRAINT modifier_master_pkey
 
 
 -- Table: public.modifier_group_modifier_glue
@@ -137,3 +190,38 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS dim.modifier_group_mapping
     OWNER to citus;
 
+CREATE TABLE if not EXISTS dim.item_modifier_group_modifier_mapping(
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    menuitemid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    itm_modgrp_min_selection integer,
+    itm_modgrp_max_selection integer,
+    itm_modgrp_free_count integer,
+    is_itm_modgrp_active boolean,
+    is_itm_modgrp_deleted boolean,
+    itm_modgrp_created_on timestamp without time zone,
+    itm_modgrp_modified_on timestamp without time zone,
+    is_itm_modgrp_invisible boolean,
+    is_default BOOLEAN,
+    min_quantity integer,
+    max_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    default_quantity integer,
+    is_modgrp_modfr_active boolean NOT NULL,
+    is_modgrp_modfr_deleted boolean NOT NULL,
+    modgrp_modfr_created_on timestamp without time zone,
+    modgrp_modfr_modified_on timestamp without time zone,
+    is_modgrp_modfr_invisible boolean,
+    sysinserttime TIMESTAMP WITHOUT TIME ZONE
+);
+
+ALTER TABLE dim.item_modifier_group_modifier_mapping
+OWNER to citus;
+
+ALTER TABLE dim.item_modifier_group_modifier_mapping
+ADD CONSTRAINT item_modgrp_modfr_unq UNIQUE (menuitemid, modifiergroupid, modifierid)
+
+ALTER TABLE dim.item_modifier_group_modifier_mapping
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
