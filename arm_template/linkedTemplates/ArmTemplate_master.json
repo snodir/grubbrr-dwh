@@ -1,0 +1,485 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "df-gas-test-eastus"
+        },
+        "ADLSgas_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'ADLSgas'"
+        },
+        "ADLSsus_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'ADLSsus'"
+        },
+        "CosmosGXS_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CosmosGXS'"
+        },
+        "CosmosNGE_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CosmosNGE'"
+        },
+        "CosmosNGEGrubbrrLoyalty_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CosmosNGEGrubbrrLoyalty'"
+        },
+        "CosmosPOS_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CosmosPOS'"
+        },
+        "EventsCosmosNew_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'EventsCosmosNew'"
+        },
+        "LoadKiosksFromCosmosDbToAnalyticsDb_functionKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'functionKey' of 'LoadKiosksFromCosmosDbToAnalyticsDb'"
+        },
+        "OrdersCosmosNew_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'OrdersCosmosNew'"
+        },
+        "OrdersPGNew_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'OrdersPGNew'"
+        },
+        "PostgresGMS_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'PostgresGMS'"
+        },
+        "PostgresGOU_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'PostgresGOU'"
+        },
+        "ServicesPGNew_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'ServicesPGNew'"
+        },
+        "ADLSgas_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://stggastesteastus.dfs.core.windows.net/"
+        },
+        "ADLSsus_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://stgsustesteastus.dfs.core.windows.net/"
+        },
+        "LoadKiosksFromCosmosDbToAnalyticsDb_properties_typeProperties_functionAppUrl": {
+            "type": "string",
+            "defaultValue": "https://funcx-gas-api-test-eastus.azurewebsites.net"
+        },
+        "OrdersPGNew_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "c-cospos-gas-test-eastus.ya7ggajhjyxy57.postgres.cosmos.azure.com"
+        },
+        "OrdersPGNew_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "OrdersPGNew_properties_typeProperties_username": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "PostgresGMS_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "c-psql-gms-test-eastus.2vrmkkfpywqsey.postgres.cosmos.azure.com"
+        },
+        "PostgresGMS_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "PostgresGMS_properties_typeProperties_username": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "PostgresGOU_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "c-cosmospostgresql-gou-service-test-eastus.wx2cpvfecws536.postgres.cosmos.azure.com"
+        },
+        "PostgresGOU_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "PostgresGOU_properties_typeProperties_username": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "ServicesPGNew_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "c-cospos-gsh-test-eastus.5dvvj66opz2vw5.postgres.cosmos.azure.com"
+        },
+        "ServicesPGNew_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "ServicesPGNew_properties_typeProperties_username": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "kyv_grubbrr_dev_properties_typeProperties_baseUrl": {
+            "type": "string",
+            "defaultValue": "https://kyv-grubbrr-dev-eastus.vault.azure.net/"
+        },
+        "containerUri": {
+            "type": "string",
+            "metadata": "URI to storage account containing linked ARM templates"
+        },
+        "containerSasToken": {
+            "type": "string",
+            "metadata": "Sas token to storage account containing linked ARM templates"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_0",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    },
+                    "ADLSgas_accountKey": {
+                        "value": "[parameters('ADLSgas_accountKey')]"
+                    },
+                    "ADLSsus_accountKey": {
+                        "value": "[parameters('ADLSsus_accountKey')]"
+                    },
+                    "CosmosGXS_connectionString": {
+                        "value": "[parameters('CosmosGXS_connectionString')]"
+                    },
+                    "CosmosNGE_connectionString": {
+                        "value": "[parameters('CosmosNGE_connectionString')]"
+                    },
+                    "CosmosNGEGrubbrrLoyalty_connectionString": {
+                        "value": "[parameters('CosmosNGEGrubbrrLoyalty_connectionString')]"
+                    },
+                    "CosmosPOS_connectionString": {
+                        "value": "[parameters('CosmosPOS_connectionString')]"
+                    },
+                    "EventsCosmosNew_connectionString": {
+                        "value": "[parameters('EventsCosmosNew_connectionString')]"
+                    },
+                    "LoadKiosksFromCosmosDbToAnalyticsDb_functionKey": {
+                        "value": "[parameters('LoadKiosksFromCosmosDbToAnalyticsDb_functionKey')]"
+                    },
+                    "OrdersCosmosNew_connectionString": {
+                        "value": "[parameters('OrdersCosmosNew_connectionString')]"
+                    },
+                    "OrdersPGNew_password": {
+                        "value": "[parameters('OrdersPGNew_password')]"
+                    },
+                    "PostgresGMS_password": {
+                        "value": "[parameters('PostgresGMS_password')]"
+                    },
+                    "PostgresGOU_password": {
+                        "value": "[parameters('PostgresGOU_password')]"
+                    },
+                    "ServicesPGNew_password": {
+                        "value": "[parameters('ServicesPGNew_password')]"
+                    },
+                    "ADLSgas_properties_typeProperties_url": {
+                        "value": "[parameters('ADLSgas_properties_typeProperties_url')]"
+                    },
+                    "ADLSsus_properties_typeProperties_url": {
+                        "value": "[parameters('ADLSsus_properties_typeProperties_url')]"
+                    },
+                    "LoadKiosksFromCosmosDbToAnalyticsDb_properties_typeProperties_functionAppUrl": {
+                        "value": "[parameters('LoadKiosksFromCosmosDbToAnalyticsDb_properties_typeProperties_functionAppUrl')]"
+                    },
+                    "OrdersPGNew_properties_typeProperties_server": {
+                        "value": "[parameters('OrdersPGNew_properties_typeProperties_server')]"
+                    },
+                    "OrdersPGNew_properties_typeProperties_database": {
+                        "value": "[parameters('OrdersPGNew_properties_typeProperties_database')]"
+                    },
+                    "OrdersPGNew_properties_typeProperties_username": {
+                        "value": "[parameters('OrdersPGNew_properties_typeProperties_username')]"
+                    },
+                    "PostgresGMS_properties_typeProperties_server": {
+                        "value": "[parameters('PostgresGMS_properties_typeProperties_server')]"
+                    },
+                    "PostgresGMS_properties_typeProperties_database": {
+                        "value": "[parameters('PostgresGMS_properties_typeProperties_database')]"
+                    },
+                    "PostgresGMS_properties_typeProperties_username": {
+                        "value": "[parameters('PostgresGMS_properties_typeProperties_username')]"
+                    },
+                    "PostgresGOU_properties_typeProperties_server": {
+                        "value": "[parameters('PostgresGOU_properties_typeProperties_server')]"
+                    },
+                    "PostgresGOU_properties_typeProperties_database": {
+                        "value": "[parameters('PostgresGOU_properties_typeProperties_database')]"
+                    },
+                    "PostgresGOU_properties_typeProperties_username": {
+                        "value": "[parameters('PostgresGOU_properties_typeProperties_username')]"
+                    },
+                    "ServicesPGNew_properties_typeProperties_server": {
+                        "value": "[parameters('ServicesPGNew_properties_typeProperties_server')]"
+                    },
+                    "ServicesPGNew_properties_typeProperties_database": {
+                        "value": "[parameters('ServicesPGNew_properties_typeProperties_database')]"
+                    },
+                    "ServicesPGNew_properties_typeProperties_username": {
+                        "value": "[parameters('ServicesPGNew_properties_typeProperties_username')]"
+                    },
+                    "kyv_grubbrr_dev_properties_typeProperties_baseUrl": {
+                        "value": "[parameters('kyv_grubbrr_dev_properties_typeProperties_baseUrl')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_1",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_0')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_2",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_1')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_3",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_2')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_4",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_4.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_3')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_5",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_5.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_4')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_6",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_6.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_5')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_7",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_7.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_6')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_8",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_8.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_7')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_9",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_9.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_8')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_10",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_10.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_9')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_11",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_11.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_10')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_12",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_12.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_11')]"
+            ]
+        }
+    ]
+}

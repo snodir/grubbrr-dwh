@@ -1,0 +1,96 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "df-gas-test-eastus"
+        },
+        "ADLSgas_accountKey": {
+            "value": ""
+        },
+        "ADLSsus_accountKey": {
+            "value": ""
+        },
+        "CosmosGXS_connectionString": {
+            "value": ""
+        },
+        "CosmosNGE_connectionString": {
+            "value": ""
+        },
+        "CosmosNGEGrubbrrLoyalty_connectionString": {
+            "value": ""
+        },
+        "CosmosPOS_connectionString": {
+            "value": ""
+        },
+        "EventsCosmosNew_connectionString": {
+            "value": ""
+        },
+        "LoadKiosksFromCosmosDbToAnalyticsDb_functionKey": {
+            "value": ""
+        },
+        "OrdersCosmosNew_connectionString": {
+            "value": ""
+        },
+        "OrdersPGNew_password": {
+            "value": ""
+        },
+        "PostgresGMS_password": {
+            "value": ""
+        },
+        "PostgresGOU_password": {
+            "value": ""
+        },
+        "ServicesPGNew_password": {
+            "value": ""
+        },
+        "ADLSgas_properties_typeProperties_url": {
+            "value": "https://stggastesteastus.dfs.core.windows.net/"
+        },
+        "ADLSsus_properties_typeProperties_url": {
+            "value": "https://stgsustesteastus.dfs.core.windows.net/"
+        },
+        "LoadKiosksFromCosmosDbToAnalyticsDb_properties_typeProperties_functionAppUrl": {
+            "value": "https://funcx-gas-api-test-eastus.azurewebsites.net"
+        },
+        "OrdersPGNew_properties_typeProperties_server": {
+            "value": "c-cospos-gas-test-eastus.ya7ggajhjyxy57.postgres.cosmos.azure.com"
+        },
+        "OrdersPGNew_properties_typeProperties_database": {
+            "value": "citus"
+        },
+        "OrdersPGNew_properties_typeProperties_username": {
+            "value": "citus"
+        },
+        "PostgresGMS_properties_typeProperties_server": {
+            "value": "c-psql-gms-test-eastus.2vrmkkfpywqsey.postgres.cosmos.azure.com"
+        },
+        "PostgresGMS_properties_typeProperties_database": {
+            "value": "citus"
+        },
+        "PostgresGMS_properties_typeProperties_username": {
+            "value": "citus"
+        },
+        "PostgresGOU_properties_typeProperties_server": {
+            "value": "c-cosmospostgresql-gou-service-test-eastus.wx2cpvfecws536.postgres.cosmos.azure.com"
+        },
+        "PostgresGOU_properties_typeProperties_database": {
+            "value": "citus"
+        },
+        "PostgresGOU_properties_typeProperties_username": {
+            "value": "citus"
+        },
+        "ServicesPGNew_properties_typeProperties_server": {
+            "value": "c-cospos-gsh-test-eastus.5dvvj66opz2vw5.postgres.cosmos.azure.com"
+        },
+        "ServicesPGNew_properties_typeProperties_database": {
+            "value": "citus"
+        },
+        "ServicesPGNew_properties_typeProperties_username": {
+            "value": "citus"
+        },
+        "kyv_grubbrr_dev_properties_typeProperties_baseUrl": {
+            "value": "https://kyv-grubbrr-dev-eastus.vault.azure.net/"
+        }
+    }
+}

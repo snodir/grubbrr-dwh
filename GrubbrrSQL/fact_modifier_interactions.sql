@@ -92,17 +92,36 @@ ADD COLUMN IF NOT EXISTS businessdate DATE,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
 
 ALTER TABLE fact.transactionitem
+ADD COLUMN IF NOT EXISTS orderdatelocal TIMESTAMP,
+ADD COLUMN IF NOT EXISTS businessdate DATE,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS frequentcustomerid text COLLATE pg_catalog."default";
 
+--CALL fact.usp_update_transaction_item_and_modifier_fields();
+SET work_mem = '256MB'
+SHOW work_mem;
+
+
+CREATE OR REPLACE PROCEDURE fact.usp_update_transaction_item_and_modifier_fields()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
 
 UPDATE fact.transactionitem
-SET syscosmosts = th.syscosmosts,
+SET orderdatelocal = th.orderdatelocal,
+    businessdate = th.businessdate,
+    syscosmosts = th.syscosmosts,
     frequentcustomerid = th.frequentcustomerid
 FROM fact.transactionheader as th
 WHERE transactionitem.locationid = th.locationid
   AND transactionitem.transactionheaderid = th.transactionheaderid
-  AND transactionitem.frequentcustomerid IS NULL;
+  AND transactionitem.orderdatelocal IS NULL;
+
+--SELECT count(1) FROM fact.transactionitem WHERE businessdate IS NULL
+
+END;
+$BODY$;
 
 UPDATE fact.itemmodifier
 SET locationid = ti.locationid,

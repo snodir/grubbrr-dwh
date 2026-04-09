@@ -247,8 +247,8 @@ FROM fact.itemmodifier as im
 WHERE (syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options') OR
        syscosmosts IS NULL)
   AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mint 
-                  WHERE mint.locationid = mrc.locationid
-                    AND mint.transactionheaderid = mrc.transactionheaderid)
+                  WHERE mint.locationid = im.locationid
+                    AND mint.transactionheaderid = im.transactionheaderid)
 ), modfr_enrichment AS (
 SELECT mt.locationid,
        mt.transactionheaderid,
@@ -283,7 +283,8 @@ LEFT JOIN fact.transactionitem as ti
     AND mt.itemid = ti.itemid
 )
 INSERT INTO fact.modifier_interactions
-SELECT * FROM modfr_enrichment;
+SELECT *, NULL :: TIMESTAMP as sysupdatetime 
+FROM modfr_enrichment;
 
 UPDATE fact.modifier_interactions
 SET modifierquantity = im.modifierquantity,

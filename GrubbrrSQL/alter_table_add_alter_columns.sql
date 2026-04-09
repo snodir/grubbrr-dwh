@@ -16,10 +16,16 @@ ADD COLUMN IF NOT EXISTS customername CHARACTER VARYING(100) COLLATE pg_catalog.
 ALTER TABLE fact.transactionitem
 ALTER COLUMN itemunitprice TYPE NUMERIC(12,3),
 ADD COLUMN IF NOT EXISTS orderdatelocal TIMESTAMP,
-ADD COLUMN IF NOT EXISTS businessdate DATE;
+ADD COLUMN IF NOT EXISTS businessdate DATE,
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS frequentcustomerid text COLLATE pg_catalog."default";
+
 
 ALTER TABLE fact.itemmodifier
-ALTER COLUMN modifierprice TYPE NUMERIC(12,3);
+ALTER COLUMN modifierprice TYPE NUMERIC(12,3),
+ADD COLUMN IF NOT EXISTS locationid text COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS businessdate DATE,
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
 
 ALTER TABLE fact.transactionpayment
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
@@ -75,7 +81,7 @@ ADD COLUMN IF NOT EXISTS cep_subscriptions TEXT COLLATE pg_catalog."default";
 --DROP TABLE IF EXISTS dim.category_hierarchy;
 CREATE TABLE IF NOT EXISTS dim.category_hierarchy
 (
-id BIGINT,
+--id BIGINT,
 organizationid TEXT COLLATE pg_catalog."default",
 locationid text COLLATE pg_catalog."default" NOT NULL,
 mapping_created_on TIMESTAMP, 
@@ -105,7 +111,7 @@ is_item_deleted BOOLEAN,
 syscosmosts BIGINT,
 sysinserttime TIMESTAMP,
 sysupdatetime TIMESTAMP,
-constraint category_hierarchy_pkey PRIMARY KEY (id),
+--constraint category_hierarchy_pkey PRIMARY KEY (id),
 constraint location_category_menuitem_unq UNIQUE (locationid, categoryid, menuitemid)
 )
 
@@ -113,6 +119,10 @@ TABLESPACE pg_default;
 
 ALTER TABLE dim.category_hierarchy
     OWNER to citus;
+
+ALTER TABLE IF EXISTS dim.category_hierarchy
+DROP COLUMN IF EXISTS id;
+
 
 CREATE TABLE IF NOT EXISTS dim.duplicate_items_master
 (
@@ -162,7 +172,7 @@ ALTER TABLE IF EXISTS dim.catalog
 
 CREATE TABLE IF NOT EXISTS dim.modifier
 (
-    modifierkey BIGINT,
+    --modifierkey BIGINT,
     modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
     catalogid character varying(50) COLLATE pg_catalog."default",
     modifiername character varying(255) COLLATE pg_catalog."default",
@@ -192,6 +202,10 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS dim.modifier
     OWNER to citus;
 
+ALTER TABLE IF EXISTS dim.modifier
+DROP COLUMN IF EXISTS modifierkey;
+
+
 CREATE TABLE IF NOT EXISTS dim.modifier_group_mapping
 (
     modifier_mapping_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
@@ -219,6 +233,164 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS dim.modifier_group_mapping
     OWNER to citus;
+
+
+-- Table: dim.item_modifier_group_modifier_mapping
+
+-- DROP TABLE IF EXISTS dim.item_modifier_group_modifier_mapping;
+
+CREATE TABLE IF NOT EXISTS dim.item_modifier_group_modifier_mapping
+(
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    menuitemid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    itm_modgrp_min_selection integer,
+    itm_modgrp_max_selection integer,
+    itm_modgrp_free_count integer,
+    is_itm_modgrp_active boolean,
+    is_itm_modgrp_deleted boolean,
+    itm_modgrp_created_on timestamp without time zone,
+    itm_modgrp_modified_on timestamp without time zone,
+    is_itm_modgrp_invisible boolean,
+    is_default boolean,
+    min_quantity integer,
+    max_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    default_quantity integer,
+    is_modgrp_modfr_active boolean NOT NULL,
+    is_modgrp_modfr_deleted boolean NOT NULL,
+    modgrp_modfr_created_on timestamp without time zone,
+    modgrp_modfr_modified_on timestamp without time zone,
+    is_modgrp_modfr_invisible boolean,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT item_modgrp_modfr_unq UNIQUE (menuitemid, modifiergroupid, modifierid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
+    OWNER to citus;
+
+
+
+-- Table: fact.modifier_impressions
+
+-- DROP TABLE IF EXISTS fact.modifier_impressions;
+
+CREATE TABLE IF NOT EXISTS fact.modifier_impressions
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    menuitemid text COLLATE pg_catalog."default",
+    modifierid text COLLATE pg_catalog."default" NOT NULL,
+    parent_modifier_id text COLLATE pg_catalog."default",
+    selection_type text COLLATE pg_catalog."default",
+    nesting_depth integer,
+    "position" integer,
+    score numeric(5,3),
+    strategy text COLLATE pg_catalog."default",
+    context text COLLATE pg_catalog."default",
+    selected boolean,
+    pre_deselected boolean,
+    confirmed_removed boolean,
+    pre_selected boolean,
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.modifier_impressions
+    OWNER to citus;
+
+
+
+-- Table: fact.modifier_interactions
+
+-- DROP TABLE IF EXISTS fact.modifier_interactions;
+
+CREATE TABLE IF NOT EXISTS fact.modifier_interactions
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    orderitemid text COLLATE pg_catalog."default",
+    menuitemid text COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid text COLLATE pg_catalog."default" NOT NULL,
+    modifierid text COLLATE pg_catalog."default" NOT NULL,
+    modifiername text COLLATE pg_catalog."default",
+    parent_modifier_id text COLLATE pg_catalog."default",
+    nesting_depth integer,
+    modifierquantity integer,
+    modifierprice numeric(12,3),
+    freequantity integer,
+    selection_type text COLLATE pg_catalog."default",
+    action text COLLATE pg_catalog."default",
+    session_recorded_at text COLLATE pg_catalog."default",
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT trxnid_menuitemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, menuitemid, modifiergroupid, modifierid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.modifier_interactions
+    OWNER to citus;
+
+
+CREATE TABLE IF NOT EXISTS stg.modifier_recommendation_sessions
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    modifier_impressions text COLLATE pg_catalog."default",
+    modifier_interactions text COLLATE pg_catalog."default",
+    businessdate date,
+    orderdateutc text COLLATE pg_catalog."default",
+    orderdatelocal TIMESTAMP,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    syscosmosts BIGINT,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP
+);
+
+ALTER TABLE stg.modifier_recommendation_sessions
+OWNER TO citus;
+
+CREATE TABLE IF NOT EXISTS fact.modifier_recommendations
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    modifier_impressions jsonb,
+    modifier_interactions jsonb,
+    businessdate date,
+    orderdateutc text COLLATE pg_catalog."default",
+    orderdatelocal TIMESTAMP,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    syscosmosts BIGINT,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP
+);
+
+ALTER TABLE fact.modifier_recommendations
+OWNER TO citus;
 
 CREATE TABLE IF NOT EXISTS fact.location_statistics(
     organizationid character varying(50) COLLATE pg_catalog."default",
@@ -248,62 +420,8 @@ CREATE TABLE IF NOT EXISTS fact.location_statistics(
 ALTER TABLE fact.location_statistics
 OWNER to citus;
 
-CREATE TABLE if not EXISTS dim.item_modifier_group_modifier_mapping(
-    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    menuitemid character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    itm_modgrp_min_selection integer,
-    itm_modgrp_max_selection integer,
-    itm_modgrp_free_count integer,
-    is_itm_modgrp_active boolean,
-    is_itm_modgrp_deleted boolean,
-    itm_modgrp_created_on timestamp without time zone,
-    itm_modgrp_modified_on timestamp without time zone,
-    is_itm_modgrp_invisible boolean,
-    is_default BOOLEAN,
-    min_quantity integer,
-    max_quantity integer,
-    allow_quantity_increment boolean,
-    increment_step integer,
-    default_quantity integer,
-    is_modgrp_modfr_active boolean NOT NULL,
-    is_modgrp_modfr_deleted boolean NOT NULL,
-    modgrp_modfr_created_on timestamp without time zone,
-    modgrp_modfr_modified_on timestamp without time zone,
-    is_modgrp_modfr_invisible boolean,
-    sysinserttime TIMESTAMP WITHOUT TIME ZONE
-);
 
-ALTER TABLE dim.item_modifier_group_modifier_mapping
-OWNER to citus;
 
-CREATE TABLE IF NOT EXISTS fact.modifier_interactions
-(
-    locationid text COLLATE pg_catalog."default" NOT NULL,
-    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
-    ordersessionid text COLLATE pg_catalog."default",
-    orderid text COLLATE pg_catalog."default",
-    orderitemid text COLLATE pg_catalog."default" NOT NULL,
-    menuitemid text COLLATE pg_catalog."default",
-    modifiergroupid text COLLATE pg_catalog."default" NOT NULL,
-    modifierid text COLLATE pg_catalog."default" NOT NULL,
-    modifiername text COLLATE pg_catalog."default",
-    modifierquantity smallint,
-    modifierprice numeric(12,3),
-    freequantity integer,
-    selectiontype text COLLATE pg_catalog."default",
-    action text COLLATE pg_catalog."default",
-    businessdate date,
-    orderdatelocal timestamp,
-    frequentcustomerid text COLLATE pg_catalog."default",
-    sysinserttime timestamp without time zone,
-    sysupdatetime timestamp without time zone,
-    CONSTRAINT trxnid_itemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, orderitemid, modifiergroupid, modifierid)
-);
-
-ALTER TABLE fact.modifier_interactions
-OWNER to citus;
 
 CREATE TABLE IF NOT EXISTS fact.cep_incidents(
 incidentkey BIGINT,
@@ -1284,3 +1402,74 @@ $BODY$;
 
 ALTER PROCEDURE fact.usp_offer_analysis()
     OWNER TO citus;
+
+
+--CALL fact.usp_recommendations_stage_to_fact();
+CREATE OR REPLACE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+insert into fact.recommendations 
+(transactionheaderid, locationid, recommendationid, offereditems, selecteditems, isconverted, prompttimestamp, sysinserttime, syscosmosts)
+select rc.transactionheaderid,
+       rc.locationid,
+       rc.recommendationid, 
+       rc.offereditems :: jsonb, 
+       rc.selecteditems :: jsonb, 
+       case when (rc.selecteditems = '[]' or rc.selecteditems is null) then false else true end as isconverted,
+       rc.prompttimestamp, 
+       rc.sysinserttime,
+       rc.syscosmosts
+from stg.recommendations as rc
+where not exists (select 1 from fact.recommendations as th where th.transactionheaderid = rc.transactionheaderid and th.recommendationid = rc.recommendationid);
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_item_recommendations_stage_to_fact()
+OWNER TO citus;
+
+--CALL fact.usp_modifier_recommendations_stage_to_fact();
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+insert into fact.modifier_recommendations 
+(locationid, transactionheaderid, ordersessionid, orderid, modifier_impressions, modifier_interactions, 
+ businessdate, orderdateutc, frequentcustomerid, syscosmosts, sysinserttime)
+select mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       mrc.modifier_impressions :: jsonb, 
+       mrc.modifier_interactions :: jsonb, 
+       mrc.businessdate, 
+       mrc.orderdateutc,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime
+from stg.modifier_recommendation_sessions as mrc
+where not exists (select 1 from fact.modifier_recommendations as mr where mr.locationid = mrc.locationid and mr.transactionheaderid = mrc.transactionheaderid);
+
+UPDATE fact.modifier_recommendations
+SET orderdatelocal = orderdateutc::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone from dim.location) as l
+WHERE modifier_recommendations.locationid = l.locationid 
+  AND modifier_recommendations.orderdatelocal is null;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) FROM fact.modifier_recommendations)
+WHERE watermarktablename = 'fact.modifier_recommendations'
+  AND source = 'nge';
+
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) FROM fact.itemmodifier)
+WHERE watermarktablename = 'fact.itemmodifier'
+  AND source = 'nge';
+
+END;
+$BODY$;

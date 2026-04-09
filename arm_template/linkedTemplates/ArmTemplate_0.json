@@ -1,0 +1,624 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "df-gas-test-eastus"
+        },
+        "ADLSgas_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'ADLSgas'"
+        },
+        "ADLSsus_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'ADLSsus'"
+        },
+        "CosmosGXS_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CosmosGXS'"
+        },
+        "CosmosNGE_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CosmosNGE'"
+        },
+        "CosmosNGEGrubbrrLoyalty_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CosmosNGEGrubbrrLoyalty'"
+        },
+        "CosmosPOS_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CosmosPOS'"
+        },
+        "EventsCosmosNew_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'EventsCosmosNew'"
+        },
+        "LoadKiosksFromCosmosDbToAnalyticsDb_functionKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'functionKey' of 'LoadKiosksFromCosmosDbToAnalyticsDb'"
+        },
+        "OrdersCosmosNew_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'OrdersCosmosNew'"
+        },
+        "OrdersPGNew_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'OrdersPGNew'"
+        },
+        "PostgresGMS_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'PostgresGMS'"
+        },
+        "PostgresGOU_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'PostgresGOU'"
+        },
+        "ServicesPGNew_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'ServicesPGNew'"
+        },
+        "ADLSgas_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://stggastesteastus.dfs.core.windows.net/"
+        },
+        "ADLSsus_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://stgsustesteastus.dfs.core.windows.net/"
+        },
+        "LoadKiosksFromCosmosDbToAnalyticsDb_properties_typeProperties_functionAppUrl": {
+            "type": "string",
+            "defaultValue": "https://funcx-gas-api-test-eastus.azurewebsites.net"
+        },
+        "OrdersPGNew_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "c-cospos-gas-test-eastus.ya7ggajhjyxy57.postgres.cosmos.azure.com"
+        },
+        "OrdersPGNew_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "OrdersPGNew_properties_typeProperties_username": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "PostgresGMS_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "c-psql-gms-test-eastus.2vrmkkfpywqsey.postgres.cosmos.azure.com"
+        },
+        "PostgresGMS_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "PostgresGMS_properties_typeProperties_username": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "PostgresGOU_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "c-cosmospostgresql-gou-service-test-eastus.wx2cpvfecws536.postgres.cosmos.azure.com"
+        },
+        "PostgresGOU_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "PostgresGOU_properties_typeProperties_username": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "ServicesPGNew_properties_typeProperties_server": {
+            "type": "string",
+            "defaultValue": "c-cospos-gsh-test-eastus.5dvvj66opz2vw5.postgres.cosmos.azure.com"
+        },
+        "ServicesPGNew_properties_typeProperties_database": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "ServicesPGNew_properties_typeProperties_username": {
+            "type": "string",
+            "defaultValue": "citus"
+        },
+        "kyv_grubbrr_dev_properties_typeProperties_baseUrl": {
+            "type": "string",
+            "defaultValue": "https://kyv-grubbrr-dev-eastus.vault.azure.net/"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/ADFEventLoggingTemplate')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "RunStarted",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"Started\",\n  \"severity\": \"The pipeline run started\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{pipeline().Pipeline}\",\n  \"data\": \"{???????????}\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "RunSucceeded",
+                        "type": "WebActivity",
+                        "dependsOn": [
+                            {
+                                "activity": "Wait",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\":\"Analytics\",\n  \"company\":\"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\":\"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\":\"ADF\",\n  \"category\":\"ETLJob\",\n  \"type\":\"Completed\",\n  \"severity\":\"The pipeline run succeeded\",\n  \"token\":\"@{pipeline().RunId}\",\n  \"instant\":\"@{utcNow()}\",\n  \"summary\":\"@{pipeline().Pipeline}\",\n  \"data\":\"{???????????}\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "RunFailed",
+                        "type": "WebActivity",
+                        "dependsOn": [
+                            {
+                                "activity": "Wait",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"Failed\",\n  \"severity\": \"The pipeline run failed\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{pipeline().Pipeline}\",\n  \"data\": \"{???????????}\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Wait",
+                        "type": "Wait",
+                        "dependsOn": [
+                            {
+                                "activity": "RunStarted",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "waitTimeInSeconds": 1
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Events"
+                },
+                "annotations": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/BronzeToSilver')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Wait_a_second",
+                        "type": "Wait",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "waitTimeInSeconds": 1
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "DWH-Medallion/Silver-Transformation"
+                },
+                "annotations": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SilverToGold')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Wait_a_second",
+                        "type": "Wait",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "waitTimeInSeconds": 1
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "DWH-Medallion/Gold-Analytics"
+                },
+                "annotations": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ADLSgas')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('ADLSgas_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('ADLSgas_accountKey')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ADLSsus')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('ADLSsus_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('ADLSsus_accountKey')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CosmosGXS')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "CosmosDb",
+                "typeProperties": {
+                    "connectionString": "[parameters('CosmosGXS_connectionString')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CosmosNGE')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "CosmosDb",
+                "typeProperties": {
+                    "connectionString": "[parameters('CosmosNGE_connectionString')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CosmosNGEGrubbrrLoyalty')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "CosmosDb",
+                "typeProperties": {
+                    "connectionString": "[parameters('CosmosNGEGrubbrrLoyalty_connectionString')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CosmosPOS')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "CosmosDb",
+                "typeProperties": {
+                    "connectionString": "[parameters('CosmosPOS_connectionString')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/EventsCosmosNew')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "CosmosDb",
+                "typeProperties": {
+                    "connectionString": "[parameters('EventsCosmosNew_connectionString')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LoadKiosksFromCosmosDbToAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureFunction",
+                "typeProperties": {
+                    "functionAppUrl": "[parameters('LoadKiosksFromCosmosDbToAnalyticsDb_properties_typeProperties_functionAppUrl')]",
+                    "authentication": "Anonymous",
+                    "functionKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('LoadKiosksFromCosmosDbToAnalyticsDb_functionKey')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/OrdersCosmosNew')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "CosmosDb",
+                "typeProperties": {
+                    "connectionString": "[parameters('OrdersCosmosNew_connectionString')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/OrdersPGNew')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzurePostgreSql",
+                "version": "2.0",
+                "typeProperties": {
+                    "server": "[parameters('OrdersPGNew_properties_typeProperties_server')]",
+                    "port": "5432",
+                    "database": "[parameters('OrdersPGNew_properties_typeProperties_database')]",
+                    "sslMode": 3,
+                    "username": "[parameters('OrdersPGNew_properties_typeProperties_username')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('OrdersPGNew_password')]"
+                    },
+                    "authenticationType": "Basic"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PostgresGMS')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzurePostgreSql",
+                "version": "2.0",
+                "typeProperties": {
+                    "server": "[parameters('PostgresGMS_properties_typeProperties_server')]",
+                    "port": "5432",
+                    "database": "[parameters('PostgresGMS_properties_typeProperties_database')]",
+                    "sslMode": 3,
+                    "username": "[parameters('PostgresGMS_properties_typeProperties_username')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('PostgresGMS_password')]"
+                    },
+                    "authenticationType": "Basic"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PostgresGOU')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzurePostgreSql",
+                "version": "2.0",
+                "typeProperties": {
+                    "server": "[parameters('PostgresGOU_properties_typeProperties_server')]",
+                    "port": "5432",
+                    "database": "[parameters('PostgresGOU_properties_typeProperties_database')]",
+                    "sslMode": 3,
+                    "username": "[parameters('PostgresGOU_properties_typeProperties_username')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('PostgresGOU_password')]"
+                    },
+                    "authenticationType": "Basic"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ServicesPGNew')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzurePostgreSql",
+                "version": "2.0",
+                "typeProperties": {
+                    "server": "[parameters('ServicesPGNew_properties_typeProperties_server')]",
+                    "port": "5432",
+                    "database": "[parameters('ServicesPGNew_properties_typeProperties_database')]",
+                    "sslMode": 3,
+                    "username": "[parameters('ServicesPGNew_properties_typeProperties_username')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('ServicesPGNew_password')]"
+                    },
+                    "authenticationType": "Basic"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/kyv_grubbrr_dev')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureKeyVault",
+                "typeProperties": {
+                    "baseUrl": "[parameters('kyv_grubbrr_dev_properties_typeProperties_baseUrl')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GASDimensions')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Stopped",
+                "pipelines": [],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2024-07-12T14:00:00",
+                        "timeZone": "Eastern Standard Time",
+                        "schedule": {
+                            "hours": [
+                                6,
+                                10,
+                                14,
+                                18,
+                                22
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GASOrganizationlocation')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Stopped",
+                "pipelines": [],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2024-04-27T14:00:00",
+                        "timeZone": "Eastern Standard Time",
+                        "schedule": {
+                            "hours": [
+                                5
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GSHDeviceHealth')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "description": "Get Devices from GSH",
+                "annotations": [],
+                "runtimeState": "Stopped",
+                "pipelines": [],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2024-07-12T14:00:00",
+                        "timeZone": "Eastern Standard Time",
+                        "schedule": {
+                            "hours": [
+                                5
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        }
+    ]
+}

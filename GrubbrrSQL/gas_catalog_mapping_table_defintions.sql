@@ -90,7 +90,10 @@ ALTER TABLE IF EXISTS dim.category_hierarchy
     OWNER to citus;
 
 ALTER TABLE IF EXISTS dim.category_hierarchy
-DROP COLUMN id;
+DROP COLUMN IF EXISTS id;
+
+ALTER TABLE IF EXISTS dim.modifier
+DROP COLUMN IF EXISTS modifierkey;
 
 /*
 SELECT mm.id as modifierid,

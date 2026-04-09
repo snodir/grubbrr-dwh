@@ -908,14 +908,14 @@ LEFT JOIN item_statistics AS its
 /***
 Training Data Files:
 
-8. Modifiers dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
+8. Modifier-Interactions dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
    Naming Convention: modifiers-yyww.parquet
    yyww - stands for year and week of observation date period, for example, 
    2026 year and 10 th week would be formatted as yyww = 2610, 
    the first yy means the last 2 digits of year (26 in case of 2026) 
    and week number ww --> 10 --> 2610
    File: Modifiers dataset (modifier-level, weekly snapshot)
-   File hierarchy: ml-training-data/org-abcd/loc-abcd/modifiers-yyww.parquet
+   File hierarchy: ml-training-data/org-abcd/loc-abcd/modifier-interactions-yyww.parquet
 ***/
 
 
@@ -926,19 +926,17 @@ WITH org_loc_lookup AS (
         ol.locationid,
         ol.locationname
     FROM dim.organizationlocation AS ol
-    WHERE 1=1
-      AND (
-          CASE 
-              WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' 
-              THEN ol.organizationid 
-              ELSE ol.locationid 
-          END
-      ) = '{$pdf_orgid}'
+    WHERE (
+        CASE
+            WHEN '{$pdf_orgid}' NOT LIKE 'loc-%'
+                THEN ol.organizationid
+            ELSE ol.locationid
+        END
+    ) = '{$pdf_orgid}'
       AND ol.organizationtype = 0
 ),
-
 org_loc_ctlg AS (
-    SELECT 
+    SELECT
         ol.*,
         c.catalogid,
         c.catalogname
@@ -947,9 +945,8 @@ org_loc_ctlg AS (
         ON ol.organizationid = c.organizationid
        AND ol.locationid = c.gem_location_id
 ),
-
 org_loc_ctlg_modifiers AS (
-    SELECT 
+    SELECT
         m.*,
         olc.organizationid,
         olc.organizationname,
@@ -967,172 +964,179 @@ org_loc_ctlg_modifiers AS (
         EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy}
     )
 ),
-
-trxn_modifiers AS (
-    SELECT 
+trxn_items AS (
+    SELECT
         ol.organizationid,
         ol.organizationname,
         ol.locationname,
-        ti.locationid,
-        ti.businessdate,
-        ti.orderdatelocal,
-        ti.dimmenuitemid,
-        m.*
-    FROM fact.itemmodifier AS m
-    INNER JOIN fact.transactionitem AS ti
-        ON m.transactionheaderid = ti.transactionheaderid
-       AND m.itemid = ti.itemid
+        ti.*
+    FROM fact.transactionitem AS ti
     INNER JOIN org_loc_lookup AS ol
         ON ti.locationid = ol.locationid
     WHERE 1=1
       AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%'
       AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy}
       AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}
-),
-
-org_mdfr_agg AS (
-    SELECT 
-        organizationid,
-        modifierid,
-        COUNT(*) AS mdfr_selection_frequency_within_org_and_week,
-        MAX(modifierprice) AS modifierprice
-    FROM trxn_modifiers
-    GROUP BY organizationid, modifierid
-),
-
-org_mdfr_itm AS (
-    SELECT 
-        organizationid,
-        modifierid,
-        dimmenuitemid,
-        COUNT(*) AS x_times_added_on_to_the_item,
-        ROW_NUMBER() OVER (
-            PARTITION BY organizationid, modifierid 
-            ORDER BY COUNT(*) DESC
-        ) AS mdfr_selection_ranking
-    FROM trxn_modifiers
-    GROUP BY organizationid, modifierid, dimmenuitemid
-),
-
-loc_mdfr_agg AS (
-    SELECT 
-        organizationid,
-        locationid,
-        modifierid,
-        COUNT(*) AS mdfr_selection_frequency_within_loc_and_week,
-        MAX(modifierprice) AS modifierprice
-    FROM trxn_modifiers
-    GROUP BY organizationid, locationid, modifierid
-),
-
-loc_mdfr_itm AS (
-    SELECT 
-        organizationid,
-        locationid,
-        modifierid,
-        dimmenuitemid,
-        COUNT(*) AS x_times_added_on_to_the_item,
-        ROW_NUMBER() OVER (
-            PARTITION BY organizationid, locationid, modifierid 
-            ORDER BY COUNT(*) DESC
-        ) AS mdfr_selection_ranking
-    FROM trxn_modifiers
-    GROUP BY organizationid, locationid, modifierid, dimmenuitemid
-),
-
-loc_mdfr_itm_agg AS (
-    SELECT 
-        lmi.organizationid,
-        lmi.locationid,
-        lmi.modifierid,
-        jsonb_agg(
-            jsonb_build_object(
-                'menuitemid', lmi.dimmenuitemid,
-                'item_class_type', mi.item_class_type,
-                'x_times_added_on_to_the_item', lmi.x_times_added_on_to_the_item,
-                'pct_relative_selection_frequency',
-                    100 * CAST(lmi.x_times_added_on_to_the_item AS NUMERIC(9,3)) 
-                    / lma.mdfr_selection_frequency_within_loc_and_week,
-                'modifier_selection_ranking', lmi.mdfr_selection_ranking
-            )
-            ORDER BY mdfr_selection_ranking
-        ) AS loc_modifier_popularity
-    FROM loc_mdfr_itm AS lmi
-    LEFT JOIN loc_mdfr_agg AS lma
-        ON lmi.organizationid = lma.organizationid
-       AND lmi.locationid = lma.locationid
-       AND lmi.modifierid = lma.modifierid
-    LEFT JOIN dim.menuitem AS mi
-        ON lmi.dimmenuitemid = mi.menuitemid
-    GROUP BY lmi.organizationid, lmi.locationid, lmi.modifierid
-),
-
-org_mdfr_itm_agg AS (
-    SELECT 
-        omi.organizationid,
-        omi.modifierid,
-        jsonb_agg(
-            jsonb_build_object(
-                'menuitemid', omi.dimmenuitemid,
-                'item_class_type', mi.item_class_type,
-                'x_times_added_on_to_the_item', omi.x_times_added_on_to_the_item,
-                'pct_relative_selection_frequency',
-                    100 * CAST(omi.x_times_added_on_to_the_item AS NUMERIC(9,3)) 
-                    / oma.mdfr_selection_frequency_within_org_and_week,
-                'modifier_selection_ranking', omi.mdfr_selection_ranking
-            )
-            ORDER BY mdfr_selection_ranking
-        ) AS org_modifier_popularity
-    FROM org_mdfr_itm AS omi
-    LEFT JOIN org_mdfr_agg AS oma
-        ON omi.organizationid = oma.organizationid
-       AND omi.modifierid = oma.modifierid
-    LEFT JOIN dim.menuitem AS mi
-        ON omi.dimmenuitemid = mi.menuitemid
-    GROUP BY omi.organizationid, omi.modifierid
 )
-
-SELECT DISTINCT
-    m.organizationid,
-    m.organizationname,
-    m.locationid,
-    m.locationname,
-    m.catalogid,
-    m.catalogname,
+SELECT
+    olcm.organizationid,
+    olcm.organizationname,
+    olcm.locationname,
+    olcm.locationid,
+    olcm.catalogid,
+    olcm.catalogname,
+    m.businessdate,
+    m.orderdatelocal,
     {$pdf_yyyy} AS yyyy,
     {$pdf_ww} AS ww,
-    mg.modifiergroupid,
+    m.transactionheaderid,
+    m.ordersessionid, 
+    m.orderid,
+    m.orderitemid,
+    ti.dimmenuitemid AS menuitemid,
+    ti.itemquantity,
+    ti.itemunitprice,
+    mi.item_class_type,
+    m.modifiergroupid,
     m.modifierid,
     m.modifiername,
-    m.classification AS modifier_class_type,
-    m.min_quantity,
-    m.max_quantity,
-    m.allow_quantity_increment,
-    m.calories_text,
-    m.is_modifier_default,
-    m.modifier_default_quantity,
-    m.is_invisible,
-    COALESCE(m.price, lma.modifierprice) AS modifierprice,
-    lmia.loc_modifier_popularity,
-    omia.org_modifier_popularity
-FROM org_loc_ctlg_modifiers AS m
-LEFT JOIN dim.modifier_group_mapping AS mg
-    ON m.modifierid = mg.modifierid
-LEFT JOIN loc_mdfr_agg AS lma
-    ON m.organizationid = lma.organizationid
-   AND m.locationid = lma.locationid
-   AND m.modifierid = lma.modifierid
-LEFT JOIN loc_mdfr_itm_agg AS lmia
-    ON m.organizationid = lmia.organizationid
-   AND m.locationid = lmia.locationid
-   AND m.modifierid = lmia.modifierid
-LEFT JOIN org_mdfr_itm_agg AS omia
-    ON m.organizationid = omia.organizationid
-   AND m.modifierid = omia.modifierid;
+    m.parent_modifier_id,
+    m.nesting_depth,
+    m.modifierquantity,
+    m.modifierprice,
+    m.freequantity,
+    m.selection_type,
+    m.action,
+    m.session_recorded_at,
+    m.frequentcustomerid,
+    olcm.is_modifier_default,
+    olcm.modifier_default_quantity,
+    olcm.classification AS modifier_class_type
+FROM fact.modifier_interactions AS m
+INNER JOIN trxn_items AS ti
+    ON m.transactionheaderid = ti.transactionheaderid
+   AND m.orderitemid = ti.itemid
+INNER JOIN org_loc_ctlg_modifiers AS olcm
+    ON ti.locationid = olcm.locationid
+   AND m.modifierid = olcm.modifierid
+INNER JOIN dim.menuitem AS mi
+    ON mi.menuitemid = ti.dimmenuitemid;
+
 
 
 /**
-9. Item-Modifier-Group-Modifier-Mapping dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
+9. Modifier-Impressions dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
+   Naming Convention: modifiers-yyww.parquet
+   yyww - stands for year and week of observation date period, for example, 
+   2026 year and 10 th week would be formatted as yyww = 2610, 
+   the first yy means the last 2 digits of year (26 in case of 2026) 
+   and week number ww --> 10 --> 2610
+   File: Item-Modifier-Group-Modifier-Mapping dataset dataset (modifier-level, weekly snapshot)
+   File hierarchy: ml-training-data/org-abcd/loc-abcd/item-modifier-group-modifier-mapping-yyww.parquet
+***/
+
+WITH org_loc_lookup AS (
+    SELECT DISTINCT
+        ol.organizationid,
+        ol.organizationname,
+        ol.locationid,
+        ol.locationname
+    FROM dim.organizationlocation AS ol
+    WHERE (
+        CASE
+            WHEN '{$pdf_orgid}' NOT LIKE 'loc-%'
+                THEN ol.organizationid
+            ELSE ol.locationid
+        END
+    ) = '{$pdf_orgid}'
+      AND ol.organizationtype = 0
+),
+org_loc_ctlg AS (
+    SELECT
+        ol.*,
+        c.catalogid,
+        c.catalogname
+    FROM org_loc_lookup AS ol
+    INNER JOIN dim.catalog AS c
+        ON ol.organizationid = c.organizationid
+       AND ol.locationid = c.gem_location_id
+),
+org_loc_ctlg_modifiers AS (
+    SELECT
+        m.*,
+        olc.organizationid,
+        olc.organizationname,
+        olc.locationid,
+        olc.locationname,
+        olc.catalogname
+    FROM dim.modifier AS m
+    INNER JOIN org_loc_ctlg AS olc
+        ON m.catalogid = olc.catalogid
+    WHERE (
+        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy}
+        AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}
+    )
+    OR (
+        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy}
+    )
+),
+trxn_items AS (
+    SELECT
+        ol.organizationid,
+        ol.organizationname,
+        ol.locationname,
+        ti.*
+    FROM fact.modifier_impressions AS ti
+    INNER JOIN org_loc_lookup AS ol
+        ON ti.locationid = ol.locationid
+    WHERE 1=1
+      AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%'
+      AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy}
+      AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}
+)
+SELECT
+    olcm.organizationid,
+    olcm.organizationname,
+    olcm.locationname,
+    olcm.locationid,
+    olcm.catalogid,
+    olcm.catalogname,
+    m.businessdate,
+    m.orderdatelocal,
+    {$pdf_yyyy} AS yyyy,
+    {$pdf_ww} AS ww,
+    m.transactionheaderid,
+    m.ordersessionid, 
+    m.orderid,
+    m.menuitemid,
+    m.modifierid,
+    m.parent_modifier_id,
+    m.nesting_depth,
+    olcm.price as modifierprice,
+    m.selection_type,
+    m.position,
+    m.score,
+    m.strategy,
+    m.context,
+    m.selected,
+    m.pre_deselected,
+    m.confirmed_removed,
+    m.pre_selected,
+    m.frequentcustomerid,
+    olcm.is_modifier_default,
+    olcm.modifier_default_quantity,
+    olcm.classification AS modifier_class_type
+FROM trxn_items AS m
+INNER JOIN org_loc_ctlg_modifiers AS olcm
+    ON m.locationid = olcm.locationid
+   AND m.modifierid = olcm.modifierid
+INNER JOIN dim.menuitem AS mi
+    ON mi.menuitemid = m.menuitemid;
+
+
+
+/**
+10. Item-Modifier-Group-Modifier-Mapping dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
    Naming Convention: modifiers-yyww.parquet
    yyww - stands for year and week of observation date period, for example, 
    2026 year and 10 th week would be formatted as yyww = 2610, 
@@ -1152,17 +1156,16 @@ WITH org_loc_lookup AS (
     FROM dim.organizationlocation AS ol
     WHERE 1=1
       AND (
-          CASE 
-              WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' 
-              THEN ol.organizationid 
-              ELSE ol.locationid 
-          END
+        CASE
+            WHEN '{$pdf_orgid}' NOT LIKE 'loc-%'
+                THEN ol.organizationid
+            ELSE ol.locationid
+        END
       ) = '{$pdf_orgid}'
       AND ol.organizationtype = 0
 ),
-
 org_loc_ctlg AS (
-    SELECT 
+    SELECT
         ol.*,
         c.catalogid,
         c.catalogname
@@ -1170,44 +1173,133 @@ org_loc_ctlg AS (
     INNER JOIN dim.catalog AS c
         ON ol.organizationid = c.organizationid
        AND ol.locationid = c.gem_location_id
-)
-SELECT olc.organizationid,
-       olc.organizationname,
-       olc.locationid,
-       olc.locationname,
-       imgm.catalogid,
-       olc.catalogname,
-       {$pdf_yyyy} AS yyyy,
-       {$pdf_ww} AS ww,
-       imgm.menuitemid,
-       imgm.modifiergroupid,
-       imgm.modifierid,
-       imgm.itm_modgrp_min_selection,
-       imgm.itm_modgrp_max_selection,
-       imgm.itm_modgrp_free_count,
-       imgm.is_itm_modgrp_active,
-       imgm.is_itm_modgrp_deleted,
-       imgm.itm_modgrp_created_on,
-       imgm.itm_modgrp_modified_on,
-       imgm.is_itm_modgrp_invisible,
-       imgm.is_default,
-       imgm.min_quantity,
-       imgm.max_quantity,
-       imgm.allow_quantity_increment,
-       imgm.increment_step,
-       imgm.default_quantity,
-       imgm.is_modgrp_modfr_active,
-       imgm.is_modgrp_modfr_deleted,
-       imgm.modgrp_modfr_created_on,
-       imgm.modgrp_modfr_modified_on,
-       imgm.is_modgrp_modfr_invisible
-FROM org_loc_ctlg as olc 
-LEFT JOIN dim.item_modifier_group_modifier_mapping as imgm
-        ON olc.catalogid = imgm.catalogid
-WHERE (
-        EXTRACT(YEAR FROM imgm.modgrp_modfr_created_on)::INTEGER = {$pdf_yyyy}
-        AND EXTRACT(WEEK FROM imgm.modgrp_modfr_created_on)::INTEGER <= {$pdf_ww}
+),
+org_loc_ctlg_modifiers AS (
+    SELECT
+        m.*,
+        olc.organizationid,
+        olc.organizationname,
+        olc.locationid,
+        olc.locationname,
+        olc.catalogname
+    FROM dim.modifier AS m
+    INNER JOIN org_loc_ctlg AS olc
+        ON m.catalogid = olc.catalogid
+    WHERE (
+        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy}
+        AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}
     )
     OR (
-        EXTRACT(YEAR FROM imgm.modgrp_modfr_created_on)::INTEGER < {$pdf_yyyy}
+        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy}
     )
+),
+trxn_items AS (
+    SELECT
+        ol.organizationid,
+        ol.organizationname,
+        ol.locationname,
+        ti.*
+    FROM fact.transactionitem AS ti
+    INNER JOIN org_loc_lookup AS ol
+        ON ti.locationid = ol.locationid
+    WHERE 1=1
+      AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%'
+      AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy}
+      AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}
+),
+trxn_modifiers AS (
+    SELECT
+        ti.organizationid,
+        ti.organizationname,
+        ti.locationname,
+        ti.locationid,
+        ti.businessdate,
+        ti.orderdatelocal,
+        {$pdf_yyyy} AS yyyy,
+        {$pdf_ww} AS ww,
+        m.transactionheaderid,
+        m.itemid AS orderitemid,
+        ti.dimmenuitemid AS menuitemid,
+        ti.itemquantity,
+        ti.itemunitprice,
+        m.modifiergroupid,
+        m.modifierid,
+        m.modifiername,
+        m.modifierquantity,
+        m.modifierprice,
+        m.freequantity
+    FROM fact.itemmodifier AS m
+    INNER JOIN trxn_items AS ti
+        ON m.transactionheaderid = ti.transactionheaderid
+       AND m.itemid = ti.itemid
+),
+loc_mdfr_agg AS (
+    SELECT
+        organizationid,
+        locationid,
+        modifierid,
+        COUNT(*) AS mdfr_selection_frequency_within_loc_and_week,
+        MAX(modifierprice) AS modifierprice
+    FROM trxn_modifiers
+    GROUP BY organizationid, locationid, modifierid
+),
+loc_mdfr_itm AS (
+    SELECT
+        organizationid,
+        locationid,
+        modifierid,
+        menuitemid,
+        COUNT(*) AS x_times_added_on_to_the_item,
+        ROW_NUMBER() OVER (
+            PARTITION BY organizationid, locationid, modifierid
+            ORDER BY COUNT(*) DESC
+        ) AS mdfr_selection_ranking
+    FROM trxn_modifiers
+    GROUP BY organizationid, locationid, modifierid, menuitemid
+)
+SELECT
+    m.organizationid,
+    m.organizationname,
+    m.locationid,
+    m.locationname,
+    m.catalogid,
+    m.catalogname,
+    {$pdf_yyyy} AS yyyy,
+    {$pdf_ww} AS ww,
+    imgm.menuitemid,
+    mi.item_class_type,
+    imgm.modifiergroupid,
+    imgm.modifierid,
+    m.classification AS modifier_class_type,
+    m.is_modifier_default,
+    m.min_quantity,
+    m.max_quantity,
+    m.allow_quantity_increment,
+    m.increment_step,
+    m.modifier_default_quantity,
+    m.is_invisible AS is_modifier_invisible,
+    m.calories,
+    m.is_modifier_active,
+    m.is_modifier_deleted,
+    lmi.x_times_added_on_to_the_item,
+    lma.mdfr_selection_frequency_within_loc_and_week,
+    ROUND(
+        100 * CAST(lmi.x_times_added_on_to_the_item AS NUMERIC(9,3))
+        / lma.mdfr_selection_frequency_within_loc_and_week,
+        3
+    ) AS pct_relative_selection_frequency
+FROM dim.item_modifier_group_modifier_mapping AS imgm
+INNER JOIN org_loc_ctlg_modifiers AS m
+    ON imgm.catalogid = m.catalogid
+   AND imgm.modifierid = m.modifierid
+INNER JOIN dim.menuitem AS mi
+    ON imgm.menuitemid = mi.menuitemid
+LEFT JOIN loc_mdfr_itm AS lmi
+    ON m.organizationid = lmi.organizationid
+   AND m.locationid = lmi.locationid
+   AND imgm.modifierid = lmi.modifierid
+   AND imgm.menuitemid = lmi.menuitemid
+LEFT JOIN loc_mdfr_agg AS lma
+    ON m.organizationid = lma.organizationid
+   AND m.locationid = lma.locationid
+   AND imgm.modifierid = lma.modifierid;
