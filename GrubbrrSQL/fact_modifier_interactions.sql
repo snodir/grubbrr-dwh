@@ -86,6 +86,34 @@ TABLESPACE pg_default;
 ALTER TABLE fact.itemmodifier
     OWNER to citus;
 
+ALTER TABLE fact.itemmodifier
+ADD COLUMN IF NOT EXISTS locationid text COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS businessdate DATE,
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
+
+ALTER TABLE fact.transactionitem
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS frequentcustomerid text COLLATE pg_catalog."default";
+
+
+UPDATE fact.transactionitem
+SET syscosmosts = th.syscosmosts,
+    frequentcustomerid = th.frequentcustomerid
+FROM fact.transactionheader as th
+WHERE transactionitem.locationid = th.locationid
+  AND transactionitem.transactionheaderid = th.transactionheaderid
+  AND transactionitem.frequentcustomerid IS NULL;
+
+UPDATE fact.itemmodifier
+SET locationid = ti.locationid,
+    businessdate = ti.businessdate,
+    syscosmosts = ti.syscosmosts
+FROM fact.transactionitem as ti 
+WHERE itemmodifier.transactionheaderid = ti.transactionheaderid
+  AND itemmodifier.itemid = ti.itemid
+  AND itemmodifier.locationid IS NULL;
+
+
 -- Index: fact.itemmodifieridx
 CREATE INDEX IF NOT EXISTS itemmodifieridx
     ON fact.itemmodifier USING btree

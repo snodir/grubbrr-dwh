@@ -13,6 +13,39 @@ public enum ModifierClassificationType
 }
 */
 
+SELECT * FROM public.pricebook LIMIT 100
+
+SELECT DISTINCT
+       img.catalog_id as catalogid,
+       img.item_master_id as menuitemid,
+       img.modifier_group_master_id as modifiergroupid,
+       mg.modifier_master_id as modifierid,
+       img.min_selection as itm_modgrp_min_selection,
+       img.max_selection as itm_modgrp_max_selection,
+       img.free_count as itm_modgrp_free_count,
+       img.is_active as is_itm_modgrp_active,
+       img.is_deleted as is_itm_modgrp_deleted,
+       img.created_on as itm_modgrp_created_on,
+       img.modified_on as itm_modgrp_modified_on,
+       img.is_invisible as is_itm_modgrp_invisible,
+       mg.is_default,
+       mg.min_quantity,
+       mg.max_quantity,
+       mg.allow_quantity_increment,
+       mg.increment_step,
+       mg.default_quantity,
+       mg.is_active as is_modgrp_modfr_active,
+       mg.is_deleted as is_modgrp_modfr_deleted,
+       mg.created_on as modgrp_modfr_created_on,
+       mg.modified_on as modgrp_modfr_modified_on,
+       mg.is_invisible as is_modgrp_modfr_invisible,
+       now() as sysinserttime
+FROM public.item_modifier_group_glue as img 
+INNER JOIN public.modifier_group_modifier_glue as mg
+        ON img.catalog_id = mg.catalog_id
+        AND img.modifier_group_master_id = mg.modifier_group_master_id
+
+
 --catalog
 SELECT c.id as catalogid,
        c.name as catalogname,

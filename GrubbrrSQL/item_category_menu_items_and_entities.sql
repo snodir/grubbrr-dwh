@@ -6,7 +6,8 @@ ADD COLUMN IF NOT EXISTS itemunitprice NUMERIC(12, 3),
 --ALTER COLUMN itemunitprice TYPE NUMERIC(12, 3),
 ADD COLUMN IF NOT EXISTS price_changed_on TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
-ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS catalogid text COLLATE pg_catalog."default";
 
 SELECT count(*) --, max(gms_created_on) gms_created_on, max(gms_modified_on) 
 FROM dim.menuitem --10,637/154,505
