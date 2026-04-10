@@ -278,6 +278,11 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
     OWNER to citus;
 
+--ALTER TABLE dim.item_modifier_group_modifier_mapping
+--ADD CONSTRAINT item_modgrp_modfr_unq UNIQUE (menuitemid, modifiergroupid, modifierid)
+
+ALTER TABLE dim.item_modifier_group_modifier_mapping
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 
 -- Table: fact.modifier_impressions

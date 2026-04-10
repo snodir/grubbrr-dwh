@@ -919,6 +919,7 @@ Training Data Files:
 ***/
 
 
+
 WITH org_loc_lookup AS (
     SELECT DISTINCT
         ol.organizationid,
@@ -985,40 +986,43 @@ SELECT
     olcm.locationid,
     olcm.catalogid,
     olcm.catalogname,
-    m.businessdate,
-    m.orderdatelocal,
+    mt.businessdate,
+    ti.orderdatelocal,
     {$pdf_yyyy} AS yyyy,
     {$pdf_ww} AS ww,
-    m.transactionheaderid,
-    m.ordersessionid, 
-    m.orderid,
-    m.orderitemid,
+    mt.transactionheaderid,
+    ti.ordersessionid, 
+    mt.orderid,
+    mt.itemid as orderitemid,
     ti.dimmenuitemid AS menuitemid,
     ti.itemquantity,
     ti.itemunitprice,
     mi.item_class_type,
-    m.modifiergroupid,
-    m.modifierid,
-    m.modifiername,
-    m.parent_modifier_id,
-    m.nesting_depth,
-    m.modifierquantity,
-    m.modifierprice,
-    m.freequantity,
-    m.selection_type,
-    m.action,
-    m.session_recorded_at,
-    m.frequentcustomerid,
+    mt.modifiergroupid,
+    mt.modifierid,
+    mt.modifiername,
+    NULL :: TEXT AS parent_modifier_id,
+    NULL :: INTEGER AS nesting_depth,
+    mt.modifierquantity,
+    mt.modifierprice,
+    mt.freequantity,
+    CASE WHEN olcm.min_quantity = 0 AND olcm.max_quantity > 0 THEN 'optional'
+         WHEN olcm.min_quantity >= 1 AND olcm.max_quantity >= 1 THEN 'default' END selection_type,
+    CASE WHEN olcm.min_quantity = 0 AND olcm.max_quantity > 0 AND mt.modifierquantity > 0 THEN 'added'
+         WHEN olcm.min_quantity >= 1 AND olcm.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
+         WHEN olcm.min_quantity >= 1 AND olcm.max_quantity >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,
+    NULL :: TEXT as session_recorded_at,
+    ti.frequentcustomerid,
     olcm.is_modifier_default,
     olcm.modifier_default_quantity,
     olcm.classification AS modifier_class_type
-FROM fact.modifier_interactions AS m
+FROM fact.itemmodifier AS mt
 INNER JOIN trxn_items AS ti
-    ON m.transactionheaderid = ti.transactionheaderid
-   AND m.orderitemid = ti.itemid
+    ON mt.transactionheaderid = ti.transactionheaderid
+   AND mt.itemid = ti.itemid
 INNER JOIN org_loc_ctlg_modifiers AS olcm
     ON ti.locationid = olcm.locationid
-   AND m.modifierid = olcm.modifierid
+   AND mt.modifierid = olcm.modifierid
 INNER JOIN dim.menuitem AS mi
     ON mi.menuitemid = ti.dimmenuitemid;
 

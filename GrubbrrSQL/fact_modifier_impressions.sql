@@ -41,7 +41,7 @@ OWNER TO citus;
 SELECT * FROM fact.modifier_recommendations;
 SELECT * FROM fact.modifier_impressions;
 SELECT * FROM fact.modifier_interactions;
---CALL fact.usp_recommendations_stage_to_fact();
+--CALL fact.usp_item_recommendations_stage_to_fact();
 CREATE OR REPLACE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
 LANGUAGE plpgsql
 AS $BODY$
@@ -115,9 +115,9 @@ $BODY$;
 ALTER PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
 OWNER TO citus;
 
-SELECT * FROM fact.modifier_recommendations;
-SELECT * FROM fact.modifier_impressions;
-SELECT * FROM fact.modifier_interactions;
+SELECT * FROM fact.modifier_recommendations LIMIT 100;
+SELECT * FROM fact.modifier_impressions LIMIT 100;
+SELECT * FROM fact.modifier_interactions LIMIT 100;
 --CALL fact.usp_modifier_recommendation_analysis();
 CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendation_analysis()
 LANGUAGE plpgsql
@@ -286,7 +286,7 @@ LEFT JOIN fact.transactionitem as ti
 INSERT INTO fact.modifier_interactions
 SELECT *, NULL :: TIMESTAMP as sysupdatetime 
 FROM modfr_enrichment;
-
+/*
 UPDATE fact.modifier_interactions
 SET modifierquantity = im.modifierquantity,
     modifierprice = im.modifierprice,
@@ -299,7 +299,7 @@ WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
   AND modifier_interactions.modifierquantity IS NULL
   AND modifier_interactions.modifierprice IS NULL
   AND modifier_interactions.freequantity IS NULL;
-
+*/
 UPDATE fact.watermarktable
 SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
 WHERE watermarktablename = 'fact.modifier_interactions'
@@ -312,9 +312,17 @@ SELECT DISTINCT min_quantity, max_quantity, is_modifier_default
 FROM dim.modifier 
 LIMIT 100;
 
+SET work_mem = '512MB';
+SHOW work_mem;
+
 SELECT * FROM dim.modifier_group_mapping LIMIT 100;
 SELECT * FROM fact.itemmodifier LIMIT 100;
 SELECT * FROM fact.modifier_interactions LIMIT 100;
+
+SELECT transactionheaderid, itemid, count(*)
+FROM fact.transactionitem
+GROUP BY transactionheaderid, itemid
+HAVING count(*) > 1
 /*
 {
         "action": "added",
