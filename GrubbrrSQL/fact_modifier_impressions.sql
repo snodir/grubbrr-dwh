@@ -265,9 +265,9 @@ SELECT mt.locationid,
        mt.modifierquantity,
        mt.modifierprice,
        mt.freequantity,
-       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 THEN 'optional'
-            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 THEN 'default' END selection_type,
-       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 AND mt.modifierquantity > 0 THEN 'added'
+       CASE WHEN m.min_quantity = 0 AND m.max_quantity >= 0 THEN 'optional'----1
+            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 THEN 'required' END selection_type,  --changed to required
+       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 AND mt.modifierquantity > 0 THEN 'added' --optional modfr added
             WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
             WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,
        NULL :: TEXT as session_recorded_at,
