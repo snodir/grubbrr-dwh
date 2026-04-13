@@ -43,6 +43,11 @@ and organizationtype = 0;
 /*
 org-5834d77c-4c45-4f98-a110-4c0fcd977490	WaBa Grill	loc-c9df0f68-c306-4dea-9fd3-290417065a03	WG0234 - Northridge
 org-5834d77c-4c45-4f98-a110-4c0fcd977490	WaBa Grill	loc-f876b618-684e-449b-a1cc-78103eb107b9	WG0235 - Oxnard (Rose Avenue)
+
+org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-73ad6e86-1f5c-4123-adbb-4b12339ea171	1020 - Charlotte, NC
+org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-7d483b28-0129-4e28-b32c-105bfcc993f0	1305 - Charlotte, NC
+org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-8ead49a8-798b-4786-988a-90bbbb4775c7	0927 Steele Creek Road
+org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-26335157-cfac-40a3-b901-2bca43618bc6	1414 - Piscataway, NJ
 */
 
 SELECT *

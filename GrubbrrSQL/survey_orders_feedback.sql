@@ -123,7 +123,7 @@ WHERE ss.syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablen
 ), get_surveyids AS (
 SELECT 
 FROM delta_sent_surveys as ds
-WHERE
+WHERE ds.survey_metadata :: jsonb
 )
 
 END;
