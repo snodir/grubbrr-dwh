@@ -228,3 +228,9 @@ ADD CONSTRAINT item_modgrp_modfr_unq UNIQUE (menuitemid, modifiergroupid, modifi
 
 ALTER TABLE dim.item_modifier_group_modifier_mapping
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
+CREATE INDEX IF NOT EXISTS idx_catalog_lookup_on_item_modifier_group_modifier_mapping
+    ON dim.item_modifier_group_modifier_mapping USING btree
+    (catalog_id COLLATE pg_catalog."default" ASC NULLS LAST, pos_connector_configuration_id COLLATE pg_catalog."default" ASC NULLS LAST, is_deleted ASC NULLS LAST)
+    INCLUDE(catalog_entity_id)
+    TABLESPACE pg_default

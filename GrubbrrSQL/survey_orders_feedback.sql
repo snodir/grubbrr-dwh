@@ -59,6 +59,26 @@ TABLESPACE pg_default;
 ALTER TRUNCATE TABLE fact.occasionsurveydetail
     OWNER to citus;
 
+CREATE TABLE IF NOT EXISTS stg.sent_surveys
+(
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default",
+    ordersessionid TEXT COLLATE pg_catalog."default",
+    gem_event_category TEXT COLLATE pg_catalog."default",
+    gem_event_type TEXT COLLATE pg_catalog."default",
+    is_responded BOOLEAN,
+    gem_event_instant TEXT COLLATE pg_catalog."default",
+    gem_syscosmosts BIGINT,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP;
+)
+
+TABLESPACE pg_default;
+
+ALTER TRUNCATE TABLE stg.sent_surveys
+    OWNER to citus;
+
+
 ALTER TABLE fact.occasionsurveydetail
 --DROP COLUMN ngesyscosmosts,
 --DROP COLUMN gemsyscosmosts
@@ -66,8 +86,22 @@ ALTER TABLE fact.occasionsurveydetail
 ADD COLUMN IF NOT EXISTS surveytype INTEGER, --number-based feedback = 1; text-based feedback = 2
 ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default"
 
+ALTER TABLE fact.itemssurvey
+ADD COLUMN IF NOT EXISTS nge_syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS gem_event_category TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS gem_event_type TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS is_responded BOOLEAN,
+ADD COLUMN IF NOT EXISTS gem_syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS gem_event_instant TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
 SELECT * FROM dim.feedbackstatus;
 SELECT * FROM dim.feedbackrating;
+SELECT * FROM dim.occasionsurvey LIMIT 100;
+SELECT * FROM fact.occasionsurveydetail LIMIT 100;
+SELECT * FROM fact.itemssurvey LIMIT 100;
+
 
 UPDATE fact.occasionsurveydetail
 SET ordersessionid = th.ordersessionid
@@ -105,7 +139,9 @@ surveytransid,orderid,surveyrating,surveytransstatus,surveyissuedtimestamp,
 surveycompletedtimestamp,sysinserttime)*/
 SELECT * from dim.feedbackstatus;
 SELECT * FROM dim.feedbackrating;
-SELECT * FROM dim.occasionsurvey;
+SELECT * FROM dim.occasionsurvey LIMIT 100;
+SELECT * FROM fact.occasionsurveydetail LIMIT 100;
+SELECT * FROM fact.itemssurvey LIMIT 100;
 
 select --th.ordersessionid, 
        osd.* 

@@ -268,7 +268,7 @@ SELECT mt.locationid,
        CASE WHEN m.is_modifier_default = False AND m.min_quantity = 0 AND m.max_quantity >= 0 THEN 'optional'
             WHEN m.is_modifier_default = False AND m.min_quantity >= 1 AND m.max_quantity >= 1 THEN 'required'
             WHEN m.is_modifier_default = True THEN 'default' END selection_type,
-            
+
        CASE WHEN m.is_modifier_default = False AND m.min_quantity = 0 AND m.max_quantity >= 0 AND mt.modifierquantity >= 1 THEN 'added'                  --optional modifier added
             WHEN m.is_modifier_default = False AND m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'selected'              --required modifier selected
             WHEN m.is_modifier_default = True AND m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'                   --default modifier left selected
@@ -329,6 +329,28 @@ WHERE 1=1 --AND mgm.menuitemid = 'itm-c6ba37ef-24e1-45b6-8000-64cd2ec7872e' --te
 AND mgm.modifierid IN ('modfr-9a33c490-6a99-4931-947a-4bc57942176a','modfr-0a87e97b-1c87-4a3e-95a0-319be98cc637')
 LIMIT 100;
 
+ALTER TABLE dim.item_modifier_group_modifier_mapping
+
+TRUNCATE TABLE dim.item_modifier_group_modifier_mapping
+
+SELECT count(*) FROM dim.item_modifier_group_modifier_mapping as img --8,496,822
+WHERE img.catalogid IN (
+SELECT *-- c.catalogid
+FROM dim.catalog as c
+WHERE c.organizationid = 'org-5cf80db5-7a28-4dcf-846b-8cdf5f362269'
+AND c.gem_location_id = 'loc-73ad6e86-1f5c-4123-adbb-4b12339ea171'
+AND 
+)
+LIMIT 100
+
+/*
+{
+		"organizationid": "org-5cf80db5-7a28-4dcf-846b-8cdf5f362269",
+		"organizationname": "Bojangles",
+		"locationid": "loc-73ad6e86-1f5c-4123-adbb-4b12339ea171",
+		"locationname": "1020 - Charlotte, NC"
+}
+*/
 
 SELECT transactionheaderid, itemid, count(*)
 FROM fact.transactionitem

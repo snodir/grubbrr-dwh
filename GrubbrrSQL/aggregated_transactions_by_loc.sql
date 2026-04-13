@@ -21,7 +21,7 @@ order by ordercounts DESC-- first_order_time ASC--, ordercounts DESC--,
 SELECT *
 FROM dim.organization
 WHERE id = 'loc-003bf5fc-1391-4afd-ac29-bbf18f9ae2c3';
-["loc-73ad6e86-1f5c-4123-adbb-4b12339ea171","loc-8ead49a8-798b-4786-988a-90bbbb4775c7","loc-26335157-cfac-40a3-b901-2bca43618bc6","loc-96f0d639-95a2-4e42-b9ba-35e836bec523","loc-353c730c-36ca-4575-95f8-38516cdc9de7","loc-f8417e68-4a8a-4fa6-8c9b-780564b86a90","loc-d30b1e76-3b2b-42cf-b357-f4790df19159"]
+--["loc-73ad6e86-1f5c-4123-adbb-4b12339ea171","loc-8ead49a8-798b-4786-988a-90bbbb4775c7","loc-26335157-cfac-40a3-b901-2bca43618bc6","loc-96f0d639-95a2-4e42-b9ba-35e836bec523","loc-353c730c-36ca-4575-95f8-38516cdc9de7","loc-f8417e68-4a8a-4fa6-8c9b-780564b86a90","loc-d30b1e76-3b2b-42cf-b357-f4790df19159"]
 select to_jsonb(array_agg(locationname)) as locations,
 	   to_jsonb(array_agg(locationid)) as locationids,
 	   jsonb_agg(
