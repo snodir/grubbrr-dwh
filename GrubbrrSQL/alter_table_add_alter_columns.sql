@@ -71,11 +71,12 @@ ADD COLUMN IF NOT EXISTS itemunitprice NUMERIC(12, 3),
 --ALTER COLUMN itemunitprice TYPE NUMERIC(12, 3),
 ADD COLUMN IF NOT EXISTS price_changed_on TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
-ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS catalogid text COLLATE pg_catalog."default";
 
 ALTER TABLE fact.occasionsurveydetail
 --ADD CONSTRAINT locationid_orderid_pk PRIMARY key (locationid, orderid),
-ALTER COLUMN surveytransid drop NOT NULL,
+ALTER COLUMN surveytransid DROP NOT NULL,
 ADD COLUMN IF NOT EXISTS surveytype INTEGER;
 
 ALTER TABLE dim.organization

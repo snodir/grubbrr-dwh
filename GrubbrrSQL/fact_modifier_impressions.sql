@@ -265,11 +265,14 @@ SELECT mt.locationid,
        mt.modifierquantity,
        mt.modifierprice,
        mt.freequantity,
-       CASE WHEN m.min_quantity = 0 AND m.max_quantity >= 0 THEN 'optional'----1
-            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 THEN 'required' END selection_type,  --changed to required
-       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 AND mt.modifierquantity > 0 THEN 'added' --optional modfr added
-            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
-            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,
+       CASE WHEN m.is_modifier_default = False AND m.min_quantity = 0 AND m.max_quantity >= 0 THEN 'optional'
+            WHEN m.is_modifier_default = False AND m.min_quantity >= 1 AND m.max_quantity >= 1 THEN 'required'
+            WHEN m.is_modifier_default = True THEN 'default' END selection_type,
+            
+       CASE WHEN m.is_modifier_default = False AND m.min_quantity = 0 AND m.max_quantity >= 0 AND mt.modifierquantity >= 1 THEN 'added'                  --optional modifier added
+            WHEN m.is_modifier_default = False AND m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'selected'              --required modifier selected
+            WHEN m.is_modifier_default = True AND m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'                   --default modifier left selected
+            WHEN m.is_modifier_default = True AND m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,  --default modifier de-selected
        NULL :: TEXT as session_recorded_at,
        mt.businessdate,
        ti.orderdatelocal,
@@ -318,6 +321,14 @@ SHOW work_mem;
 SELECT * FROM dim.modifier_group_mapping LIMIT 100;
 SELECT * FROM fact.itemmodifier LIMIT 100;
 SELECT * FROM fact.modifier_interactions LIMIT 100;
+SELECT * FROM dim.modifier LIMIT 100;
+SELECT * FROM dim.item_modifier_group_modifier_mapping as mgm --LIMIT 100
+WHERE 1=1 --AND mgm.menuitemid = 'itm-c6ba37ef-24e1-45b6-8000-64cd2ec7872e' --test_env
+--AND mgm.is_default = True LIMIT 100
+--AND mgm.menuitemid = 'itm-7a963301-5d8e-4c58-b469-0474272f4a96'
+AND mgm.modifierid IN ('modfr-9a33c490-6a99-4931-947a-4bc57942176a','modfr-0a87e97b-1c87-4a3e-95a0-319be98cc637')
+LIMIT 100;
+
 
 SELECT transactionheaderid, itemid, count(*)
 FROM fact.transactionitem
