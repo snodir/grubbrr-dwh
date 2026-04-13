@@ -64,20 +64,25 @@ CREATE TABLE IF NOT EXISTS stg.sent_surveys
     organizationid text COLLATE pg_catalog."default",
     locationid text COLLATE pg_catalog."default",
     ordersessionid TEXT COLLATE pg_catalog."default",
+    orderid TEXT COLLATE pg_catalog."default",
     gem_event_category TEXT COLLATE pg_catalog."default",
     gem_event_type TEXT COLLATE pg_catalog."default",
+    survey_metadata TEXT COLLATE pg_catalog."default",
     is_responded BOOLEAN,
     gem_event_instant TEXT COLLATE pg_catalog."default",
     gem_syscosmosts BIGINT,
     sysinserttime TIMESTAMP,
-    sysupdatetime TIMESTAMP;
+    sysupdatetime TIMESTAMP,
+    CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (ordersessionid)
 )
 
 TABLESPACE pg_default;
 
-ALTER TRUNCATE TABLE stg.sent_surveys
+ALTER TABLE stg.sent_surveys
     OWNER to citus;
 
+ALTER TABLE stg.sent_surveys
+ADD COLUMN IF NOT EXISTS orderid TEXT COLLATE pg_catalog."default";
 
 ALTER TABLE fact.occasionsurveydetail
 --DROP COLUMN ngesyscosmosts,
@@ -94,7 +99,37 @@ ADD COLUMN IF NOT EXISTS gem_event_type TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS is_responded BOOLEAN,
 ADD COLUMN IF NOT EXISTS gem_syscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS gem_event_instant TEXT COLLATE pg_catalog."default",
-ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS source SMALLINT;
+
+SELECT orderid, itemid, count(*)
+FROM fact.itemssurvey --LIMIT 100
+GROUP BY orderid, itemid
+HAVING count(*) > 1
+
+CREATE OR REPLACE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+WITH delta_sent_surveys AS (
+SELECT
+FROM stg.sent_surveys as ss
+WHERE ss.syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
+  AND NOT EXISTS (SELECT 1 FROM fact.itemssurvey as its 
+                  WHERE its.locationid = ss.locationid
+                    AND its.orderid = ss.orderid)
+), get_surveyids AS (
+SELECT 
+FROM delta_sent_surveys as ds
+WHERE
+)
+
+END;
+
+$BODY$
+
 
 SELECT * FROM dim.feedbackstatus;
 SELECT * FROM dim.feedbackrating;

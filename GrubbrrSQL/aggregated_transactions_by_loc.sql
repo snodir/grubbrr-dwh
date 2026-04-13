@@ -40,6 +40,11 @@ and (locationname like '0927%Steele%'
   or locationname like '1020%Charlot%')
 and organizationtype = 0;
 
+/*
+org-5834d77c-4c45-4f98-a110-4c0fcd977490	WaBa Grill	loc-c9df0f68-c306-4dea-9fd3-290417065a03	WG0234 - Northridge
+org-5834d77c-4c45-4f98-a110-4c0fcd977490	WaBa Grill	loc-f876b618-684e-449b-a1cc-78103eb107b9	WG0235 - Oxnard (Rose Avenue)
+*/
+
 SELECT *
 FROM dim.menuitem
 
