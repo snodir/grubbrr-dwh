@@ -1,7 +1,9 @@
-SELECT *-- wt.watermarktablename, wt.watermarkcolumn, wt.watermarkvalue, wt.ticks, wt.ts
+SELECT *, to_timestamp(ts)-- wt.watermarktablename, wt.watermarkcolumn, wt.watermarkvalue, wt.ticks, wt.ts
 FROM fact.watermarktable as wt;
 
 SELECT * FROM fact.pipelinerunstatus;
+SELECT to_timestamp(1775002010)
+
 /*
 1769755658
 1769669258
@@ -35,6 +37,11 @@ SET ts = 1775164585,
     watermarkvalue = NULL
 WHERE watermarktablename = 'fact.modifier_recommendations'*/
 
+--UPDATE fact.watermarktable
+SET source = 'nge-Interactions'
+WHERE watermarktable.watermarktablename = 'fact.modifier_interactions'
+  AND watermarktable.source = 'nge';
+
 UPDATE fact.watermarktable
 SET source = CASE WHEN watermarktablename in ('fact.transactionrefunds','fact.transactionheader','fact.recommendations') THEN 'nge'
                   WHEN watermarktablename in ('dim.abtests','fact.deviceevent','fact.userbehaviour') THEN 'gem'
@@ -60,9 +67,9 @@ SELECT * fact.watermarktable --WHERE watermarktablename = 'fact.occasionsurveyde
 ALTER TABLE fact.watermarktable
 --ADD source CHARACTER VARYING(10)
 ADD CONSTRAINT watermarktablename_pk PRIMARY key (watermarktablename, source)--,
-add ticks BIGINT,
-add ts BIGINT
-select MAX(busdate) as busdate, max(syscosmosts) as syscosmosts from fact.userbehaviour
+ADD ticks BIGINT,
+ADD ts BIGINT
+SELECT MAX(busdate) as busdate, max(syscosmosts) as syscosmosts from fact.userbehaviour
 
 --DELETE-- FROM fact.watermarktable WHERE watermarktablename = 'fact.ordertiming'
 ALTER TABLE fact.watermarktable
@@ -70,8 +77,7 @@ ALTER COLUMN source TYPE CHARACTER VARYING(50);
 
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, source, ts/*, ticks*/)
 VALUES('fact.itemmodifier', 'syscosmosts', 'nge', 1720000300),
-('fact.modifier_interactions', 'syscosmosts', 'nge-Options', 1720000300),
-      
+      ('fact.modifier_interactions', 'syscosmosts', 'nge-Options', 1720000300),
       ('fact.modifier_impressions', 'syscosmosts', 'nge', 1720000300),
       ('fact.modifier_interactions', 'syscosmosts', 'nge', 1720000300),
       ('fact.modifier_recommendations', 'syscosmosts', 'nge', 1720000300)

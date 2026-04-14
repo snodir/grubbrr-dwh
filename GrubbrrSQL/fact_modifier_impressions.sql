@@ -100,13 +100,8 @@ WHERE modifier_recommendations.locationid = l.locationid
   AND modifier_recommendations.orderdatelocal is null;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) FROM fact.modifier_recommendations)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_recommendations)
 WHERE watermarktablename = 'fact.modifier_recommendations'
-  AND source = 'nge';
-
-UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) FROM fact.itemmodifier)
-WHERE watermarktablename = 'fact.itemmodifier'
   AND source = 'nge';
 
 END;
@@ -117,9 +112,16 @@ OWNER TO citus;
 
 SELECT * FROM fact.modifier_recommendations LIMIT 100;
 SELECT * FROM fact.modifier_impressions LIMIT 100;
+
+--TRUNCATE TABLE fact.modifier_impressions
+--TRUNCATE TABLE fact.modifier_recommendations
+--TRUNCATE TABLE fact.modifier_interactions
+
 SELECT * FROM fact.modifier_interactions LIMIT 100;
 --CALL fact.usp_modifier_recommendation_analysis();
-CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendation_analysis()
+
+
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_impression_analysis()
 LANGUAGE plpgsql
 AS $BODY$
 
@@ -128,7 +130,7 @@ BEGIN
 WITH delta_impressions AS (
 SELECT *
 FROM fact.modifier_recommendations as mrc
-WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions')
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions' AND source = 'nge')
   AND NOT EXISTS (SELECT 1 FROM fact.modifier_impressions as mim 
                   WHERE mim.locationid = mrc.locationid
                     AND mim.transactionheaderid = mrc.transactionheaderid)
@@ -166,9 +168,26 @@ SELECT *, NULL :: TIMESTAMP as sysupdatetime
 FROM modifier_impressions;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_impressions)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_impressions)
 WHERE watermarktablename = 'fact.modifier_impressions'
   AND source = 'nge';
+
+END;
+$BODY$;
+
+--TRUNCATE TABLE fact.modifier_interactions
+
+CALL fact.usp_modifier_interaction_analysis();
+
+SELECT * FROM fact.modifier_interactions
+WHERE locationid IS NULL
+LIMIT 100
+
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_interaction_analysis()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
 
 WITH delta_interactions AS (
 SELECT *
@@ -237,7 +256,7 @@ SELECT *, NULL :: TIMESTAMP as sysupdatetime
 FROM trxn_enrichment;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
 WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge';
 
@@ -245,7 +264,8 @@ WHERE watermarktablename = 'fact.modifier_interactions'
 WITH delta_modifier_trxns AS (
 SELECT *
 FROM fact.itemmodifier as im
-WHERE (syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options') OR
+WHERE locationid LIKE 'loc-%'
+  AND (syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options') OR
        syscosmosts IS NULL)
   AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mint 
                   WHERE mint.locationid = im.locationid
@@ -265,14 +285,14 @@ SELECT mt.locationid,
        mt.modifierquantity,
        mt.modifierprice,
        mt.freequantity,
-       CASE WHEN m.is_modifier_default = False AND m.min_quantity = 0 AND m.max_quantity >= 0 THEN 'optional'
-            WHEN m.is_modifier_default = False AND m.min_quantity >= 1 AND m.max_quantity >= 1 THEN 'required'
-            WHEN m.is_modifier_default = True THEN 'default' END selection_type,
+       CASE WHEN mgm.is_default = False AND mg.min_selection = 0 AND mg.max_selection >= 0 THEN 'optional'
+            WHEN mgm.is_default = False AND mg.min_selection >= 1 AND mg.max_selection >= 1 THEN 'required'
+            WHEN mgm.is_default = True THEN 'default' END selection_type,
 
-       CASE WHEN m.is_modifier_default = False AND m.min_quantity = 0 AND m.max_quantity >= 0 AND mt.modifierquantity >= 1 THEN 'added'                  --optional modifier added
-            WHEN m.is_modifier_default = False AND m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'selected'              --required modifier selected
-            WHEN m.is_modifier_default = True AND m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'                   --default modifier left selected
-            WHEN m.is_modifier_default = True AND m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,  --default modifier de-selected
+       CASE WHEN mgm.is_default = False AND mg.min_selection = 0 AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added'                  --optional modifier added
+            WHEN mgm.is_default = False AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected'              --required modifier selected
+            WHEN mgm.is_default = True AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept'                   --default modifier left selected
+            WHEN mgm.is_default = True AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,  --default modifier de-selected
        NULL :: TEXT as session_recorded_at,
        mt.businessdate,
        ti.orderdatelocal,
@@ -280,8 +300,11 @@ SELECT mt.locationid,
        mt.syscosmosts,
        mt.sysinserttime
 FROM delta_modifier_trxns as mt
-LEFT JOIN dim.modifier as m 
-    ON mt.modifierid = m.modifierid
+LEFT JOIN dim.modifier_group_mapping as mgm
+    ON mgm.modifiergroupid = mt.modifiergroupid
+    AND mgm.modifierid = mt.modifierid
+LEFT JOIN dim.modifier_group as mg 
+    ON mg.modifiergroupid = mt.modifiergroupid
 LEFT JOIN fact.transactionitem as ti 
     ON mt.transactionheaderid = ti.transactionheaderid
     AND mt.itemid = ti.itemid
@@ -289,6 +312,8 @@ LEFT JOIN fact.transactionitem as ti
 INSERT INTO fact.modifier_interactions
 SELECT *, NULL :: TIMESTAMP as sysupdatetime 
 FROM modfr_enrichment;
+
+
 /*
 UPDATE fact.modifier_interactions
 SET modifierquantity = im.modifierquantity,
@@ -304,7 +329,7 @@ WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
   AND modifier_interactions.freequantity IS NULL;
 */
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
 WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge-Options';
 

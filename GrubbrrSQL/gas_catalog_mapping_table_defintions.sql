@@ -194,7 +194,8 @@ ALTER TABLE IF EXISTS dim.modifier_group_mapping
     OWNER to citus;
 
 
-
+ALTER TABLE dim.modifier_group_mapping
+ADD CONSTRAINT modfrgrp_modfr_unq UNIQUE (modifiergroupid, modifierid);
 
 
 

@@ -1017,8 +1017,16 @@ UPDATE fact.transactionitem
    SET businessdate = (transactionitem.orderdatelocal)::date
 WHERE (transactionitem.businessdate IS NULL);
 
+
+UPDATE fact.watermarktable
+   SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.itemmodifier)
+WHERE watermarktablename = 'fact.itemmodifier'
+  AND source = 'nge';
+
+
 END;
 $BODY$;
+
 
 ALTER PROCEDURE fact.usp_update_datetime_fields()
     OWNER TO citus;
