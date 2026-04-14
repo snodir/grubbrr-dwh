@@ -114,18 +114,51 @@ AS $BODY$
 BEGIN
 
 WITH delta_sent_surveys AS (
-SELECT
+SELECT *, survey_metadata::jsonb AS survey_metadata_json
 FROM stg.sent_surveys as ss
 WHERE ss.syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
   AND NOT EXISTS (SELECT 1 FROM fact.itemssurvey as its 
                   WHERE its.locationid = ss.locationid
                     AND its.orderid = ss.orderid)
-), get_surveyids AS (
-SELECT 
-FROM delta_sent_surveys as ds
-WHERE ds.survey_metadata :: jsonb
+), exploded AS (
+    SELECT
+        organizationid,
+        locationid,
+        ordersessionid,
+        survey_metadata_json ->>'orderId' AS order_id,
+        surveys.survey_id,
+        items.item_id,
+        gem_event_category,
+        gem_event_type,
+        is_responded,
+        gem_event_instant,
+        gem_syscosmosts,
+        sysinserttime,
+        sysupdatetime
+    FROM delta_sent_surveys,
+    LATERAL (
+        SELECT value::text AS survey_id
+        FROM jsonb_array_elements_text(
+            CASE
+                WHEN jsonb_typeof(survey_metadata_json -> 'surveyIds') = 'array'
+                THEN survey_metadata_json -> 'surveyIds'
+                ELSE jsonb_build_array(survey_metadata_json -> 'surveyIds')
+            END
+        )
+    ) AS surveys,
+    LATERAL (
+        SELECT value::text AS item_id
+        FROM jsonb_array_elements_text(
+            CASE
+                WHEN jsonb_typeof(survey_metadata_json -> 'itemId') = 'array'
+                THEN survey_metadata_json -> 'itemId'
+                ELSE jsonb_build_array(survey_metadata_json -> 'itemId')
+            END
+        )
+    ) AS items
+    WHERE survey_metadata_json IS NOT NULL
 )
-
+SELECT * FROM exploded;
 END;
 
 $BODY$

@@ -193,6 +193,11 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS dim.modifier_group_mapping
     OWNER to citus;
 
+
+
+
+
+
 CREATE TABLE if not EXISTS dim.item_modifier_group_modifier_mapping(
     catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
     menuitemid character varying(50) COLLATE pg_catalog."default" NOT NULL,
@@ -229,8 +234,100 @@ ADD CONSTRAINT item_modgrp_modfr_unq UNIQUE (menuitemid, modifiergroupid, modifi
 ALTER TABLE dim.item_modifier_group_modifier_mapping
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
-CREATE INDEX IF NOT EXISTS idx_catalog_lookup_on_item_modifier_group_modifier_mapping
-    ON dim.item_modifier_group_modifier_mapping USING btree
-    (catalog_id COLLATE pg_catalog."default" ASC NULLS LAST, pos_connector_configuration_id COLLATE pg_catalog."default" ASC NULLS LAST, is_deleted ASC NULLS LAST)
-    INCLUDE(catalog_entity_id)
+
+
+
+-- Table: public.modifier_group_master
+
+-- DROP TABLE IF EXISTS public.modifier_group_master;
+
+CREATE TABLE IF NOT EXISTS dim.modifier_group
+(
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupname character varying(510) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    max_selection integer,
+    min_selection integer,
+    free_count integer,
+    pos_linked_entity_id character varying(50) COLLATE pg_catalog."default",
+    is_active boolean NOT NULL,
+    is_deleted boolean NOT NULL,
+    created_on timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_on timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    negative_modifier_behavior integer,
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    max_aggregate_count integer,
+    min_aggregate_count integer,
+    increment_step integer,
+    slider_mode boolean NOT NULL DEFAULT false,
+    slider_mode_modifier boolean NOT NULL DEFAULT false,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP,
+    CONSTRAINT modifier_group_master_pkey PRIMARY KEY (modifiergroupid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.modifier_group
+    OWNER to citus;
+
+REVOKE ALL ON TABLE public.modifier_group_master FROM nensi;
+REVOKE ALL ON TABLE public.modifier_group_master FROM nsadullaev;
+
+GRANT ALL ON TABLE public.modifier_group_master TO citus;
+
+GRANT INSERT, SELECT, UPDATE ON TABLE public.modifier_group_master TO nensi;
+
+GRANT SELECT ON TABLE public.modifier_group_master TO nsadullaev;
+-- Index: idx_modifier_group_master_active_filter
+
+-- DROP INDEX IF EXISTS public.idx_modifier_group_master_active_filter;
+
+CREATE INDEX IF NOT EXISTS idx_modifier_group_master_active_filter
+    ON public.modifier_group_master USING btree
+    (catalog_id COLLATE pg_catalog."default" ASC NULLS LAST, is_deleted ASC NULLS LAST, is_active ASC NULLS LAST)
     TABLESPACE pg_default
+    WHERE is_deleted = false;
+-- Index: idx_modifier_group_master_catalog_id_is_deleted
+
+-- DROP INDEX IF EXISTS public.idx_modifier_group_master_catalog_id_is_deleted;
+
+CREATE INDEX IF NOT EXISTS idx_modifier_group_master_catalog_id_is_deleted
+    ON public.modifier_group_master USING btree
+    (catalog_id COLLATE pg_catalog."default" ASC NULLS LAST, is_deleted ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: idx_modifier_group_master_list_display_name
+
+-- DROP INDEX IF EXISTS public.idx_modifier_group_master_list_display_name;
+
+CREATE INDEX IF NOT EXISTS idx_modifier_group_master_list_display_name
+    ON public.modifier_group_master USING btree
+    (catalog_id COLLATE pg_catalog."default" ASC NULLS LAST, is_deleted ASC NULLS LAST, display_name COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default
+    WHERE is_deleted = false;
+-- Index: idx_modifier_group_master_list_name
+
+-- DROP INDEX IF EXISTS public.idx_modifier_group_master_list_name;
+
+CREATE INDEX IF NOT EXISTS idx_modifier_group_master_list_name
+    ON public.modifier_group_master USING btree
+    (catalog_id COLLATE pg_catalog."default" ASC NULLS LAST, is_deleted ASC NULLS LAST, name COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default
+    WHERE is_deleted = false;
+-- Index: ix_catalog_id_on_modifier_group_master
+
+-- DROP INDEX IF EXISTS public.ix_catalog_id_on_modifier_group_master;
+
+CREATE INDEX IF NOT EXISTS ix_catalog_id_on_modifier_group_master
+    ON public.modifier_group_master USING btree
+    (catalog_id COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: ix_ple_id_on_modifier_group_master
+
+-- DROP INDEX IF EXISTS public.ix_ple_id_on_modifier_group_master;
+
+CREATE INDEX IF NOT EXISTS ix_ple_id_on_modifier_group_master
+    ON public.modifier_group_master USING btree
+    (catalog_id COLLATE pg_catalog."default" ASC NULLS LAST, pos_linked_entity_id COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;

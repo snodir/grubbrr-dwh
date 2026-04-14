@@ -48,6 +48,12 @@ org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-73ad6e86-1f5c-4123-adbb-4
 org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-7d483b28-0129-4e28-b32c-105bfcc993f0	1305 - Charlotte, NC
 org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-8ead49a8-798b-4786-988a-90bbbb4775c7	0927 Steele Creek Road
 org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-26335157-cfac-40a3-b901-2bca43618bc6	1414 - Piscataway, NJ
+
+
+org-91b23045-d053-4579-a9e4-acb8d4ec37b2	Rak One			loc-49a53dc2-1818-4a6f-8312-ed4da2adacb3	HMS GAB
+org-b2c96641-209e-47c8-b1d5-b5d3c881a244	Tanvi - Loyalty	loc-1364b2ed-9c7d-4a1a-bfee-d0cdd148fb09	paytronix loyalty
+org-d54ec735-238b-454f-ba73-6ec9d3a7a955	Jiten Company	loc-9dbd4815-f50a-4e4f-ac1d-5fd6d9ec728e	Test Toast
+org-tf5i2lw1qz								Sakshi Demo		loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e	Toast + Punchh
 */
 
 SELECT *
