@@ -13,6 +13,242 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/dimLocationCatalog')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Dimensions-GAS"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "gasCosmosLocation",
+                                "type": "DatasetReference"
+                            },
+                            "name": "ngeLocationCatalog"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimLocationCatalogAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "maxIDDimLocCtlg"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimLocationCatalogAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "checkLocationCatalog"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "dimLocationCatalogAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimLocationCtlg"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "GetMaxID"
+                        },
+                        {
+                            "name": "IdGenerator"
+                        },
+                        {
+                            "name": "MapDrifted1",
+                            "description": "Creates an explicit mapping for each drifted column"
+                        },
+                        {
+                            "name": "ReadyID"
+                        },
+                        {
+                            "name": "OnlyNewCatalogs"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          organizationid as string,",
+                        "          timezone as string,",
+                        "          menuid as string,",
+                        "          locationid as string,",
+                        "          catalogid as string,",
+                        "          locationname as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT distinct c.companyId as organizationid,\\n       c.name ?? null as locationname ,\\n       c.catalogId ?? null as catalogid,\\n       c.menuId ?? null as menuid,\\n       c.locationId as locationid,\\n       c.timezone ?? null as timezone\\nFROM c\\nWHERE is_defined(c.catalogId) = true\\nAND c.catalogId <> null',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> ngeLocationCatalog",
+                        "source(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select coalesce(max(id), 0) as maxid from dim.locationcatalog',",
+                        "     format: 'query') ~> maxIDDimLocCtlg",
+                        "source(output(",
+                        "          id as long,",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          locationname as string,",
+                        "          catalogid as string,",
+                        "          timezone as string,",
+                        "          menuid as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> checkLocationCatalog",
+                        "OnlyNewCatalogs, maxIDDimLocCtlg join(1==1,",
+                        "     joinType:'cross',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> GetMaxID",
+                        "GetMaxID keyGenerate(output(key as long),",
+                        "     startAt: 1L,",
+                        "     stepValue: 1L) ~> IdGenerator",
+                        "IdGenerator derive(maxid = toLong(byName('maxid'))) ~> MapDrifted1",
+                        "MapDrifted1 derive(id = maxid + key) ~> ReadyID",
+                        "ngeLocationCatalog, checkLocationCatalog exists(ngeLocationCatalog@locationid == checkLocationCatalog@locationid",
+                        "     && ngeLocationCatalog@catalogid == checkLocationCatalog@catalogid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> OnlyNewCatalogs",
+                        "ReadyID sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as long,",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          locationname as string,",
+                        "          catalogid as string,",
+                        "          timezone as string,",
+                        "          menuid as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          organizationid,",
+                        "          locationid,",
+                        "          locationname,",
+                        "          catalogid,",
+                        "          timezone,",
+                        "          menuid,",
+                        "          id",
+                        "     )) ~> dimLocationCtlg"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimOccasionSurvey')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Orders-GAS"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "gasSurveyCosmos",
+                                "type": "DatasetReference"
+                            },
+                            "name": "CosmosSurvey"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimOccasionSurveyAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "checkDimOccasionSurvey"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "dimOccasionSurveyAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimOccasionSurvey"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "NewSurveysOnly"
+                        },
+                        {
+                            "name": "surveytype"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          organizationid as string,",
+                        "          surveyid as string,",
+                        "          surveyname as string,",
+                        "          surveytype as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT distinct c.organizationId as organizationid,\\nc.surveyId as surveyid,\\nc.name as surveyname,\\nc.surveyType as surveytype\\nFROM survey as c\\nwhere 1 = 1 \\nand c.status = 1\\nand c.isDeleted = false',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> CosmosSurvey",
+                        "source(output(",
+                        "          surveykey as long,",
+                        "          organizationid as string,",
+                        "          surveyid as string,",
+                        "          surveyname as string,",
+                        "          surveytype as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> checkDimOccasionSurvey",
+                        "CosmosSurvey, checkDimOccasionSurvey exists(CosmosSurvey@surveyid == checkDimOccasionSurvey@surveyid",
+                        "     && CosmosSurvey@organizationid == checkDimOccasionSurvey@organizationid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> NewSurveysOnly",
+                        "NewSurveysOnly derive(surveytype = iif(surveytype == true(), '1', '0')) ~> surveytype",
+                        "surveytype sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          surveykey as long,",
+                        "          organizationid as string,",
+                        "          surveyid as string,",
+                        "          surveyname as string,",
+                        "          surveytype as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          organizationid,",
+                        "          surveyid,",
+                        "          surveyname,",
+                        "          surveytype",
+                        "     )) ~> dimOccasionSurvey"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/factItemsSurvey')]",
             "type": "Microsoft.DataFactory/factories/dataflows",
             "apiVersion": "2018-06-01",
@@ -2261,29 +2497,33 @@
                         "          orderid as string,",
                         "          orderitemid as string,",
                         "          menuitemid as string,",
+                        "          menuitemname as string,",
                         "          itemquantity as short,",
                         "          itemunitprice as decimal(12,3),",
                         "          item_class_type as integer,",
                         "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
                         "          modifierid as string,",
                         "          modifiername as string,",
                         "          parent_modifier_id as string,",
                         "          nesting_depth as integer,",
-                        "          modifierquantity as integer,",
+                        "          modifierquantity as short,",
                         "          modifierprice as decimal(12,3),",
                         "          freequantity as integer,",
+                        "          is_modifier_default as boolean,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
                         "          selection_type as string,",
                         "          action as string,",
                         "          session_recorded_at as string,",
                         "          frequentcustomerid as string,",
-                        "          is_modifier_default as boolean,",
                         "          modifier_default_quantity as integer,",
                         "          modifier_class_type as integer",
                         "     ),",
                         "     allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '{$pdf_orgid}' AND ol.organizationtype = 0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid = c.organizationid AND ol.locationid = c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid = olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.transactionitem AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid = ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}) SELECT olcm.organizationid, olcm.organizationname, olcm.locationname, olcm.locationid, olcm.catalogid, olcm.catalogname, m.businessdate, m.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, m.transactionheaderid, m.ordersessionid, m.orderid, m.orderitemid, ti.dimmenuitemid AS menuitemid, ti.itemquantity, ti.itemunitprice, mi.item_class_type, m.modifiergroupid, m.modifierid, m.modifiername, m.parent_modifier_id, m.nesting_depth, m.modifierquantity, m.modifierprice, m.freequantity, m.selection_type, m.action, m.session_recorded_at, m.frequentcustomerid, olcm.is_modifier_default, olcm.modifier_default_quantity, olcm.classification AS modifier_class_type FROM fact.modifier_interactions AS m INNER JOIN trxn_items AS ti ON m.transactionheaderid = ti.transactionheaderid AND m.orderitemid = ti.itemid INNER JOIN org_loc_ctlg_modifiers AS olcm ON ti.locationid = olcm.locationid AND m.modifierid = olcm.modifierid INNER JOIN dim.menuitem AS mi ON mi.menuitemid = ti.dimmenuitemid\"),",
+                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '{$pdf_orgid}' AND ol.organizationtype = 0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid = c.organizationid AND ol.locationid = c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid = olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.transactionitem AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid = ol.locationid WHERE 1 = 1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}) SELECT olcm.organizationid, olcm.organizationname, olcm.locationname, olcm.locationid, olcm.catalogid, olcm.catalogname, mt.businessdate, ti.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, mt.transactionheaderid, ti.ordersessionid, mt.orderid, mt.itemid AS orderitemid, ti.dimmenuitemid AS menuitemid, mi.menuitemname, ti.itemquantity, ti.itemunitprice, mi.item_class_type, mt.modifiergroupid, mg.modifiergroupname, mt.modifierid, mt.modifiername, NULL::TEXT AS parent_modifier_id, NULL::INTEGER AS nesting_depth, mt.modifierquantity, mt.modifierprice, mt.freequantity, mgm.is_default AS is_modifier_default, mg.min_selection AS min_quantity, mg.max_selection AS max_quantity, CASE WHEN mgm.is_default = FALSE AND mg.min_selection = 0 AND mg.max_selection >= 0 THEN 'optional' WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 THEN 'required' WHEN mgm.is_default = TRUE THEN 'default' END AS selection_type, CASE WHEN mgm.is_default = FALSE AND mg.min_selection = 0 AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added' WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected' WHEN mgm.is_default = TRUE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept' WHEN mgm.is_default = TRUE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action, NULL::TEXT AS session_recorded_at, ti.frequentcustomerid, olcm.modifier_default_quantity, olcm.classification AS modifier_class_type FROM fact.itemmodifier AS mt INNER JOIN trxn_items AS ti ON mt.transactionheaderid = ti.transactionheaderid AND mt.itemid = ti.itemid INNER JOIN org_loc_ctlg_modifiers AS olcm ON ti.locationid = olcm.locationid AND mt.modifierid = olcm.modifierid INNER JOIN dim.menuitem AS mi ON mi.menuitemid = ti.dimmenuitemid LEFT JOIN dim.modifier_group_mapping AS mgm ON mgm.modifiergroupid = mt.modifiergroupid AND mgm.modifierid = mt.modifierid LEFT JOIN dim.modifier_group AS mg ON mg.modifiergroupid = mt.modifiergroupid\"),",
                         "     format: 'query') ~> ModifierInteractions",
                         "source(output(",
                         "          organizationid as string,",
@@ -2295,9 +2535,12 @@
                         "          yyyy as integer,",
                         "          ww as integer,",
                         "          menuitemid as string,",
+                        "          menuitemname as string,",
                         "          item_class_type as integer,",
                         "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
                         "          modifierid as string,",
+                        "          modifiername as string,",
                         "          modifier_class_type as integer,",
                         "          is_modifier_default as boolean,",
                         "          min_quantity as integer,",
@@ -2316,7 +2559,7 @@
                         "     allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE 1=1 AND (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '{$pdf_orgid}' AND ol.organizationtype = 0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid = c.organizationid AND ol.locationid = c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid = olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.transactionitem as ti INNER JOIN org_loc_lookup as ol ON ti.locationid = ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}), trxn_modifiers AS (SELECT ti.organizationid, ti.organizationname, ti.locationname, ti.locationid, ti.businessdate, ti.orderdatelocal, {$pdf_yyyy} as yyyy, {$pdf_ww} as ww, m.transactionheaderid, m.itemid as orderitemid, ti.dimmenuitemid as menuitemid, ti.itemquantity, ti.itemunitprice, m.modifiergroupid, m.modifierid, m.modifiername, m.modifierquantity, m.modifierprice, m.freequantity FROM fact.itemmodifier AS m INNER JOIN trxn_items AS ti ON m.transactionheaderid = ti.transactionheaderid AND m.itemid = ti.itemid), loc_mdfr_agg AS (SELECT organizationid, locationid, modifierid, COUNT(*) AS mdfr_selection_frequency_within_loc_and_week, MAX(modifierprice) AS modifierprice FROM trxn_modifiers GROUP BY organizationid, locationid, modifierid), loc_mdfr_itm AS (SELECT organizationid, locationid, modifierid, menuitemid, COUNT(*) AS x_times_added_on_to_the_item, ROW_NUMBER() OVER (PARTITION BY organizationid, locationid, modifierid ORDER BY COUNT(*) DESC) AS mdfr_selection_ranking FROM trxn_modifiers GROUP BY organizationid, locationid, modifierid, menuitemid) SELECT m.organizationid, m.organizationname, m.locationid, m.locationname, m.catalogid, m.catalogname, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, imgm.menuitemid, mi.item_class_type, imgm.modifiergroupid, imgm.modifierid, m.classification as modifier_class_type, m.is_modifier_default, m.min_quantity, m.max_quantity, m.allow_quantity_increment, m.increment_step, m.modifier_default_quantity, m.is_invisible as is_modifier_invisible, m.calories, m.is_modifier_active, m.is_modifier_deleted, lmi.x_times_added_on_to_the_item, lma.mdfr_selection_frequency_within_loc_and_week, round(100 * CAST(lmi.x_times_added_on_to_the_item AS NUMERIC(9,3)) / lma.mdfr_selection_frequency_within_loc_and_week, 3) AS pct_relative_selection_frequency FROM dim.item_modifier_group_modifier_mapping as imgm INNER JOIN org_loc_ctlg_modifiers as m ON imgm.catalogid = m.catalogid AND imgm.modifierid = m.modifierid INNER JOIN dim.menuitem as mi ON imgm.menuitemid = mi.menuitemid LEFT JOIN loc_mdfr_itm as lmi ON m.organizationid = lmi.organizationid AND m.locationid = lmi.locationid AND imgm.modifierid = lmi.modifierid AND imgm.menuitemid = lmi.menuitemid LEFT JOIN loc_mdfr_agg as lma ON m.organizationid = lma.organizationid AND m.locationid = lma.locationid AND imgm.modifierid = lma.modifierid\"),",
+                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE 1=1 AND (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END)='{$pdf_orgid}' AND ol.organizationtype=0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid=c.organizationid AND ol.locationid=c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid=olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER={$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER<={$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER<{$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.transactionitem AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid=ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER={$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER={$pdf_ww}), trxn_modifiers AS (SELECT ti.organizationid, ti.organizationname, ti.locationname, ti.locationid, ti.businessdate, ti.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, m.transactionheaderid, m.itemid AS orderitemid, ti.dimmenuitemid AS menuitemid, ti.itemquantity, ti.itemunitprice, m.modifiergroupid, m.modifierid, m.modifiername, m.modifierquantity, m.modifierprice, m.freequantity FROM fact.itemmodifier AS m INNER JOIN trxn_items AS ti ON m.transactionheaderid=ti.transactionheaderid AND m.itemid=ti.itemid), loc_mdfr_agg AS (SELECT organizationid, locationid, modifierid, COUNT(*) AS mdfr_selection_frequency_within_loc_and_week, MAX(modifierprice) AS modifierprice FROM trxn_modifiers GROUP BY organizationid, locationid, modifierid), loc_mdfr_itm AS (SELECT organizationid, locationid, modifierid, menuitemid, COUNT(*) AS x_times_added_on_to_the_item, ROW_NUMBER() OVER (PARTITION BY organizationid, locationid, modifierid ORDER BY COUNT(*) DESC) AS mdfr_selection_ranking FROM trxn_modifiers GROUP BY organizationid, locationid, modifierid, menuitemid) SELECT m.organizationid, m.organizationname, m.locationid, m.locationname, m.catalogid, m.catalogname, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, imgm.menuitemid, mi.menuitemname, mi.item_class_type, imgm.modifiergroupid, mg.modifiergroupname, imgm.modifierid, m.modifiername, m.classification AS modifier_class_type, imgm.is_default AS is_modifier_default, mg.min_selection AS min_quantity, mg.max_selection AS max_quantity, m.allow_quantity_increment, m.increment_step, m.modifier_default_quantity, m.is_invisible AS is_modifier_invisible, m.calories, m.is_modifier_active, m.is_modifier_deleted, lmi.x_times_added_on_to_the_item, lma.mdfr_selection_frequency_within_loc_and_week, ROUND(100*CAST(lmi.x_times_added_on_to_the_item AS NUMERIC(9,3))/lma.mdfr_selection_frequency_within_loc_and_week,3) AS pct_relative_selection_frequency FROM dim.item_modifier_group_modifier_mapping AS imgm INNER JOIN org_loc_ctlg_modifiers AS m ON imgm.catalogid=m.catalogid AND imgm.modifierid=m.modifierid INNER JOIN dim.menuitem AS mi ON imgm.menuitemid=mi.menuitemid INNER JOIN dim.modifier_group AS mg ON imgm.catalogid=mg.catalogid AND imgm.modifiergroupid=mg.modifiergroupid LEFT JOIN loc_mdfr_itm AS lmi ON m.organizationid=lmi.organizationid AND m.locationid=lmi.locationid AND imgm.modifierid=lmi.modifierid AND imgm.menuitemid=lmi.menuitemid LEFT JOIN loc_mdfr_agg AS lma ON m.organizationid=lma.organizationid AND m.locationid=lma.locationid AND imgm.modifierid=lma.modifierid\"),",
                         "     format: 'query') ~> ModifierMapping",
                         "source(output(",
                         "          organizationid as string,",
@@ -2333,7 +2576,11 @@
                         "          ordersessionid as string,",
                         "          orderid as string,",
                         "          menuitemid as string,",
+                        "          menuitemname as string,",
+                        "          item_class_type as integer,",
                         "          modifierid as string,",
+                        "          modifiername as string,",
+                        "          modifier_class_type as integer,",
                         "          parent_modifier_id as string,",
                         "          nesting_depth as integer,",
                         "          modifierprice as decimal(12,3),",
@@ -2346,15 +2593,12 @@
                         "          pre_deselected as boolean,",
                         "          confirmed_removed as boolean,",
                         "          pre_selected as boolean,",
-                        "          frequentcustomerid as string,",
-                        "          is_modifier_default as boolean,",
-                        "          modifier_default_quantity as integer,",
-                        "          modifier_class_type as integer",
+                        "          frequentcustomerid as string",
                         "     ),",
                         "     allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '{$pdf_orgid}' AND ol.organizationtype = 0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid = c.organizationid AND ol.locationid = c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid = olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.modifier_impressions AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid = ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}) SELECT olcm.organizationid, olcm.organizationname, olcm.locationname, olcm.locationid, olcm.catalogid, olcm.catalogname, m.businessdate, m.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, m.transactionheaderid, m.ordersessionid, m.orderid, m.menuitemid, m.modifierid, m.parent_modifier_id, m.nesting_depth, olcm.price AS modifierprice, m.selection_type, m.position, m.score, m.strategy, m.context, m.selected, m.pre_deselected, m.confirmed_removed, m.pre_selected, m.frequentcustomerid, olcm.is_modifier_default, olcm.modifier_default_quantity, olcm.classification AS modifier_class_type FROM trxn_items AS m INNER JOIN org_loc_ctlg_modifiers AS olcm ON m.locationid = olcm.locationid AND m.modifierid = olcm.modifierid INNER JOIN dim.menuitem AS mi ON mi.menuitemid = m.menuitemid\"),",
+                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END)='{$pdf_orgid}' AND ol.organizationtype=0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid=c.organizationid AND ol.locationid=c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid=olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER={$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER<={$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER<{$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.modifier_impressions AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid=ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER={$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER={$pdf_ww}) SELECT olcm.organizationid, olcm.organizationname, olcm.locationname, olcm.locationid, olcm.catalogid, olcm.catalogname, m.businessdate, m.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, m.transactionheaderid, m.ordersessionid, m.orderid, m.menuitemid, mi.menuitemname, mi.item_class_type, m.modifierid, olcm.modifiername, olcm.classification AS modifier_class_type, m.parent_modifier_id, m.nesting_depth, olcm.price AS modifierprice, m.selection_type, m.position, m.score, m.strategy, m.context, m.selected, m.pre_deselected, m.confirmed_removed, m.pre_selected, m.frequentcustomerid FROM trxn_items AS m INNER JOIN org_loc_ctlg_modifiers AS olcm ON m.locationid=olcm.locationid AND m.modifierid=olcm.modifierid INNER JOIN dim.menuitem AS mi ON mi.menuitemid=m.menuitemid\"),",
                         "     format: 'query') ~> ModifierImpressions",
                         "gasTransactions derive(yyww = concat(substring(toString(yyyy), 3, 2), lpad(toString(ww), 2, '0'))) ~> yyww",
                         "RecommendationSessions derive(yyww = concat(substring(toString(yyyy), 3, 2), lpad(toString(ww), 2, '0'))) ~> yyyww2",
@@ -4954,7 +5198,6 @@
                         "sysinserttime sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
-                        "          id as long,",
                         "          organizationid as string,",
                         "          locationid as string,",
                         "          mapping_created_on as timestamp,",
@@ -5024,7 +5267,6 @@
                         "Update2 sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
-                        "          id as long,",
                         "          organizationid as string,",
                         "          locationid as string,",
                         "          mapping_created_on as timestamp,",
@@ -5149,6 +5391,27 @@
                                 "type": "DatasetReference"
                             },
                             "name": "gmsModMapping"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModfrGroup"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimModifierGroup"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModfrGroupUpdate"
                         }
                     ],
                     "sinks": [
@@ -5179,6 +5442,20 @@
                                 "type": "DatasetReference"
                             },
                             "name": "updateDimModifierGroupMapping"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "toDimModifierGroup"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "updateDimModifierGroup"
                         }
                     ],
                     "transformations": [
@@ -5205,6 +5482,18 @@
                         },
                         {
                             "name": "Update2"
+                        },
+                        {
+                            "name": "NewModfrGroups"
+                        },
+                        {
+                            "name": "sysinserttime3"
+                        },
+                        {
+                            "name": "sysupdatetime3"
+                        },
+                        {
+                            "name": "Update3"
                         }
                     ],
                     "scriptLines": [
@@ -5355,6 +5644,85 @@
                         "     isolationLevel: 'READ_UNCOMMITTED',",
                         "     query: 'SELECT mg.id as modifier_mapping_id,\\r\\n       mg.modifier_master_id as modifierid,\\r\\n       mg.modifier_group_master_id as modifiergroupid,\\r\\n       mg.catalog_id as catalogid,\\r\\n       mg.is_active as is_mapping_active,\\r\\n       mg.is_deleted as is_mapping_deleted,\\r\\n       mg.created_on as mapping_created_on,\\r\\n       mg.modified_on as mapping_modified_on,\\r\\n       mg.is_default,\\r\\n       mg.default_quantity,\\r\\n       mg.allow_quantity_increment,\\r\\n       mg.increment_step,\\r\\n       mg.min_quantity,\\r\\n       mg.max_quantity,\\r\\n       mg.calories_text,\\r\\n       mg.is_invisible\\r\\nFROM public.modifier_group_modifier_glue as mg',",
                         "     format: 'query') ~> gmsModMapping",
+                        "source(output(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'SELECT\\r\\n    id as modifiergroupid,\\r\\n    name as modifiergroupname,\\r\\n    catalog_id as catalogid,\\r\\n    max_selection,\\r\\n    min_selection,\\r\\n    free_count,\\r\\n    pos_linked_entity_id,\\r\\n    is_active,\\r\\n    is_deleted,\\r\\n    created_on,\\r\\n    modified_on,\\r\\n    negative_modifier_behavior,\\r\\n    created_by,\\r\\n    modified_by,\\r\\n    max_aggregate_count,\\r\\n    min_aggregate_count,\\r\\n    increment_step,\\r\\n    slider_mode,\\r\\n    slider_mode_modifier\\r\\nFROM public.modifier_group_master',",
+                        "     format: 'query') ~> gmsModfrGroup",
+                        "source(output(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> dimModifierGroup",
+                        "source(output(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'SELECT\\r\\n    id as modifiergroupid,\\r\\n    name as modifiergroupname,\\r\\n    catalog_id as catalogid,\\r\\n    max_selection,\\r\\n    min_selection,\\r\\n    free_count,\\r\\n    pos_linked_entity_id,\\r\\n    is_active,\\r\\n    is_deleted,\\r\\n    created_on,\\r\\n    modified_on,\\r\\n    negative_modifier_behavior,\\r\\n    created_by,\\r\\n    modified_by,\\r\\n    max_aggregate_count,\\r\\n    min_aggregate_count,\\r\\n    increment_step,\\r\\n    slider_mode,\\r\\n    slider_mode_modifier\\r\\nFROM public.modifier_group_master',",
+                        "     format: 'query') ~> gmsModfrGroupUpdate",
                         "NewModifiers derive(sysinserttime = currentTimestamp()) ~> sysinserttime",
                         "gmsModifiers, dimModifiers exists(gmsModifiers@modifierid == dimModifiers@modifierid,",
                         "     negate:true,",
@@ -5367,6 +5735,12 @@
                         "gmsModMapping derive(sysupdatetime = currentTimestamp()) ~> sysupdatetime2",
                         "sysupdatetime alterRow(updateIf(true())) ~> Update",
                         "sysupdatetime2 alterRow(updateIf(true())) ~> Update2",
+                        "gmsModfrGroup, dimModifierGroup exists(gmsModfrGroup@modifiergroupid == dimModifierGroup@modifiergroupid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> NewModfrGroups",
+                        "NewModfrGroups derive(sysinserttime = currentTimestamp()) ~> sysinserttime3",
+                        "gmsModfrGroupUpdate derive(sysupdatetime = currentTimestamp()) ~> sysupdatetime3",
+                        "sysupdatetime3 alterRow(updateIf(true())) ~> Update3",
                         "sysinserttime sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
@@ -5569,7 +5943,118 @@
                         "          calories_text,",
                         "          is_invisible,",
                         "          sysupdatetime",
-                        "     )) ~> updateDimModifierGroupMapping"
+                        "     )) ~> updateDimModifierGroupMapping",
+                        "sysinserttime3 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 5,",
+                        "     mapColumn(",
+                        "          modifiergroupid,",
+                        "          modifiergroupname,",
+                        "          catalogid,",
+                        "          max_selection,",
+                        "          min_selection,",
+                        "          free_count,",
+                        "          pos_linked_entity_id,",
+                        "          is_active,",
+                        "          is_deleted,",
+                        "          created_on,",
+                        "          modified_on,",
+                        "          negative_modifier_behavior,",
+                        "          created_by,",
+                        "          modified_by,",
+                        "          max_aggregate_count,",
+                        "          min_aggregate_count,",
+                        "          increment_step,",
+                        "          slider_mode,",
+                        "          slider_mode_modifier,",
+                        "          sysinserttime",
+                        "     )) ~> toDimModifierGroup",
+                        "Update3 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['modifiergroupid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 6,",
+                        "     mapColumn(",
+                        "          modifiergroupid,",
+                        "          modifiergroupname,",
+                        "          catalogid,",
+                        "          max_selection,",
+                        "          min_selection,",
+                        "          free_count,",
+                        "          pos_linked_entity_id,",
+                        "          is_active,",
+                        "          is_deleted,",
+                        "          created_on,",
+                        "          modified_on,",
+                        "          negative_modifier_behavior,",
+                        "          created_by,",
+                        "          modified_by,",
+                        "          max_aggregate_count,",
+                        "          min_aggregate_count,",
+                        "          increment_step,",
+                        "          slider_mode,",
+                        "          slider_mode_modifier,",
+                        "          sysupdatetime",
+                        "     )) ~> updateDimModifierGroup"
                     ]
                 }
             },
@@ -7101,131 +7586,6 @@
                         "          status,",
                         "          statusmessage",
                         "     )) ~> factPeripHealth"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gshPeripheralHealthToAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Service-GSH"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "PeripheralHealthFromGsh",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gshPeripheralHealth"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "PeripheralHealthAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "PushToPGAnalyticsStg"
-                        }
-                    ],
-                    "transformations": [],
-                    "scriptLines": [
-                        "source(output(",
-                        "          healthdataid as long,",
-                        "          peripheralid as string,",
-                        "          peripheraltype as string,",
-                        "          status as string,",
-                        "          statusmessage as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> gshPeripheralHealth",
-                        "gshPeripheralHealth sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     truncate:true,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> PushToPGAnalyticsStg"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gshPeripheralsToAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Service-GSH"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "PeripheralFromGsh",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gshPeripherals"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "factPeripheralAnalyticsDB",
-                                "type": "DatasetReference"
-                            },
-                            "name": "PushToPGAnalyticsStg"
-                        }
-                    ],
-                    "transformations": [],
-                    "scriptLines": [
-                        "source(output(",
-                        "          id as long,",
-                        "          deviceid as long,",
-                        "          peripheralid as string,",
-                        "          peripheraltype as string,",
-                        "          state as string,",
-                        "          previousstate as string,",
-                        "          statechangedate as timestamp,",
-                        "          description as string,",
-                        "          model as string,",
-                        "          serial as string,",
-                        "          ipaddress as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> gshPeripherals",
-                        "gshPeripherals sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          healthdataid as long,",
-                        "          peripheralid as string,",
-                        "          peripheraltype as string,",
-                        "          status as string,",
-                        "          statusmessage as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     truncate:true,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> PushToPGAnalyticsStg"
                     ]
                 }
             },

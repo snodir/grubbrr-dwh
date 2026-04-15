@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS stg.modifier_recommendation_sessions
     syscosmosts BIGINT,
     sysinserttime TIMESTAMP,
     sysupdatetime TIMESTAMP
-);
+) 
+TABLESPACE pg_default;
 
 ALTER TABLE stg.modifier_recommendation_sessions
 OWNER TO citus;
@@ -33,7 +34,8 @@ CREATE TABLE IF NOT EXISTS fact.modifier_recommendations
     syscosmosts BIGINT,
     sysinserttime TIMESTAMP,
     sysupdatetime TIMESTAMP
-);
+)
+TABLESPACE pg_default;
 
 ALTER TABLE fact.modifier_recommendations
 OWNER TO citus;
@@ -343,6 +345,9 @@ WHERE watermarktablename = 'fact.modifier_interactions'
 
 END;
 $BODY$;
+
+ALTER PROCEDURE fact.usp_modifier_interaction_analysis()
+OWNER TO citus;
 
 SELECT DISTINCT min_quantity, max_quantity, is_modifier_default
 FROM dim.modifier 

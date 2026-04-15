@@ -1,7 +1,7 @@
 SELECT *, to_timestamp(ts)-- wt.watermarktablename, wt.watermarkcolumn, wt.watermarkvalue, wt.ticks, wt.ts
 FROM fact.watermarktable as wt;
 
-CALL fact.usp_update_datetime_fields();
+--CALL fact.usp_update_datetime_fields();
 
 SELECT * FROM fact.pipelinerunstatus;
 SELECT to_timestamp(1775002010), to_timestamp(1600000300);
@@ -85,11 +85,11 @@ ALTER TABLE fact.watermarktable
 ALTER COLUMN source TYPE CHARACTER VARYING(50);
 
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, source, ts/*, ticks*/)
-VALUES('fact.itemmodifier', 'syscosmosts', 'nge', 1720000300),
+VALUES('fact.modifier_recommendations', 'syscosmosts', 'nge', 1775002010)
+      ('fact.itemmodifier', 'syscosmosts', 'nge', 1720000300),
       ('fact.modifier_interactions', 'syscosmosts', 'nge-Options', 1600000300),
       ('fact.modifier_impressions', 'syscosmosts', 'nge', 1775002010),
       ('fact.modifier_interactions', 'syscosmosts', 'nge-Interactions', 1775002010),
-      ('fact.modifier_recommendations', 'syscosmosts', 'nge', 1720000300)
       ('fact.transactionheader', 'syscosmosts', 'gem', 1720000300)
       ('fact.ordertiming', 'syscosmosts', 'gem', 1720000300)
       ('fact.occasionsurveydetail', 'syscosmosts', 'nge', 1720000300),

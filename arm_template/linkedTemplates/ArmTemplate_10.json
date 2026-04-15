@@ -13,6 +13,131 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/gshPeripheralHealthToAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Service-GSH"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "PeripheralHealthFromGsh",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gshPeripheralHealth"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "PeripheralHealthAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "PushToPGAnalyticsStg"
+                        }
+                    ],
+                    "transformations": [],
+                    "scriptLines": [
+                        "source(output(",
+                        "          healthdataid as long,",
+                        "          peripheralid as string,",
+                        "          peripheraltype as string,",
+                        "          status as string,",
+                        "          statusmessage as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> gshPeripheralHealth",
+                        "gshPeripheralHealth sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     truncate:true,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> PushToPGAnalyticsStg"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/gshPeripheralsToAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Service-GSH"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "PeripheralFromGsh",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gshPeripherals"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "factPeripheralAnalyticsDB",
+                                "type": "DatasetReference"
+                            },
+                            "name": "PushToPGAnalyticsStg"
+                        }
+                    ],
+                    "transformations": [],
+                    "scriptLines": [
+                        "source(output(",
+                        "          id as long,",
+                        "          deviceid as long,",
+                        "          peripheralid as string,",
+                        "          peripheraltype as string,",
+                        "          state as string,",
+                        "          previousstate as string,",
+                        "          statechangedate as timestamp,",
+                        "          description as string,",
+                        "          model as string,",
+                        "          serial as string,",
+                        "          ipaddress as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> gshPeripherals",
+                        "gshPeripherals sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          healthdataid as long,",
+                        "          peripheralid as string,",
+                        "          peripheraltype as string,",
+                        "          status as string,",
+                        "          statusmessage as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     truncate:true,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> PushToPGAnalyticsStg"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/ngFactOccasionSurveyDetail')]",
             "type": "Microsoft.DataFactory/factories/dataflows",
             "apiVersion": "2018-06-01",
@@ -71,6 +196,20 @@
                                 "type": "DatasetReference"
                             },
                             "name": "factTrxnHeader"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gemEvent",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gemSurveysSent"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "stgSentSurveysAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "stgSentSurveys"
                         }
                     ],
                     "sinks": [
@@ -87,6 +226,13 @@
                                 "type": "DatasetReference"
                             },
                             "name": "factOccasionSurveyDetail2"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "stgSentSurveysAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "writeStgSentSurveys"
                         }
                     ],
                     "transformations": [
@@ -122,6 +268,21 @@
                         },
                         {
                             "name": "LiveOrderSurveys"
+                        },
+                        {
+                            "name": "sysinserttime"
+                        },
+                        {
+                            "name": "NewSentSurveys"
+                        },
+                        {
+                            "name": "LookupOrderID"
+                        },
+                        {
+                            "name": "RowNumber"
+                        },
+                        {
+                            "name": "filter1"
                         }
                     ],
                     "scriptLines": [
@@ -276,6 +437,40 @@
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
                         "     format: 'table') ~> factTrxnHeader",
+                        "source(output(",
+                        "          gem_event_type as string,",
+                        "          gem_event_category as string,",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          survey_metadata as string,",
+                        "          ordersessionid as string,",
+                        "          gem_event_instant as string,",
+                        "          gem_syscosmosts as integer,",
+                        "          parsed_data as (itemId as string[], locationId as string, orderId as string, surveyId as string, surveyIds as string)",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT \\r\\n  c.company ?? null as organizationid,\\r\\n  c.location ?? null as locationid,\\r\\n  c.category ?? null as gem_event_category,\\r\\n  c.type ?? null as gem_event_type,\\r\\n  c.token ?? null as ordersessionid,\\r\\n  c.instant ?? null as gem_event_instant,\\r\\n  c.data ?? null as survey_metadata,\\r\\n  StringToObject(c.data) as parsed_data,\\r\\n  c._ts as gem_syscosmosts\\r\\nFROM c\\r\\nWHERE c.module = \\'kiosk\\'\\r\\n  AND lower(c.category) = \\'survey\\'\\r\\n  AND lower(c.type) = \\'sent\\'\\r\\n  AND c.token > \\'\\'',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> gemSurveysSent",
+                        "source(output(",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          ordersessionid as string,",
+                        "          orderid as string,",
+                        "          gem_event_category as string,",
+                        "          gem_event_type as string,",
+                        "          survey_metadata as string,",
+                        "          is_responded as boolean,",
+                        "          gem_event_instant as string,",
+                        "          gem_syscosmosts as long,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> stgSentSurveys",
                         "deriveDateID select(mapColumn(",
                         "          surveycompletedtimestamp = timestamp,",
                         "          surveyrating,",
@@ -346,6 +541,23 @@
                         "     matchType:'exact',",
                         "     ignoreSpaces: false,",
                         "     broadcast: 'auto')~> LiveOrderSurveys",
+                        "LookupOrderID derive(sysinserttime = currentTimestamp(),",
+                        "          is_responded = false()) ~> sysinserttime",
+                        "gemSurveysSent, stgSentSurveys exists(gemSurveysSent@locationid == stgSentSurveys@locationid",
+                        "     && gemSurveysSent@ordersessionid == stgSentSurveys@ordersessionid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> NewSentSurveys",
+                        "filter1, factTrxnHeader join(gemSurveysSent@locationid == factTrxnHeader@locationid",
+                        "     && gemSurveysSent@ordersessionid == factTrxnHeader@ordersessionid,",
+                        "     joinType:'inner',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> LookupOrderID",
+                        "NewSentSurveys window(over(locationid,",
+                        "          ordersessionid),",
+                        "     desc(gem_syscosmosts, true),",
+                        "     rn = rowNumber()) ~> RowNumber",
+                        "RowNumber filter(rn == 1) ~> filter1",
                         "cast1 sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
@@ -426,7 +638,43 @@
                         "          sysinserttime,",
                         "          syscosmosts,",
                         "          sourceid",
-                        "     )) ~> factOccasionSurveyDetail2"
+                        "     )) ~> factOccasionSurveyDetail2",
+                        "sysinserttime sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          ordersessionid as string,",
+                        "          orderid as string,",
+                        "          gem_event_category as string,",
+                        "          gem_event_type as string,",
+                        "          survey_metadata as string,",
+                        "          is_responded as boolean,",
+                        "          gem_event_instant as string,",
+                        "          gem_syscosmosts as long,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          organizationid,",
+                        "          locationid = gemSurveysSent@locationid,",
+                        "          ordersessionid = gemSurveysSent@ordersessionid,",
+                        "          survey_metadata,",
+                        "          gem_event_category,",
+                        "          gem_event_type,",
+                        "          is_responded,",
+                        "          gem_event_instant,",
+                        "          gem_syscosmosts,",
+                        "          sysinserttime,",
+                        "          orderid = transactionheaderid",
+                        "     )) ~> writeStgSentSurveys"
                     ]
                 }
             },
@@ -762,6 +1010,7 @@
                         "     insertable:true,",
                         "     updateable:false,",
                         "     upsertable:false,",
+                        "     truncate:true,",
                         "     format: 'table',",
                         "     skipDuplicateMapInputs: true,",
                         "     skipDuplicateMapOutputs: true,",
@@ -3478,7 +3727,7 @@
                         "onInactiveMarkAs": "Succeeded",
                         "dependsOn": [
                             {
-                                "activity": "CopyMasterModifiers",
+                                "activity": "CopyMasterModifierGroups",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -4106,7 +4355,7 @@
                         "type": "Copy",
                         "dependsOn": [
                             {
-                                "activity": "CopyItemModfrMapping",
+                                "activity": "GetLocationAndItemStatistics",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -4168,6 +4417,350 @@
                                 }
                             }
                         ]
+                    },
+                    {
+                        "name": "CopyMasterModifierGroups",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "CopyMasterModifiers",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "WITH org_loc_ctlg AS (\n    SELECT id as catalogid, organization_id, gem_company_id, gem_location_id\n    FROM public.catalog\n    WHERE organization_id = '@{activity('OrgLocPath').output.firstRow.organizationid}'\n)\nSELECT\n    id as modifiergroupid,\n    name as modifiergroupname,\n    catalog_id as catalogid,\n    max_selection,\n    min_selection,\n    free_count,\n    pos_linked_entity_id,\n    is_active,\n    is_deleted,\n    created_on,\n    modified_on,\n    negative_modifier_behavior,\n    created_by,\n    modified_by,\n    max_aggregate_count,\n    min_aggregate_count,\n    increment_step,\n    slider_mode,\n    slider_mode_modifier,\n    now() :: TIMESTAMP as sysupdatetime\nFROM public.modifier_group_master\nWHERE catalog_id IN (SELECT catalogid FROM org_loc_ctlg)",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "sink": {
+                                "type": "AzurePostgreSqlSink",
+                                "writeBatchSize": 1000000,
+                                "writeBatchTimeout": "00:30:00",
+                                "writeMethod": "Upsert",
+                                "upsertSettings": {
+                                    "keys": [
+                                        "modifiergroupid"
+                                    ]
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "name": "modifiergroupid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "modifiergroupid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "modifiergroupname",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "modifiergroupname",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "catalogid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "catalogid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "max_selection",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "max_selection",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "min_selection",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "min_selection",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "free_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "free_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "pos_linked_entity_id",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "pos_linked_entity_id",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "is_active",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        },
+                                        "sink": {
+                                            "name": "is_active",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "is_deleted",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        },
+                                        "sink": {
+                                            "name": "is_deleted",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "created_on",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        },
+                                        "sink": {
+                                            "name": "created_on",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "modified_on",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        },
+                                        "sink": {
+                                            "name": "modified_on",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "negative_modifier_behavior",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "negative_modifier_behavior",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "created_by",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "created_by",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "modified_by",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "modified_by",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "max_aggregate_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "max_aggregate_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "min_aggregate_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "min_aggregate_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "increment_step",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "increment_step",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "slider_mode",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        },
+                                        "sink": {
+                                            "name": "slider_mode",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "slider_mode_modifier",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        },
+                                        "sink": {
+                                            "name": "slider_mode_modifier",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "sysupdatetime",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        },
+                                        "sink": {
+                                            "name": "sysupdatetime",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        }
+                                    }
+                                ],
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "GetLocationAndItemStatistics",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "CopyItemModfrMapping",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "CALL dim.usp_master_keys_for_duplicate_items();\nCALL fact.usp_location_statistics();",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbOrganizationLocation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
                     }
                 ],
                 "policy": {
@@ -5221,10 +5814,15 @@
                                     "dimModifierMapping": {},
                                     "gmsModifiersAll": {},
                                     "gmsModMapping": {},
+                                    "gmsModfrGroup": {},
+                                    "dimModifierGroup": {},
+                                    "gmsModfrGroupUpdate": {},
                                     "toDimModifier": {},
                                     "toDimModifierMapping": {},
                                     "updateDimModifier": {},
-                                    "updateDimModifierGroupMapping": {}
+                                    "updateDimModifierGroupMapping": {},
+                                    "toDimModifierGroup": {},
+                                    "updateDimModifierGroup": {}
                                 }
                             },
                             "staging": {},
@@ -6575,7 +7173,6 @@
                                 "parameters": {},
                                 "datasetParameters": {
                                     "OrdersCategoriesFromCosmos": {},
-                                    "maxidDimCtgHierarchy": {},
                                     "dimCategoryHierarchy": {},
                                     "ngeItemCtg": {},
                                     "WriteToPG": {},
@@ -6890,513 +7487,6 @@
                     "vDate": {
                         "type": "String",
                         "defaultValue": "2025-03-01"
-                    }
-                },
-                "folder": {
-                    "name": "Events"
-                },
-                "annotations": []
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/GEMUserBehaviourETL')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "GEMUserBehaviourETL",
-                        "type": "ExecuteDataFlow",
-                        "dependsOn": [],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "dataflow": {
-                                "referenceName": "GEMUserBehaviourETL",
-                                "type": "DataFlowReference",
-                                "parameters": {},
-                                "datasetParameters": {
-                                    "AnalyticsDbGEMEvents": {},
-                                    "AnalyticalOrders": {},
-                                    "AnalyticalItems": {},
-                                    "DimElement": {},
-                                    "UpdateItems": {}
-                                }
-                            },
-                            "staging": {},
-                            "compute": {
-                                "coreCount": 8,
-                                "computeType": "General"
-                            },
-                            "traceLevel": "Fine"
-                        }
-                    },
-                    {
-                        "name": "Lookup1",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "GEMUserBehaviourETL",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": {
-                                    "value": "UPDATE fact.pipelinerunstatus SET pipelinerunid = '@{pipeline().RunId}', pipelinetriggertime = '@{pipeline().TriggerTime}',issuccess = true \nWHERE pipelinename = '@{pipeline().Pipeline}';\nSelect 0 as DummyValue",
-                                    "type": "Expression"
-                                },
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "Lookup2",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "GEMUserBehaviourETL",
-                                "dependencyConditions": [
-                                    "Failed"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": {
-                                    "value": "UPDATE fact.pipelinerunstatus SET pipelinerunid = '@{pipeline().RunId}', pipelinetriggertime = '@{pipeline().TriggerTime}',issuccess = false \nWHERE pipelinename = '@{pipeline().Pipeline}';\nSelect 0 as DummyValue",
-                                    "type": "Expression"
-                                },
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "folder": {
-                    "name": "Events"
-                },
-                "annotations": []
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/GEMUserBehaviourEventsToPG')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "GEMUserBehaviourEventsToPG",
-                        "type": "ExecuteDataFlow",
-                        "dependsOn": [
-                            {
-                                "activity": "Lookup MaxFields",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "dataflow": {
-                                "referenceName": "gemUserBehaviourEventsToFact",
-                                "type": "DataFlowReference",
-                                "parameters": {
-                                    "pdf_ts": {
-                                        "value": "@sub(activity('Lookup MaxFields').output.firstRow.maxts, 10)",
-                                        "type": "Expression"
-                                    }
-                                },
-                                "datasetParameters": {
-                                    "CosmosGEMUserBehaviourEvents": {},
-                                    "Locations": {},
-                                    "AnalyticalOrders": {},
-                                    "userbehaviour": {},
-                                    "watermarktable": {},
-                                    "AnalyticalItems": {},
-                                    "maxDimViewID": {},
-                                    "maxDimElementID": {},
-                                    "maxFactUserBehaviour": {},
-                                    "DimView": {},
-                                    "DimElement": {},
-                                    "sourceDim": {},
-                                    "sourceElement": {},
-                                    "Ordertype": {},
-                                    "checkUserBehavior": {},
-                                    "WriteToFactUserBehaviour": {},
-                                    "writetoWatermark": {},
-                                    "WriteDim": {},
-                                    "WriteElement": {}
-                                }
-                            },
-                            "staging": {},
-                            "compute": {
-                                "coreCount": 8,
-                                "computeType": "General"
-                            },
-                            "traceLevel": "Fine"
-                        }
-                    },
-                    {
-                        "name": "RunSucceeded",
-                        "type": "WebActivity",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
-                        "dependsOn": [
-                            {
-                                "activity": "GEMUserBehaviourEventsToPG",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "method": "POST",
-                            "headers": {
-                                "Content-Type": "application/json",
-                                "accept": "text/plain",
-                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
-                            },
-                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
-                            "body": {
-                                "value": "{\n  \"application\":\"Analytics\",\n  \"company\":\"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\":\"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\":\"ADF\",\n  \"category\":\"ETLJob\",\n  \"type\":\"completed\",\n  \"severity\":\"information\",\n  \"token\":\"@{pipeline().RunId}\",\n  \"instant\":\"@{utcNow()}\",\n  \"summary\":\"@{concat(pipeline().Pipeline, ' ran successfully')}\",\n  \"data\": \"\"\n}",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "RunFailed",
-                        "type": "WebActivity",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
-                        "dependsOn": [
-                            {
-                                "activity": "v_errormsg",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "method": "POST",
-                            "headers": {
-                                "Content-Type": "application/json",
-                                "accept": "text/plain",
-                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
-                            },
-                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
-                            "body": {
-                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"failed\",\n  \"severity\": \"error\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{concat(pipeline().Pipeline, ' failed')}\",\n  \"data\": \"@{json(activity('GEMUserBehaviourEventsToPG').Error.message).Message}\"\n}",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "RunStarted",
-                        "type": "WebActivity",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
-                        "dependsOn": [],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "method": "POST",
-                            "headers": {
-                                "Content-Type": "application/json",
-                                "accept": "text/plain",
-                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
-                            },
-                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
-                            "body": {
-                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"start\",\n  \"severity\": \"information\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{concat(pipeline().Pipeline, ' has started running')}\",\n  \"data\": \"\"\n}",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "v_starttime",
-                        "type": "SetVariable",
-                        "dependsOn": [
-                            {
-                                "activity": "RunStarted",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "variableName": "v_starttime",
-                            "value": {
-                                "value": "@utcNow()",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "SuccessStatus",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "v_finishtime",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": {
-                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Completed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = true\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = true,\n    pipelinestatus = 'Completed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
-                                    "type": "Expression"
-                                },
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "v_finishtime",
-                        "type": "SetVariable",
-                        "dependsOn": [
-                            {
-                                "activity": "RunSucceeded",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "variableName": "v_finishtime",
-                            "value": {
-                                "value": "@utcNow()",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "v_errormsg",
-                        "type": "SetVariable",
-                        "dependsOn": [
-                            {
-                                "activity": "GEMUserBehaviourEventsToPG",
-                                "dependencyConditions": [
-                                    "Failed"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "variableName": "v_errormsg",
-                            "value": {
-                                "value": "@replace(activity('GEMUserBehaviourEventsToPG').error.Message, '''', '\"')",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "FailStatus",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "v_finishtime_copy1",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": {
-                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
-                                    "type": "Expression"
-                                },
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "v_finishtime_copy1",
-                        "type": "SetVariable",
-                        "dependsOn": [
-                            {
-                                "activity": "RunFailed",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "variableName": "v_finishtime",
-                            "value": {
-                                "value": "@utcNow()",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "Lookup MaxFields",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "v_starttime",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "SELECT wt.ts as maxts, wt.ticks as maxticks, watermarkvalue as maxinstant\r\nFROM fact.watermarktable as wt\r\nWHERE wt.watermarktablename = 'fact.userbehaviour';",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "factwatermarktable",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "variables": {
-                    "v_finishtime": {
-                        "type": "String",
-                        "defaultValue": "1900-01-01 00:01:00"
-                    },
-                    "v_starttime": {
-                        "type": "String",
-                        "defaultValue": "1900-01-01 00:00:00"
-                    },
-                    "v_errormsg": {
-                        "type": "String",
-                        "defaultValue": "error"
                     }
                 },
                 "folder": {

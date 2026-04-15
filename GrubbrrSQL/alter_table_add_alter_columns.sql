@@ -3,6 +3,9 @@ DROP VIEW IF EXISTS public.vw_transactiondetails;
 ALTER TABLE fact.watermarktable
 ALTER COLUMN source TYPE CHARACTER VARYING(50);
 
+ALTER TABLE dim.grubbrr_source_lookup
+ALTER COLUMN source TYPE text COLLATE pg_catalog."default",
+ALTER COLUMN description TYPE text COLLATE pg_catalog."default";
 
 ALTER TABLE fact.transactionheader
 ADD COLUMN IF NOT EXISTS sourceid INTEGER,
@@ -361,6 +364,9 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS fact.modifier_interactions
     OWNER to citus;
 
+ALTER TABLE fact.modifier_interactions
+--DROP COLUMN IF EXISTS source,
+ADD COLUMN IF NOT EXISTS sourceid INTEGER;
 
 CREATE TABLE IF NOT EXISTS stg.modifier_recommendation_sessions
 (

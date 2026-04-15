@@ -2628,7 +2628,7 @@
                         "onInactiveMarkAs": "Succeeded",
                         "dependsOn": [
                             {
-                                "activity": "CopyMasterModifiers",
+                                "activity": "CopyMasterModifierGroups",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -3256,7 +3256,7 @@
                         "type": "Copy",
                         "dependsOn": [
                             {
-                                "activity": "CopyItemModfrMapping",
+                                "activity": "GetLocationAndItemStatistics",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -3318,6 +3318,350 @@
                                 }
                             }
                         ]
+                    },
+                    {
+                        "name": "CopyMasterModifierGroups",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "CopyMasterModifiers",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "WITH org_loc_ctlg AS (\n    SELECT id as catalogid, organization_id, gem_company_id, gem_location_id\n    FROM public.catalog\n    WHERE organization_id = '@{activity('OrgLocPath').output.firstRow.organizationid}'\n)\nSELECT\n    id as modifiergroupid,\n    name as modifiergroupname,\n    catalog_id as catalogid,\n    max_selection,\n    min_selection,\n    free_count,\n    pos_linked_entity_id,\n    is_active,\n    is_deleted,\n    created_on,\n    modified_on,\n    negative_modifier_behavior,\n    created_by,\n    modified_by,\n    max_aggregate_count,\n    min_aggregate_count,\n    increment_step,\n    slider_mode,\n    slider_mode_modifier,\n    now() :: TIMESTAMP as sysupdatetime\nFROM public.modifier_group_master\nWHERE catalog_id IN (SELECT catalogid FROM org_loc_ctlg)",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "sink": {
+                                "type": "AzurePostgreSqlSink",
+                                "writeBatchSize": 1000000,
+                                "writeBatchTimeout": "00:30:00",
+                                "writeMethod": "Upsert",
+                                "upsertSettings": {
+                                    "keys": [
+                                        "modifiergroupid"
+                                    ]
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "name": "modifiergroupid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "modifiergroupid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "modifiergroupname",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "modifiergroupname",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "catalogid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "catalogid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "max_selection",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "max_selection",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "min_selection",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "min_selection",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "free_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "free_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "pos_linked_entity_id",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "pos_linked_entity_id",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "is_active",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        },
+                                        "sink": {
+                                            "name": "is_active",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "is_deleted",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        },
+                                        "sink": {
+                                            "name": "is_deleted",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "created_on",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        },
+                                        "sink": {
+                                            "name": "created_on",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "modified_on",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        },
+                                        "sink": {
+                                            "name": "modified_on",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "negative_modifier_behavior",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "negative_modifier_behavior",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "created_by",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "created_by",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "modified_by",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "modified_by",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "max_aggregate_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "max_aggregate_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "min_aggregate_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "min_aggregate_count",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "increment_step",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        },
+                                        "sink": {
+                                            "name": "increment_step",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "slider_mode",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        },
+                                        "sink": {
+                                            "name": "slider_mode",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "slider_mode_modifier",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        },
+                                        "sink": {
+                                            "name": "slider_mode_modifier",
+                                            "type": "Boolean",
+                                            "physicalType": "boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "sysupdatetime",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        },
+                                        "sink": {
+                                            "name": "sysupdatetime",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        }
+                                    }
+                                ],
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "GetLocationAndItemStatistics",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "CopyItemModfrMapping",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "CALL dim.usp_master_keys_for_duplicate_items();\nCALL fact.usp_location_statistics();",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbOrganizationLocation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
                     }
                 ],
                 "policy": {
@@ -3356,6 +3700,7 @@
                 "[concat(variables('factoryId'), '/datasets/dimItemModifierGroupModifierMappingAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/dimFrequentCustomerAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/adlsFrequentCustomersParquetForML')]",
+                "[concat(variables('factoryId'), '/datasets/dimModifierGroupAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/dataflows/gasTransactionsToADLS')]"
             ]
         },
@@ -4591,10 +4936,15 @@
                                     "dimModifierMapping": {},
                                     "gmsModifiersAll": {},
                                     "gmsModMapping": {},
+                                    "gmsModfrGroup": {},
+                                    "dimModifierGroup": {},
+                                    "gmsModfrGroupUpdate": {},
                                     "toDimModifier": {},
                                     "toDimModifierMapping": {},
                                     "updateDimModifier": {},
-                                    "updateDimModifierGroupMapping": {}
+                                    "updateDimModifierGroupMapping": {},
+                                    "toDimModifierGroup": {},
+                                    "updateDimModifierGroup": {}
                                 }
                             },
                             "staging": {},
@@ -5950,7 +6300,6 @@
                                 "parameters": {},
                                 "datasetParameters": {
                                     "OrdersCategoriesFromCosmos": {},
-                                    "maxidDimCtgHierarchy": {},
                                     "dimCategoryHierarchy": {},
                                     "ngeItemCtg": {},
                                     "WriteToPG": {},
@@ -8372,7 +8721,7 @@
                         "typeProperties": {
                             "source": {
                                 "type": "AzurePostgreSqlSource",
-                                "query": "SELECT wt.ts as maxts, wt.ticks as maxticks, watermarkvalue as maxinstant\r\nFROM fact.watermarktable as wt\r\nWHERE wt.watermarktablename = 'fact.modifier_recommendations';",
+                                "query": "SELECT wt.ts as maxts, wt.ticks as maxticks, watermarkvalue as maxinstant\r\nFROM fact.watermarktable as wt\r\nWHERE wt.watermarktablename = 'fact.modifier_recommendations' AND wt.source = 'nge';",
                                 "partitionOption": "None",
                                 "queryTimeout": "02:00:00"
                             },
@@ -8830,8 +9179,11 @@
                                     "gemSkippedSurveys": {},
                                     "CheckFactOccasionSurveyDetail": {},
                                     "factTrxnHeader": {},
+                                    "gemSurveysSent": {},
+                                    "stgSentSurveys": {},
                                     "factOccasionSurveyDetail": {},
-                                    "factOccasionSurveyDetail2": {}
+                                    "factOccasionSurveyDetail2": {},
+                                    "writeStgSentSurveys": {}
                                 }
                             },
                             "staging": {},
@@ -11101,7 +11453,6 @@
                                 "parameters": {},
                                 "datasetParameters": {
                                     "OrdersCategoriesFromCosmos": {},
-                                    "maxidDimCtgHierarchy": {},
                                     "dimCategoryHierarchy": {},
                                     "ngeItemCtg": {},
                                     "WriteToPG": {},
@@ -11197,10 +11548,15 @@
                                     "dimModifierMapping": {},
                                     "gmsModifiersAll": {},
                                     "gmsModMapping": {},
+                                    "gmsModfrGroup": {},
+                                    "dimModifierGroup": {},
+                                    "gmsModfrGroupUpdate": {},
                                     "toDimModifier": {},
                                     "toDimModifierMapping": {},
                                     "updateDimModifier": {},
-                                    "updateDimModifierGroupMapping": {}
+                                    "updateDimModifierGroupMapping": {},
+                                    "toDimModifierGroup": {},
+                                    "updateDimModifierGroup": {}
                                 }
                             },
                             "staging": {},
@@ -11316,7 +11672,7 @@
                             "source": {
                                 "type": "AzurePostgreSqlSource",
                                 "query": {
-                                    "value": "CALL dim.usp_master_keys_for_duplicate_items();\nCALL fact.usp_location_statistics();\n\nSELECT DISTINCT o.id, o.name\nFROM dim.organization as o\nWHERE o.id IN (@{concat('''', join(pipeline().parameters.organizationId, ''','''), '''')});",
+                                    "value": "SELECT DISTINCT o.id, o.name\nFROM dim.organization as o\nWHERE o.id IN (@{concat('''', join(pipeline().parameters.organizationId, ''','''), '''')});",
                                     "type": "Expression"
                                 },
                                 "partitionOption": "None",
@@ -23021,12 +23377,6 @@
                 "type": "AzurePostgreSqlTable",
                 "schema": [
                     {
-                        "name": "id",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
                         "name": "organizationid",
                         "type": "text",
                         "precision": 0,
@@ -23940,6 +24290,154 @@
                 "typeProperties": {
                     "schema": "dim",
                     "table": "modifier"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OrdersPGNew')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimModifierGroupAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "modifiergroupid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifiergroupname",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "max_selection",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "min_selection",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "free_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "pos_linked_entity_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "negative_modifier_behavior",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "max_aggregate_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "min_aggregate_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "increment_step",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "slider_mode",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "slider_mode_modifier",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "modifier_group"
                 }
             },
             "dependsOn": [
@@ -28237,6 +28735,100 @@
                 "typeProperties": {
                     "schema": "stg",
                     "table": "recommendations"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OrdersPGNew')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgSentSurveysAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordersessionid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_event_category",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_event_type",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "survey_metadata",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_responded",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_event_instant",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "sent_surveys"
                 }
             },
             "dependsOn": [
@@ -37842,12 +38434,13 @@
                         "          gms_created_on as timestamp,",
                         "          gms_modified_on as timestamp,",
                         "          itemunitprice as decimal(38,18),",
-                        "          price_changed_on as timestamp",
+                        "          price_changed_on as timestamp,",
+                        "          catalogid as string",
                         "     ),",
                         "     allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'WITH latest_price AS (\\r\\nSELECT item_id, max(modified_on) as max_modified_on\\r\\nFROM public.pricebook\\r\\nWHERE item_id IS NOT NULL AND price > 0\\r\\nGROUP BY item_id\\r\\n)\\r\\nSELECT im.id as menuitemid, \\r\\n       im.name as menuitemname, \\r\\n       \\'Item\\' as entitytype,\\r\\n       im.calories :: text as calories,\\r\\n       NULL :: numeric as protein,\\r\\n       NULL :: numeric as sugar,\\r\\n       NULL :: numeric as fat,\\r\\n       im.is_alcoholic,\\r\\n       NULL :: boolean as is_vegetarian_item,\\r\\n       NULL :: boolean as is_vegan_item,\\r\\n       NULL :: boolean as has_allergen,\\r\\n       im.item_class_type,\\r\\n       im.is_active,\\r\\n       im.is_deleted,\\r\\n       im.created_on as gms_created_on,\\r\\n       im.modified_on as gms_modified_on,\\r\\n       pb.price :: NUMERIC(16,4) / 100 as itemunitprice, \\r\\n       pb.modified_on as price_changed_on\\r\\nFROM public.item_master as im\\r\\nLEFT JOIN latest_price as lp\\r\\n       ON im.id = lp.item_id\\r\\nLEFT JOIN public.pricebook as pb\\r\\n       ON lp.item_id = pb.item_id\\r\\n      AND lp.max_modified_on = pb.modified_on\\r\\n\\r\\nUNION ALL\\r\\n\\r\\nSELECT DISTINCT id as comboid, \\r\\n       name as comboname, \\r\\n       \\'Combo\\' as entitytype,\\r\\n       calories :: text as calories,\\r\\n       NULL :: numeric as protein,\\r\\n       NULL :: numeric as sugar,\\r\\n       NULL :: numeric as fat,\\r\\n       NULL :: boolean as is_alcoholic,\\r\\n       NULL :: boolean as is_vegetarian_item,\\r\\n       NULL :: boolean as is_vegan_item,\\r\\n       NULL :: boolean as has_allergen,\\r\\n       NULL :: integer as item_class_type,\\r\\n       is_active,\\r\\n       is_deleted,\\r\\n       created_on as gms_created_on,\\r\\n       modified_on as gms_modified_on,\\r\\n       NULL :: NUMERIC(16,4) as itemunitprice,\\r\\n       NULL :: TIMESTAMP as price_changed_on \\r\\nFROM public.combo_master',",
+                        "     query: 'WITH latest_price AS (\\r\\nSELECT item_id, max(modified_on) as max_modified_on\\r\\nFROM public.pricebook\\r\\nWHERE item_id IS NOT NULL AND price > 0\\r\\nGROUP BY item_id\\r\\n)\\r\\nSELECT im.id as menuitemid, \\r\\n       im.name as menuitemname, \\r\\n       \\'Item\\' as entitytype,\\r\\n       im.calories :: text as calories,\\r\\n       NULL :: numeric as protein,\\r\\n       NULL :: numeric as sugar,\\r\\n       NULL :: numeric as fat,\\r\\n       im.is_alcoholic,\\r\\n       NULL :: boolean as is_vegetarian_item,\\r\\n       NULL :: boolean as is_vegan_item,\\r\\n       NULL :: boolean as has_allergen,\\r\\n       im.item_class_type,\\r\\n       im.is_active,\\r\\n       im.is_deleted,\\r\\n       im.created_on as gms_created_on,\\r\\n       im.modified_on as gms_modified_on,\\r\\n       pb.price :: NUMERIC(16,4) / 100 as itemunitprice, \\r\\n       pb.modified_on as price_changed_on,\\r\\n       im.catalog_id as catalogid\\r\\nFROM public.item_master as im\\r\\nLEFT JOIN latest_price as lp\\r\\n       ON im.id = lp.item_id\\r\\nLEFT JOIN public.pricebook as pb\\r\\n       ON lp.item_id = pb.item_id\\r\\n      AND lp.max_modified_on = pb.modified_on\\r\\n\\r\\nUNION ALL\\r\\n\\r\\nSELECT DISTINCT id as comboid, \\r\\n       name as comboname, \\r\\n       \\'Combo\\' as entitytype,\\r\\n       calories :: text as calories,\\r\\n       NULL :: numeric as protein,\\r\\n       NULL :: numeric as sugar,\\r\\n       NULL :: numeric as fat,\\r\\n       NULL :: boolean as is_alcoholic,\\r\\n       NULL :: boolean as is_vegetarian_item,\\r\\n       NULL :: boolean as is_vegan_item,\\r\\n       NULL :: boolean as has_allergen,\\r\\n       NULL :: integer as item_class_type,\\r\\n       is_active,\\r\\n       is_deleted,\\r\\n       created_on as gms_created_on,\\r\\n       modified_on as gms_modified_on,\\r\\n       NULL :: NUMERIC(16,4) as itemunitprice,\\r\\n       NULL :: TIMESTAMP as price_changed_on,\\r\\n       catalog_id as catalogid\\r\\nFROM public.combo_master',",
                         "     format: 'query') ~> ItemClassGMS",
                         "source(output(",
                         "          comboid as string,",
@@ -38081,6 +38674,7 @@
                         "     saveOrder: 4,",
                         "     mapColumn(",
                         "          menuitemid,",
+                        "          catalogid,",
                         "          menuitemname,",
                         "          item_class_type,",
                         "          entitytype,",
@@ -38175,13 +38769,6 @@
                                 "referenceName": "dimCategoryHierarchyAnalyticsDb",
                                 "type": "DatasetReference"
                             },
-                            "name": "maxidDimCtgHierarchy"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "dimCategoryHierarchyAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
                             "name": "dimCategoryHierarchy"
                         },
                         {
@@ -38217,12 +38804,6 @@
                         },
                         {
                             "name": "RemoveRowNum"
-                        },
-                        {
-                            "name": "GetMaxID"
-                        },
-                        {
-                            "name": "IdGenerator"
                         },
                         {
                             "name": "ReadyID"
@@ -38264,15 +38845,6 @@
                         "     format: 'documentQuery',",
                         "     systemColumns: false) ~> OrdersCategoriesFromCosmos",
                         "source(output(",
-                        "          maxid as long",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select coalesce(max(id), 0) as maxid from dim.category_hierarchy',",
-                        "     format: 'query') ~> maxidDimCtgHierarchy",
-                        "source(output(",
-                        "          id as long,",
                         "          organizationid as string,",
                         "          locationid as string,",
                         "          mapping_created_on as timestamp,",
@@ -38336,16 +38908,7 @@
                         "     ),",
                         "     skipDuplicateMapInputs: true,",
                         "     skipDuplicateMapOutputs: true) ~> RemoveRowNum",
-                        "RemoveRowNum, maxidDimCtgHierarchy join(1==1,",
-                        "     joinType:'cross',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> GetMaxID",
-                        "GetMaxID keyGenerate(output(id as long),",
-                        "     startAt: 1L,",
-                        "     stepValue: 1L) ~> IdGenerator",
-                        "IdGenerator derive(id = id + maxid,",
-                        "          entitytype = 'Item',",
+                        "RemoveRowNum derive(entitytype = 'Item',",
                         "          sysinserttime = currentTimestamp()) ~> ReadyID",
                         "OrdersCategoriesFromCosmos, dimCategoryHierarchy exists(OrdersCategoriesFromCosmos@locationid == dimCategoryHierarchy@locationid",
                         "     && OrdersCategoriesFromCosmos@categoryid == dimCategoryHierarchy@categoryid",
@@ -38378,7 +38941,6 @@
                         "ReadyID sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
-                        "          id as long,",
                         "          organizationid as string,",
                         "          locationid as string,",
                         "          mapping_created_on as timestamp,",
@@ -38418,7 +38980,6 @@
                         "     skipDuplicateMapOutputs: true,",
                         "     saveOrder: 2,",
                         "     mapColumn(",
-                        "          id,",
                         "          locationid,",
                         "          categoryid,",
                         "          categoryname,",
@@ -38431,7 +38992,6 @@
                         "Update sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
-                        "          id as long,",
                         "          organizationid as string,",
                         "          locationid as string,",
                         "          mapping_created_on as timestamp,",
@@ -51325,29 +51885,33 @@
                         "          orderid as string,",
                         "          orderitemid as string,",
                         "          menuitemid as string,",
+                        "          menuitemname as string,",
                         "          itemquantity as short,",
                         "          itemunitprice as decimal(12,3),",
                         "          item_class_type as integer,",
                         "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
                         "          modifierid as string,",
                         "          modifiername as string,",
                         "          parent_modifier_id as string,",
                         "          nesting_depth as integer,",
-                        "          modifierquantity as integer,",
+                        "          modifierquantity as short,",
                         "          modifierprice as decimal(12,3),",
                         "          freequantity as integer,",
+                        "          is_modifier_default as boolean,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
                         "          selection_type as string,",
                         "          action as string,",
                         "          session_recorded_at as string,",
                         "          frequentcustomerid as string,",
-                        "          is_modifier_default as boolean,",
                         "          modifier_default_quantity as integer,",
                         "          modifier_class_type as integer",
                         "     ),",
                         "     allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '{$pdf_orgid}' AND ol.organizationtype = 0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid = c.organizationid AND ol.locationid = c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid = olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.transactionitem AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid = ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}) SELECT olcm.organizationid, olcm.organizationname, olcm.locationname, olcm.locationid, olcm.catalogid, olcm.catalogname, m.businessdate, m.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, m.transactionheaderid, m.ordersessionid, m.orderid, m.orderitemid, ti.dimmenuitemid AS menuitemid, ti.itemquantity, ti.itemunitprice, mi.item_class_type, m.modifiergroupid, m.modifierid, m.modifiername, m.parent_modifier_id, m.nesting_depth, m.modifierquantity, m.modifierprice, m.freequantity, m.selection_type, m.action, m.session_recorded_at, m.frequentcustomerid, olcm.is_modifier_default, olcm.modifier_default_quantity, olcm.classification AS modifier_class_type FROM fact.modifier_interactions AS m INNER JOIN trxn_items AS ti ON m.transactionheaderid = ti.transactionheaderid AND m.orderitemid = ti.itemid INNER JOIN org_loc_ctlg_modifiers AS olcm ON ti.locationid = olcm.locationid AND m.modifierid = olcm.modifierid INNER JOIN dim.menuitem AS mi ON mi.menuitemid = ti.dimmenuitemid\"),",
+                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '{$pdf_orgid}' AND ol.organizationtype = 0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid = c.organizationid AND ol.locationid = c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid = olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.transactionitem AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid = ol.locationid WHERE 1 = 1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}) SELECT olcm.organizationid, olcm.organizationname, olcm.locationname, olcm.locationid, olcm.catalogid, olcm.catalogname, mt.businessdate, ti.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, mt.transactionheaderid, ti.ordersessionid, mt.orderid, mt.itemid AS orderitemid, ti.dimmenuitemid AS menuitemid, mi.menuitemname, ti.itemquantity, ti.itemunitprice, mi.item_class_type, mt.modifiergroupid, mg.modifiergroupname, mt.modifierid, mt.modifiername, NULL::TEXT AS parent_modifier_id, NULL::INTEGER AS nesting_depth, mt.modifierquantity, mt.modifierprice, mt.freequantity, mgm.is_default AS is_modifier_default, mg.min_selection AS min_quantity, mg.max_selection AS max_quantity, CASE WHEN mgm.is_default = FALSE AND mg.min_selection = 0 AND mg.max_selection >= 0 THEN 'optional' WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 THEN 'required' WHEN mgm.is_default = TRUE THEN 'default' END AS selection_type, CASE WHEN mgm.is_default = FALSE AND mg.min_selection = 0 AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added' WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected' WHEN mgm.is_default = TRUE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept' WHEN mgm.is_default = TRUE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action, NULL::TEXT AS session_recorded_at, ti.frequentcustomerid, olcm.modifier_default_quantity, olcm.classification AS modifier_class_type FROM fact.itemmodifier AS mt INNER JOIN trxn_items AS ti ON mt.transactionheaderid = ti.transactionheaderid AND mt.itemid = ti.itemid INNER JOIN org_loc_ctlg_modifiers AS olcm ON ti.locationid = olcm.locationid AND mt.modifierid = olcm.modifierid INNER JOIN dim.menuitem AS mi ON mi.menuitemid = ti.dimmenuitemid LEFT JOIN dim.modifier_group_mapping AS mgm ON mgm.modifiergroupid = mt.modifiergroupid AND mgm.modifierid = mt.modifierid LEFT JOIN dim.modifier_group AS mg ON mg.modifiergroupid = mt.modifiergroupid\"),",
                         "     format: 'query') ~> ModifierInteractions",
                         "source(output(",
                         "          organizationid as string,",
@@ -51359,9 +51923,12 @@
                         "          yyyy as integer,",
                         "          ww as integer,",
                         "          menuitemid as string,",
+                        "          menuitemname as string,",
                         "          item_class_type as integer,",
                         "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
                         "          modifierid as string,",
+                        "          modifiername as string,",
                         "          modifier_class_type as integer,",
                         "          is_modifier_default as boolean,",
                         "          min_quantity as integer,",
@@ -51380,7 +51947,7 @@
                         "     allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE 1=1 AND (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '{$pdf_orgid}' AND ol.organizationtype = 0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid = c.organizationid AND ol.locationid = c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid = olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.transactionitem as ti INNER JOIN org_loc_lookup as ol ON ti.locationid = ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}), trxn_modifiers AS (SELECT ti.organizationid, ti.organizationname, ti.locationname, ti.locationid, ti.businessdate, ti.orderdatelocal, {$pdf_yyyy} as yyyy, {$pdf_ww} as ww, m.transactionheaderid, m.itemid as orderitemid, ti.dimmenuitemid as menuitemid, ti.itemquantity, ti.itemunitprice, m.modifiergroupid, m.modifierid, m.modifiername, m.modifierquantity, m.modifierprice, m.freequantity FROM fact.itemmodifier AS m INNER JOIN trxn_items AS ti ON m.transactionheaderid = ti.transactionheaderid AND m.itemid = ti.itemid), loc_mdfr_agg AS (SELECT organizationid, locationid, modifierid, COUNT(*) AS mdfr_selection_frequency_within_loc_and_week, MAX(modifierprice) AS modifierprice FROM trxn_modifiers GROUP BY organizationid, locationid, modifierid), loc_mdfr_itm AS (SELECT organizationid, locationid, modifierid, menuitemid, COUNT(*) AS x_times_added_on_to_the_item, ROW_NUMBER() OVER (PARTITION BY organizationid, locationid, modifierid ORDER BY COUNT(*) DESC) AS mdfr_selection_ranking FROM trxn_modifiers GROUP BY organizationid, locationid, modifierid, menuitemid) SELECT m.organizationid, m.organizationname, m.locationid, m.locationname, m.catalogid, m.catalogname, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, imgm.menuitemid, mi.item_class_type, imgm.modifiergroupid, imgm.modifierid, m.classification as modifier_class_type, m.is_modifier_default, m.min_quantity, m.max_quantity, m.allow_quantity_increment, m.increment_step, m.modifier_default_quantity, m.is_invisible as is_modifier_invisible, m.calories, m.is_modifier_active, m.is_modifier_deleted, lmi.x_times_added_on_to_the_item, lma.mdfr_selection_frequency_within_loc_and_week, round(100 * CAST(lmi.x_times_added_on_to_the_item AS NUMERIC(9,3)) / lma.mdfr_selection_frequency_within_loc_and_week, 3) AS pct_relative_selection_frequency FROM dim.item_modifier_group_modifier_mapping as imgm INNER JOIN org_loc_ctlg_modifiers as m ON imgm.catalogid = m.catalogid AND imgm.modifierid = m.modifierid INNER JOIN dim.menuitem as mi ON imgm.menuitemid = mi.menuitemid LEFT JOIN loc_mdfr_itm as lmi ON m.organizationid = lmi.organizationid AND m.locationid = lmi.locationid AND imgm.modifierid = lmi.modifierid AND imgm.menuitemid = lmi.menuitemid LEFT JOIN loc_mdfr_agg as lma ON m.organizationid = lma.organizationid AND m.locationid = lma.locationid AND imgm.modifierid = lma.modifierid\"),",
+                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE 1=1 AND (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END)='{$pdf_orgid}' AND ol.organizationtype=0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid=c.organizationid AND ol.locationid=c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid=olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER={$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER<={$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER<{$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.transactionitem AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid=ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER={$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER={$pdf_ww}), trxn_modifiers AS (SELECT ti.organizationid, ti.organizationname, ti.locationname, ti.locationid, ti.businessdate, ti.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, m.transactionheaderid, m.itemid AS orderitemid, ti.dimmenuitemid AS menuitemid, ti.itemquantity, ti.itemunitprice, m.modifiergroupid, m.modifierid, m.modifiername, m.modifierquantity, m.modifierprice, m.freequantity FROM fact.itemmodifier AS m INNER JOIN trxn_items AS ti ON m.transactionheaderid=ti.transactionheaderid AND m.itemid=ti.itemid), loc_mdfr_agg AS (SELECT organizationid, locationid, modifierid, COUNT(*) AS mdfr_selection_frequency_within_loc_and_week, MAX(modifierprice) AS modifierprice FROM trxn_modifiers GROUP BY organizationid, locationid, modifierid), loc_mdfr_itm AS (SELECT organizationid, locationid, modifierid, menuitemid, COUNT(*) AS x_times_added_on_to_the_item, ROW_NUMBER() OVER (PARTITION BY organizationid, locationid, modifierid ORDER BY COUNT(*) DESC) AS mdfr_selection_ranking FROM trxn_modifiers GROUP BY organizationid, locationid, modifierid, menuitemid) SELECT m.organizationid, m.organizationname, m.locationid, m.locationname, m.catalogid, m.catalogname, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, imgm.menuitemid, mi.menuitemname, mi.item_class_type, imgm.modifiergroupid, mg.modifiergroupname, imgm.modifierid, m.modifiername, m.classification AS modifier_class_type, imgm.is_default AS is_modifier_default, mg.min_selection AS min_quantity, mg.max_selection AS max_quantity, m.allow_quantity_increment, m.increment_step, m.modifier_default_quantity, m.is_invisible AS is_modifier_invisible, m.calories, m.is_modifier_active, m.is_modifier_deleted, lmi.x_times_added_on_to_the_item, lma.mdfr_selection_frequency_within_loc_and_week, ROUND(100*CAST(lmi.x_times_added_on_to_the_item AS NUMERIC(9,3))/lma.mdfr_selection_frequency_within_loc_and_week,3) AS pct_relative_selection_frequency FROM dim.item_modifier_group_modifier_mapping AS imgm INNER JOIN org_loc_ctlg_modifiers AS m ON imgm.catalogid=m.catalogid AND imgm.modifierid=m.modifierid INNER JOIN dim.menuitem AS mi ON imgm.menuitemid=mi.menuitemid INNER JOIN dim.modifier_group AS mg ON imgm.catalogid=mg.catalogid AND imgm.modifiergroupid=mg.modifiergroupid LEFT JOIN loc_mdfr_itm AS lmi ON m.organizationid=lmi.organizationid AND m.locationid=lmi.locationid AND imgm.modifierid=lmi.modifierid AND imgm.menuitemid=lmi.menuitemid LEFT JOIN loc_mdfr_agg AS lma ON m.organizationid=lma.organizationid AND m.locationid=lma.locationid AND imgm.modifierid=lma.modifierid\"),",
                         "     format: 'query') ~> ModifierMapping",
                         "source(output(",
                         "          organizationid as string,",
@@ -51397,7 +51964,11 @@
                         "          ordersessionid as string,",
                         "          orderid as string,",
                         "          menuitemid as string,",
+                        "          menuitemname as string,",
+                        "          item_class_type as integer,",
                         "          modifierid as string,",
+                        "          modifiername as string,",
+                        "          modifier_class_type as integer,",
                         "          parent_modifier_id as string,",
                         "          nesting_depth as integer,",
                         "          modifierprice as decimal(12,3),",
@@ -51410,15 +51981,12 @@
                         "          pre_deselected as boolean,",
                         "          confirmed_removed as boolean,",
                         "          pre_selected as boolean,",
-                        "          frequentcustomerid as string,",
-                        "          is_modifier_default as boolean,",
-                        "          modifier_default_quantity as integer,",
-                        "          modifier_class_type as integer",
+                        "          frequentcustomerid as string",
                         "     ),",
                         "     allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '{$pdf_orgid}' AND ol.organizationtype = 0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid = c.organizationid AND ol.locationid = c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid = olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.modifier_impressions AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid = ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}) SELECT olcm.organizationid, olcm.organizationname, olcm.locationname, olcm.locationid, olcm.catalogid, olcm.catalogname, m.businessdate, m.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, m.transactionheaderid, m.ordersessionid, m.orderid, m.menuitemid, m.modifierid, m.parent_modifier_id, m.nesting_depth, olcm.price AS modifierprice, m.selection_type, m.position, m.score, m.strategy, m.context, m.selected, m.pre_deselected, m.confirmed_removed, m.pre_selected, m.frequentcustomerid, olcm.is_modifier_default, olcm.modifier_default_quantity, olcm.classification AS modifier_class_type FROM trxn_items AS m INNER JOIN org_loc_ctlg_modifiers AS olcm ON m.locationid = olcm.locationid AND m.modifierid = olcm.modifierid INNER JOIN dim.menuitem AS mi ON mi.menuitemid = m.menuitemid\"),",
+                        "     query: (\"WITH org_loc_lookup AS (SELECT DISTINCT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname FROM dim.organizationlocation AS ol WHERE (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END)='{$pdf_orgid}' AND ol.organizationtype=0), org_loc_ctlg AS (SELECT ol.*, c.catalogid, c.catalogname FROM org_loc_lookup AS ol INNER JOIN dim.catalog AS c ON ol.organizationid=c.organizationid AND ol.locationid=c.gem_location_id), org_loc_ctlg_modifiers AS (SELECT m.*, olc.organizationid, olc.organizationname, olc.locationid, olc.locationname, olc.catalogname FROM dim.modifier AS m INNER JOIN org_loc_ctlg AS olc ON m.catalogid=olc.catalogid WHERE (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER={$pdf_yyyy} AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER<={$pdf_ww}) OR (EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER<{$pdf_yyyy})), trxn_items AS (SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* FROM fact.modifier_impressions AS ti INNER JOIN org_loc_lookup AS ol ON ti.locationid=ol.locationid WHERE 1=1 AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%' AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER={$pdf_yyyy} AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER={$pdf_ww}) SELECT olcm.organizationid, olcm.organizationname, olcm.locationname, olcm.locationid, olcm.catalogid, olcm.catalogname, m.businessdate, m.orderdatelocal, {$pdf_yyyy} AS yyyy, {$pdf_ww} AS ww, m.transactionheaderid, m.ordersessionid, m.orderid, m.menuitemid, mi.menuitemname, mi.item_class_type, m.modifierid, olcm.modifiername, olcm.classification AS modifier_class_type, m.parent_modifier_id, m.nesting_depth, olcm.price AS modifierprice, m.selection_type, m.position, m.score, m.strategy, m.context, m.selected, m.pre_deselected, m.confirmed_removed, m.pre_selected, m.frequentcustomerid FROM trxn_items AS m INNER JOIN org_loc_ctlg_modifiers AS olcm ON m.locationid=olcm.locationid AND m.modifierid=olcm.modifierid INNER JOIN dim.menuitem AS mi ON mi.menuitemid=m.menuitemid\"),",
                         "     format: 'query') ~> ModifierImpressions",
                         "gasTransactions derive(yyww = concat(substring(toString(yyyy), 3, 2), lpad(toString(ww), 2, '0'))) ~> yyww",
                         "RecommendationSessions derive(yyww = concat(substring(toString(yyyy), 3, 2), lpad(toString(ww), 2, '0'))) ~> yyyww2",
@@ -54051,7 +54619,6 @@
                         "sysinserttime sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
-                        "          id as long,",
                         "          organizationid as string,",
                         "          locationid as string,",
                         "          mapping_created_on as timestamp,",
@@ -54121,7 +54688,6 @@
                         "Update2 sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
-                        "          id as long,",
                         "          organizationid as string,",
                         "          locationid as string,",
                         "          mapping_created_on as timestamp,",
@@ -54250,6 +54816,27 @@
                                 "type": "DatasetReference"
                             },
                             "name": "gmsModMapping"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModfrGroup"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimModifierGroup"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModfrGroupUpdate"
                         }
                     ],
                     "sinks": [
@@ -54280,6 +54867,20 @@
                                 "type": "DatasetReference"
                             },
                             "name": "updateDimModifierGroupMapping"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "toDimModifierGroup"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "updateDimModifierGroup"
                         }
                     ],
                     "transformations": [
@@ -54306,6 +54907,18 @@
                         },
                         {
                             "name": "Update2"
+                        },
+                        {
+                            "name": "NewModfrGroups"
+                        },
+                        {
+                            "name": "sysinserttime3"
+                        },
+                        {
+                            "name": "sysupdatetime3"
+                        },
+                        {
+                            "name": "Update3"
                         }
                     ],
                     "scriptLines": [
@@ -54456,6 +55069,85 @@
                         "     isolationLevel: 'READ_UNCOMMITTED',",
                         "     query: 'SELECT mg.id as modifier_mapping_id,\\r\\n       mg.modifier_master_id as modifierid,\\r\\n       mg.modifier_group_master_id as modifiergroupid,\\r\\n       mg.catalog_id as catalogid,\\r\\n       mg.is_active as is_mapping_active,\\r\\n       mg.is_deleted as is_mapping_deleted,\\r\\n       mg.created_on as mapping_created_on,\\r\\n       mg.modified_on as mapping_modified_on,\\r\\n       mg.is_default,\\r\\n       mg.default_quantity,\\r\\n       mg.allow_quantity_increment,\\r\\n       mg.increment_step,\\r\\n       mg.min_quantity,\\r\\n       mg.max_quantity,\\r\\n       mg.calories_text,\\r\\n       mg.is_invisible\\r\\nFROM public.modifier_group_modifier_glue as mg',",
                         "     format: 'query') ~> gmsModMapping",
+                        "source(output(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'SELECT\\r\\n    id as modifiergroupid,\\r\\n    name as modifiergroupname,\\r\\n    catalog_id as catalogid,\\r\\n    max_selection,\\r\\n    min_selection,\\r\\n    free_count,\\r\\n    pos_linked_entity_id,\\r\\n    is_active,\\r\\n    is_deleted,\\r\\n    created_on,\\r\\n    modified_on,\\r\\n    negative_modifier_behavior,\\r\\n    created_by,\\r\\n    modified_by,\\r\\n    max_aggregate_count,\\r\\n    min_aggregate_count,\\r\\n    increment_step,\\r\\n    slider_mode,\\r\\n    slider_mode_modifier\\r\\nFROM public.modifier_group_master',",
+                        "     format: 'query') ~> gmsModfrGroup",
+                        "source(output(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> dimModifierGroup",
+                        "source(output(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'SELECT\\r\\n    id as modifiergroupid,\\r\\n    name as modifiergroupname,\\r\\n    catalog_id as catalogid,\\r\\n    max_selection,\\r\\n    min_selection,\\r\\n    free_count,\\r\\n    pos_linked_entity_id,\\r\\n    is_active,\\r\\n    is_deleted,\\r\\n    created_on,\\r\\n    modified_on,\\r\\n    negative_modifier_behavior,\\r\\n    created_by,\\r\\n    modified_by,\\r\\n    max_aggregate_count,\\r\\n    min_aggregate_count,\\r\\n    increment_step,\\r\\n    slider_mode,\\r\\n    slider_mode_modifier\\r\\nFROM public.modifier_group_master',",
+                        "     format: 'query') ~> gmsModfrGroupUpdate",
                         "NewModifiers derive(sysinserttime = currentTimestamp()) ~> sysinserttime",
                         "gmsModifiers, dimModifiers exists(gmsModifiers@modifierid == dimModifiers@modifierid,",
                         "     negate:true,",
@@ -54468,6 +55160,12 @@
                         "gmsModMapping derive(sysupdatetime = currentTimestamp()) ~> sysupdatetime2",
                         "sysupdatetime alterRow(updateIf(true())) ~> Update",
                         "sysupdatetime2 alterRow(updateIf(true())) ~> Update2",
+                        "gmsModfrGroup, dimModifierGroup exists(gmsModfrGroup@modifiergroupid == dimModifierGroup@modifiergroupid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> NewModfrGroups",
+                        "NewModfrGroups derive(sysinserttime = currentTimestamp()) ~> sysinserttime3",
+                        "gmsModfrGroupUpdate derive(sysupdatetime = currentTimestamp()) ~> sysupdatetime3",
+                        "sysupdatetime3 alterRow(updateIf(true())) ~> Update3",
                         "sysinserttime sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
@@ -54670,14 +55368,126 @@
                         "          calories_text,",
                         "          is_invisible,",
                         "          sysupdatetime",
-                        "     )) ~> updateDimModifierGroupMapping"
+                        "     )) ~> updateDimModifierGroupMapping",
+                        "sysinserttime3 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 5,",
+                        "     mapColumn(",
+                        "          modifiergroupid,",
+                        "          modifiergroupname,",
+                        "          catalogid,",
+                        "          max_selection,",
+                        "          min_selection,",
+                        "          free_count,",
+                        "          pos_linked_entity_id,",
+                        "          is_active,",
+                        "          is_deleted,",
+                        "          created_on,",
+                        "          modified_on,",
+                        "          negative_modifier_behavior,",
+                        "          created_by,",
+                        "          modified_by,",
+                        "          max_aggregate_count,",
+                        "          min_aggregate_count,",
+                        "          increment_step,",
+                        "          slider_mode,",
+                        "          slider_mode_modifier,",
+                        "          sysinserttime",
+                        "     )) ~> toDimModifierGroup",
+                        "Update3 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['modifiergroupid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 6,",
+                        "     mapColumn(",
+                        "          modifiergroupid,",
+                        "          modifiergroupname,",
+                        "          catalogid,",
+                        "          max_selection,",
+                        "          min_selection,",
+                        "          free_count,",
+                        "          pos_linked_entity_id,",
+                        "          is_active,",
+                        "          is_deleted,",
+                        "          created_on,",
+                        "          modified_on,",
+                        "          negative_modifier_behavior,",
+                        "          created_by,",
+                        "          modified_by,",
+                        "          max_aggregate_count,",
+                        "          min_aggregate_count,",
+                        "          increment_step,",
+                        "          slider_mode,",
+                        "          slider_mode_modifier,",
+                        "          sysupdatetime",
+                        "     )) ~> updateDimModifierGroup"
                     ]
                 }
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/publicItemMasterGMS')]",
                 "[concat(variables('factoryId'), '/datasets/dimModifierAnalyticsDb')]",
-                "[concat(variables('factoryId'), '/datasets/dimModifierMappingAnalyticsDb')]"
+                "[concat(variables('factoryId'), '/datasets/dimModifierMappingAnalyticsDb')]",
+                "[concat(variables('factoryId'), '/datasets/dimModifierGroupAnalyticsDb')]"
             ]
         },
         {
@@ -56432,6 +57242,20 @@
                                 "type": "DatasetReference"
                             },
                             "name": "factTrxnHeader"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gemEvent",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gemSurveysSent"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "stgSentSurveysAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "stgSentSurveys"
                         }
                     ],
                     "sinks": [
@@ -56448,6 +57272,13 @@
                                 "type": "DatasetReference"
                             },
                             "name": "factOccasionSurveyDetail2"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "stgSentSurveysAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "writeStgSentSurveys"
                         }
                     ],
                     "transformations": [
@@ -56483,6 +57314,21 @@
                         },
                         {
                             "name": "LiveOrderSurveys"
+                        },
+                        {
+                            "name": "sysinserttime"
+                        },
+                        {
+                            "name": "NewSentSurveys"
+                        },
+                        {
+                            "name": "LookupOrderID"
+                        },
+                        {
+                            "name": "RowNumber"
+                        },
+                        {
+                            "name": "filter1"
                         }
                     ],
                     "scriptLines": [
@@ -56637,6 +57483,40 @@
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
                         "     format: 'table') ~> factTrxnHeader",
+                        "source(output(",
+                        "          gem_event_type as string,",
+                        "          gem_event_category as string,",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          survey_metadata as string,",
+                        "          ordersessionid as string,",
+                        "          gem_event_instant as string,",
+                        "          gem_syscosmosts as integer,",
+                        "          parsed_data as (itemId as string[], locationId as string, orderId as string, surveyId as string, surveyIds as string)",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT \\r\\n  c.company ?? null as organizationid,\\r\\n  c.location ?? null as locationid,\\r\\n  c.category ?? null as gem_event_category,\\r\\n  c.type ?? null as gem_event_type,\\r\\n  c.token ?? null as ordersessionid,\\r\\n  c.instant ?? null as gem_event_instant,\\r\\n  c.data ?? null as survey_metadata,\\r\\n  StringToObject(c.data) as parsed_data,\\r\\n  c._ts as gem_syscosmosts\\r\\nFROM c\\r\\nWHERE c.module = \\'kiosk\\'\\r\\n  AND lower(c.category) = \\'survey\\'\\r\\n  AND lower(c.type) = \\'sent\\'\\r\\n  AND c.token > \\'\\'',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> gemSurveysSent",
+                        "source(output(",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          ordersessionid as string,",
+                        "          orderid as string,",
+                        "          gem_event_category as string,",
+                        "          gem_event_type as string,",
+                        "          survey_metadata as string,",
+                        "          is_responded as boolean,",
+                        "          gem_event_instant as string,",
+                        "          gem_syscosmosts as long,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> stgSentSurveys",
                         "deriveDateID select(mapColumn(",
                         "          surveycompletedtimestamp = timestamp,",
                         "          surveyrating,",
@@ -56707,6 +57587,23 @@
                         "     matchType:'exact',",
                         "     ignoreSpaces: false,",
                         "     broadcast: 'auto')~> LiveOrderSurveys",
+                        "LookupOrderID derive(sysinserttime = currentTimestamp(),",
+                        "          is_responded = false()) ~> sysinserttime",
+                        "gemSurveysSent, stgSentSurveys exists(gemSurveysSent@locationid == stgSentSurveys@locationid",
+                        "     && gemSurveysSent@ordersessionid == stgSentSurveys@ordersessionid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> NewSentSurveys",
+                        "filter1, factTrxnHeader join(gemSurveysSent@locationid == factTrxnHeader@locationid",
+                        "     && gemSurveysSent@ordersessionid == factTrxnHeader@ordersessionid,",
+                        "     joinType:'inner',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> LookupOrderID",
+                        "NewSentSurveys window(over(locationid,",
+                        "          ordersessionid),",
+                        "     desc(gem_syscosmosts, true),",
+                        "     rn = rowNumber()) ~> RowNumber",
+                        "RowNumber filter(rn == 1) ~> filter1",
                         "cast1 sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
@@ -56787,7 +57684,43 @@
                         "          sysinserttime,",
                         "          syscosmosts,",
                         "          sourceid",
-                        "     )) ~> factOccasionSurveyDetail2"
+                        "     )) ~> factOccasionSurveyDetail2",
+                        "sysinserttime sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          ordersessionid as string,",
+                        "          orderid as string,",
+                        "          gem_event_category as string,",
+                        "          gem_event_type as string,",
+                        "          survey_metadata as string,",
+                        "          is_responded as boolean,",
+                        "          gem_event_instant as string,",
+                        "          gem_syscosmosts as long,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          organizationid,",
+                        "          locationid = gemSurveysSent@locationid,",
+                        "          ordersessionid = gemSurveysSent@ordersessionid,",
+                        "          survey_metadata,",
+                        "          gem_event_category,",
+                        "          gem_event_type,",
+                        "          is_responded,",
+                        "          gem_event_instant,",
+                        "          gem_syscosmosts,",
+                        "          sysinserttime,",
+                        "          orderid = transactionheaderid",
+                        "     )) ~> writeStgSentSurveys"
                     ]
                 }
             },
@@ -56797,7 +57730,8 @@
                 "[concat(variables('factoryId'), '/datasets/factOccasionSurveyAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbOrganizationLocation')]",
                 "[concat(variables('factoryId'), '/datasets/gemEvent')]",
-                "[concat(variables('factoryId'), '/datasets/TransactionHeadersAnalyticsDb')]"
+                "[concat(variables('factoryId'), '/datasets/TransactionHeadersAnalyticsDb')]",
+                "[concat(variables('factoryId'), '/datasets/stgSentSurveysAnalyticsDb')]"
             ]
         },
         {
@@ -57133,6 +58067,7 @@
                         "     insertable:true,",
                         "     updateable:false,",
                         "     upsertable:false,",
+                        "     truncate:true,",
                         "     format: 'table',",
                         "     skipDuplicateMapInputs: true,",
                         "     skipDuplicateMapOutputs: true,",

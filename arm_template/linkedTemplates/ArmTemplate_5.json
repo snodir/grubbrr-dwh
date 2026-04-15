@@ -13,6 +13,104 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/factModifierRecommendationsAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordersessionid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifier_impressions",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifier_interactions",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "businessdate",
+                        "type": "date",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderdateutc",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderdatelocal",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "frequentcustomerid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "fact",
+                    "table": "modifier_recommendations"
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/factOccasionSurveyAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -2451,32 +2549,6 @@
                 "typeProperties": {
                     "collectionName": "frequent-customer"
                 }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/ngeLocationsToBronzeADLSjson')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "ADLSgas",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "Json",
-                "typeProperties": {
-                    "location": {
-                        "type": "AzureBlobFSLocation",
-                        "folderPath": "grubbrr-nge/locations",
-                        "fileSystem": "bronze"
-                    },
-                    "compression": {
-                        "type": "snappy",
-                        "level": "Optimal"
-                    }
-                },
-                "schema": {}
             },
             "dependsOn": []
         }

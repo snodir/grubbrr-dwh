@@ -13,6 +13,32 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/ngeLocationsToBronzeADLSjson')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": "grubbrr-nge/locations",
+                        "fileSystem": "bronze"
+                    },
+                    "compression": {
+                        "type": "snappy",
+                        "level": "Optimal"
+                    }
+                },
+                "schema": {}
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/ngeLoyaltyConfigurations')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -655,6 +681,98 @@
                 "typeProperties": {
                     "schema": "stg",
                     "table": "recommendations"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgSentSurveysAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordersessionid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_event_category",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_event_type",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "survey_metadata",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_responded",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_event_instant",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "sent_surveys"
                 }
             },
             "dependsOn": []
@@ -4373,474 +4491,6 @@
                         "          state,",
                         "          zipcode",
                         "     )) ~> LoadCompany"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/CosmosLocations')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "gasCosmosLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "IngestLocationFromCosmos"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "gasCosmosLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "IngestLocationDetailsFromCosmos"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "loadLocations"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "JoinLocations"
-                        },
-                        {
-                            "name": "OnlyNeeded"
-                        },
-                        {
-                            "name": "AlterRow"
-                        },
-                        {
-                            "name": "LocationName"
-                        },
-                        {
-                            "name": "LatLon"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          companyid as string,",
-                        "          companyname as string,",
-                        "          locationid as string,",
-                        "          timezone as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT \\n  c.companyId ?? null as companyid,\\n  c.name ?? null as companyname,\\n  c.locationId ?? null as locationid,\\nc.timezone ?? null as timezone\\nFROM c\\nWHERE c.id = \\'location\\'\\n',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> IngestLocationFromCosmos",
-                        "source(output(",
-                        "          city as string,",
-                        "          zipcode as string,",
-                        "          latitude as double,",
-                        "          state as string,",
-                        "          locationid as string,",
-                        "          address2 as string,",
-                        "          longitude as double,",
-                        "          address1 as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT \\n    c.locationId ?? null as locationid,\\n    c.storeLocation.address.address1 ?? null as address1,\\n    c.storeLocation.address.address2 ?? null as address2,\\n    c.storeLocation.address.city ?? null as city,\\n    c.storeLocation.address.state ?? null as state,\\n    c.storeLocation.address.zipCode ?? null as zipcode,\\n    c.storeLocation.locationCoordinates.latitude,\\n    c.storeLocation.locationCoordinates.longitude\\nFROM c\\nWHERE c.type = \\'location-details\\'',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> IngestLocationDetailsFromCosmos",
-                        "IngestLocationDetailsFromCosmos, IngestLocationFromCosmos join(IngestLocationDetailsFromCosmos@locationid == IngestLocationFromCosmos@locationid,",
-                        "     joinType:'inner',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> JoinLocations",
-                        "JoinLocations select(mapColumn(",
-                        "          city,",
-                        "          zipcode,",
-                        "          latitude,",
-                        "          state,",
-                        "          locationid = IngestLocationDetailsFromCosmos@locationid,",
-                        "          address2,",
-                        "          longitude,",
-                        "          address1,",
-                        "          companyid,",
-                        "          companyname,",
-                        "          timezone",
-                        "     ),",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> OnlyNeeded",
-                        "LocationName alterRow(upsertIf(true())) ~> AlterRow",
-                        "OnlyNeeded derive(companyname = iifNull(companyname,'Not Entered')) ~> LocationName",
-                        "AlterRow cast(output(",
-                        "          latitude as string,",
-                        "          longitude as string",
-                        "     ),",
-                        "     errors: true) ~> LatLon",
-                        "LatLon sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          locationid as string,",
-                        "          companyid as string,",
-                        "          locationgroupid as string,",
-                        "          locationname as string,",
-                        "          address1 as string,",
-                        "          address2 as string,",
-                        "          city as string,",
-                        "          state as string,",
-                        "          zipcode as string,",
-                        "          latitude as string,",
-                        "          longitude as string,",
-                        "          timezone as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:false,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['locationid','companyid'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     mapColumn(",
-                        "          locationid,",
-                        "          companyid,",
-                        "          locationname = companyname,",
-                        "          address1,",
-                        "          address2,",
-                        "          city,",
-                        "          state,",
-                        "          zipcode,",
-                        "          latitude,",
-                        "          longitude,",
-                        "          timezone",
-                        "     )) ~> loadLocations"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/CosmosOrderTypes')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "gasCosmosOrderType",
-                                "type": "DatasetReference"
-                            },
-                            "name": "OrderTypes"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrderType",
-                                "type": "DatasetReference"
-                            },
-                            "name": "dimOrderType"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrderType",
-                                "type": "DatasetReference"
-                            },
-                            "name": "maxIdDimOrderType"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "gemEvent",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gemEvents"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrderType",
-                                "type": "DatasetReference"
-                            },
-                            "name": "dimOrderType3"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrderType",
-                                "type": "DatasetReference"
-                            },
-                            "name": "maxIdDim"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrderType",
-                                "type": "DatasetReference"
-                            },
-                            "name": "WriteToOrderTypeTable"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrderType",
-                                "type": "DatasetReference"
-                            },
-                            "name": "dimOrderType2"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "OrderTypeABC"
-                        },
-                        {
-                            "name": "SelectOnlyNeeded"
-                        },
-                        {
-                            "name": "RowNumber"
-                        },
-                        {
-                            "name": "GetTheLatestOrder"
-                        },
-                        {
-                            "name": "GetMaxID"
-                        },
-                        {
-                            "name": "IdGenerator"
-                        },
-                        {
-                            "name": "MapDrifted1",
-                            "description": "Creates an explicit mapping for each drifted column"
-                        },
-                        {
-                            "name": "derivedColumn1"
-                        },
-                        {
-                            "name": "parseData"
-                        },
-                        {
-                            "name": "MaxID"
-                        },
-                        {
-                            "name": "IdGenerator2"
-                        },
-                        {
-                            "name": "derivedColumn2"
-                        },
-                        {
-                            "name": "MapDrifted2",
-                            "description": "Creates an explicit mapping for each drifted column"
-                        },
-                        {
-                            "name": "select1"
-                        },
-                        {
-                            "name": "select2"
-                        },
-                        {
-                            "name": "DistinctTypes"
-                        },
-                        {
-                            "name": "NewOrderTypes"
-                        },
-                        {
-                            "name": "KeepDistinctTypes"
-                        },
-                        {
-                            "name": "derivedColumn3"
-                        },
-                        {
-                            "name": "CheckIfNewRecordsExist"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          ordertypelabel as string,",
-                        "          kioskid as string,",
-                        "          locationid as string,",
-                        "          orderdate as string,",
-                        "          ordertypeid as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT distinct \\n  c.kioskSource.kioskId ?? null as kioskid,\\n  c.locationId ?? null as locationid,\\n  c.orderType ?? null as ordertypeid,\\n  c.orderTypeLabel ?? null as ordertypelabel,\\n  c.orderDate ?? null as orderdate\\nFROM orders as c\\nwhere 1=1\\nand (c.isTestOrder = false or is_defined(c.isTestOrder) = false)\\nand c.kioskSource.kioskId > \\'\\'',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> OrderTypes",
-                        "source(output(",
-                        "          id as long,",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          ordertypeid as string,",
-                        "          ordertypelabel as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> dimOrderType",
-                        "source(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select coalesce(max(id), 0) as maxid from dim.ordertype',",
-                        "     format: 'query') ~> maxIdDimOrderType",
-                        "source(output(",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          data as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT distinct\\nc.location ?? null as locationid,\\nc.device ?? null as kioskid,\\nc.data\\nFROM c\\nWHERE c.module = \\'kiosk\\'\\nAND c.application = \\'nge\\'\\nand lower(c.category) = \\'service\\'\\nand c.data like \\'%OrderType%\\'\\nand c.token > \\'\\'\\nand c.instant >= \\'2024-06-23\\'',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> gemEvents",
-                        "source(output(",
-                        "          id as long,",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          ordertypeid as string,",
-                        "          ordertypelabel as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> dimOrderType3",
-                        "source(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select coalesce(max(id), 0) as maxid from dim.ordertype',",
-                        "     format: 'query') ~> maxIdDim",
-                        "SelectOnlyNeeded cast(output(",
-                        "          ordertypeid as string",
-                        "     ),",
-                        "     errors: true) ~> OrderTypeABC",
-                        "GetTheLatestOrder select(mapColumn(",
-                        "          ordertypelabel,",
-                        "          kioskid,",
-                        "          locationid,",
-                        "          ordertypeid",
-                        "     ),",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> SelectOnlyNeeded",
-                        "CheckIfNewRecordsExist window(over(kioskid,",
-                        "          locationid,",
-                        "          ordertypeid),",
-                        "     desc(orderdate, true),",
-                        "     row_num = rowNumber()) ~> RowNumber",
-                        "RowNumber filter(row_num == 1) ~> GetTheLatestOrder",
-                        "OrderTypeABC, maxIdDimOrderType join(1==1,",
-                        "     joinType:'cross',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> GetMaxID",
-                        "GetMaxID keyGenerate(output(id as long),",
-                        "     startAt: 1L,",
-                        "     stepValue: 1L) ~> IdGenerator",
-                        "IdGenerator derive(maxid = toLong(byName('maxid'))) ~> MapDrifted1",
-                        "MapDrifted1 derive(id = id + maxid) ~> derivedColumn1",
-                        "gemEvents parse(ordertypeid = data ? (OrderType as string),",
-                        "          ordertypelabel = data ? (OrderType as string),",
-                        "     format: 'json',",
-                        "     documentForm: 'singleDocument') ~> parseData",
-                        "KeepDistinctTypes, maxIdDim join(1==1,",
-                        "     joinType:'cross',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> MaxID",
-                        "MaxID keyGenerate(output(key as long),",
-                        "     startAt: 1L,",
-                        "     stepValue: 1L) ~> IdGenerator2",
-                        "MapDrifted2 derive(id = maxid + key) ~> derivedColumn2",
-                        "IdGenerator2 derive(maxid = toLong(byName('maxid'))) ~> MapDrifted2",
-                        "derivedColumn2 select(mapColumn(",
-                        "          locationid,",
-                        "          kioskid,",
-                        "          data,",
-                        "          ordertypeid,",
-                        "          ordertypelabel,",
-                        "          id",
-                        "     ),",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> select1",
-                        "parseData select(mapColumn(",
-                        "          locationid,",
-                        "          kioskid,",
-                        "          data,",
-                        "          ordertypeid = ordertypeid.OrderType,",
-                        "          ordertypelabel = ordertypelabel.OrderType",
-                        "     ),",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> select2",
-                        "NewOrderTypes window(over(locationid,",
-                        "          kioskid,",
-                        "          ordertypeid),",
-                        "     desc(ordertypelabel, true),",
-                        "     rn = rowNumber()) ~> DistinctTypes",
-                        "select2, dimOrderType3 exists(select2@locationid == dimOrderType3@locationid",
-                        "     && select2@kioskid == dimOrderType3@kioskid",
-                        "     && select2@ordertypeid == dimOrderType3@ordertypeid,",
-                        "     negate:true,",
-                        "     broadcast: 'auto')~> NewOrderTypes",
-                        "DistinctTypes filter(rn == 1) ~> KeepDistinctTypes",
-                        "OrderTypes derive(ordertypeid = case(ordertypeid == '' || isNull(ordertypeid), ordertypelabel, ordertypeid)) ~> derivedColumn3",
-                        "derivedColumn3, dimOrderType exists(OrderTypes@locationid == dimOrderType@locationid",
-                        "     && OrderTypes@kioskid == dimOrderType@kioskid",
-                        "     && derivedColumn3@ordertypeid == dimOrderType@ordertypeid,",
-                        "     negate:true,",
-                        "     broadcast: 'auto')~> CheckIfNewRecordsExist",
-                        "derivedColumn1 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          id as long,",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          ordertypeid as string,",
-                        "          ordertypelabel as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 1,",
-                        "     mapColumn(",
-                        "          id,",
-                        "          locationid,",
-                        "          kioskid,",
-                        "          ordertypeid,",
-                        "          ordertypelabel",
-                        "     )) ~> WriteToOrderTypeTable",
-                        "select1 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          id as long,",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          ordertypeid as string,",
-                        "          ordertypelabel as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 2,",
-                        "     mapColumn(",
-                        "          id,",
-                        "          locationid,",
-                        "          kioskid,",
-                        "          ordertypeid,",
-                        "          ordertypelabel",
-                        "     )) ~> dimOrderType2"
                     ]
                 }
             },

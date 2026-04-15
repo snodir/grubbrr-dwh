@@ -2117,12 +2117,6 @@
                 "type": "AzurePostgreSqlTable",
                 "schema": [
                     {
-                        "name": "id",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
                         "name": "organizationid",
                         "type": "text",
                         "precision": 0,

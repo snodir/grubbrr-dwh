@@ -735,6 +735,152 @@
             "dependsOn": []
         },
         {
+            "name": "[concat(parameters('factoryName'), '/dimModifierGroupAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "modifiergroupid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifiergroupname",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "max_selection",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "min_selection",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "free_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "pos_linked_entity_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "negative_modifier_behavior",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "max_aggregate_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "min_aggregate_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "increment_step",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "slider_mode",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "slider_mode_modifier",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "modifier_group"
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/dimModifierMappingAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -1734,104 +1880,6 @@
                 "typeProperties": {
                     "schema": "fact",
                     "table": "modifier_interactions"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/factModifierRecommendationsAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "transactionheaderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifier_impressions",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifier_interactions",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "businessdate",
-                        "type": "date",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdateutc",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdatelocal",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "frequentcustomerid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysupdatetime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "fact",
-                    "table": "modifier_recommendations"
                 }
             },
             "dependsOn": []

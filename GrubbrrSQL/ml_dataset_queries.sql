@@ -936,6 +936,7 @@ WITH org_loc_lookup AS (
     ) = '{$pdf_orgid}'
       AND ol.organizationtype = 0
 ),
+
 org_loc_ctlg AS (
     SELECT
         ol.*,
@@ -946,6 +947,7 @@ org_loc_ctlg AS (
         ON ol.organizationid = c.organizationid
        AND ol.locationid = c.gem_location_id
 ),
+
 org_loc_ctlg_modifiers AS (
     SELECT
         m.*,
@@ -958,13 +960,14 @@ org_loc_ctlg_modifiers AS (
     INNER JOIN org_loc_ctlg AS olc
         ON m.catalogid = olc.catalogid
     WHERE (
-        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy}
-        AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}
-    )
-    OR (
-        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy}
-    )
+            EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy}
+            AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}
+          )
+       OR (
+            EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy}
+          )
 ),
+
 trxn_items AS (
     SELECT
         ol.organizationid,
@@ -974,11 +977,12 @@ trxn_items AS (
     FROM fact.transactionitem AS ti
     INNER JOIN org_loc_lookup AS ol
         ON ti.locationid = ol.locationid
-    WHERE 1=1
+    WHERE 1 = 1
       AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%'
       AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy}
       AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}
 )
+
 SELECT
     olcm.organizationid,
     olcm.organizationname,
@@ -991,29 +995,62 @@ SELECT
     {$pdf_yyyy} AS yyyy,
     {$pdf_ww} AS ww,
     mt.transactionheaderid,
-    ti.ordersessionid, 
+    ti.ordersessionid,
     mt.orderid,
-    mt.itemid as orderitemid,
+    mt.itemid AS orderitemid,
     ti.dimmenuitemid AS menuitemid,
+    mi.menuitemname,
     ti.itemquantity,
     ti.itemunitprice,
     mi.item_class_type,
     mt.modifiergroupid,
+    mg.modifiergroupname,
     mt.modifierid,
     mt.modifiername,
-    NULL :: TEXT AS parent_modifier_id,
-    NULL :: INTEGER AS nesting_depth,
+    NULL::TEXT AS parent_modifier_id,
+    NULL::INTEGER AS nesting_depth,
     mt.modifierquantity,
     mt.modifierprice,
     mt.freequantity,
-    CASE WHEN olcm.min_quantity = 0 AND olcm.max_quantity > 0 THEN 'optional'
-         WHEN olcm.min_quantity >= 1 AND olcm.max_quantity >= 1 THEN 'default' END selection_type,
-    CASE WHEN olcm.min_quantity = 0 AND olcm.max_quantity > 0 AND mt.modifierquantity > 0 THEN 'added'
-         WHEN olcm.min_quantity >= 1 AND olcm.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
-         WHEN olcm.min_quantity >= 1 AND olcm.max_quantity >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,
-    NULL :: TEXT as session_recorded_at,
+    mgm.is_default as is_modifier_default,
+    mg.min_selection as min_quantity,
+    mg.max_selection as max_quantity,
+    CASE
+        WHEN mgm.is_default = FALSE
+             AND mg.min_selection = 0
+             AND mg.max_selection >= 0
+            THEN 'optional'
+        WHEN mgm.is_default = FALSE
+             AND mg.min_selection >= 1
+             AND mg.max_selection >= 1
+            THEN 'required'
+        WHEN mgm.is_default = TRUE
+            THEN 'default'
+    END AS selection_type,
+    CASE
+        WHEN mgm.is_default = FALSE
+             AND mg.min_selection = 0
+             AND mg.max_selection >= 0
+             AND mt.modifierquantity >= 1
+            THEN 'added'
+        WHEN mgm.is_default = FALSE
+             AND mg.min_selection >= 1
+             AND mg.max_selection >= 1
+             AND mt.modifierquantity >= 1
+            THEN 'selected'
+        WHEN mgm.is_default = TRUE
+             AND mg.min_selection >= 1
+             AND mg.max_selection >= 1
+             AND mt.modifierquantity >= 1
+            THEN 'kept'
+        WHEN mgm.is_default = TRUE
+             AND mg.min_selection >= 1
+             AND mg.max_selection >= 1
+             AND mt.modifierquantity = 0
+            THEN 'removed'
+    END AS action,
+    NULL::TEXT AS session_recorded_at,
     ti.frequentcustomerid,
-    olcm.is_modifier_default,
     olcm.modifier_default_quantity,
     olcm.classification AS modifier_class_type
 FROM fact.itemmodifier AS mt
@@ -1024,7 +1061,12 @@ INNER JOIN org_loc_ctlg_modifiers AS olcm
     ON ti.locationid = olcm.locationid
    AND mt.modifierid = olcm.modifierid
 INNER JOIN dim.menuitem AS mi
-    ON mi.menuitemid = ti.dimmenuitemid;
+    ON mi.menuitemid = ti.dimmenuitemid
+LEFT JOIN dim.modifier_group_mapping as mgm
+    ON mgm.modifiergroupid = mt.modifiergroupid
+    AND mgm.modifierid = mt.modifierid
+LEFT JOIN dim.modifier_group as mg 
+    ON mg.modifiergroupid = mt.modifiergroupid;
 
 
 
@@ -1055,6 +1097,7 @@ WITH org_loc_lookup AS (
     ) = '{$pdf_orgid}'
       AND ol.organizationtype = 0
 ),
+
 org_loc_ctlg AS (
     SELECT
         ol.*,
@@ -1065,6 +1108,7 @@ org_loc_ctlg AS (
         ON ol.organizationid = c.organizationid
        AND ol.locationid = c.gem_location_id
 ),
+
 org_loc_ctlg_modifiers AS (
     SELECT
         m.*,
@@ -1077,13 +1121,14 @@ org_loc_ctlg_modifiers AS (
     INNER JOIN org_loc_ctlg AS olc
         ON m.catalogid = olc.catalogid
     WHERE (
-        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy}
-        AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}
-    )
-    OR (
-        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy}
-    )
+            EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy}
+            AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}
+          )
+       OR (
+            EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy}
+          )
 ),
+
 trxn_items AS (
     SELECT
         ol.organizationid,
@@ -1093,11 +1138,12 @@ trxn_items AS (
     FROM fact.modifier_impressions AS ti
     INNER JOIN org_loc_lookup AS ol
         ON ti.locationid = ol.locationid
-    WHERE 1=1
+    WHERE 1 = 1
       AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%'
       AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy}
       AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}
 )
+
 SELECT
     olcm.organizationid,
     olcm.organizationname,
@@ -1110,13 +1156,17 @@ SELECT
     {$pdf_yyyy} AS yyyy,
     {$pdf_ww} AS ww,
     m.transactionheaderid,
-    m.ordersessionid, 
+    m.ordersessionid,
     m.orderid,
     m.menuitemid,
+    mi.menuitemname,
+    mi.item_class_type,
     m.modifierid,
+    olcm.modifiername,
+    olcm.classification AS modifier_class_type,
     m.parent_modifier_id,
     m.nesting_depth,
-    olcm.price as modifierprice,
+    olcm.price AS modifierprice,
     m.selection_type,
     m.position,
     m.score,
@@ -1126,17 +1176,13 @@ SELECT
     m.pre_deselected,
     m.confirmed_removed,
     m.pre_selected,
-    m.frequentcustomerid,
-    olcm.is_modifier_default,
-    olcm.modifier_default_quantity,
-    olcm.classification AS modifier_class_type
+    m.frequentcustomerid
 FROM trxn_items AS m
 INNER JOIN org_loc_ctlg_modifiers AS olcm
     ON m.locationid = olcm.locationid
    AND m.modifierid = olcm.modifierid
 INNER JOIN dim.menuitem AS mi
     ON mi.menuitemid = m.menuitemid;
-
 
 
 /**
@@ -1158,16 +1204,17 @@ WITH org_loc_lookup AS (
         ol.locationid,
         ol.locationname
     FROM dim.organizationlocation AS ol
-    WHERE 1=1
+    WHERE 1 = 1
       AND (
-        CASE
-            WHEN '{$pdf_orgid}' NOT LIKE 'loc-%'
-                THEN ol.organizationid
-            ELSE ol.locationid
-        END
+          CASE
+              WHEN '{$pdf_orgid}' NOT LIKE 'loc-%'
+                  THEN ol.organizationid
+              ELSE ol.locationid
+          END
       ) = '{$pdf_orgid}'
       AND ol.organizationtype = 0
 ),
+
 org_loc_ctlg AS (
     SELECT
         ol.*,
@@ -1178,6 +1225,7 @@ org_loc_ctlg AS (
         ON ol.organizationid = c.organizationid
        AND ol.locationid = c.gem_location_id
 ),
+
 org_loc_ctlg_modifiers AS (
     SELECT
         m.*,
@@ -1190,13 +1238,14 @@ org_loc_ctlg_modifiers AS (
     INNER JOIN org_loc_ctlg AS olc
         ON m.catalogid = olc.catalogid
     WHERE (
-        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy}
-        AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}
-    )
-    OR (
-        EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy}
-    )
+            EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER = {$pdf_yyyy}
+            AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= {$pdf_ww}
+          )
+       OR (
+            EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < {$pdf_yyyy}
+          )
 ),
+
 trxn_items AS (
     SELECT
         ol.organizationid,
@@ -1206,11 +1255,12 @@ trxn_items AS (
     FROM fact.transactionitem AS ti
     INNER JOIN org_loc_lookup AS ol
         ON ti.locationid = ol.locationid
-    WHERE 1=1
+    WHERE 1 = 1
       AND LOWER(ti.transactionheaderid) LIKE 'ordevt-%'
       AND EXTRACT(YEAR FROM ti.businessdate)::INTEGER = {$pdf_yyyy}
       AND EXTRACT(WEEK FROM ti.businessdate)::INTEGER = {$pdf_ww}
 ),
+
 trxn_modifiers AS (
     SELECT
         ti.organizationid,
@@ -1237,6 +1287,7 @@ trxn_modifiers AS (
         ON m.transactionheaderid = ti.transactionheaderid
        AND m.itemid = ti.itemid
 ),
+
 loc_mdfr_agg AS (
     SELECT
         organizationid,
@@ -1247,6 +1298,7 @@ loc_mdfr_agg AS (
     FROM trxn_modifiers
     GROUP BY organizationid, locationid, modifierid
 ),
+
 loc_mdfr_itm AS (
     SELECT
         organizationid,
@@ -1261,6 +1313,7 @@ loc_mdfr_itm AS (
     FROM trxn_modifiers
     GROUP BY organizationid, locationid, modifierid, menuitemid
 )
+
 SELECT
     m.organizationid,
     m.organizationname,
@@ -1271,13 +1324,16 @@ SELECT
     {$pdf_yyyy} AS yyyy,
     {$pdf_ww} AS ww,
     imgm.menuitemid,
+    mi.menuitemname,
     mi.item_class_type,
     imgm.modifiergroupid,
+    mg.modifiergroupname,
     imgm.modifierid,
+    m.modifiername,
     m.classification AS modifier_class_type,
-    m.is_modifier_default,
-    m.min_quantity,
-    m.max_quantity,
+    imgm.is_default AS is_modifier_default,
+    mg.min_selection as min_quantity,
+    mg.max_selection as max_quantity,
     m.allow_quantity_increment,
     m.increment_step,
     m.modifier_default_quantity,
@@ -1298,6 +1354,9 @@ INNER JOIN org_loc_ctlg_modifiers AS m
    AND imgm.modifierid = m.modifierid
 INNER JOIN dim.menuitem AS mi
     ON imgm.menuitemid = mi.menuitemid
+INNER JOIN dim.modifier_group as mg
+    ON imgm.catalogid = mg.catalogid
+    AND imgm.modifiergroupid = mg.modifiergroupid
 LEFT JOIN loc_mdfr_itm AS lmi
     ON m.organizationid = lmi.organizationid
    AND m.locationid = lmi.locationid

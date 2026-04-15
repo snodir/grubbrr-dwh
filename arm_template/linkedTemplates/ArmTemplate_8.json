@@ -13,6 +13,1164 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/ReloadGemUserBehaviourEventsToFact')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "UserBehaviourEvents-GEM"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "gemEvent",
+                                "type": "DatasetReference"
+                            },
+                            "name": "CosmosGEMUserBehaviourEvents"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbLocation",
+                                "type": "DatasetReference"
+                            },
+                            "name": "Locations"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "TransactionHeadersAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "AnalyticalOrders"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gemUserBehaviourEventAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "userbehaviour"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "factwatermarktable",
+                                "type": "DatasetReference"
+                            },
+                            "name": "watermarktable"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "TransactionItemsAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "AnalyticalItems"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbView",
+                                "type": "DatasetReference"
+                            },
+                            "name": "maxDimViewID"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbDimElement",
+                                "type": "DatasetReference"
+                            },
+                            "name": "maxDimElementID"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gemUserBehaviourEventAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "maxFactUserBehaviour"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbView",
+                                "type": "DatasetReference"
+                            },
+                            "name": "DimView"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbDimElement",
+                                "type": "DatasetReference"
+                            },
+                            "name": "DimElement"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gemEvent",
+                                "type": "DatasetReference"
+                            },
+                            "name": "sourceDim"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gemEvent",
+                                "type": "DatasetReference"
+                            },
+                            "name": "sourceElement"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbOrderType",
+                                "type": "DatasetReference"
+                            },
+                            "name": "Ordertype"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gemUserBehaviourEventAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "checkUserBehavior"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "gemUserBehaviourEventAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "WriteToFactUserBehaviour"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "factwatermarktable",
+                                "type": "DatasetReference"
+                            },
+                            "name": "writetoWatermark"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbView",
+                                "type": "DatasetReference"
+                            },
+                            "name": "WriteDim"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbDimElement",
+                                "type": "DatasetReference"
+                            },
+                            "name": "WriteElement"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "ExistingLocations"
+                        },
+                        {
+                            "name": "OnlyNeedeColumns"
+                        },
+                        {
+                            "name": "derivedColumns"
+                        },
+                        {
+                            "name": "parseData"
+                        },
+                        {
+                            "name": "selectedColumns"
+                        },
+                        {
+                            "name": "DateID"
+                        },
+                        {
+                            "name": "derivedColumnsWatermarkTable"
+                        },
+                        {
+                            "name": "Update"
+                        },
+                        {
+                            "name": "select1"
+                        },
+                        {
+                            "name": "cast2"
+                        },
+                        {
+                            "name": "surrogateKey3"
+                        },
+                        {
+                            "name": "join3"
+                        },
+                        {
+                            "name": "derivedColumn2"
+                        },
+                        {
+                            "name": "lookup3"
+                        },
+                        {
+                            "name": "lookup4"
+                        },
+                        {
+                            "name": "derivedColumn4"
+                        },
+                        {
+                            "name": "parse1"
+                        },
+                        {
+                            "name": "exists5"
+                        },
+                        {
+                            "name": "select2"
+                        },
+                        {
+                            "name": "aggregate3"
+                        },
+                        {
+                            "name": "join4"
+                        },
+                        {
+                            "name": "surrogateKey4"
+                        },
+                        {
+                            "name": "cast5"
+                        },
+                        {
+                            "name": "derivedColumn7"
+                        },
+                        {
+                            "name": "parse2"
+                        },
+                        {
+                            "name": "select3"
+                        },
+                        {
+                            "name": "aggregate4"
+                        },
+                        {
+                            "name": "join5"
+                        },
+                        {
+                            "name": "surrogateKey5"
+                        },
+                        {
+                            "name": "cast6"
+                        },
+                        {
+                            "name": "derivedColumn9"
+                        },
+                        {
+                            "name": "lookup6"
+                        },
+                        {
+                            "name": "derivedColumn10"
+                        },
+                        {
+                            "name": "exists6"
+                        },
+                        {
+                            "name": "filter1"
+                        },
+                        {
+                            "name": "OnlyNewEvents"
+                        }
+                    ],
+                    "scriptLines": [
+                        "parameters{",
+                        "     pdf_ts as integer (1750000010)",
+                        "}",
+                        "source(output(",
+                        "          application as string,",
+                        "          module as string,",
+                        "          location as string,",
+                        "          username as string,",
+                        "          etc as string,",
+                        "          {_attachments} as string,",
+                        "          data as string,",
+                        "          userid as string,",
+                        "          company as string,",
+                        "          id as long,",
+                        "          devicename as string,",
+                        "          instant as string,",
+                        "          token as string,",
+                        "          {_etag} as string,",
+                        "          ticks as long,",
+                        "          {_rid} as string,",
+                        "          category as string,",
+                        "          severity as string,",
+                        "          type as string,",
+                        "          {_self} as string,",
+                        "          summary as string,",
+                        "          device as string,",
+                        "          {_ts} as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT * \\r\\nFROM c \\r\\nWHERE 1=1\\r\\nAND c.module = \\'kiosk\\' \\r\\nAND c.instant > \\'2025-12-10T00:00:00.000\\' \\r\\nAND c.instant <= TimestampToDateTime((c._ts+3600)*1000) \\r\\nAND (c.token <> null AND c.token <> \\'\\')',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> CosmosGEMUserBehaviourEvents",
+                        "source(output(",
+                        "          organizationid as string,",
+                        "          organizationname as string,",
+                        "          locationid as string,",
+                        "          locationname as string,",
+                        "          organizationtype as short",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> Locations",
+                        "source(output(",
+                        "          id as long,",
+                        "          transactionheaderid as string,",
+                        "          orderid as string,",
+                        "          locationid as string,",
+                        "          kioskid as string,",
+                        "          ordersessionid as string,",
+                        "          dateid as integer,",
+                        "          orderdateutc as string,",
+                        "          orderdatelocal as timestamp,",
+                        "          orderstatus as string,",
+                        "          ordertype as integer,",
+                        "          numberofitems as short,",
+                        "          numberofpayments as short,",
+                        "          ordersredeemedrewards as decimal(7,3),",
+                        "          ordersubtotal as decimal(7,3),",
+                        "          ordertotal as decimal(7,3),",
+                        "          ordertax as decimal(7,3),",
+                        "          ordertip as decimal(7,3),",
+                        "          orderdiscount as decimal(7,3),",
+                        "          orderbalance as decimal(7,3),",
+                        "          paymentstatus as string,",
+                        "          sourcefile as string,",
+                        "          createddate as timestamp,",
+                        "          updateddate as timestamp,",
+                        "          orderstarttime as timestamp,",
+                        "          reviewordertime as timestamp,",
+                        "          checkouttime as timestamp,",
+                        "          paystarttime as timestamp,",
+                        "          sessionendtime as timestamp,",
+                        "          precheckouttime as decimal(7,3),",
+                        "          postcheckouttime as decimal(7,3),",
+                        "          menupagetime as decimal(7,3),",
+                        "          reviewpagetime as decimal(7,3),",
+                        "          paymentpagetime as decimal(7,3),",
+                        "          totalordertime as decimal(7,3),",
+                        "          businessdate as date,",
+                        "          frequentcustomerid as string,",
+                        "          abtestid as long,",
+                        "          channel as string,",
+                        "          guestcount as integer,",
+                        "          charityamount as decimal(7,3),",
+                        "          syscosmosts as long,",
+                        "          sourceid as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> AnalyticalOrders",
+                        "source(output(",
+                        "          busdate as timestamp,",
+                        "          syscosmosts as long",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select MAX(busdate) as busdate, max(syscosmosts) as syscosmosts from fact.userbehaviour',",
+                        "     format: 'query') ~> userbehaviour",
+                        "source(output(",
+                        "          watermarktablename as string,",
+                        "          watermarkcolumn as string,",
+                        "          watermarkvalue as timestamp,",
+                        "          ticks as long,",
+                        "          ts as long,",
+                        "          source as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> watermarktable",
+                        "source(output(",
+                        "          id as long,",
+                        "          transactionheaderid as string,",
+                        "          categoryid as long,",
+                        "          menuitemid as long,",
+                        "          itemid as string,",
+                        "          ordersessionid as string,",
+                        "          itemsessionid as string,",
+                        "          itemname as string,",
+                        "          itemquantity as short,",
+                        "          itemunitprice as decimal(7,3),",
+                        "          upselllevel as string,",
+                        "          upsellpromptitemid as string,",
+                        "          orderid as string,",
+                        "          itemtype as string,",
+                        "          eventtype as string,",
+                        "          customize as boolean,",
+                        "          upgrade as boolean,",
+                        "          itemselectedtime as timestamp,",
+                        "          addtocarttime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> AnalyticalItems",
+                        "source(output(",
+                        "          maxviewid as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select COALESCE(MAX(viewid),0) as maxviewid from dim.view',",
+                        "     format: 'query') ~> maxDimViewID",
+                        "source(output(",
+                        "          maxelementid as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select COALESCE(MAX(elementid),0) as maxelementid from dim.element',",
+                        "     format: 'query') ~> maxDimElementID",
+                        "source(output(",
+                        "          maxid as long",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select coalesce(max(id),0) as maxid from fact.userbehaviour',",
+                        "     format: 'query') ~> maxFactUserBehaviour",
+                        "source(output(",
+                        "          viewid as integer,",
+                        "          viewname as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> DimView",
+                        "source(output(",
+                        "          elementid as integer,",
+                        "          sourceelementid as string,",
+                        "          elementname as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> DimElement",
+                        "source(output(",
+                        "          application as string,",
+                        "          module as string,",
+                        "          location as string,",
+                        "          username as string,",
+                        "          etc as string,",
+                        "          {_attachments} as string,",
+                        "          data as string,",
+                        "          userid as string,",
+                        "          company as string,",
+                        "          id as long,",
+                        "          devicename as string,",
+                        "          instant as string,",
+                        "          token as string,",
+                        "          {_etag} as string,",
+                        "          ticks as long,",
+                        "          {_rid} as string,",
+                        "          category as string,",
+                        "          severity as string,",
+                        "          type as string,",
+                        "          {_self} as string,",
+                        "          summary as string,",
+                        "          device as string,",
+                        "          {_ts} as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT * \\r\\nFROM c \\r\\nWHERE 1=1\\r\\nAND c.module = \\'kiosk\\' \\r\\nAND c.category = \\'insight\\'\\r\\nAND c.instant > \\'2025-12-10T00:00:00.000\\' \\r\\nAND (c.token <> null AND c.token <> \\'\\')',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> sourceDim",
+                        "source(output(",
+                        "          application as string,",
+                        "          module as string,",
+                        "          location as string,",
+                        "          username as string,",
+                        "          etc as string,",
+                        "          {_attachments} as string,",
+                        "          data as string,",
+                        "          userid as string,",
+                        "          company as string,",
+                        "          id as long,",
+                        "          devicename as string,",
+                        "          instant as string,",
+                        "          token as string,",
+                        "          {_etag} as string,",
+                        "          ticks as long,",
+                        "          {_rid} as string,",
+                        "          category as string,",
+                        "          severity as string,",
+                        "          type as string,",
+                        "          {_self} as string,",
+                        "          summary as string,",
+                        "          device as string,",
+                        "          {_ts} as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT * \\r\\nFROM c \\r\\nWHERE 1=1\\r\\nAND c.module = \\'kiosk\\' \\r\\nAND c.category = \\'insight\\'\\r\\nAND c.instant > \\'2025-12-10T00:00:00.000\\' \\r\\nAND (c.token <> null AND c.token <> \\'\\')',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> sourceElement",
+                        "source(output(",
+                        "          id as long,",
+                        "          locationid as string,",
+                        "          kioskid as string,",
+                        "          ordertypeid as string,",
+                        "          ordertypelabel as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> Ordertype",
+                        "source(output(",
+                        "          id as long,",
+                        "          busdate as timestamp,",
+                        "          locationid as string,",
+                        "          dateid as integer,",
+                        "          daypart as string,",
+                        "          ordertype as long,",
+                        "          eventtype as string,",
+                        "          ordersessionidentifier as string,",
+                        "          viewidentifier as integer,",
+                        "          itemsessionidentifier as string,",
+                        "          elementidentifier as integer,",
+                        "          quantity as integer,",
+                        "          createddate as timestamp,",
+                        "          syscosmosts as long,",
+                        "          eventinstant as string,",
+                        "          eventcategory as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> checkUserBehavior",
+                        "DateID, Locations exists(location == locationid,",
+                        "     negate:false,",
+                        "     broadcast: 'auto')~> ExistingLocations",
+                        "lookup6 select(mapColumn(",
+                        "          locationid = location,",
+                        "          ordersessionidentifier = token,",
+                        "          eventcategory = category,",
+                        "          eventinstant = instant,",
+                        "          eventtype = type,",
+                        "          ordertype = Ordertype@id,",
+                        "          data,",
+                        "          busdate = instantModified,",
+                        "          dateid,",
+                        "          syscosmosts = {_ts}",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> OnlyNeedeColumns",
+                        "OnlyNeedeColumns derive(createdate = currentTimestamp(),",
+                        "          daypart = 'None') ~> derivedColumns",
+                        "derivedColumns parse(viewidentifier = data ? (view as string),",
+                        "          elementname = data ? (element as string),",
+                        "          elementidentifier = data ? (elementId as string),",
+                        "          quantity = data ? (quantity as string),",
+                        "          itemsessionidentifier = data ? (itemSessionId as string),",
+                        "     format: 'json',",
+                        "     documentForm: 'singleDocument') ~> parseData",
+                        "parseData select(mapColumn(",
+                        "          locationid,",
+                        "          ordertype,",
+                        "          busdate,",
+                        "          eventinstant,",
+                        "          dateid,",
+                        "          ordersessionidentifier,",
+                        "          createdate,",
+                        "          daypart,",
+                        "          eventcategory,",
+                        "          eventtype,",
+                        "          viewidentifier1 = viewidentifier.view,",
+                        "          elementname1 = elementname.element,",
+                        "          itemsessionidentifier = itemsessionidentifier.itemSessionId,",
+                        "          sourceelementid1 = elementidentifier.elementId,",
+                        "          quantity = quantity.quantity,",
+                        "          syscosmosts",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> selectedColumns",
+                        "OnlyNewEvents derive(dateid = toInteger(replace(replace(substring(instant, 1, 13), '-', ''), 'T', '')),",
+                        "          instantModified = toTimestamp(case(substring(instant,20,1) == '.', replace(replace(substring(instant,1,23),'T',' '), '+', '0'), concat(replace(substring(instant,1,19),'T',' '), '.000')), 'yyyy-MM-dd HH:mm:ss.SSS', 'UTC')) ~> DateID",
+                        "userbehaviour derive(watermarktablename = 'fact.userbehaviour',",
+                        "          watermarkcolumn = 'busdate') ~> derivedColumnsWatermarkTable",
+                        "derivedColumnsWatermarkTable alterRow(updateIf(true())) ~> Update",
+                        "lookup4 select(mapColumn(",
+                        "          locationid,",
+                        "          ordertype,",
+                        "          busdate,",
+                        "          syscosmosts,",
+                        "          eventinstant,",
+                        "          dateid,",
+                        "          ordersessionidentifier,",
+                        "          createddate = createdate,",
+                        "          daypart,",
+                        "          eventcategory,",
+                        "          eventtype,",
+                        "          itemsessionidentifier,",
+                        "          quantity,",
+                        "          viewidentifier = viewid,",
+                        "          elementidentifier = elementid",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> select1",
+                        "surrogateKey3 cast(output(",
+                        "          quantity as integer",
+                        "     ),",
+                        "     errors: true) ~> cast2",
+                        "join3 keyGenerate(output(surrogatekey as long),",
+                        "     startAt: 1L,",
+                        "     stepValue: 1L) ~> surrogateKey3",
+                        "select1, maxFactUserBehaviour join(1==1,",
+                        "     joinType:'cross',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> join3",
+                        "cast2 derive(id = toInteger(surrogatekey+maxid)) ~> derivedColumn2",
+                        "derivedColumn4, DimView lookup(viewidentifier1 == viewname,",
+                        "     multiple: false,",
+                        "     pickup: 'any',",
+                        "     broadcast: 'auto')~> lookup3",
+                        "lookup3, DimElement lookup(elementname1 == elementname",
+                        "     && sourceelementid1 == sourceelementid,",
+                        "     multiple: false,",
+                        "     pickup: 'any',",
+                        "     broadcast: 'auto')~> lookup4",
+                        "selectedColumns derive(sourceelementid1 = case(sourceelementid1=='','None',sourceelementid1),",
+                        "          elementname1 = case(elementname1=='','None',elementname1)) ~> derivedColumn4",
+                        "sourceDim parse(viewidentifier1 = data ? (view as string),",
+                        "     format: 'json',",
+                        "     documentForm: 'singleDocument') ~> parse1",
+                        "select2, DimView exists(viewidentifier1 == viewname,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> exists5",
+                        "parse1 select(mapColumn(",
+                        "          viewidentifier1 = viewidentifier1.view",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> select2",
+                        "exists5 aggregate(groupBy(viewidentifier1),",
+                        "     rowcount_agg = count()) ~> aggregate3",
+                        "aggregate3, maxDimViewID join(1==1,",
+                        "     joinType:'cross',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> join4",
+                        "join4 keyGenerate(output(viewkey as long),",
+                        "     startAt: 1L,",
+                        "     stepValue: 1L) ~> surrogateKey4",
+                        "surrogateKey4 cast(output(",
+                        "          viewkey as integer",
+                        "     ),",
+                        "     errors: true) ~> cast5",
+                        "cast5 derive(viewid = toInteger(viewkey+maxviewid)) ~> derivedColumn7",
+                        "sourceElement parse(elementname1 = data ? (element as string),",
+                        "          elementidentifier1 = data ? (elementId as string),",
+                        "     format: 'json',",
+                        "     documentForm: 'singleDocument') ~> parse2",
+                        "parse2 select(mapColumn(",
+                        "          elementname = elementname1.element,",
+                        "          elementidentifier = elementidentifier1.elementId",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> select3",
+                        "exists6 aggregate(groupBy(elementname1,",
+                        "          elementidentifier1),",
+                        "     rowcount_agg = count()) ~> aggregate4",
+                        "aggregate4, maxDimElementID join(1==1,",
+                        "     joinType:'cross',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> join5",
+                        "join5 keyGenerate(output(elementkey as long),",
+                        "     startAt: 1L,",
+                        "     stepValue: 1L) ~> surrogateKey5",
+                        "surrogateKey5 cast(output(",
+                        "          elementkey as integer",
+                        "     ),",
+                        "     errors: true) ~> cast6",
+                        "cast6 derive(elementid = toInteger(elementkey+maxelementid)) ~> derivedColumn9",
+                        "ExistingLocations, Ordertype lookup(location == locationid",
+                        "     && device == kioskid,",
+                        "     multiple: false,",
+                        "     pickup: 'any',",
+                        "     broadcast: 'auto')~> lookup6",
+                        "select3 derive(elementidentifier1 = case(elementidentifier=='','None',elementidentifier),",
+                        "          elementname1 = case(elementname=='','None',elementname)) ~> derivedColumn10",
+                        "filter1, DimElement exists(elementidentifier1 == sourceelementid",
+                        "     && elementname1 == DimElement@elementname,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> exists6",
+                        "derivedColumn10 filter(isNull(elementidentifier1)   == false()) ~> filter1",
+                        "CosmosGEMUserBehaviourEvents, checkUserBehavior exists(location == locationid",
+                        "     && token == ordersessionidentifier",
+                        "     && category == eventcategory",
+                        "     && type == eventtype",
+                        "     && instant == eventinstant,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> OnlyNewEvents",
+                        "derivedColumn2 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as long,",
+                        "          busdate as timestamp,",
+                        "          locationid as string,",
+                        "          dateid as integer,",
+                        "          daypart as string,",
+                        "          ordertype as long,",
+                        "          eventtype as string,",
+                        "          ordersessionidentifier as string,",
+                        "          viewidentifier as integer,",
+                        "          itemsessionidentifier as string,",
+                        "          elementidentifier as integer,",
+                        "          quantity as integer,",
+                        "          createddate as timestamp,",
+                        "          syscosmosts as long,",
+                        "          eventinstant as string,",
+                        "          eventcategory as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 3,",
+                        "     mapColumn(",
+                        "          id,",
+                        "          busdate,",
+                        "          locationid,",
+                        "          dateid,",
+                        "          daypart,",
+                        "          ordertype,",
+                        "          eventcategory,",
+                        "          eventtype,",
+                        "          ordersessionidentifier,",
+                        "          viewidentifier,",
+                        "          itemsessionidentifier,",
+                        "          elementidentifier,",
+                        "          quantity,",
+                        "          createddate,",
+                        "          syscosmosts,",
+                        "          eventinstant",
+                        "     )) ~> WriteToFactUserBehaviour",
+                        "Update sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          watermarktablename as string,",
+                        "          watermarkcolumn as string,",
+                        "          watermarkvalue as timestamp,",
+                        "          ticks as long,",
+                        "          ts as long,",
+                        "          source as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['watermarktablename','watermarkcolumn'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 4,",
+                        "     mapColumn(",
+                        "          watermarktablename,",
+                        "          watermarkcolumn,",
+                        "          watermarkvalue = busdate,",
+                        "          ts = syscosmosts",
+                        "     )) ~> writetoWatermark",
+                        "derivedColumn7 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          viewid as integer,",
+                        "          viewname as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 1,",
+                        "     mapColumn(",
+                        "          viewid,",
+                        "          viewname = viewidentifier1",
+                        "     )) ~> WriteDim",
+                        "derivedColumn9 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          elementid as integer,",
+                        "          sourceelementid as string,",
+                        "          elementname as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 2,",
+                        "     mapColumn(",
+                        "          elementid,",
+                        "          sourceelementid = elementidentifier1,",
+                        "          elementname = elementname1",
+                        "     )) ~> WriteElement"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TestCosmosOrdersMenus')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Dimensions-GAS"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "gasOrdersCosmos",
+                                "type": "DatasetReference"
+                            },
+                            "name": "CosmosOrdersMenus"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimMenuItemTestAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "ExistingMenus"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimMenuItemTestAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "maxItemid"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gasOrdersCosmos",
+                                "type": "DatasetReference"
+                            },
+                            "name": "CosmosCombos"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimMenuItemTestAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "maxcomboid"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimMenuItemTestAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "existingComboMenus"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "dimMenuItemTestAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "WriteToPG"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimMenuItemTestAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "writeComboMenuitemid"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "GenerateRowNum"
+                        },
+                        {
+                            "name": "RemoveRowNum"
+                        },
+                        {
+                            "name": "RemoveDupes"
+                        },
+                        {
+                            "name": "join2"
+                        },
+                        {
+                            "name": "surrogateKey1"
+                        },
+                        {
+                            "name": "derivedColumn1"
+                        },
+                        {
+                            "name": "select1"
+                        },
+                        {
+                            "name": "flatten1"
+                        },
+                        {
+                            "name": "select2"
+                        },
+                        {
+                            "name": "window1"
+                        },
+                        {
+                            "name": "filter1"
+                        },
+                        {
+                            "name": "select3"
+                        },
+                        {
+                            "name": "join4"
+                        },
+                        {
+                            "name": "surrogateKey2"
+                        },
+                        {
+                            "name": "derivedColumn2"
+                        },
+                        {
+                            "name": "exists1"
+                        },
+                        {
+                            "name": "exists2"
+                        },
+                        {
+                            "name": "RowNumber"
+                        },
+                        {
+                            "name": "RecentItems"
+                        },
+                        {
+                            "name": "RowNumber2"
+                        },
+                        {
+                            "name": "filter2"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          locationid as string,",
+                        "          menuitemid as string,",
+                        "          menuitemname as string,",
+                        "          sysdatets as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT DISTINCT c.locationId ?? null as locationid,\\n  i.menuItemId ?? null as menuitemid,\\n  i.name ?? null as menuitemname,\\n  c._ts as sysdatets\\nFROM c\\njoin i in c.items\\nwhere 1=1\\nand (c.isTestOrder = false or is_defined(c.isTestOrder) = false)',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> CosmosOrdersMenus",
+                        "source(output(",
+                        "          id as long,",
+                        "          locationid as string,",
+                        "          menuitemid as string,",
+                        "          menuitemname as string,",
+                        "          guest as integer,",
+                        "          effective_date as date,",
+                        "          issuedsurveycount as integer,",
+                        "          receivedsurveycount as integer,",
+                        "          totalratingvalue as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> ExistingMenus",
+                        "source(output(",
+                        "          maxid as long",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select coalesce(max(id),0) as maxid from dim.menuitem_test',",
+                        "     format: 'query') ~> maxItemid",
+                        "source(output(",
+                        "          locationid as string,",
+                        "          componentselections as (componentId as string, item as (categoryId as string, categoryName as string, itemSessionId as string, menuItemId as string, name as string, options as (freeQuantity as boolean, isDefault as boolean, isInvisible as boolean, modifierCode as (modifierCodeId as string, name as string, price as boolean, modifierCodeBehavior as short), modifierGroupId as string, modifierId as string, name as string, options as (freeQuantity as boolean, isDefault as boolean, isInvisible as boolean, modifierCode as string, modifierGroupId as string, modifierId as string, name as string, options as string[], price as double, quantity as boolean, totalPrice as double, totalPriceCents as boolean, unitPriceCents as boolean)[], price as double, quantity as short, totalPrice as double, totalPriceCents as short, unitPriceCents as short)[], orderItemId as string, quantity as boolean, rewardSource as string, specialRequest as string, totalPrice as double, totalPriceCents as short, unitPrice as double, unitPriceCents as short, upsellSource as string), name as string)[],",
+                        "          sysdatets as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT DISTINCT c.locationId ?? null as locationid,\\n co.componentSelections ?? null as componentselections,\\n c._ts as sysdatets\\nFROM c\\njoin co in c.combos\\nwhere 1=1\\nand (c.isTestOrder = false or is_defined(c.isTestOrder) = false)',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> CosmosCombos",
+                        "source(output(",
+                        "          maxcomboid as long",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select coalesce(max(id),0) as maxcomboid from dim.menuitem_test',",
+                        "     format: 'query') ~> maxcomboid",
+                        "source(output(",
+                        "          id as long,",
+                        "          locationid as string,",
+                        "          menuitemid as string,",
+                        "          menuitemname as string,",
+                        "          guest as integer,",
+                        "          effective_date as date,",
+                        "          issuedsurveycount as integer,",
+                        "          receivedsurveycount as integer,",
+                        "          totalratingvalue as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> existingComboMenus",
+                        "select1 window(over(locationid,",
+                        "          menuitemid),",
+                        "     asc(locationid, true),",
+                        "     asc(menuitemid, true),",
+                        "     rownum = rowNumber()) ~> GenerateRowNum",
+                        "RemoveDupes select(mapColumn(",
+                        "          locationid,",
+                        "          menuitemid,",
+                        "          menuitemname",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> RemoveRowNum",
+                        "GenerateRowNum filter(rownum == 1) ~> RemoveDupes",
+                        "RemoveRowNum, maxItemid join(1==1,",
+                        "     joinType:'cross',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> join2",
+                        "join2 keyGenerate(output(key1 as long),",
+                        "     startAt: 1L,",
+                        "     stepValue: 1L) ~> surrogateKey1",
+                        "surrogateKey1 derive(id = key1+maxid) ~> derivedColumn1",
+                        "exists1 select(mapColumn(",
+                        "          locationid,",
+                        "          menuitemid,",
+                        "          menuitemname",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> select1",
+                        "CosmosCombos foldDown(unroll(componentselections, componentselections),",
+                        "     mapColumn(",
+                        "          locationid,",
+                        "          menuitemid = componentselections.item.menuItemId,",
+                        "          menuitemname = componentselections.item.name,",
+                        "          sysdatets",
+                        "     ),",
+                        "     skipDuplicateMapInputs: false,",
+                        "     skipDuplicateMapOutputs: false) ~> flatten1",
+                        "exists2 select(mapColumn(",
+                        "          locationid,",
+                        "          menuitemid,",
+                        "          menuitemname",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> select2",
+                        "select2 window(over(locationid,",
+                        "          menuitemid),",
+                        "     asc(locationid, true),",
+                        "     asc(menuitemid, true),",
+                        "     rownum = rowNumber()) ~> window1",
+                        "window1 filter(rownum ==1) ~> filter1",
+                        "filter1 select(mapColumn(",
+                        "          locationid,",
+                        "          menuitemid,",
+                        "          menuitemname",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> select3",
+                        "select3, maxcomboid join(1==1,",
+                        "     joinType:'cross',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> join4",
+                        "join4 keyGenerate(output(key2 as long),",
+                        "     startAt: 1L,",
+                        "     stepValue: 1L) ~> surrogateKey2",
+                        "surrogateKey2 derive(id = key2+maxcomboid) ~> derivedColumn2",
+                        "RecentItems, ExistingMenus exists(CosmosOrdersMenus@locationid == ExistingMenus@locationid",
+                        "     && CosmosOrdersMenus@menuitemid == ExistingMenus@menuitemid",
+                        "     && CosmosOrdersMenus@menuitemname == ExistingMenus@menuitemname,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> exists1",
+                        "filter2, existingComboMenus exists(flatten1@locationid == existingComboMenus@locationid",
+                        "     && flatten1@menuitemid == existingComboMenus@menuitemid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> exists2",
+                        "CosmosOrdersMenus window(over(locationid,",
+                        "          menuitemid),",
+                        "     desc(sysdatets, true),",
+                        "     rn = rowNumber()) ~> RowNumber",
+                        "RowNumber filter(rn == 1) ~> RecentItems",
+                        "flatten1 window(over(locationid,",
+                        "          menuitemid),",
+                        "     desc(sysdatets, true),",
+                        "     rn = rowNumber()) ~> RowNumber2",
+                        "RowNumber2 filter(rn == 1) ~> filter2",
+                        "derivedColumn1 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as long,",
+                        "          locationid as string,",
+                        "          menuitemid as string,",
+                        "          menuitemname as string,",
+                        "          guest as integer,",
+                        "          effective_date as date,",
+                        "          issuedsurveycount as integer,",
+                        "          receivedsurveycount as integer,",
+                        "          totalratingvalue as integer",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 1,",
+                        "     mapColumn(",
+                        "          locationid,",
+                        "          menuitemid,",
+                        "          menuitemname,",
+                        "          id",
+                        "     )) ~> WriteToPG",
+                        "derivedColumn2 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as long,",
+                        "          locationid as string,",
+                        "          menuitemid as string,",
+                        "          menuitemname as string,",
+                        "          guest as integer,",
+                        "          effective_date as date,",
+                        "          issuedsurveycount as integer,",
+                        "          receivedsurveycount as integer,",
+                        "          totalratingvalue as integer",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 2,",
+                        "     mapColumn(",
+                        "          id,",
+                        "          locationid,",
+                        "          menuitemid,",
+                        "          menuitemname",
+                        "     )) ~> writeComboMenuitemid"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/TestDeviceHealth')]",
             "type": "Microsoft.DataFactory/factories/dataflows",
             "apiVersion": "2018-06-01",
@@ -8056,242 +9214,6 @@
                         "          syscosmosts,",
                         "          sysinserttime",
                         "     )) ~> DimABTests"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/dimLocationCatalog')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "gasCosmosLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "ngeLocationCatalog"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "dimLocationCatalogAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "maxIDDimLocCtlg"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "dimLocationCatalogAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "checkLocationCatalog"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "dimLocationCatalogAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "dimLocationCtlg"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "GetMaxID"
-                        },
-                        {
-                            "name": "IdGenerator"
-                        },
-                        {
-                            "name": "MapDrifted1",
-                            "description": "Creates an explicit mapping for each drifted column"
-                        },
-                        {
-                            "name": "ReadyID"
-                        },
-                        {
-                            "name": "OnlyNewCatalogs"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          organizationid as string,",
-                        "          timezone as string,",
-                        "          menuid as string,",
-                        "          locationid as string,",
-                        "          catalogid as string,",
-                        "          locationname as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT distinct c.companyId as organizationid,\\n       c.name ?? null as locationname ,\\n       c.catalogId ?? null as catalogid,\\n       c.menuId ?? null as menuid,\\n       c.locationId as locationid,\\n       c.timezone ?? null as timezone\\nFROM c\\nWHERE is_defined(c.catalogId) = true\\nAND c.catalogId <> null',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> ngeLocationCatalog",
-                        "source(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select coalesce(max(id), 0) as maxid from dim.locationcatalog',",
-                        "     format: 'query') ~> maxIDDimLocCtlg",
-                        "source(output(",
-                        "          id as long,",
-                        "          organizationid as string,",
-                        "          locationid as string,",
-                        "          locationname as string,",
-                        "          catalogid as string,",
-                        "          timezone as string,",
-                        "          menuid as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> checkLocationCatalog",
-                        "OnlyNewCatalogs, maxIDDimLocCtlg join(1==1,",
-                        "     joinType:'cross',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> GetMaxID",
-                        "GetMaxID keyGenerate(output(key as long),",
-                        "     startAt: 1L,",
-                        "     stepValue: 1L) ~> IdGenerator",
-                        "IdGenerator derive(maxid = toLong(byName('maxid'))) ~> MapDrifted1",
-                        "MapDrifted1 derive(id = maxid + key) ~> ReadyID",
-                        "ngeLocationCatalog, checkLocationCatalog exists(ngeLocationCatalog@locationid == checkLocationCatalog@locationid",
-                        "     && ngeLocationCatalog@catalogid == checkLocationCatalog@catalogid,",
-                        "     negate:true,",
-                        "     broadcast: 'auto')~> OnlyNewCatalogs",
-                        "ReadyID sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          id as long,",
-                        "          organizationid as string,",
-                        "          locationid as string,",
-                        "          locationname as string,",
-                        "          catalogid as string,",
-                        "          timezone as string,",
-                        "          menuid as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     mapColumn(",
-                        "          organizationid,",
-                        "          locationid,",
-                        "          locationname,",
-                        "          catalogid,",
-                        "          timezone,",
-                        "          menuid,",
-                        "          id",
-                        "     )) ~> dimLocationCtlg"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/dimOccasionSurvey')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Orders-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "gasSurveyCosmos",
-                                "type": "DatasetReference"
-                            },
-                            "name": "CosmosSurvey"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "dimOccasionSurveyAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "checkDimOccasionSurvey"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "dimOccasionSurveyAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "dimOccasionSurvey"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "NewSurveysOnly"
-                        },
-                        {
-                            "name": "surveytype"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          organizationid as string,",
-                        "          surveyid as string,",
-                        "          surveyname as string,",
-                        "          surveytype as boolean",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT distinct c.organizationId as organizationid,\\nc.surveyId as surveyid,\\nc.name as surveyname,\\nc.surveyType as surveytype\\nFROM survey as c\\nwhere 1 = 1 \\nand c.status = 1\\nand c.isDeleted = false',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> CosmosSurvey",
-                        "source(output(",
-                        "          surveykey as long,",
-                        "          organizationid as string,",
-                        "          surveyid as string,",
-                        "          surveyname as string,",
-                        "          surveytype as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> checkDimOccasionSurvey",
-                        "CosmosSurvey, checkDimOccasionSurvey exists(CosmosSurvey@surveyid == checkDimOccasionSurvey@surveyid",
-                        "     && CosmosSurvey@organizationid == checkDimOccasionSurvey@organizationid,",
-                        "     negate:true,",
-                        "     broadcast: 'auto')~> NewSurveysOnly",
-                        "NewSurveysOnly derive(surveytype = iif(surveytype == true(), '1', '0')) ~> surveytype",
-                        "surveytype sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          surveykey as long,",
-                        "          organizationid as string,",
-                        "          surveyid as string,",
-                        "          surveyname as string,",
-                        "          surveytype as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     mapColumn(",
-                        "          organizationid,",
-                        "          surveyid,",
-                        "          surveyname,",
-                        "          surveytype",
-                        "     )) ~> dimOccasionSurvey"
                     ]
                 }
             },
