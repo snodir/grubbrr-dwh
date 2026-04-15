@@ -1,9 +1,11 @@
 SELECT *, to_timestamp(ts)-- wt.watermarktablename, wt.watermarkcolumn, wt.watermarkvalue, wt.ticks, wt.ts
 FROM fact.watermarktable as wt;
 
-SELECT * FROM fact.pipelinerunstatus;
-SELECT to_timestamp(1775002010)
+CALL fact.usp_update_datetime_fields();
 
+SELECT * FROM fact.pipelinerunstatus;
+SELECT to_timestamp(1775002010), to_timestamp(1600000300);
+--1775825597 fact.itemmodifier
 /*
 1769755658
 1769669258
@@ -32,10 +34,17 @@ FROM (SELECT max(lasteventtime) as maxts, 'fact.devicestate' as tablename FROM f
 WHERE watermarktable.watermarktablename = tr.tablename
   AND watermarktable.source = 'gsh';*/
 
-/*UPDATE fact.watermarktable
-SET ts = 1775164585,
-    watermarkvalue = NULL
-WHERE watermarktablename = 'fact.modifier_recommendations'*/
+
+--UPDATE fact.watermarktable
+SET ts = 1775002010
+WHERE watermarktablename IN ('fact.modifier_interactions')--,'fact.modifier_recommendations','fact.modifier_impressions','fact.modifier_interactions')
+  AND source IN ('nge-Interactions')--,'nge')
+
+--UPDATE fact.watermarktable
+SET ts = 1600000300
+WHERE watermarktablename IN ('fact.modifier_interactions')--,'fact.modifier_recommendations','fact.modifier_impressions','fact.modifier_interactions')
+  AND source IN ('nge-Options')--,'nge')
+
 
 --UPDATE fact.watermarktable
 SET source = 'nge-Interactions'
@@ -77,9 +86,9 @@ ALTER COLUMN source TYPE CHARACTER VARYING(50);
 
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, source, ts/*, ticks*/)
 VALUES('fact.itemmodifier', 'syscosmosts', 'nge', 1720000300),
-      ('fact.modifier_interactions', 'syscosmosts', 'nge-Options', 1720000300),
-      ('fact.modifier_impressions', 'syscosmosts', 'nge', 1720000300),
-      ('fact.modifier_interactions', 'syscosmosts', 'nge', 1720000300),
+      ('fact.modifier_interactions', 'syscosmosts', 'nge-Options', 1600000300),
+      ('fact.modifier_impressions', 'syscosmosts', 'nge', 1775002010),
+      ('fact.modifier_interactions', 'syscosmosts', 'nge-Interactions', 1775002010),
       ('fact.modifier_recommendations', 'syscosmosts', 'nge', 1720000300)
       ('fact.transactionheader', 'syscosmosts', 'gem', 1720000300)
       ('fact.ordertiming', 'syscosmosts', 'gem', 1720000300)

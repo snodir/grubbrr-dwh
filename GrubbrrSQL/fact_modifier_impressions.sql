@@ -112,13 +112,13 @@ OWNER TO citus;
 
 SELECT * FROM fact.modifier_recommendations LIMIT 100;
 SELECT * FROM fact.modifier_impressions LIMIT 100;
-
+SELECT * FROM fact.modifier_interactions LIMIT 100;
 --TRUNCATE TABLE fact.modifier_impressions
 --TRUNCATE TABLE fact.modifier_recommendations
 --TRUNCATE TABLE fact.modifier_interactions
 
 SELECT * FROM fact.modifier_interactions LIMIT 100;
---CALL fact.usp_modifier_recommendation_analysis();
+--CALL fact.usp_modifier_impression_analysis();
 
 
 CREATE OR REPLACE PROCEDURE fact.usp_modifier_impression_analysis()
@@ -175,13 +175,17 @@ WHERE watermarktablename = 'fact.modifier_impressions'
 END;
 $BODY$;
 
---TRUNCATE TABLE fact.modifier_interactions
+ALTER PROCEDURE fact.usp_modifier_impression_analysis()
+OWNER TO citus;
 
+--TRUNCATE TABLE fact.modifier_interactions
+CALL fact.usp_modifier_impression_analysis();
 CALL fact.usp_modifier_interaction_analysis();
 
-SELECT * FROM fact.modifier_interactions
-WHERE locationid IS NULL
-LIMIT 100
+
+SELECT *, to_timestamp(ts) FROM fact.watermarktable WHERE watermarktablename LIKE '%modifier%';
+
+SELECT * FROM fact.modifier_interactions WHERE locationid IS NULL LIMIT 100
 
 CREATE OR REPLACE PROCEDURE fact.usp_modifier_interaction_analysis()
 LANGUAGE plpgsql
@@ -192,7 +196,7 @@ BEGIN
 WITH delta_interactions AS (
 SELECT *
 FROM fact.modifier_recommendations as mrc
-WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge')
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Interactions')
   AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mim 
                   WHERE mim.locationid = mrc.locationid
                     AND mim.transactionheaderid = mrc.transactionheaderid)
@@ -252,13 +256,15 @@ SELECT mi.locationid,
         AND mi.modifierid = imd.modifierid
 )
 INSERT INTO fact.modifier_interactions
-SELECT *, NULL :: TIMESTAMP as sysupdatetime
+SELECT *, 
+       NULL :: TIMESTAMP as sysupdatetime, 
+       5 as sourceid
 FROM trxn_enrichment;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 5)
 WHERE watermarktablename = 'fact.modifier_interactions'
-  AND source = 'nge';
+  AND source = 'nge-Interactions';
 
 
 WITH delta_modifier_trxns AS (
@@ -310,7 +316,9 @@ LEFT JOIN fact.transactionitem as ti
     AND mt.itemid = ti.itemid
 )
 INSERT INTO fact.modifier_interactions
-SELECT *, NULL :: TIMESTAMP as sysupdatetime 
+SELECT *, 
+       NULL :: TIMESTAMP as sysupdatetime, 
+       6 as sourceid
 FROM modfr_enrichment;
 
 
@@ -329,7 +337,7 @@ WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
   AND modifier_interactions.freequantity IS NULL;
 */
 UPDATE fact.watermarktable
-SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 6)
 WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge-Options';
 
@@ -342,6 +350,17 @@ LIMIT 100;
 
 SET work_mem = '512MB';
 SHOW work_mem;
+
+
+SELECT * FROM dim.grubbrr_source_lookup
+
+ALTER TABLE dim.grubbrr_source_lookup
+ALTER COLUMN source TYPE text COLLATE pg_catalog."default",
+ALTER COLUMN description TYPE text COLLATE pg_catalog."default";
+
+INSERT INTO dim.grubbrr_source_lookup
+VALUES(5,'nge-Interactions','NGE Modifier Interactions'),
+      (6,'nge-Options','NGE Modifier Options')
 
 SELECT * FROM dim.modifier_group_mapping LIMIT 100;
 SELECT * FROM fact.itemmodifier LIMIT 100;
@@ -456,12 +475,16 @@ CREATE TABLE IF NOT EXISTS fact.modifier_interactions
     syscosmosts BIGINT,
     sysinserttime timestamp without time zone,
     sysupdatetime timestamp without time zone,
+    sourceid INTEGER,
     CONSTRAINT trxnid_menuitemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, menuitemid, modifiergroupid, modifierid)
 );
 
 ALTER TABLE fact.modifier_interactions
 OWNER to citus;
 
+ALTER TABLE fact.modifier_interactions
+DROP COLUMN IF EXISTS source,
+ADD COLUMN IF NOT EXISTS sourceid INTEGER;
 
 SELECT *
 FROM fact.deviceevent as de
