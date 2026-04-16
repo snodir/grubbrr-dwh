@@ -75,7 +75,7 @@ ALTER TABLE fact.transactionheader
 ADD CONSTRAINT location_kiosk_fk FOREIGN key (locationid, kioskid) REFERENCES dim.kiosk(locationid, kioskid)
 
 ALTER TABLE fact.transactionitem 
-DROP CONSTRAINT locationid_transactionheaderid_fk 
+ADD CONSTRAINT locationid_transactionheaderid_fk 
 FOREIGN KEY (locationid, transactionheaderid) REFERENCES fact.transactionheader(locationid, transactionheaderid);
 
 ALTER TABLE fact.transactionheader
