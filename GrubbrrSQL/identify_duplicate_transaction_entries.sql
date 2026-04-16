@@ -33,10 +33,10 @@ ORDER BY dupl DESC;
 
 SELECT *--DISTINCT locationid, ordersessionid, dateid
 FROM fact.transactionheader as th 
-WHERE th.locationid = 'loc-b8c181a0-69ca-42e7-9f22-50fd23cb9bec'-- 'loc-61493b82-41d7-4b02-b788-de845b480d17'
+WHERE th.locationid = 'loc-9dbd4815-f50a-4e4f-ac1d-5fd6d9ec728e'-- 'loc-b8c181a0-69ca-42e7-9f22-50fd23cb9bec'-- 'loc-61493b82-41d7-4b02-b788-de845b480d17'
 --AND th.transactionheaderid = 'abort-639107488481834591'
-AND th.orderid = 'ord-EY80X7B2YDGFFXUA'
-AND th.ordersessionid = 'YIUGEOH6QXXOW3BE'
+--AND th.orderid = 'ord-EY80X7B2YDGFFXUA'
+AND th.ordersessionid = '0FZ8THB47WUX45SD' --'YIUGEOH6QXXOW3BE'
 AND th.orderstatus = 'order-placed'
 AND th.businessdate = '2026-01-28'
 
