@@ -82,7 +82,12 @@ ALTER TABLE stg.sent_surveys
     OWNER to citus;
 
 ALTER TABLE stg.sent_surveys
-ADD COLUMN IF NOT EXISTS orderid TEXT COLLATE pg_catalog."default";
+--ADD COLUMN IF NOT EXISTS orderid TEXT COLLATE pg_catalog."default";
+--DROP CONSTRAINT sent_surveys_ordersessionid_pkey
+ADD CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
+
+
+SELECT * FROM stg.sent_surveys
 
 ALTER TABLE fact.occasionsurveydetail
 --DROP COLUMN ngesyscosmosts,

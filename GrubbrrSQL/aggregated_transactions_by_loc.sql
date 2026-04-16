@@ -54,6 +54,34 @@ org-91b23045-d053-4579-a9e4-acb8d4ec37b2	Rak One			loc-49a53dc2-1818-4a6f-8312-e
 org-b2c96641-209e-47c8-b1d5-b5d3c881a244	Tanvi - Loyalty	loc-1364b2ed-9c7d-4a1a-bfee-d0cdd148fb09	paytronix loyalty
 org-d54ec735-238b-454f-ba73-6ec9d3a7a955	Jiten Company	loc-9dbd4815-f50a-4e4f-ac1d-5fd6d9ec728e	Test Toast
 org-tf5i2lw1qz								Sakshi Demo		loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e	Toast + Punchh
+
+[
+	 {
+		"organizationid": "org-5cf80db5-7a28-4dcf-846b-8cdf5f362269",
+		"organizationname": "Bojangles",
+		"locationid": "loc-73ad6e86-1f5c-4123-adbb-4b12339ea171",
+		"locationname": "1020 - Charlotte, NC"
+	 },
+     {
+		"organizationid": "org-5cf80db5-7a28-4dcf-846b-8cdf5f362269",
+		"organizationname": "Bojangles",
+		"locationid": "loc-7d483b28-0129-4e28-b32c-105bfcc993f0",
+		"locationname": "1305 - Charlotte, NC"
+     },
+     {
+		"organizationid": "org-5834d77c-4c45-4f98-a110-4c0fcd977490",
+		"organizationname": "WaBa Grill",
+		"locationid": "loc-c9df0f68-c306-4dea-9fd3-290417065a03",
+		"locationname": "WG0234 - Northridge"
+     },
+     {
+		"organizationid": "org-5834d77c-4c45-4f98-a110-4c0fcd977490",
+		"organizationname": "WaBa Grill",
+		"locationid": "loc-f876b618-684e-449b-a1cc-78103eb107b9",
+		"locationname": "WG0235 - Oxnard (Rose Avenue)"
+     }
+]
+
 */
 
 SELECT *
