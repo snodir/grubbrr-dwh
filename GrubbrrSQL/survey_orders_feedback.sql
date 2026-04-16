@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS stg.sent_surveys
     gem_syscosmosts BIGINT,
     sysinserttime TIMESTAMP,
     sysupdatetime TIMESTAMP,
-    CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (ordersessionid)
+    CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
 )
 
 TABLESPACE pg_default;
@@ -86,6 +86,7 @@ ALTER TABLE stg.sent_surveys
 --DROP CONSTRAINT sent_surveys_ordersessionid_pkey
 ADD CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
 
+SELECT * FROM fact.itemssurvey
 
 SELECT * FROM stg.sent_surveys
 
