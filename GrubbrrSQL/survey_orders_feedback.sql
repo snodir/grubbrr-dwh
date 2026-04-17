@@ -190,67 +190,115 @@ CREATE OR REPLACE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
 LANGUAGE plpgsql
 AS $BODY$
 
+BEGIN
+
+CREATE TEMPORARY TABLE temp_delta_sent_surveys (
+    organizationid       TEXT COLLATE pg_catalog."default",
+    locationid           TEXT COLLATE pg_catalog."default",
+    ordersessionid       TEXT COLLATE pg_catalog."default",
+    transactionheaderid  TEXT COLLATE pg_catalog."default",
+    gem_event_category   TEXT COLLATE pg_catalog."default",
+    gem_event_type       TEXT COLLATE pg_catalog."default",
+    orderid              TEXT COLLATE pg_catalog."default",
+    surveyid             TEXT COLLATE pg_catalog."default",
+    is_responded         BOOLEAN,
+    gem_event_instant    TIMESTAMP,
+    gem_syscosmosts      BIGINT,
+    sysinserttime        TIMESTAMP,
+    sysupdatetime        TIMESTAMP,
+    menuitemid           TEXT COLLATE pg_catalog."default"
+);
+
+
 WITH delta_sent_surveys AS (
-SELECT 
-    organizationid,
-    locationid,
-    ordersessionid,
-    orderid as transactionheaderid,
-    gem_event_category,
-    gem_event_type,
-    CONCAT('ord-', (survey_metadata ->> 'orderId') :: TEXT) AS orderid,
-    CASE WHEN jsonb_typeof(survey_metadata -> 'surveyIds') = 'array' THEN survey_metadata -> 'surveyIds' END AS surveyid_array,
-    CASE WHEN survey_metadata ->> 'surveyIds' NOT LIKE '[%]' THEN survey_metadata ->> 'surveyIds' END AS surveyid_text,
-    is_responded,
-    gem_event_instant,
-    gem_syscosmosts,
-    sysinserttime,
-    sysupdatetime
-FROM fact.sent_surveys as ss
-WHERE ss.gem_syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
-  AND NOT EXISTS (SELECT 1 FROM fact.itemssurvey as its 
-                  WHERE its.locationid = ss.locationid
-                    AND its.orderid = ss.orderid)
-), exploded AS (
-    SELECT
+    SELECT 
         organizationid,
         locationid,
         ordersessionid,
-        orderid as transactionheaderid,
-        concat('ord-', (survey_metadata ->> 'orderId') :: TEXT) AS order_id,
-        surveys.survey_id,
-        CASE WHEN items.item_id = 'null' THEN NULL ELSE items.item_id END as menuitemid,
+        orderid AS transactionheaderid,
         gem_event_category,
         gem_event_type,
+        CONCAT('ord-', (survey_metadata ->> 'orderId')::TEXT) AS orderid,
+        CASE WHEN jsonb_typeof(survey_metadata -> 'surveyIds') = 'array' THEN survey_metadata -> 'surveyIds' END AS surveyid_array,
+        CASE WHEN survey_metadata ->> 'surveyIds' NOT LIKE '[%]' THEN survey_metadata ->> 'surveyIds' END AS surveyid_text,
         is_responded,
         gem_event_instant,
         gem_syscosmosts,
         sysinserttime,
         sysupdatetime
-    FROM delta_sent_surveys,
-    LATERAL (
-        SELECT value::text AS survey_id
-        FROM jsonb_array_elements(
-            CASE
-                WHEN jsonb_typeof(survey_metadata -> 'surveyIds') = 'array'
-                THEN survey_metadata -> 'surveyIds'
-                ELSE jsonb_build_array(survey_metadata -> 'surveyIds')
-            END
-        )
-    ) AS surveys,
-    LATERAL (
-        SELECT value::text AS item_id
-        FROM jsonb_array_elements(
-            CASE
-                WHEN jsonb_typeof(survey_metadata -> 'itemId') = 'array'
-                THEN survey_metadata -> 'itemId'
-                ELSE jsonb_build_array(survey_metadata -> 'itemId')
-            END
-        )
-    ) AS items
-    WHERE survey_metadata IS NOT NULL
+    FROM fact.sent_surveys AS ss
+), flattened_survey_trxns AS (
+SELECT
+    organizationid,
+    locationid,
+    ordersessionid,
+    transactionheaderid,
+    gem_event_category,
+    gem_event_type,
+    orderid,
+    TRIM(flat.surveyid) AS surveyid,   -- trim in case of spaces around commas
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime
+FROM delta_sent_surveys
+CROSS JOIN LATERAL (
+    SELECT unnest(
+        CASE WHEN surveyid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(surveyid_array))            
+             WHEN surveyid_text IS NOT NULL THEN string_to_array(surveyid_text, ',') END
+             ) AS surveyid
+    ) AS flat
+), joined_with_items AS (
+    SELECT st.*,
+           ti.dimmenuitemid as menuitemid
+    FROM flattened_survey_trxns as st 
+    INNER JOIN fact.transactionitem as ti 
+        ON st.locationid = ti.locationid
+        AND st.transactionheaderid = ti.transactionheaderid 
 )
-SELECT * FROM exploded;
+INSERT INTO temp_delta_sent_surveys
+SELECT * FROM joined_with_items;
+
+
+INSERT INTO fact.itemssurvey (
+    organizationid,
+    locationid,
+    ordersessionid,
+    orderid,
+    gem_event_category,
+    gem_event_type,
+    surveyid,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime,
+    menuitemid
+)
+SELECT
+    organizationid,
+    locationid,
+    ordersessionid,
+    transactionheaderid,
+    gem_event_category,
+    gem_event_type,
+    orderid,
+    surveyid,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime,
+    menuitemid
+FROM temp_delta_sent_surveys as tds
+WHERE NOT EXISTS (SELECT * FROM fact.itemssurvey as its 
+                  WHERE its.organizationid = tds.organizationid
+                    AND its.locationid = tds.locationid
+                    AND its.orderid = tds.transactionheaderid
+                    AND its.itemid = tds.menuitemid
+                    AND its.surveyid = tds.surveyid)
+
 END;
 
 $BODY$
