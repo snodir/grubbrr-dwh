@@ -59,32 +59,58 @@ TABLESPACE pg_default;
 ALTER TRUNCATE TABLE fact.occasionsurveydetail
     OWNER to citus;
 
+-- Table: stg.sent_surveys
+
+-- DROP TABLE IF EXISTS stg.sent_surveys;
+
 CREATE TABLE IF NOT EXISTS stg.sent_surveys
 (
     organizationid text COLLATE pg_catalog."default",
-    locationid text COLLATE pg_catalog."default",
-    ordersessionid TEXT COLLATE pg_catalog."default",
-    orderid TEXT COLLATE pg_catalog."default",
-    gem_event_category TEXT COLLATE pg_catalog."default",
-    gem_event_type TEXT COLLATE pg_catalog."default",
-    survey_metadata TEXT COLLATE pg_catalog."default",
-    is_responded BOOLEAN,
-    gem_event_instant TEXT COLLATE pg_catalog."default",
-    gem_syscosmosts BIGINT,
-    sysinserttime TIMESTAMP,
-    sysupdatetime TIMESTAMP,
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default" NOT NULL,
+    orderid text COLLATE pg_catalog."default",
+    gem_event_category text COLLATE pg_catalog."default",
+    gem_event_type text COLLATE pg_catalog."default",
+    survey_metadata text COLLATE pg_catalog."default",
+    is_responded boolean,
+    gem_event_instant text COLLATE pg_catalog."default",
+    gem_syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
     CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
 )
 
 TABLESPACE pg_default;
 
-ALTER TABLE stg.sent_surveys
+ALTER TABLE IF EXISTS stg.sent_surveys
     OWNER to citus;
 
 ALTER TABLE stg.sent_surveys
 --ADD COLUMN IF NOT EXISTS orderid TEXT COLLATE pg_catalog."default";
 --DROP CONSTRAINT sent_surveys_ordersessionid_pkey
 ADD CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
+
+CREATE TABLE IF NOT EXISTS fact.sent_surveys
+(
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default" NOT NULL,
+    orderid text COLLATE pg_catalog."default",
+    gem_event_category text COLLATE pg_catalog."default",
+    gem_event_type text COLLATE pg_catalog."default",
+    survey_metadata text COLLATE pg_catalog."default",
+    is_responded boolean,
+    gem_event_instant text COLLATE pg_catalog."default",
+    gem_syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.sent_surveys
+    OWNER to citus;
 
 SELECT * FROM fact.itemssurvey
 
@@ -119,9 +145,29 @@ AS $BODY$
 
 BEGIN
 
+
+INSERT INTO fact.sent_surveys
+SELECT
+    organizationid,
+    locationid,
+    ordersessionid,
+    orderid,
+    gem_event_category,
+    gem_event_type,
+    survey_metadata :: jsonb as survey_metadata,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime
+FROM stg.sent_surveys AS ss
+WHERE NOT EXISTS (SELECT 1 FROM fact.sent_surveys as fs 
+                  WHERE fs.locationid = ss.locationid 
+                    AND fs.ordersessionid = ss.ordersessionid);
+
 WITH delta_sent_surveys AS (
-SELECT *, survey_metadata::jsonb AS survey_metadata_json
-FROM stg.sent_surveys as ss
+SELECT *
+FROM fact.sent_surveys as ss
 WHERE ss.syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
   AND NOT EXISTS (SELECT 1 FROM fact.itemssurvey as its 
                   WHERE its.locationid = ss.locationid
@@ -162,7 +208,7 @@ WHERE ss.syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablen
             END
         )
     ) AS items
-    WHERE survey_metadata_json IS NOT NULL
+    WHERE survey_metadata IS NOT NULL
 )
 SELECT * FROM exploded;
 END;

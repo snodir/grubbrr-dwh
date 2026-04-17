@@ -176,13 +176,22 @@ SELECT * FROM fact.vw_offer_analysis --2,433
 
 --TRUNCATE TABLE fact.vw_offer_analysis
 
-CREATE OR REPLACE PROCEDURE fact.usp_offer_analysis()
-LANGUAGE sql
+-- PROCEDURE: fact.usp_offer_analysis()
+
+-- DROP PROCEDURE IF EXISTS fact.usp_offer_analysis();
+
+CREATE OR REPLACE PROCEDURE fact.usp_offer_analysis(
+	)
+LANGUAGE 'plpgsql'
 AS $BODY$
+
+
+BEGIN
 
 WITH delta as (
          SELECT * FROM fact.recommendations as rc
-         WHERE rc.syscosmosts > (select ts - 10 from fact.watermarktable where watermarktablename = 'fact.recommendations')
+         WHERE 1=1 
+           AND rc.syscosmosts > (select ts - 10 from fact.watermarktable where watermarktablename = 'fact.recommendations')
            AND not EXISTS (select 1 from fact.vw_offer_analysis as oa where oa.locationid = rc.locationid and oa.transactionheaderid = rc.transactionheaderid)
 ), rec AS (
          SELECT rc.transactionheaderid,
@@ -261,12 +270,12 @@ WITH delta as (
             r.syscosmosts,
             now() as sysinserttime
         FROM (SELECT * FROM rec WHERE rec.offered_itemid like 'cat-%') as r
-        INNER join dim.itemcategorymapping as icm 
-                on r.offered_itemid = icm.categoryid
+        INNER join dim.category_hierarchy as ctg 
+                on r.offered_itemid = ctg.categoryid
         INNER JOIN (SELECT * FROM selected WHERE selected.selected_itemid not in (SELECT offered_itemid FROM rec)) s 
                 ON r.transactionheaderid::text = s.transactionheaderid::text 
                 AND r.recommendationid::text = s.recommendationid::text 
-                AND icm.menuitemid = s.selected_itemid --to determine which offered item is selected
+                AND ctg.menuitemid = s.selected_itemid --to determine which offered item is selected
         LEFT JOIN dim.upsellgrouplookup ul ON coalesce(s.selected_upslgrpid, r.offered_upslgrpid) = ul.upsellgroupid::text
 ), total as (
             SELECT * FROM item_analysis
@@ -280,10 +289,11 @@ WITH delta as (
     FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.recommendations' as tablename FROM fact.recommendations) as rec 
     WHERE watermarktable.watermarktablename = rec.tablename;
 
+END;
 $BODY$;
-
 ALTER PROCEDURE fact.usp_offer_analysis()
     OWNER TO citus;
+
 
 SELECT * FROM fact.vw_offer_analysis
 order by prompttimestamp desc

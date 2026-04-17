@@ -152,7 +152,7 @@ WHERE isc.table_name = 'menuentities'
 --drop TABLE IF EXISTS dim.category_hierarchy;
 CREATE TABLE IF NOT EXISTS dim.category_hierarchy
 (
-id BIGINT,
+--id BIGINT,
 organizationid TEXT COLLATE pg_catalog."default",
 locationid text COLLATE pg_catalog."default" NOT NULL,
 mapping_created_on TIMESTAMP, 

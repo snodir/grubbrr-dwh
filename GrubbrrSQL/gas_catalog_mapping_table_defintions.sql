@@ -19,6 +19,31 @@ WHERE c.organization_id <> c.gem_company_id
   AND c.gem_company_id <> ''
 */
 
+/***Modifier Classification
+public enum ModifierClassificationType
+{
+    Undefined = 0,
+    Protein = 1,
+    Side = 2,
+    Cheese = 3,
+    Topping = 4,
+    Sauce = 5,
+    Size = 6,
+    Prep = 7,
+    Other = 8
+}
+*/
+
+/***Menu Item Classification
+0=Undefined
+1=Main
+2=Side
+3=Drink
+4=Dessert
+5=Meal
+6=Other
+*/
+
 SELECT * FROM dim.catalog
 
 --DROP TABLE IF EXISTS dim.catalog;
