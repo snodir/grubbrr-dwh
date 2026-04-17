@@ -185,6 +185,7 @@ SELECT * FROM fact.sent_surveys
 SELECT * FROM fact.occasionsurveydetail
 SELECT * FROM fact.itemssurvey
 
+CALL fact.usp_sent_surveys_to_fact_itemssurvey();
 
 CREATE OR REPLACE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
 LANGUAGE plpgsql
@@ -202,7 +203,7 @@ CREATE TEMPORARY TABLE temp_delta_sent_surveys (
     orderid              TEXT COLLATE pg_catalog."default",
     surveyid             TEXT COLLATE pg_catalog."default",
     is_responded         BOOLEAN,
-    gem_event_instant    TIMESTAMP,
+    gem_event_instant    TEXT COLLATE pg_catalog."default",
     gem_syscosmosts      BIGINT,
     sysinserttime        TIMESTAMP,
     sysupdatetime        TIMESTAMP,
@@ -274,7 +275,7 @@ INSERT INTO fact.itemssurvey (
     gem_syscosmosts,
     sysinserttime,
     sysupdatetime,
-    menuitemid
+    itemid
 )
 SELECT
     organizationid,
@@ -283,7 +284,6 @@ SELECT
     transactionheaderid,
     gem_event_category,
     gem_event_type,
-    orderid,
     surveyid,
     is_responded,
     gem_event_instant,
@@ -297,11 +297,14 @@ WHERE NOT EXISTS (SELECT * FROM fact.itemssurvey as its
                     AND its.locationid = tds.locationid
                     AND its.orderid = tds.transactionheaderid
                     AND its.itemid = tds.menuitemid
-                    AND its.surveyid = tds.surveyid)
+                    AND its.surveyid = tds.surveyid);
 
 END;
 
-$BODY$
+$BODY$;
+
+ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
+OWNER TO citus;
 
 
 SELECT * FROM dim.feedbackstatus;
