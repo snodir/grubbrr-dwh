@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS fact.sent_surveys
     orderid text COLLATE pg_catalog."default",
     gem_event_category text COLLATE pg_catalog."default",
     gem_event_type text COLLATE pg_catalog."default",
-    survey_metadata text COLLATE pg_catalog."default",
+    survey_metadata jsonb,
     is_responded boolean,
     gem_event_instant text COLLATE pg_catalog."default",
     gem_syscosmosts bigint,
@@ -132,19 +132,22 @@ ADD COLUMN IF NOT EXISTS is_responded BOOLEAN,
 ADD COLUMN IF NOT EXISTS gem_syscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS gem_event_instant TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
-ADD COLUMN IF NOT EXISTS source SMALLINT;
+ADD COLUMN IF NOT EXISTS sourceid INTEGER;
 
 SELECT orderid, itemid, count(*)
 FROM fact.itemssurvey --LIMIT 100
 GROUP BY orderid, itemid
 HAVING count(*) > 1
 
+CALL fact.usp_gem_sent_surveys_to_fact();
+SELECT * FROM stg.sent_surveys
+SELECT * FROM fact.sent_surveys
+
 CREATE OR REPLACE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
 LANGUAGE plpgsql
 AS $BODY$
 
 BEGIN
-
 
 INSERT INTO fact.sent_surveys
 SELECT
@@ -165,10 +168,46 @@ WHERE NOT EXISTS (SELECT 1 FROM fact.sent_surveys as fs
                   WHERE fs.locationid = ss.locationid 
                     AND fs.ordersessionid = ss.ordersessionid);
 
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) - 10 FROM fact.sent_surveys)
+WHERE watermarktablename = 'fact.sent_surveys'
+  AND source = 'gem';
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_gem_sent_surveys_to_fact()
+OWNER TO citus;
+
+
+SELECT * FROM stg.sent_surveys
+SELECT * FROM fact.sent_surveys
+SELECT * FROM fact.occasionsurveydetail
+SELECT * FROM fact.itemssurvey
+
+
+CREATE OR REPLACE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
+LANGUAGE plpgsql
+AS $BODY$
+
 WITH delta_sent_surveys AS (
-SELECT *
+SELECT 
+    organizationid,
+    locationid,
+    ordersessionid,
+    orderid as transactionheaderid,
+    gem_event_category,
+    gem_event_type,
+    CONCAT('ord-', (survey_metadata ->> 'orderId') :: TEXT) AS orderid,
+    CASE WHEN jsonb_typeof(survey_metadata -> 'surveyIds') = 'array' THEN survey_metadata -> 'surveyIds' END AS surveyid_array,
+    CASE WHEN survey_metadata ->> 'surveyIds' NOT LIKE '[%]' THEN survey_metadata ->> 'surveyIds' END AS surveyid_text,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime
 FROM fact.sent_surveys as ss
-WHERE ss.syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
+WHERE ss.gem_syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
   AND NOT EXISTS (SELECT 1 FROM fact.itemssurvey as its 
                   WHERE its.locationid = ss.locationid
                     AND its.orderid = ss.orderid)
@@ -177,9 +216,10 @@ WHERE ss.syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablen
         organizationid,
         locationid,
         ordersessionid,
-        survey_metadata_json ->>'orderId' AS order_id,
+        orderid as transactionheaderid,
+        concat('ord-', (survey_metadata ->> 'orderId') :: TEXT) AS order_id,
         surveys.survey_id,
-        items.item_id,
+        CASE WHEN items.item_id = 'null' THEN NULL ELSE items.item_id END as menuitemid,
         gem_event_category,
         gem_event_type,
         is_responded,
@@ -190,21 +230,21 @@ WHERE ss.syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablen
     FROM delta_sent_surveys,
     LATERAL (
         SELECT value::text AS survey_id
-        FROM jsonb_array_elements_text(
+        FROM jsonb_array_elements(
             CASE
-                WHEN jsonb_typeof(survey_metadata_json -> 'surveyIds') = 'array'
-                THEN survey_metadata_json -> 'surveyIds'
-                ELSE jsonb_build_array(survey_metadata_json -> 'surveyIds')
+                WHEN jsonb_typeof(survey_metadata -> 'surveyIds') = 'array'
+                THEN survey_metadata -> 'surveyIds'
+                ELSE jsonb_build_array(survey_metadata -> 'surveyIds')
             END
         )
     ) AS surveys,
     LATERAL (
         SELECT value::text AS item_id
-        FROM jsonb_array_elements_text(
+        FROM jsonb_array_elements(
             CASE
-                WHEN jsonb_typeof(survey_metadata_json -> 'itemId') = 'array'
-                THEN survey_metadata_json -> 'itemId'
-                ELSE jsonb_build_array(survey_metadata_json -> 'itemId')
+                WHEN jsonb_typeof(survey_metadata -> 'itemId') = 'array'
+                THEN survey_metadata -> 'itemId'
+                ELSE jsonb_build_array(survey_metadata -> 'itemId')
             END
         )
     ) AS items
@@ -220,7 +260,7 @@ SELECT * FROM dim.feedbackstatus;
 SELECT * FROM dim.feedbackrating;
 SELECT * FROM dim.occasionsurvey LIMIT 100;
 SELECT * FROM fact.occasionsurveydetail LIMIT 100;
-SELECT * FROM fact.itemssurvey LIMIT 100;
+SELECT * FROM fact.sent_surveys LIMIT 100;
 
 
 UPDATE fact.occasionsurveydetail

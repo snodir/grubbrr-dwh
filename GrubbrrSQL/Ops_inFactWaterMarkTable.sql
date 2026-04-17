@@ -85,7 +85,8 @@ ALTER TABLE fact.watermarktable
 ALTER COLUMN source TYPE CHARACTER VARYING(50);
 
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, source, ts/*, ticks*/)
-VALUES('fact.modifier_recommendations', 'syscosmosts', 'nge', 1775002010)
+VALUES('fact.itemssurvey', 'gem_syscosmosts', 'gem', 1720000300)
+      ('fact.modifier_recommendations', 'syscosmosts', 'nge', 1775002010),
       ('fact.itemmodifier', 'syscosmosts', 'nge', 1720000300),
       ('fact.modifier_interactions', 'syscosmosts', 'nge-Options', 1600000300),
       ('fact.modifier_impressions', 'syscosmosts', 'nge', 1775002010),
