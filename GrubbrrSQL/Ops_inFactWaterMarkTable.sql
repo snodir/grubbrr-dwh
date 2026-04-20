@@ -64,7 +64,12 @@ SELECT CURRENT_TIMESTAMP, to_timestamp(1763675405) as sample_ts,
        to_timestamp(1750000010) as nge2,
        to_timestamp(1500000010) as nge3,
        1753063217 - 1752837578 as diff,
-       case WHEN '2025-07-21 10:05:54.018869' > '2025-07-21 10:05:54.018868' then 'datetime_is_ok' end is_ts_good,
+       '2025-07-10T09:49:50.168+00:00' as ts_string,
+       CASE WHEN substring('2025-07-10T09:49:50.168+00:00', 20, 1) = '.' 
+            THEN replace(replace(substring('2025-07-10T09:49:50.168+00:00',1,23),'T',' '), '+', '0') 
+            ELSE replace(substring('2025-07-10T09:49:50.168+00:00',1,19),'T',' ') 
+       END as ts_datetime,
+       CASE WHEN '2025-07-21 10:05:54.018869' > '2025-07-21 10:05:54.018868' then 'datetime_is_ok' end is_ts_good,
        EXTRACT(EPOCH FROM TIMESTAMP '2024-05-01 00:00:00')::BIGINT;
 
 --de-1753912232

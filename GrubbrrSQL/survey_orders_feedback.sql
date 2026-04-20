@@ -142,6 +142,8 @@ HAVING count(*) > 1
 CALL fact.usp_gem_sent_surveys_to_fact();
 SELECT * FROM stg.sent_surveys
 SELECT * FROM fact.sent_surveys
+SELECT * FROM fact.itemssurvey
+SELECT * FROM dim.feedbackstatus
 
 CREATE OR REPLACE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
 LANGUAGE plpgsql
@@ -169,7 +171,7 @@ WHERE NOT EXISTS (SELECT 1 FROM fact.sent_surveys as fs
                     AND fs.ordersessionid = ss.ordersessionid);
 
 UPDATE fact.watermarktable
-SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) - 10 FROM fact.sent_surveys)
+SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) FROM fact.sent_surveys)
 WHERE watermarktablename = 'fact.sent_surveys'
   AND source = 'gem';
 
@@ -179,7 +181,7 @@ $BODY$;
 ALTER PROCEDURE fact.usp_gem_sent_surveys_to_fact()
 OWNER TO citus;
 
-
+SELECT * FROM fact.watermarktable;
 SELECT * FROM stg.sent_surveys
 SELECT * FROM fact.sent_surveys
 SELECT * FROM fact.occasionsurveydetail
@@ -271,6 +273,7 @@ INSERT INTO fact.itemssurvey (
     locationid,
     ordersessionid,
     orderid,
+    surveyissuedtimestamp,
     gem_event_category,
     gem_event_type,
     surveyid,
@@ -286,6 +289,10 @@ SELECT
     locationid,
     ordersessionid,
     transactionheaderid,
+    CASE WHEN substring(gem_event_instant, 20, 1) = '.' 
+         THEN replace(replace(substring(gem_event_instant, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(gem_event_instant, 1, 19), 'T', ' ') 
+    END AS surveyissuedtimestamp,
     gem_event_category,
     gem_event_type,
     surveyid,
@@ -303,14 +310,29 @@ WHERE NOT EXISTS (SELECT * FROM fact.itemssurvey as its
                     AND its.itemid = tds.menuitemid
                     AND its.surveyid = tds.surveyid);
 
-END;
 
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) - 10 FROM fact.itemssurvey)
+WHERE watermarktablename = 'fact.itemssurvey'
+  AND source = 'gem';
+
+
+END;
 $BODY$;
 
 ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
 OWNER TO citus;
 
 
+UPDATE fact.itemssurvey
+SET surveyissuedtimestamp =
+    CASE WHEN substring(gem_event_instant, 20, 1) = '.' 
+         THEN replace(replace(substring(gem_event_instant, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(gem_event_instant, 1, 19), 'T', ' ') END
+WHERE gem_event_instant IS NOT NULL;
+
+
+SELECT * FROM fact.watermarktable LIMIT 100;
 SELECT * FROM dim.feedbackstatus;
 SELECT * FROM dim.feedbackrating;
 SELECT * FROM dim.occasionsurvey LIMIT 100;
