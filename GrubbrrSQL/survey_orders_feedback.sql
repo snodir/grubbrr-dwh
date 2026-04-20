@@ -228,6 +228,10 @@ WITH delta_sent_surveys AS (
         sysinserttime,
         sysupdatetime
     FROM fact.sent_surveys AS ss
+    WHERE ss.gem_syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
+      AND NOT EXISTS (SELECT 1 FROM fact.itemssurvey as its 
+                      WHERE its.locationid = ss.locationid
+                        AND its.orderid = ss.orderid)
 ), flattened_survey_trxns AS (
 SELECT
     organizationid,
@@ -332,7 +336,7 @@ FROM fact.itemssurvey
 WHERE sysinserttime is NOT NULL
 ORDER BY sysinserttime DESC;
 
-SELECT * FROM fact.transactionheader th WHERE th.transactionheaderid = 'ordevt-ZKZU1UN7E4CS30UT'
+SELECT * FROM fact.transactionheader as th WHERE th.transactionheaderid = 'ordevt-ZKZU1UN7E4CS30UT'
 
 /*
 create table dim.feedbackstatus
