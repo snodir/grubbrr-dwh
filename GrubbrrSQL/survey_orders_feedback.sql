@@ -139,11 +139,12 @@ FROM fact.itemssurvey --LIMIT 100
 GROUP BY orderid, itemid
 HAVING count(*) > 1
 
-CALL fact.usp_gem_sent_surveys_to_fact();
 SELECT * FROM stg.sent_surveys
 SELECT * FROM fact.sent_surveys
 SELECT * FROM fact.itemssurvey
 SELECT * FROM dim.feedbackstatus
+
+CALL fact.usp_gem_sent_surveys_to_fact();
 
 CREATE OR REPLACE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
 LANGUAGE plpgsql
@@ -178,6 +179,7 @@ WHERE watermarktablename = 'fact.sent_surveys'
 END;
 $BODY$;
 
+
 ALTER PROCEDURE fact.usp_gem_sent_surveys_to_fact()
 OWNER TO citus;
 
@@ -195,6 +197,7 @@ AS $BODY$
 
 BEGIN
 
+DROP TABLE IF EXISTS temp_delta_sent_surveys;
 CREATE TEMPORARY TABLE temp_delta_sent_surveys (
     organizationid       TEXT COLLATE pg_catalog."default",
     locationid           TEXT COLLATE pg_catalog."default",
@@ -324,6 +327,12 @@ ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
 OWNER TO citus;
 
 
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(nge_syscosmosts), 1775002010) - 10 FROM fact.itemssurvey)
+WHERE watermarktablename = 'fact.itemssurvey'
+  AND source = 'nge';
+
 UPDATE fact.itemssurvey
 SET surveyissuedtimestamp =
     CASE WHEN substring(gem_event_instant, 20, 1) = '.' 
@@ -338,7 +347,7 @@ SELECT * FROM dim.feedbackrating;
 SELECT * FROM dim.occasionsurvey LIMIT 100;
 SELECT * FROM fact.occasionsurveydetail LIMIT 100;
 SELECT * FROM fact.sent_surveys LIMIT 100;
-
+SELECT * FROM fact.itemssurvey LIMIT 1000;
 
 UPDATE fact.occasionsurveydetail
 SET ordersessionid = th.ordersessionid
@@ -347,6 +356,12 @@ FROM fact.transactionheader as th
 WHERE occasionsurveydetail.locationid = th.locationid
   AND occasionsurveydetail.orderid = th.transactionheaderid
 
+UPDATE fact.itemssurvey
+SET ordersessionid = th.ordersessionid
+    --surveytype = CASE WHEN surveyrating ~ '^-?\d+$' THEN 1 ELSE 2 END; --number-based feedback = 1; text-based feedback = 2
+FROM fact.transactionheader as th 
+WHERE itemssurvey.locationid = th.locationid
+  AND itemssurvey.orderid = th.transactionheaderid
 
 SELECT *-- orderid, surveytransid, surveyrating, surveytype, surveytransstatus, syscosmosts, sysinserttime
 FROM fact.occasionsurveydetail

@@ -24,7 +24,7 @@ BEGIN
 
 DROP TABLE IF EXISTS temp_prod_to_stage_migration_audit;
 
-CREATE TEMP TABLE IF NOT EXISTS temp_prod_to_stage_migration_audit(
+CREATE TEMPORARY TABLE IF NOT EXISTS temp_prod_to_stage_migration_audit(
     table_schema text COLLATE pg_catalog."default",
     table_name text COLLATE pg_catalog."default",
     key_columns jsonb,
