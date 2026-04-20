@@ -74,6 +74,8 @@ WHERE c.organization_id <> c.gem_company_id
   AND c.gem_company_id <> ''
 
 
+SELECT * FROM public.catalog WHERE gem_location_id = '' -- IS NULL --
+
 --modifiers
 SELECT mm.id as modifierid,
        mm.catalog_id as catalogid,
