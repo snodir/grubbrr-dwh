@@ -120,9 +120,9 @@ SELECT * FROM fact.modifier_interactions LIMIT 100;
 --TRUNCATE TABLE fact.modifier_interactions
 
 SELECT * FROM fact.modifier_interactions LIMIT 100;
+
+
 --CALL fact.usp_modifier_impression_analysis();
-
-
 CREATE OR REPLACE PROCEDURE fact.usp_modifier_impression_analysis()
 LANGUAGE plpgsql
 AS $BODY$
@@ -189,6 +189,8 @@ SELECT *, to_timestamp(ts) FROM fact.watermarktable WHERE watermarktablename LIK
 
 SELECT * FROM fact.modifier_interactions WHERE locationid IS NULL LIMIT 100
 
+
+--CALL fact.usp_modifier_interaction_analysis();
 CREATE OR REPLACE PROCEDURE fact.usp_modifier_interaction_analysis()
 LANGUAGE plpgsql
 AS $BODY$

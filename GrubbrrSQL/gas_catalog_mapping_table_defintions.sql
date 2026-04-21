@@ -278,8 +278,8 @@ CREATE TABLE IF NOT EXISTS dim.modifier_group
     pos_linked_entity_id character varying(50) COLLATE pg_catalog."default",
     is_active boolean NOT NULL,
     is_deleted boolean NOT NULL,
-    created_on timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    modified_on timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_on timestamp without time zone, -- NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_on timestamp without time zone, -- NOT NULL DEFAULT CURRENT_TIMESTAMP,
     negative_modifier_behavior integer,
     created_by character varying(255) COLLATE pg_catalog."default",
     modified_by character varying(255) COLLATE pg_catalog."default",
@@ -297,6 +297,14 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS dim.modifier_group
     OWNER to citus;
+
+ALTER TABLE IF EXISTS dim.modifier_group
+ALTER COLUMN created_on DROP NOT NULL,
+ALTER COLUMN modified_on DROP NOT NULL,
+ALTER COLUMN created_on DROP DEFAULT,
+ALTER COLUMN modified_on DROP DEFAULT;
+
+
 
 REVOKE ALL ON TABLE public.modifier_group_master FROM nensi;
 REVOKE ALL ON TABLE public.modifier_group_master FROM nsadullaev;

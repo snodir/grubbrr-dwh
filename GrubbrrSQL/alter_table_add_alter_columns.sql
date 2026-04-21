@@ -80,7 +80,20 @@ ADD COLUMN IF NOT EXISTS catalogid text COLLATE pg_catalog."default";
 ALTER TABLE fact.occasionsurveydetail
 --ADD CONSTRAINT locationid_orderid_pk PRIMARY key (locationid, orderid),
 ALTER COLUMN surveytransid DROP NOT NULL,
-ADD COLUMN IF NOT EXISTS surveytype INTEGER;
+ADD COLUMN IF NOT EXISTS surveytype INTEGER,
+ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default";
+
+ALTER TABLE fact.itemssurvey
+ADD COLUMN IF NOT EXISTS nge_syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS gem_event_category TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS gem_event_type TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS is_responded BOOLEAN,
+ADD COLUMN IF NOT EXISTS gem_syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS gem_event_instant TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sourceid INTEGER;
+
 
 ALTER TABLE dim.organization
 ADD COLUMN IF NOT EXISTS cep_subscriptions TEXT COLLATE pg_catalog."default";
@@ -213,6 +226,37 @@ ALTER TABLE IF EXISTS dim.modifier
 ALTER TABLE IF EXISTS dim.modifier
 DROP COLUMN IF EXISTS modifierkey;
 
+CREATE TABLE IF NOT EXISTS dim.modifier_group --gms.public.modifier_group_master
+(
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupname character varying(510) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    max_selection integer,
+    min_selection integer,
+    free_count integer,
+    pos_linked_entity_id character varying(50) COLLATE pg_catalog."default",
+    is_active boolean NOT NULL,
+    is_deleted boolean NOT NULL,
+    created_on timestamp without time zone, -- NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_on timestamp without time zone, -- NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    negative_modifier_behavior integer,
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    max_aggregate_count integer,
+    min_aggregate_count integer,
+    increment_step integer,
+    slider_mode boolean NOT NULL DEFAULT false,
+    slider_mode_modifier boolean NOT NULL DEFAULT false,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP,
+    CONSTRAINT modifier_group_master_pkey PRIMARY KEY (modifiergroupid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.modifier_group
+    OWNER to citus;
+
 
 CREATE TABLE IF NOT EXISTS dim.modifier_group_mapping
 (
@@ -287,6 +331,55 @@ ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
 
 ALTER TABLE dim.item_modifier_group_modifier_mapping
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
+
+CREATE TABLE IF NOT EXISTS stg.sent_surveys
+(
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default" NOT NULL,
+    orderid text COLLATE pg_catalog."default",
+    gem_event_category text COLLATE pg_catalog."default",
+    gem_event_type text COLLATE pg_catalog."default",
+    survey_metadata text COLLATE pg_catalog."default",
+    is_responded boolean,
+    gem_event_instant text COLLATE pg_catalog."default",
+    gem_syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.sent_surveys
+    OWNER to citus;
+
+
+
+
+CREATE TABLE IF NOT EXISTS fact.sent_surveys
+(
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default" NOT NULL,
+    orderid text COLLATE pg_catalog."default",
+    gem_event_category text COLLATE pg_catalog."default",
+    gem_event_type text COLLATE pg_catalog."default",
+    survey_metadata jsonb,
+    is_responded boolean,
+    gem_event_instant text COLLATE pg_catalog."default",
+    gem_syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.sent_surveys
+    OWNER to citus;
+
 
 
 -- Table: fact.modifier_impressions
@@ -1486,21 +1579,20 @@ WHERE modifier_recommendations.locationid = l.locationid
   AND modifier_recommendations.orderdatelocal is null;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) FROM fact.modifier_recommendations)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_recommendations)
 WHERE watermarktablename = 'fact.modifier_recommendations'
-  AND source = 'nge';
-
-UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) FROM fact.itemmodifier)
-WHERE watermarktablename = 'fact.itemmodifier'
   AND source = 'nge';
 
 END;
 $BODY$;
 
+ALTER PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
+OWNER TO citus;
 
 
-CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendation_analysis()
+
+--CALL fact.usp_modifier_impression_analysis();
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_impression_analysis()
 LANGUAGE plpgsql
 AS $BODY$
 
@@ -1509,7 +1601,7 @@ BEGIN
 WITH delta_impressions AS (
 SELECT *
 FROM fact.modifier_recommendations as mrc
-WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions')
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions' AND source = 'nge')
   AND NOT EXISTS (SELECT 1 FROM fact.modifier_impressions as mim 
                   WHERE mim.locationid = mrc.locationid
                     AND mim.transactionheaderid = mrc.transactionheaderid)
@@ -1547,14 +1639,30 @@ SELECT *, NULL :: TIMESTAMP as sysupdatetime
 FROM modifier_impressions;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_impressions)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_impressions)
 WHERE watermarktablename = 'fact.modifier_impressions'
   AND source = 'nge';
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_modifier_impression_analysis()
+OWNER TO citus;
+
+
+
+
+--CALL fact.usp_modifier_interaction_analysis();
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_interaction_analysis()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
 
 WITH delta_interactions AS (
 SELECT *
 FROM fact.modifier_recommendations as mrc
-WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge')
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Interactions')
   AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mim 
                   WHERE mim.locationid = mrc.locationid
                     AND mim.transactionheaderid = mrc.transactionheaderid)
@@ -1614,19 +1722,22 @@ SELECT mi.locationid,
         AND mi.modifierid = imd.modifierid
 )
 INSERT INTO fact.modifier_interactions
-SELECT *, NULL :: TIMESTAMP as sysupdatetime
+SELECT *, 
+       NULL :: TIMESTAMP as sysupdatetime, 
+       5 as sourceid
 FROM trxn_enrichment;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 5)
 WHERE watermarktablename = 'fact.modifier_interactions'
-  AND source = 'nge';
+  AND source = 'nge-Interactions';
 
 
 WITH delta_modifier_trxns AS (
 SELECT *
 FROM fact.itemmodifier as im
-WHERE (syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options') OR
+WHERE locationid LIKE 'loc-%'
+  AND (syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options') OR
        syscosmosts IS NULL)
   AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mint 
                   WHERE mint.locationid = im.locationid
@@ -1646,11 +1757,14 @@ SELECT mt.locationid,
        mt.modifierquantity,
        mt.modifierprice,
        mt.freequantity,
-       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 THEN 'optional'
-            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 THEN 'default' END selection_type,
-       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 AND mt.modifierquantity > 0 THEN 'added'
-            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
-            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,
+       CASE WHEN mgm.is_default = False AND mg.min_selection = 0 AND mg.max_selection >= 0 THEN 'optional'
+            WHEN mgm.is_default = False AND mg.min_selection >= 1 AND mg.max_selection >= 1 THEN 'required'
+            WHEN mgm.is_default = True THEN 'default' END selection_type,
+
+       CASE WHEN mgm.is_default = False AND mg.min_selection = 0 AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added'                  --optional modifier added
+            WHEN mgm.is_default = False AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected'              --required modifier selected
+            WHEN mgm.is_default = True AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept'                   --default modifier left selected
+            WHEN mgm.is_default = True AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,  --default modifier de-selected
        NULL :: TEXT as session_recorded_at,
        mt.businessdate,
        ti.orderdatelocal,
@@ -1658,16 +1772,23 @@ SELECT mt.locationid,
        mt.syscosmosts,
        mt.sysinserttime
 FROM delta_modifier_trxns as mt
-LEFT JOIN dim.modifier as m 
-    ON mt.modifierid = m.modifierid
+LEFT JOIN dim.modifier_group_mapping as mgm
+    ON mgm.modifiergroupid = mt.modifiergroupid
+    AND mgm.modifierid = mt.modifierid
+LEFT JOIN dim.modifier_group as mg 
+    ON mg.modifiergroupid = mt.modifiergroupid
 LEFT JOIN fact.transactionitem as ti 
     ON mt.transactionheaderid = ti.transactionheaderid
     AND mt.itemid = ti.itemid
 )
 INSERT INTO fact.modifier_interactions
-SELECT *, NULL :: TIMESTAMP as sysupdatetime 
+SELECT *, 
+       NULL :: TIMESTAMP as sysupdatetime, 
+       6 as sourceid
 FROM modfr_enrichment;
 
+
+/*
 UPDATE fact.modifier_interactions
 SET modifierquantity = im.modifierquantity,
     modifierprice = im.modifierprice,
@@ -1680,11 +1801,329 @@ WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
   AND modifier_interactions.modifierquantity IS NULL
   AND modifier_interactions.modifierprice IS NULL
   AND modifier_interactions.freequantity IS NULL;
-
+*/
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 6)
 WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge-Options';
 
 END;
 $BODY$;
+
+ALTER PROCEDURE fact.usp_modifier_interaction_analysis()
+OWNER TO citus;
+
+
+--CALL fact.usp_gem_sent_surveys_to_fact();
+
+CREATE OR REPLACE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+INSERT INTO fact.sent_surveys
+SELECT
+    organizationid,
+    locationid,
+    ordersessionid,
+    orderid,
+    gem_event_category,
+    gem_event_type,
+    survey_metadata :: jsonb as survey_metadata,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime
+FROM stg.sent_surveys AS ss
+WHERE NOT EXISTS (SELECT 1 FROM fact.sent_surveys as fs 
+                  WHERE fs.locationid = ss.locationid 
+                    AND fs.ordersessionid = ss.ordersessionid);
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) FROM fact.sent_surveys)
+WHERE watermarktablename = 'fact.sent_surveys'
+  AND source = 'gem';
+
+END;
+$BODY$;
+
+
+ALTER PROCEDURE fact.usp_gem_sent_surveys_to_fact()
+OWNER TO citus;
+
+
+
+
+CALL fact.usp_sent_surveys_to_fact_itemssurvey();
+
+CREATE OR REPLACE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+DROP TABLE IF EXISTS temp_delta_sent_surveys;
+CREATE TEMPORARY TABLE temp_delta_sent_surveys (
+    organizationid       TEXT COLLATE pg_catalog."default",
+    locationid           TEXT COLLATE pg_catalog."default",
+    ordersessionid       TEXT COLLATE pg_catalog."default",
+    transactionheaderid  TEXT COLLATE pg_catalog."default",
+    gem_event_category   TEXT COLLATE pg_catalog."default",
+    gem_event_type       TEXT COLLATE pg_catalog."default",
+    orderid              TEXT COLLATE pg_catalog."default",
+    surveyid             TEXT COLLATE pg_catalog."default",
+    itemid               TEXT COLLATE pg_catalog."default",
+    is_responded         BOOLEAN,
+    gem_event_instant    TEXT COLLATE pg_catalog."default",
+    gem_syscosmosts      BIGINT,
+    sysinserttime        TIMESTAMP,
+    sysupdatetime        TIMESTAMP,
+    menuitemid           TEXT COLLATE pg_catalog."default"
+);
+
+
+WITH delta_sent_surveys AS (
+    SELECT 
+        organizationid,
+        locationid,
+        ordersessionid,
+        orderid AS transactionheaderid,
+        gem_event_category,
+        gem_event_type,
+        survey_metadata,
+        CONCAT('ord-', (survey_metadata ->> 'orderId')::TEXT) AS orderid,
+        CASE WHEN jsonb_typeof(survey_metadata -> 'surveyIds') = 'array' THEN survey_metadata -> 'surveyIds' END AS surveyid_array,
+        CASE WHEN survey_metadata ->> 'surveyIds' NOT LIKE '[%]' THEN survey_metadata ->> 'surveyIds' END AS surveyid_text,
+        CASE WHEN jsonb_typeof(survey_metadata -> 'itemId') = 'array' THEN survey_metadata -> 'itemId' END AS itemid_array,
+        CASE WHEN survey_metadata ->> 'itemId' NOT LIKE '[%]' THEN survey_metadata ->> 'itemId' END AS itemid_text,
+        is_responded,
+        gem_event_instant,
+        gem_syscosmosts,
+        sysinserttime,
+        sysupdatetime
+    FROM fact.sent_surveys AS ss
+    WHERE ss.gem_syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
+      AND NOT EXISTS (SELECT 1 FROM fact.itemssurvey AS its 
+                      WHERE its.locationid = ss.locationid
+                        AND its.orderid = ss.orderid)
+), flattened_survey_trxns AS (
+    SELECT
+        dss.organizationid,
+        dss.locationid,
+        dss.ordersessionid,
+        dss.transactionheaderid,
+        dss.gem_event_category,
+        dss.gem_event_type,
+        dss.orderid,
+        TRIM(flat_survey.surveyid) AS surveyid,
+        --TRIM(flat_item.itemid)     AS itemid,
+        dss.is_responded,
+        dss.gem_event_instant,
+        dss.gem_syscosmosts,
+        dss.sysinserttime,
+        dss.sysupdatetime
+    FROM delta_sent_surveys AS dss
+    CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.surveyid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.surveyid_array))
+                 WHEN dss.surveyid_text  IS NOT NULL THEN string_to_array(dss.surveyid_text, ',')
+            END
+        ) AS surveyid
+    ) AS flat_survey
+    /*CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.itemid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.itemid_array))
+                 WHEN dss.itemid_text  IS NOT NULL THEN string_to_array(dss.itemid_text, ',')
+            END
+        ) AS itemid
+    ) AS flat_item*/
+), flattened_item_trxns AS (
+    SELECT
+        dss.organizationid,
+        dss.locationid,
+        dss.ordersessionid,
+        dss.transactionheaderid,
+        dss.gem_event_category,
+        dss.gem_event_type,
+        dss.orderid,
+        --TRIM(flat_survey.surveyid) AS surveyid,
+        TRIM(flat_item.itemid)     AS itemid,
+        dss.is_responded,
+        dss.gem_event_instant,
+        dss.gem_syscosmosts,
+        dss.sysinserttime,
+        dss.sysupdatetime
+    FROM delta_sent_surveys AS dss
+    /*CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.surveyid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.surveyid_array))
+                 WHEN dss.surveyid_text  IS NOT NULL THEN string_to_array(dss.surveyid_text, ',')
+            END
+        ) AS surveyid
+    ) AS flat_survey*/
+    CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.itemid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.itemid_array))
+                 WHEN dss.itemid_text  IS NOT NULL THEN string_to_array(dss.itemid_text, ',')
+            END
+        ) AS itemid
+    ) AS flat_item
+
+), joined_surveys_with_items AS (
+    SELECT st.organizationid,
+           st.locationid,
+           st.ordersessionid,
+           st.transactionheaderid,
+           st.gem_event_category,
+           st.gem_event_type,
+           st.orderid,
+           st.surveyid,
+           it.itemid,
+           st.is_responded,
+           st.gem_event_instant,
+           st.gem_syscosmosts,
+           st.sysinserttime,
+           st.sysupdatetime 
+           --ti.dimmenuitemid as menuitemid
+    FROM flattened_survey_trxns as st 
+    LEFT JOIN flattened_item_trxns as it
+        ON st.locationid = it.locationid
+        AND st.transactionheaderid = it.transactionheaderid
+)
+INSERT INTO temp_delta_sent_surveys
+SELECT * FROM joined_surveys_with_items;
+
+
+INSERT INTO fact.itemssurvey (
+    organizationid,
+    locationid,
+    ordersessionid,
+    orderid,
+    surveyissuedtimestamp,
+    gem_event_category,
+    gem_event_type,
+    surveyid,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime,
+    itemid
+)
+SELECT
+    organizationid,
+    locationid,
+    ordersessionid,
+    transactionheaderid,
+    CASE WHEN substring(gem_event_instant, 20, 1) = '.' 
+         THEN replace(replace(substring(gem_event_instant, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(gem_event_instant, 1, 19), 'T', ' ') 
+    END AS surveyissuedtimestamp,
+    gem_event_category,
+    gem_event_type,
+    surveyid,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime,
+    itemid
+FROM temp_delta_sent_surveys as tds
+WHERE NOT EXISTS (SELECT * FROM fact.itemssurvey as its 
+                  WHERE its.organizationid = tds.organizationid
+                    AND its.locationid = tds.locationid
+                    AND its.orderid = tds.transactionheaderid
+                    AND its.itemid = tds.menuitemid
+                    AND its.surveyid = tds.surveyid);
+
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) - 10 FROM fact.itemssurvey)
+WHERE watermarktablename = 'fact.itemssurvey'
+  AND source = 'gem';
+
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
+OWNER TO citus;
+
+
+
+
+--CALL fact.usp_update_occasion_survey_datetime_fields();
+--SELECT *, to_timestamp(ts) FROM fact.watermarktable as wt;
+
+
+CREATE OR REPLACE PROCEDURE fact.usp_update_occasion_survey_datetime_fields()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+UPDATE fact.occasionsurveydetail
+SET organizationid = ol.organizationid
+FROM (select * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
+WHERE occasionsurveydetail.locationid = ol.locationid 
+  and occasionsurveydetail.organizationid is null;
+
+UPDATE fact.itemssurvey
+SET organizationid = ol.organizationid
+FROM (select * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
+WHERE itemssurvey.locationid = ol.locationid 
+  and itemssurvey.organizationid is null;
+
+UPDATE fact.occasionsurveydetail
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
+WHERE occasionsurveydetail.locationid = l.locationid
+  and occasionsurveydetail.surveylocaltimestamp is null;
+
+UPDATE fact.occasionsurveydetail
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'
+WHERE surveylocaltimestamp is null;
+
+UPDATE fact.itemssurvey
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
+WHERE itemssurvey.locationid = l.locationid
+  and itemssurvey.surveylocaltimestamp is null;
+
+UPDATE fact.itemssurvey
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'
+WHERE surveylocaltimestamp is null;
+
+UPDATE fact.occasionsurveydetail
+SET dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)
+WHERE dateid is null;
+
+UPDATE fact.itemssurvey
+SET dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)
+WHERE dateid is null;
+
+UPDATE fact.watermarktable
+SET ts = tr.maxts
+FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 1) as tr 
+WHERE watermarktable.watermarktablename = tr.tablename
+  AND watermarktable.source = 'nge';
+
+UPDATE fact.watermarktable
+SET ts = tr.maxts
+FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 2) as tr 
+WHERE watermarktable.watermarktablename = tr.tablename
+  AND watermarktable.source = 'gem';
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(nge_syscosmosts), 1720000300) - 10 FROM fact.itemssurvey)
+WHERE watermarktablename = 'fact.itemssurvey'
+  AND source = 'nge';
+
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_update_occasion_survey_datetime_fields()
+OWNER TO citus;

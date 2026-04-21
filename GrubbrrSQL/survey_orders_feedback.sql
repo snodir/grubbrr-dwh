@@ -121,7 +121,7 @@ ALTER TABLE fact.occasionsurveydetail
 --DROP COLUMN gemsyscosmosts
 --add syscosmosts BIGINT--- ngesyscosmosts BIGINT, add gemsyscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS surveytype INTEGER, --number-based feedback = 1; text-based feedback = 2
-ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default"
+ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default",
 
 ALTER TABLE fact.itemssurvey
 ADD COLUMN IF NOT EXISTS nge_syscosmosts BIGINT,

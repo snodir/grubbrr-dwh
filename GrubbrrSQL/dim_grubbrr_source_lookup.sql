@@ -18,6 +18,15 @@ ALTER TABLE fact.occasionsurveydetail
 ALTER COLUMN surveytransid DROP NOT NULL
 DROP CONSTRAINT locationid_orderid_surveytransid_pk
 
+
+ALTER TABLE dim.grubbrr_source_lookup
+ALTER COLUMN source TYPE text COLLATE pg_catalog."default",
+ALTER COLUMN description TYPE text COLLATE pg_catalog."default";
+
+INSERT INTO dim.grubbrr_source_lookup
+VALUES(5,'nge-Interactions','NGE Modifier Interactions'),
+      (6,'nge-Options','NGE Modifier Options')
+
 ALTER TABLE fact.occasionsurveydetail
 ADD CONSTRAINT sourceid_fk FOREIGN KEY (sourceid) REFERENCES dim.grubbrr_source_lookup(id)
 
