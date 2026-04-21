@@ -1856,7 +1856,7 @@ OWNER TO citus;
 
 
 
-CALL fact.usp_sent_surveys_to_fact_itemssurvey();
+--CALL fact.usp_gem_sent_surveys_to_fact();
 
 CREATE OR REPLACE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
 LANGUAGE plpgsql

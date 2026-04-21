@@ -957,7 +957,7 @@
                         "typeProperties": {
                             "source": {
                                 "type": "AzurePostgreSqlSource",
-                                "query": "CALL fact.usp_modifier_recommendations_stage_to_fact();\r\nCALL fact.usp_modifier_recommendation_analysis();\r\nSELECT 1 AS rn;",
+                                "query": "CALL fact.usp_modifier_recommendations_stage_to_fact();\r\nCALL fact.usp_modifier_impression_analysis();\r\nCALL fact.usp_modifier_interaction_analysis();\r\n\r\nSELECT 1 AS rn;",
                                 "partitionOption": "None"
                             },
                             "dataset": {
@@ -1027,7 +1027,7 @@
                         "type": "ExecuteDataFlow",
                         "dependsOn": [
                             {
-                                "activity": "ngFactOccasionSurveyDetail",
+                                "activity": "MaxTsFactItemsSurvey",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -1045,7 +1045,12 @@
                             "dataflow": {
                                 "referenceName": "factItemsSurvey",
                                 "type": "DataFlowReference",
-                                "parameters": {},
+                                "parameters": {
+                                    "pdf_nge_maxts": {
+                                        "value": "@sub(activity('MaxTsFactItemsSurvey').output.firstRow.maxts_nge, 10)",
+                                        "type": "Expression"
+                                    }
+                                },
                                 "datasetParameters": {
                                     "ngItemsSurvey": {},
                                     "dimOrgLocation": {},
@@ -1103,7 +1108,7 @@
                         "type": "SetVariable",
                         "dependsOn": [
                             {
-                                "activity": "update OrgID",
+                                "activity": "usp_updateOccasionSurveyDatetimeFields",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -1306,7 +1311,7 @@
                         }
                     },
                     {
-                        "name": "update OrgID",
+                        "name": "usp_updateOccasionSurveyDatetimeFields",
                         "type": "Lookup",
                         "dependsOn": [
                             {
@@ -1327,7 +1332,7 @@
                         "typeProperties": {
                             "source": {
                                 "type": "AzurePostgreSqlSource",
-                                "query": "update fact.occasionsurveydetail\r\nset organizationid = ol.organizationid\r\nfrom (select * from dim.organizationlocation where organizationtype = 0) as ol \r\nwhere occasionsurveydetail.locationid = ol.locationid \r\n  and occasionsurveydetail.organizationid is null;\r\n\r\nupdate fact.itemssurvey\r\nset organizationid = ol.organizationid\r\nfrom (select * from dim.organizationlocation where organizationtype = 0) as ol \r\nwhere itemssurvey.locationid = ol.locationid \r\n  and itemssurvey.organizationid is null;\r\n\r\nupdate fact.occasionsurveydetail\r\nset surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone\r\nfrom (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone from dim.location) as l\r\nwhere occasionsurveydetail.locationid = l.locationid\r\n  and occasionsurveydetail.surveylocaltimestamp is null;\r\n\r\nupdate fact.occasionsurveydetail\r\nset surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'\r\nwhere surveylocaltimestamp is null;\r\n\r\nupdate fact.itemssurvey\r\nset surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone\r\nfrom (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone from dim.location) as l\r\nwhere itemssurvey.locationid = l.locationid\r\n  and itemssurvey.surveylocaltimestamp is null;\r\n\r\nupdate fact.itemssurvey\r\nset surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'\r\nwhere surveylocaltimestamp is null;\r\n\r\nupdate fact.occasionsurveydetail\r\nset dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)\r\nwhere dateid is null;\r\n\r\nupdate fact.itemssurvey\r\nset dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)\r\nwhere dateid is null;\r\n\r\nUPDATE fact.watermarktable\r\nSET ts = tr.maxts\r\nFROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 1) as tr \r\nWHERE watermarktable.watermarktablename = tr.tablename\r\n  AND watermarktable.source = 'nge';\r\n\r\nUPDATE fact.watermarktable\r\nSET ts = tr.maxts\r\nFROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 2) as tr \r\nWHERE watermarktable.watermarktablename = tr.tablename\r\n  AND watermarktable.source = 'gem';\r\n\r\nselect 1 as rn;",
+                                "query": "CALL fact.usp_update_occasion_survey_datetime_fields();\r\n\r\nSELECT 1 as rn;",
                                 "partitionOption": "None"
                             },
                             "dataset": {
@@ -1342,7 +1347,7 @@
                         "type": "ExecuteDataFlow",
                         "dependsOn": [
                             {
-                                "activity": "dimOccasionSurvey",
+                                "activity": "MaxTsFactSentSurveys",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -1367,6 +1372,10 @@
                                     },
                                     "pdf_gem": {
                                         "value": "@sub(activity('LookupMaxTs').output.firstRow.maxts_gem, 10)",
+                                        "type": "Expression"
+                                    },
+                                    "pdf_gem_sent": {
+                                        "value": "@sub(activity('MaxTsFactSentSurveys').output.firstRow.maxts_gem, 10)",
                                         "type": "Expression"
                                     }
                                 },
@@ -1499,6 +1508,72 @@
                             "source": {
                                 "type": "AzurePostgreSqlSource",
                                 "query": "SELECT wt_nge.ts as maxts_nge, wt_gem.ts as maxts_gem\r\nFROM (SELECT * FROM fact.watermarktable WHERE watermarktablename = 'fact.occasionsurveydetail' AND source = 'nge') as wt_nge\r\nINNER JOIN (SELECT * FROM fact.watermarktable WHERE watermarktablename = 'fact.occasionsurveydetail' AND source = 'gem') as wt_gem\r\n        ON wt_nge.watermarktablename = wt_gem.watermarktablename;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "factwatermarktable",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "MaxTsFactSentSurveys",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "dimOccasionSurvey",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "SELECT watermarktablename, source, ts as maxts_gem\r\nFROM fact.watermarktable\r\nWHERE watermarktablename = 'fact.sent_surveys'\r\n  AND source = 'gem'",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "factwatermarktable",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "MaxTsFactItemsSurvey",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "ngFactOccasionSurveyDetail",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL fact.usp_gem_sent_surveys_to_fact();\r\nCALL fact.usp_sent_surveys_to_fact_itemssurvey();\r\n\r\nSELECT watermarktablename, source, ts as maxts_nge\r\nFROM fact.watermarktable\r\nWHERE watermarktablename = 'fact.itemssurvey'\r\n  AND source = 'nge'",
                                 "partitionOption": "None",
                                 "queryTimeout": "02:00:00"
                             },

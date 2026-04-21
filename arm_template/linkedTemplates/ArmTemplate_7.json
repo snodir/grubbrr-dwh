@@ -5805,6 +5805,12 @@
                         },
                         {
                             "name": "select2"
+                        },
+                        {
+                            "name": "RowNumber"
+                        },
+                        {
+                            "name": "filterLatestOrderSessions"
                         }
                     ],
                     "scriptLines": [
@@ -6028,7 +6034,7 @@
                         "          key as long",
                         "     ),",
                         "     errors: false) ~> FixDataTypes",
-                        "RealKiosks derive(transactionheaderid = concat('abort-',toString(id))) ~> DerivedTransactionHeaderID",
+                        "filterLatestOrderSessions derive(transactionheaderid = concat('abort-',toString(id))) ~> DerivedTransactionHeaderID",
                         "DerivedColumns parse({order-id} = data ? (order as (sessionId as string)),",
                         "     format: 'json',",
                         "     documentForm: 'singleDocument') ~> parseData",
@@ -6155,6 +6161,11 @@
                         "     ),",
                         "     skipDuplicateMapInputs: true,",
                         "     skipDuplicateMapOutputs: true) ~> select2",
+                        "RealKiosks window(over(location,",
+                        "          token),",
+                        "     desc(id, true),",
+                        "     rn = rowNumber()) ~> RowNumber",
+                        "RowNumber filter(rn == 1) ~> filterLatestOrderSessions",
                         "derivedColumn1 sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",

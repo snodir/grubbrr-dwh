@@ -2554,7 +2554,7 @@
                         "type": "ExecutePipeline",
                         "dependsOn": [
                             {
-                                "activity": "UpsellRecommendationsToGAS",
+                                "activity": "ModifierUpsellRecommendationsToGAS",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -2639,6 +2639,30 @@
                         "typeProperties": {
                             "pipeline": {
                                 "referenceName": "DimensionMasterItemsAndModifiers",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "ModifierUpsellRecommendationsToGAS",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "UpsellRecommendationsToGAS",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "ModifierUpsellRecommendationsToGAS",
                                 "type": "PipelineReference"
                             },
                             "waitOnCompletion": true,

@@ -11,6 +11,8 @@ OWNER to citus;
 ALTER TABLE fact.transactionheader
 ADD sourceid INTEGER;
 
+SELECT * FROM dim.grubbrr_source_lookup;
+
 ALTER TABLE fact.occasionsurveydetail
 --DROP COLUMN ngesyscosmosts, DROP COLUMN gemsyscosmosts
 --ADD syscosmosts BIGINT,
