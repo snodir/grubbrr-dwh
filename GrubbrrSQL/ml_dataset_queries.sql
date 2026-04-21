@@ -909,12 +909,12 @@ LEFT JOIN item_statistics AS its
 Training Data Files:
 
 8. Modifier-Interactions dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
-   Naming Convention: modifiers-yyww.parquet
+   Naming Convention: modifier-interactions-yyww.parquet
    yyww - stands for year and week of observation date period, for example, 
    2026 year and 10 th week would be formatted as yyww = 2610, 
    the first yy means the last 2 digits of year (26 in case of 2026) 
    and week number ww --> 10 --> 2610
-   File: Modifiers dataset (modifier-level, weekly snapshot)
+   File: modifier-interactions dataset (modifier-level, weekly snapshot)
    File hierarchy: ml-training-data/org-abcd/loc-abcd/modifier-interactions-yyww.parquet
 ***/
 
@@ -1072,13 +1072,13 @@ LEFT JOIN dim.modifier_group as mg
 
 /**
 9. Modifier-Impressions dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
-   Naming Convention: modifiers-yyww.parquet
+   Naming Convention: modifier-impressions-yyww.parquet
    yyww - stands for year and week of observation date period, for example, 
    2026 year and 10 th week would be formatted as yyww = 2610, 
    the first yy means the last 2 digits of year (26 in case of 2026) 
    and week number ww --> 10 --> 2610
-   File: Item-Modifier-Group-Modifier-Mapping dataset dataset (modifier-level, weekly snapshot)
-   File hierarchy: ml-training-data/org-abcd/loc-abcd/item-modifier-group-modifier-mapping-yyww.parquet
+   File: Modifier-Impressions dataset dataset (modifier-level, weekly snapshot)
+   File hierarchy: ml-training-data/org-abcd/loc-abcd/modifier-impressions-yyww.parquet
 ***/
 
 WITH org_loc_lookup AS (
@@ -1186,14 +1186,14 @@ INNER JOIN dim.menuitem AS mi
 
 
 /**
-10. Item-Modifier-Group-Modifier-Mapping dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
-   Naming Convention: modifiers-yyww.parquet
+10. Item-ModifierGroup-Modifier-Mapping dataset, weekly file per Organization or Location, depending on what is specified as ADF pipeline param
+   Naming Convention: item-modifiergroup-modifier-mapping-yyww.parquet
    yyww - stands for year and week of observation date period, for example, 
    2026 year and 10 th week would be formatted as yyww = 2610, 
    the first yy means the last 2 digits of year (26 in case of 2026) 
    and week number ww --> 10 --> 2610
-   File: Item-Modifier-Group-Modifier-Mapping dataset dataset (modifier-level, weekly snapshot)
-   File hierarchy: ml-training-data/org-abcd/loc-abcd/item-modifier-group-modifier-mapping-yyww.parquet
+   File: item-modifiergroup-modifier-mapping dataset dataset (modifier-level, weekly snapshot)
+   File hierarchy: ml-training-data/org-abcd/loc-abcd/item-modifiergroup-modifier-mapping-yyww.parquet
 ***/
 
 
