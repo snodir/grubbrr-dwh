@@ -1,3 +1,10 @@
+SELECT *
+FROM fact.transactionheader as th 
+--WHERE th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
+ORDER BY th.orderdatelocal DESC
+LIMIT 100;
+
+
 DROP TABLE IF EXISTS stg.transactionheader;
 CREATE TABLE IF NOT EXISTS stg.transactionheader
 (
