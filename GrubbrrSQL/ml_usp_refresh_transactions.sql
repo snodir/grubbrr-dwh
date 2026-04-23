@@ -17,12 +17,14 @@ CREATE TABLE IF NOT EXISTS ml.transactions (
     locationname         TEXT COLLATE pg_catalog."default",
     kioskid              TEXT COLLATE pg_catalog."default",
     transactionheaderid  TEXT COLLATE pg_catalog."default",
+    ordersessionid       TEXT COLLATE pg_catalog."default",
+    orderid              TEXT COLLATE pg_catalog."default",
     orderitemid          TEXT COLLATE pg_catalog."default",
     menuitemid           TEXT COLLATE pg_catalog."default",
     itemname             TEXT COLLATE pg_catalog."default",
     upselllevel          TEXT COLLATE pg_catalog."default",
-    item_class_type      INTEGER,-- TEXT COLLATE pg_catalog."default",
-    itemquantity         INTEGER,-- NUMERIC(10,3),
+    item_class_type      INTEGER,
+    itemquantity         INTEGER,
     categoryid           TEXT COLLATE pg_catalog."default",
     categoryname         TEXT COLLATE pg_catalog."default",
     itemunitprice        NUMERIC(12,4),
@@ -45,12 +47,7 @@ CREATE TABLE IF NOT EXISTS ml.transactions (
     hh                   INTEGER,
     ww                   INTEGER,
     sysinserttime        TIMESTAMP
-    --CONSTRAINT locationid_transactionheaderid_orderitemid_pkey PRIMARY KEY (locationid, transactionheaderid, orderitemid)
 );
-
---ALTER TABLE IF EXISTS ml.transactions
---ADD CONSTRAINT locationid_transactionheaderid_orderitemid_pkey PRIMARY KEY (locationid, transactionheaderid, orderitemid)
-
 
 CREATE INDEX IF NOT EXISTS ix_ml_trx_yyyy_ww
     ON ml.transactions (yyyy, ww);
@@ -110,6 +107,8 @@ BEGIN
         ol.locationname,
         th.kioskid,
         th.transactionheaderid,
+        th.ordersessionid,
+        th.orderid,
         ti.itemid                                                    AS orderitemid,
         ti.dimmenuitemid                                             AS menuitemid,
         ti.itemname,
@@ -144,9 +143,9 @@ BEGIN
     INNER JOIN fact.transactionitem AS ti
         ON th.transactionheaderid = ti.transactionheaderid
     LEFT JOIN ml.weather AS wh
-        ON th.locationid   = wh.locationid
-       AND th.businessdate = wh.weatherdate
-       AND EXTRACT(HOUR FROM th.orderdatelocal)::INTEGER = wh.hh
+        ON  th.locationid          = wh.locationid
+        AND th.businessdate        = wh.weatherdate
+        AND EXTRACT(HOUR FROM th.orderdatelocal)::INTEGER = wh.hh
     LEFT JOIN dim.itemcategory AS ctg
         ON ti.categoryid = ctg.id
     LEFT JOIN dim.menuitem AS mi
@@ -157,4 +156,3 @@ BEGIN
 END;
 $BODY$;
 ALTER PROCEDURE ml.usp_refresh_transactions(DATE, INT) OWNER TO citus;
-
