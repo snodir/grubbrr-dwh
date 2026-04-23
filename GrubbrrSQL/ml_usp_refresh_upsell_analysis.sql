@@ -7,6 +7,7 @@
 -- ✅ Also correct: positional (no name needed, just pass values in order)
 --CALL ml.usp_refresh_upsell_analysis(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 0);
 
+--SELECT * FROM ml.upsell_analysis LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS ml.upsell_analysis (
     organizationid      TEXT COLLATE pg_catalog."default",
@@ -18,9 +19,9 @@ CREATE TABLE IF NOT EXISTS ml.upsell_analysis (
     recommendationid    TEXT COLLATE pg_catalog."default",
     offereditem         TEXT COLLATE pg_catalog."default",
     selecteditem        TEXT COLLATE pg_catalog."default",
-    item_class_type     TEXT COLLATE pg_catalog."default",
+    item_class_type     INTEGER, -- TEXT COLLATE pg_catalog."default",
     upselltype          TEXT COLLATE pg_catalog."default",
-    quantity            NUMERIC(10,3),
+    quantity            INTEGER, --NUMERIC(10,3),
     businessdate        DATE,
     orderdatelocal      TIMESTAMP,
     yyyy                INTEGER,

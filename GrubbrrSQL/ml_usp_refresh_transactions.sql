@@ -7,6 +7,7 @@
 -- ✅ Also correct: positional (no name needed, just pass values in order)
 --CALL ml.usp_refresh_transactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 0);
 
+--SELECT * FROM ml.transactions LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS ml.transactions (
     frequentcustomerid   TEXT COLLATE pg_catalog."default",
@@ -20,8 +21,8 @@ CREATE TABLE IF NOT EXISTS ml.transactions (
     menuitemid           TEXT COLLATE pg_catalog."default",
     itemname             TEXT COLLATE pg_catalog."default",
     upselllevel          TEXT COLLATE pg_catalog."default",
-    item_class_type      TEXT COLLATE pg_catalog."default",
-    itemquantity         NUMERIC(10,3),
+    item_class_type      INTEGER,-- TEXT COLLATE pg_catalog."default",
+    itemquantity         INTEGER,-- NUMERIC(10,3),
     categoryid           TEXT COLLATE pg_catalog."default",
     categoryname         TEXT COLLATE pg_catalog."default",
     itemunitprice        NUMERIC(12,4),
@@ -44,7 +45,12 @@ CREATE TABLE IF NOT EXISTS ml.transactions (
     hh                   INTEGER,
     ww                   INTEGER,
     sysinserttime        TIMESTAMP
+    --CONSTRAINT locationid_transactionheaderid_orderitemid_pkey PRIMARY KEY (locationid, transactionheaderid, orderitemid)
 );
+
+--ALTER TABLE IF EXISTS ml.transactions
+--ADD CONSTRAINT locationid_transactionheaderid_orderitemid_pkey PRIMARY KEY (locationid, transactionheaderid, orderitemid)
+
 
 CREATE INDEX IF NOT EXISTS ix_ml_trx_yyyy_ww
     ON ml.transactions (yyyy, ww);
@@ -133,11 +139,11 @@ BEGIN
         EXTRACT(WEEK  FROM th.businessdate)::INTEGER                 AS ww,
         NOW()::TIMESTAMP                                             AS sysinserttime
     FROM cte AS th
-    LEFT JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
+    INNER JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
         ON th.locationid = ol.locationid
-    LEFT JOIN fact.transactionitem AS ti
+    INNER JOIN fact.transactionitem AS ti
         ON th.transactionheaderid = ti.transactionheaderid
-    LEFT JOIN dim.vw_weatherhourlydata AS wh
+    LEFT JOIN ml.weather AS wh
         ON th.locationid   = wh.locationid
        AND th.businessdate = wh.weatherdate
        AND EXTRACT(HOUR FROM th.orderdatelocal)::INTEGER = wh.hh
