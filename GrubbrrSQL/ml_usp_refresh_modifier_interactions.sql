@@ -3,6 +3,13 @@
 -- Granularity : one row per (transaction, order-item, modifier)
 -- Refresh     : daily
 -- ============================================================
+
+-- ✅ Also correct: positional (no name needed, just pass values in order)
+--CALL ml.usp_refresh_modifier_interactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 0);
+
+--SELECT * FROM ml.modifier_interactions LIMIT 1000;
+
+
 CREATE TABLE IF NOT EXISTS ml.modifier_interactions (
     organizationid            TEXT COLLATE pg_catalog."default",
     organizationname          TEXT COLLATE pg_catalog."default",
@@ -29,9 +36,9 @@ CREATE TABLE IF NOT EXISTS ml.modifier_interactions (
     modifiername              TEXT COLLATE pg_catalog."default",
     parent_modifier_id        TEXT COLLATE pg_catalog."default",
     nesting_depth             INTEGER,
-    modifierquantity          NUMERIC(10,3),
+    modifierquantity          INTEGER,
     modifierprice             NUMERIC(12,4),
-    freequantity              NUMERIC(10,3),
+    freequantity              INTEGER,
     is_modifier_default       BOOLEAN,
     min_quantity              INTEGER,
     max_quantity              INTEGER,
@@ -39,7 +46,7 @@ CREATE TABLE IF NOT EXISTS ml.modifier_interactions (
     action                    TEXT COLLATE pg_catalog."default",
     session_recorded_at       TEXT COLLATE pg_catalog."default",
     frequentcustomerid        TEXT COLLATE pg_catalog."default",
-    modifier_default_quantity NUMERIC(10,3),
+    modifier_default_quantity INTEGER,
     modifier_class_type       INTEGER,
     sysinserttime             TIMESTAMP
 );
@@ -68,9 +75,6 @@ CREATE OR REPLACE PROCEDURE ml.usp_refresh_modifier_interactions(
 )
 LANGUAGE plpgsql
 AS $BODY$
-DECLARE
-    v_yyyy INTEGER := EXTRACT(YEAR FROM p_businessdate)::INTEGER;
-    v_ww   INTEGER := EXTRACT(WEEK FROM p_businessdate)::INTEGER;
 BEGIN
 
     -- --------------------------------------------------------
@@ -105,11 +109,10 @@ BEGIN
             tr.itemunitprice,
             tr.frequentcustomerid
         FROM ml.transactions AS tr
-        WHERE LOWER(tr.transactionheaderid) LIKE 'ordevt-%'
-          AND (
+        WHERE (
                 p_refresh_mode = 0
                 OR tr.businessdate = p_businessdate
-          )
+        )
     ),
     org_loc_ctlg AS (
         SELECT ol.organizationid, ol.locationid, c.catalogid, c.catalogname
@@ -127,13 +130,6 @@ BEGIN
         FROM dim.modifier AS m
         INNER JOIN org_loc_ctlg AS olc
             ON m.catalogid = olc.catalogid
-        /*WHERE (
-            EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER  = v_yyyy
-            AND EXTRACT(WEEK FROM m.modifier_created_on)::INTEGER <= v_ww
-        )
-        OR (
-            EXTRACT(YEAR FROM m.modifier_created_on)::INTEGER < v_yyyy
-        )*/
     )
     INSERT INTO ml.modifier_interactions
     SELECT
