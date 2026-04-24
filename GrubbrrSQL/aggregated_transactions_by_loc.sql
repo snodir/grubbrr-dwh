@@ -5,7 +5,7 @@ select ol.organizationId, ol.organizationname,
        count(1) as ordercounts, sum(ordertotal) as amtspent, avg(ordertotal) as avg_amtspent,
 	   min(orderdatelocal) as first_order_time,
 	   max(orderdatelocal) as latest_order_time
-from (select * from fact.transactionheader WHERE businessdate >= '2022-01-01') as th
+from (select * from fact.transactionheader WHERE businessdate >= '2026-01-01') as th
 inner join (select * from dim.organizationlocation where organizationtype = 0) as ol 
         on th.locationid = ol.locationid
 where 1=1

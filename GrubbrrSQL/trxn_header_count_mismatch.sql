@@ -1,6 +1,7 @@
 SELECT *
 FROM fact.transactionheader as th 
---WHERE th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
+WHERE th.locationid = 'loc-8ef0f09d-76fd-4bce-af56-40182bc73c26'
+--AND th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
 ORDER BY th.orderdatelocal DESC
 LIMIT 100;
 
