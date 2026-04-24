@@ -156,3 +156,53 @@ BEGIN
 END;
 $BODY$;
 ALTER PROCEDURE ml.usp_refresh_transactions(DATE, INT) OWNER TO citus;
+
+
+WITH org_loc_lookup AS (
+    SELECT DISTINCT ol.organizationid, ol.organizationname,
+                    ol.locationid, ol.locationname
+    FROM dim.organizationlocation AS ol
+    WHERE (CASE WHEN '@{pipeline().parameters.p_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '@{pipeline().parameters.p_orgid}'
+      AND ol.organizationtype = 0
+)
+SELECT
+    tr.frequentcustomerid,
+    tr.organizationid,
+    tr.organizationname,
+    tr.locationid,
+    tr.locationname,
+    tr.kioskid,
+    tr.transactionheaderid,
+    tr.ordersessionid,
+    tr.orderid,
+    tr.orderitemid,
+    tr.menuitemid,
+    tr.itemname,
+    tr.upselllevel,
+    tr.item_class_type,
+    tr.itemquantity,
+    tr.categoryid,
+    tr.categoryname,
+    tr.itemunitprice,
+    tr.paymentstatus,
+    tr.numberofitems,
+    tr.numberofpayments,
+    tr.ordertotal,
+    tr.ordersubtotal,
+    tr.ordertip,
+    tr.ordertax,
+    tr.ordertypelabel,
+    tr.orderdatelocal,
+    tr.businessdate,
+    tr.weatherhumidity,
+    tr.weathercondition,
+    tr.temperatureincelcius,
+    tr.yyyy,
+    tr.mm,
+    tr.dd,
+    tr.hh,
+    tr.ww
+FROM ml.transactions AS tr
+WHERE tr.locationid IN (SELECT locationid FROM org_loc_lookup)
+  AND tr.yyyy = @{item().yearval}
+  AND tr.ww   = @{item().weekval}

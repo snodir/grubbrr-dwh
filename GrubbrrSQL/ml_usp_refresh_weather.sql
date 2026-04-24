@@ -190,3 +190,75 @@ BEGIN
 END;
 $BODY$;
 ALTER PROCEDURE ml.usp_refresh_weather(DATE, INT) OWNER TO citus;
+
+
+WITH org_loc_lookup AS (
+    SELECT DISTINCT ol.organizationid, ol.organizationname,
+                    ol.locationid, ol.locationname
+    FROM dim.organizationlocation AS ol
+    WHERE (CASE WHEN '@{pipeline().parameters.p_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '@{pipeline().parameters.p_orgid}'
+      AND ol.organizationtype = 0
+)
+SELECT
+    wh.organizationid,
+    wh.organizationname,
+    wh.locationid,
+    wh.locationname,
+    wh.weatherdate,
+    wh.yyyy,
+    wh.mm,
+    wh.dd,
+    wh.ww,
+    wh.hh,
+    wh.humidity,
+    wh.condition,
+    wh.temperature_c,
+    wh.is_hot,
+    wh.is_calm,
+    wh.is_cold,
+    wh.is_cool,
+    wh.is_mild,
+    wh.is_warm,
+    wh.rain_mm,
+    wh.is_sunny,
+    wh.is_windy,
+    wh.is_cloudy,
+    wh.is_daytime,
+    wh.is_raining,
+    wh.is_snowing,
+    wh.is_very_hot,
+    wh.is_freezing,
+    wh.is_overcast,
+    wh.snowfall_mm,
+    wh.temp_bucket,
+    wh.wind_bucket,
+    wh.feels_colder,
+    wh.feels_hotter,
+    wh.food_weather,
+    wh.is_heavy_rain,
+    wh.is_light_rain,
+    wh.is_nighttime,
+    wh.is_very_windy,
+    wh.pressure_hpa,
+    wh.weather_code,
+    wh.wind_gust_kmh,
+    wh.comfort_score,
+    wh.drink_weather,
+    wh.wind_speed_kmh,
+    wh.comfort_bucket,
+    wh.humidity_bucket,
+    wh.condition_bucket,
+    wh.is_precipitating,
+    wh.precipitation_mm,
+    wh.visibility_meters,
+    wh.cloud_cover_percent,
+    wh.is_unseasonably_hot,
+    wh.is_unseasonably_cold,
+    wh.outdoor_dining_score,
+    wh.wind_direction_degrees,
+    wh.precipitation_probability,
+    wh.apparent_temperature_celsius
+FROM ml.weather AS wh
+WHERE wh.locationid IN (SELECT locationid FROM org_loc_lookup)
+  AND wh.yyyy = @{item().yearval}
+  AND wh.ww   = @{item().weekval}

@@ -117,3 +117,124 @@ BEGIN
 END;
 $BODY$;
 ALTER PROCEDURE ml.usp_refresh_menu_entities() OWNER TO citus;
+
+WITH org_loc_lookup AS (
+    SELECT DISTINCT ol.organizationid, ol.organizationname,
+                    ol.locationid, ol.locationname
+    FROM dim.organizationlocation AS ol
+    WHERE (CASE WHEN '@{pipeline().parameters.p_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '@{pipeline().parameters.p_orgid}'
+      AND ol.organizationtype = 0
+),
+order_items AS (
+    SELECT
+        tr.organizationid,
+        tr.locationid,
+        tr.menuitemid,
+        tr.itemunitprice
+    FROM ml.transactions AS tr
+    WHERE tr.locationid IN (SELECT locationid FROM org_loc_lookup)
+      AND tr.yyyy = @{item().yearval}
+      AND tr.ww   = @{item().weekval}
+),
+org_agg AS (
+    SELECT
+        organizationid,
+        COUNT(*) AS total_items_ordered_within_org_and_week
+    FROM order_items
+    GROUP BY organizationid
+),
+org_itm_agg AS (
+    SELECT
+        organizationid,
+        menuitemid,
+        COUNT(*) AS item_selection_frequency_within_org_and_week
+    FROM order_items
+    GROUP BY organizationid, menuitemid
+),
+loc_agg AS (
+    SELECT
+        organizationid,
+        locationid,
+        COUNT(*) AS total_items_ordered_within_loc_and_week
+    FROM order_items
+    GROUP BY organizationid, locationid
+),
+loc_itm_agg AS (
+    SELECT
+        organizationid,
+        locationid,
+        menuitemid,
+        COUNT(*)           AS item_selection_frequency_within_loc_and_week,
+        MAX(itemunitprice) AS itemunitprice
+    FROM order_items
+    GROUP BY organizationid, locationid, menuitemid
+),
+item_statistics AS (
+    SELECT
+        lia.organizationid,
+        lia.locationid,
+        lia.menuitemid,
+        lia.itemunitprice,
+        lia.item_selection_frequency_within_loc_and_week,
+        la.total_items_ordered_within_loc_and_week,
+        100 * lia.item_selection_frequency_within_loc_and_week::NUMERIC(8,3)
+            / la.total_items_ordered_within_loc_and_week                     AS pct_item_selection_freq_within_loc_and_week,
+        oia.item_selection_frequency_within_org_and_week,
+        oa.total_items_ordered_within_org_and_week,
+        100 * oia.item_selection_frequency_within_org_and_week::NUMERIC(8,3)
+            / oa.total_items_ordered_within_org_and_week                     AS pct_item_selection_freq_within_org_and_week
+    FROM loc_itm_agg AS lia
+    INNER JOIN loc_agg     AS la  ON  lia.organizationid = la.organizationid
+                                  AND lia.locationid     = la.locationid
+    INNER JOIN org_itm_agg AS oia ON  lia.organizationid = oia.organizationid
+                                  AND lia.menuitemid     = oia.menuitemid
+    INNER JOIN org_agg     AS oa  ON  lia.organizationid = oa.organizationid
+)
+SELECT
+    me.organizationid,
+    me.organizationname,
+    me.locationid,
+    me.locationname,
+    me.categoryid,
+    me.categoryname,
+    me.menuitemid,
+    me.menuitemname,
+    me.catalogid,
+    COALESCE(its.itemunitprice, me.itemunitprice)              AS itemunitprice,
+    me.price_changed_on,
+    me.item_class_type,
+    me.entitytype,
+    me.calories,
+    me.protein,
+    me.sugar,
+    me.fat,
+    me.is_alcoholic,
+    me.is_vegetarian_item,
+    me.is_vegan_item,
+    me.has_allergen,
+    me.is_active,
+    me.is_deleted,
+    me.gms_created_on,
+    me.gms_modified_on,
+    its.item_selection_frequency_within_loc_and_week,
+    its.total_items_ordered_within_loc_and_week,
+    its.pct_item_selection_freq_within_loc_and_week,
+    its.item_selection_frequency_within_org_and_week,
+    its.total_items_ordered_within_org_and_week,
+    its.pct_item_selection_freq_within_org_and_week
+FROM ml.menu_entities AS me
+LEFT JOIN item_statistics AS its
+    ON  me.organizationid = its.organizationid
+    AND me.locationid     = its.locationid
+    AND me.menuitemid     = its.menuitemid
+WHERE me.locationid IN (SELECT locationid FROM org_loc_lookup)
+  AND (
+        (
+            EXTRACT(YEAR FROM me.gms_created_on)::INTEGER  = @{item().yearval}
+            AND EXTRACT(WEEK FROM me.gms_created_on)::INTEGER <= @{item().weekval}
+        )
+        OR
+        (
+            EXTRACT(YEAR FROM me.gms_created_on)::INTEGER < @{item().yearval}
+        )
+  );

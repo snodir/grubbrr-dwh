@@ -136,3 +136,105 @@ BEGIN
 END;
 $BODY$;
 ALTER PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping() OWNER TO citus;
+
+
+WITH org_loc_lookup AS (
+    SELECT DISTINCT ol.organizationid, ol.organizationname,
+                    ol.locationid, ol.locationname
+    FROM dim.organizationlocation AS ol
+    WHERE (CASE WHEN '@{pipeline().parameters.p_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '@{pipeline().parameters.p_orgid}'
+      AND ol.organizationtype = 0
+),
+trxn_modifiers AS (
+    SELECT
+        mi.organizationid,
+        mi.locationid,
+        mi.menuitemid,
+        mi.modifierid,
+        mi.modifierquantity,
+        mi.modifierprice
+    FROM ml.modifier_interactions AS mi
+    WHERE mi.locationid IN (SELECT locationid FROM org_loc_lookup)
+      AND mi.yyyy = @{item().yearval}
+      AND mi.ww   = @{item().weekval}
+),
+loc_mdfr_agg AS (
+    SELECT
+        organizationid,
+        locationid,
+        modifierid,
+        COUNT(*)           AS mdfr_selection_frequency_within_loc_and_week,
+        MAX(modifierprice) AS modifierprice
+    FROM trxn_modifiers
+    GROUP BY organizationid, locationid, modifierid
+),
+loc_mdfr_itm AS (
+    SELECT
+        organizationid,
+        locationid,
+        modifierid,
+        menuitemid,
+        COUNT(*) AS x_times_added_on_to_the_item,
+        ROW_NUMBER() OVER (
+            PARTITION BY organizationid, locationid, modifierid
+            ORDER BY COUNT(*) DESC
+        )        AS mdfr_selection_ranking
+    FROM trxn_modifiers
+    GROUP BY organizationid, locationid, modifierid, menuitemid
+)
+SELECT
+    imm.organizationid,
+    imm.organizationname,
+    imm.locationid,
+    imm.locationname,
+    imm.catalogid,
+    imm.catalogname,
+    imm.menuitemid,
+    imm.menuitemname,
+    imm.item_class_type,
+    imm.modifiergroupid,
+    imm.modifiergroupname,
+    imm.modifierid,
+    imm.modifiername,
+    imm.modifier_class_type,
+    imm.is_modifier_default,
+    imm.min_quantity,
+    imm.max_quantity,
+    imm.allow_quantity_increment,
+    imm.increment_step,
+    imm.modifier_default_quantity,
+    imm.is_modifier_invisible,
+    imm.calories,
+    imm.price,
+    imm.is_modifier_active,
+    imm.is_modifier_deleted,
+    imm.modifier_created_on,
+    imm.modifier_modified_on,
+    lmi.x_times_added_on_to_the_item,
+    lma.mdfr_selection_frequency_within_loc_and_week,
+    ROUND(
+        100 * CAST(lmi.x_times_added_on_to_the_item AS NUMERIC(9,3))
+        / lma.mdfr_selection_frequency_within_loc_and_week,
+        3
+    )          AS pct_relative_selection_frequency
+FROM ml.item_modifiergroup_modifier_mapping AS imm
+LEFT JOIN loc_mdfr_itm AS lmi
+    ON  imm.organizationid = lmi.organizationid
+    AND imm.locationid     = lmi.locationid
+    AND imm.modifierid     = lmi.modifierid
+    AND imm.menuitemid     = lmi.menuitemid
+LEFT JOIN loc_mdfr_agg AS lma
+    ON  imm.organizationid = lma.organizationid
+    AND imm.locationid     = lma.locationid
+    AND imm.modifierid     = lma.modifierid
+WHERE imm.locationid IN (SELECT locationid FROM org_loc_lookup)
+  AND (
+        (
+            EXTRACT(YEAR FROM imm.modifier_created_on)::INTEGER  = @{item().yearval}
+            AND EXTRACT(WEEK FROM imm.modifier_created_on)::INTEGER <= @{item().weekval}
+        )
+        OR
+        (
+            EXTRACT(YEAR FROM imm.modifier_created_on)::INTEGER < @{item().yearval}
+        )
+  );

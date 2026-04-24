@@ -119,3 +119,36 @@ BEGIN
 END;
 $BODY$;
 ALTER PROCEDURE ml.usp_refresh_upsell_analysis(DATE, INT) OWNER TO citus;
+
+
+WITH org_loc_lookup AS (
+    SELECT DISTINCT ol.organizationid, ol.organizationname,
+                    ol.locationid, ol.locationname
+    FROM dim.organizationlocation AS ol
+    WHERE (CASE WHEN '@{pipeline().parameters.p_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '@{pipeline().parameters.p_orgid}'
+      AND ol.organizationtype = 0
+)
+SELECT
+    ua.organizationid,
+    ua.organizationname,
+    ua.locationid,
+    ua.locationname,
+    ua.frequentcustomerid,
+    ua.transactionheaderid,
+    ua.recommendationid,
+    ua.offereditem,
+    ua.selecteditem,
+    ua.item_class_type,
+    ua.upselltype,
+    ua.quantity,
+    ua.businessdate,
+    ua.orderdatelocal,
+    ua.yyyy,
+    ua.mm,
+    ua.dd,
+    ua.hh,
+    ua.ww
+FROM ml.upsell_analysis AS ua
+WHERE ua.locationid IN (SELECT locationid FROM org_loc_lookup)
+  AND ua.yyyy = @{item().yearval}
+  AND ua.ww   = @{item().weekval}

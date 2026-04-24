@@ -198,3 +198,54 @@ BEGIN
 END;
 $BODY$;
 ALTER PROCEDURE ml.usp_refresh_modifier_interactions(DATE, INT) OWNER TO citus;
+
+
+WITH org_loc_lookup AS (
+    SELECT DISTINCT ol.organizationid, ol.organizationname,
+                    ol.locationid, ol.locationname
+    FROM dim.organizationlocation AS ol
+    WHERE (CASE WHEN '@{pipeline().parameters.p_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '@{pipeline().parameters.p_orgid}'
+      AND ol.organizationtype = 0
+)
+SELECT
+    mi.organizationid,
+    mi.organizationname,
+    mi.locationname,
+    mi.locationid,
+    mi.catalogid,
+    mi.catalogname,
+    mi.businessdate,
+    mi.orderdatelocal,
+    mi.yyyy,
+    mi.ww,
+    mi.transactionheaderid,
+    mi.ordersessionid,
+    mi.orderid,
+    mi.orderitemid,
+    mi.menuitemid,
+    mi.menuitemname,
+    mi.itemquantity,
+    mi.itemunitprice,
+    mi.item_class_type,
+    mi.modifiergroupid,
+    mi.modifiergroupname,
+    mi.modifierid,
+    mi.modifiername,
+    mi.parent_modifier_id,
+    mi.nesting_depth,
+    mi.modifierquantity,
+    mi.modifierprice,
+    mi.freequantity,
+    mi.is_modifier_default,
+    mi.min_quantity,
+    mi.max_quantity,
+    mi.selection_type,
+    mi.action,
+    mi.session_recorded_at,
+    mi.frequentcustomerid,
+    mi.modifier_default_quantity,
+    mi.modifier_class_type
+FROM ml.modifier_interactions AS mi
+WHERE mi.locationid IN (SELECT locationid FROM org_loc_lookup)
+  AND mi.yyyy = @{item().yearval}
+  AND mi.ww   = @{item().weekval}
