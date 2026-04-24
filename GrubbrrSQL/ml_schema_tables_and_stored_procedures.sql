@@ -431,7 +431,7 @@ CREATE TABLE IF NOT EXISTS ml.modifier_impressions (
     position            INTEGER,
     score               NUMERIC(10,4),
     strategy            TEXT COLLATE pg_catalog."default",
-    conTEXT COLLATE pg_catalog."default",             TEXT COLLATE pg_catalog."default",
+    context             TEXT COLLATE pg_catalog."default",
     selected            BOOLEAN,
     pre_deselected      BOOLEAN,
     confirmed_removed   BOOLEAN,
