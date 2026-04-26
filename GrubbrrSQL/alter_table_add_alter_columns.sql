@@ -224,7 +224,9 @@ ALTER TABLE IF EXISTS dim.modifier
     OWNER to citus;
 
 ALTER TABLE IF EXISTS dim.modifier
-DROP COLUMN IF EXISTS modifierkey;
+DROP COLUMN IF EXISTS modifierkey,
+ADD COLUMN IF NOT EXISTS price_changed_on TIMESTAMP;
+
 
 CREATE TABLE IF NOT EXISTS dim.modifier_group --gms.public.modifier_group_master
 (

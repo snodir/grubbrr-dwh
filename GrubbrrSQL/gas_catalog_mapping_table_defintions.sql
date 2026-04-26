@@ -182,8 +182,9 @@ ALTER TABLE IF EXISTS dim.modifier
 
 ALTER TABLE IF EXISTS dim.modifier
 --DROP COLUMN IF EXISTS modifierkey;
-ADD CONSTRAINT modifierid_unq UNIQUE (modifierid);
+--ADD CONSTRAINT modifierid_unq UNIQUE (modifierid),
 --DROP CONSTRAINT modifier_master_pkey
+ADD COLUMN IF NOT EXISTS price_changed_on TIMESTAMP;
 
 
 -- Table: public.modifier_group_modifier_glue
