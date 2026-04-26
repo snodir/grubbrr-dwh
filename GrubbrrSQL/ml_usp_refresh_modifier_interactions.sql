@@ -7,6 +7,7 @@
 -- ✅ Also correct: positional (no name needed, just pass values in order)
 --CALL ml.usp_refresh_modifier_interactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 0);
 
+--SELECT count(*) FROM ml.modifier_interactions
 --SELECT * FROM ml.modifier_interactions LIMIT 1000;
 
 

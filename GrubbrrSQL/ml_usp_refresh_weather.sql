@@ -7,7 +7,7 @@
 -- ✅ Also correct: positional (no name needed, just pass values in order)
 --CALL ml.usp_refresh_weather(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 0);
 
---SELECT * FROM ml.weather LIMIT 1000;
+--SELECT * FROM ml.weather ORDER BY weatherdate DESC LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS ml.weather (
     organizationid               TEXT COLLATE pg_catalog."default",
