@@ -504,6 +504,199 @@
             "dependsOn": []
         },
         {
+            "name": "[concat(parameters('factoryName'), '/adlsItemModifierGroupModifierMappingParquetForML')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSsus",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_orgid": {
+                        "type": "string",
+                        "defaultValue": "org-a4b81610-f019-45d2-8522-2ccee0e85bd7"
+                    },
+                    "p_ds_yyww": {
+                        "type": "string",
+                        "defaultValue": "2601"
+                    }
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@concat('item-modifiergroup-modifier-mapping-', dataset().p_ds_yyww, '.parquet')",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().p_ds_orgid",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "ml-training-data"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": [
+                    {
+                        "name": "frequentcustomerid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "organizationname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "locationname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "kioskid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "upselllevel",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "item_class_type",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "itemquantity",
+                        "type": "INT_16"
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "INT64"
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemunitprice",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "paymentstatus",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "numberofitems",
+                        "type": "INT_16"
+                    },
+                    {
+                        "name": "numberofpayments",
+                        "type": "INT_16"
+                    },
+                    {
+                        "name": "ordertotal",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordersubtotal",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordertip",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordertax",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordertypelabel",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderdatelocal",
+                        "type": "INT96"
+                    },
+                    {
+                        "name": "businessdate",
+                        "type": "DATE"
+                    },
+                    {
+                        "name": "weatherhumidity",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "weathercondition",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "temperatureincelcius",
+                        "type": "DECIMAL",
+                        "precision": 8,
+                        "scale": 2
+                    },
+                    {
+                        "name": "yyyy",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "mm",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "dd",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "hh",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "ww",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "yyww",
+                        "type": "UTF8"
+                    }
+                ]
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/adlsLocationDataCsvForML')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -1067,6 +1260,392 @@
                         "name": "temperatureincelcius",
                         "type": "DECIMAL",
                         "precision": 5,
+                        "scale": 2
+                    },
+                    {
+                        "name": "yyyy",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "mm",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "dd",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "hh",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "ww",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "yyww",
+                        "type": "UTF8"
+                    }
+                ]
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/adlsModifierImpressionsParquetForML')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSsus",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_orgid": {
+                        "type": "string",
+                        "defaultValue": "org-a4b81610-f019-45d2-8522-2ccee0e85bd7"
+                    },
+                    "p_ds_yyww": {
+                        "type": "string",
+                        "defaultValue": "2601"
+                    }
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@concat('modifier-impressions-', dataset().p_ds_yyww, '.parquet')",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().p_ds_orgid",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "ml-training-data"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": [
+                    {
+                        "name": "frequentcustomerid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "organizationname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "locationname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "kioskid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "upselllevel",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "item_class_type",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "itemquantity",
+                        "type": "INT_16"
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "INT64"
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemunitprice",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "paymentstatus",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "numberofitems",
+                        "type": "INT_16"
+                    },
+                    {
+                        "name": "numberofpayments",
+                        "type": "INT_16"
+                    },
+                    {
+                        "name": "ordertotal",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordersubtotal",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordertip",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordertax",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordertypelabel",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderdatelocal",
+                        "type": "INT96"
+                    },
+                    {
+                        "name": "businessdate",
+                        "type": "DATE"
+                    },
+                    {
+                        "name": "weatherhumidity",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "weathercondition",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "temperatureincelcius",
+                        "type": "DECIMAL",
+                        "precision": 8,
+                        "scale": 2
+                    },
+                    {
+                        "name": "yyyy",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "mm",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "dd",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "hh",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "ww",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "yyww",
+                        "type": "UTF8"
+                    }
+                ]
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/adlsModifierInteractionsParquetForML')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSsus",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_orgid": {
+                        "type": "string",
+                        "defaultValue": "org-a4b81610-f019-45d2-8522-2ccee0e85bd7"
+                    },
+                    "p_ds_yyww": {
+                        "type": "string",
+                        "defaultValue": "2601"
+                    }
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@concat('modifier-interactions-', dataset().p_ds_yyww, '.parquet')",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().p_ds_orgid",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "ml-training-data"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": [
+                    {
+                        "name": "frequentcustomerid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "organizationname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "locationname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "kioskid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "upselllevel",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "item_class_type",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "itemquantity",
+                        "type": "INT_16"
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "INT64"
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemunitprice",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "paymentstatus",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "numberofitems",
+                        "type": "INT_16"
+                    },
+                    {
+                        "name": "numberofpayments",
+                        "type": "INT_16"
+                    },
+                    {
+                        "name": "ordertotal",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordersubtotal",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordertip",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordertax",
+                        "type": "DECIMAL",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "ordertypelabel",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderdatelocal",
+                        "type": "INT96"
+                    },
+                    {
+                        "name": "businessdate",
+                        "type": "DATE"
+                    },
+                    {
+                        "name": "weatherhumidity",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "weathercondition",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "temperatureincelcius",
+                        "type": "DECIMAL",
+                        "precision": 8,
                         "scale": 2
                     },
                     {
@@ -1916,384 +2495,6 @@
                 },
                 "typeProperties": {
                     "collectionName": "connector-configuration"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/dimABTestsAnalyticsDB')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "abtestid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "organizationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "experimentid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "experimentname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "variantid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "variantname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "deviceid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "devicename",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "dim",
-                    "table": "abtests"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/dimCatalog')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "catalogid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "catalogname",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "organizationid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_catalog_deleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "catalog_created_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "catalog_modified_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_company_id",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_location_id",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_sync_in_progress",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_standalone",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_master",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_ecm_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "dim",
-                    "table": "catalog"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/dimCategoryHierarchyAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "organizationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "mapping_created_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "mapping_modified_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_mapping_active",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_mapping_deleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "catalogid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "catalogname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "catalog_created_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "catalog_modified_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_catalog_active",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_catalog_deleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "categoryid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "categoryname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "category_created_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "category_modified_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_category_active",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_category_deleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "menuitemid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "entitytype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "item_class_type",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "menuitemname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "item_created_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "item_modified_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_item_active",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_item_deleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysupdatetime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "dim",
-                    "table": "category_hierarchy"
                 }
             },
             "dependsOn": []

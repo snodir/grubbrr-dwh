@@ -13,6 +13,483 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/gemSubscription')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "EventsCosmosNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "CosmosDbSqlApiCollection",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "jobs": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "collectionName": "subscription"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/gemUserBehaviourEventAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Orders-GAS/AnalyticsDb"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "id",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "busdate",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "dateid",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "daypart",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordertype",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventtype",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordersessionidentifier",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "viewidentifier",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itemsessionidentifier",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "elementidentifier",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "createddate",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventinstant",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventcategory",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "fact",
+                    "table": "userbehaviour"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/mlTransactionsAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "frequentcustomerid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kioskid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordersessionid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderitemid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itemname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "upselllevel",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_class_type",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itemquantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itemunitprice",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 4
+                    },
+                    {
+                        "name": "paymentstatus",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "numberofitems",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "numberofpayments",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordertotal",
+                        "type": "numeric",
+                        "precision": 14,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ordersubtotal",
+                        "type": "numeric",
+                        "precision": 14,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ordertip",
+                        "type": "numeric",
+                        "precision": 14,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ordertax",
+                        "type": "numeric",
+                        "precision": 14,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ordertypelabel",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderdatelocal",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "businessdate",
+                        "type": "date",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "weatherhumidity",
+                        "type": "numeric",
+                        "precision": 7,
+                        "scale": 2
+                    },
+                    {
+                        "name": "weathercondition",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "temperatureincelcius",
+                        "type": "numeric",
+                        "precision": 7,
+                        "scale": 2
+                    },
+                    {
+                        "name": "yyyy",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "mm",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "dd",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "hh",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ww",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "ml",
+                    "table": "transactions"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ngOrdersFeedback')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersCosmosNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "CosmosDbSqlApiCollection",
+                "schema": {},
+                "typeProperties": {
+                    "collectionName": "orders-feedback"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ngeFrequentCustomer')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "CosmosNGEGrubbrrLoyalty",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "CosmosDbSqlApiCollection",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "isDeleted": {
+                            "type": "boolean"
+                        },
+                        "organizationId": {
+                            "type": "string"
+                        },
+                        "affiliate": {
+                            "type": "string"
+                        },
+                        "firstName": {
+                            "type": "string"
+                        },
+                        "lastName": {
+                            "type": "string"
+                        },
+                        "birthMonth": {
+                            "type": "integer"
+                        },
+                        "email": {
+                            "type": "string"
+                        },
+                        "phone": {
+                            "type": "string"
+                        },
+                        "otp": {
+                            "type": "string"
+                        },
+                        "changedBy": {
+                            "type": "string"
+                        },
+                        "dateCreated": {
+                            "type": "string"
+                        },
+                        "dateChanged": {
+                            "type": "string"
+                        },
+                        "dateRequested": {
+                            "type": "string"
+                        },
+                        "dateConfirmed": {
+                            "type": "null"
+                        },
+                        "dateLastOrder": {
+                            "type": "string"
+                        },
+                        "countOrders": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "collectionName": "frequent-customer"
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/ngeLocationsToBronzeADLSjson')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -3524,973 +4001,6 @@
                         "          ts = maxts,",
                         "          source",
                         "     )) ~> updateWatermarkTable"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/AbortedItemsFromCosmosGEMToFact')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Events-GEM"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "gemEvent",
-                                "type": "DatasetReference"
-                            },
-                            "name": "CosmosItems"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbItemCategory",
-                                "type": "DatasetReference"
-                            },
-                            "name": "ItemCategory"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "Locations"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrderType",
-                                "type": "DatasetReference"
-                            },
-                            "name": "OrderType"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "TransactionItemsAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "AnalyticalItems"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbKiosk",
-                                "type": "DatasetReference"
-                            },
-                            "name": "dimKiosk"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "TransactionHeadersAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "AnalyticalOrders"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "TransactionItemsAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "WriteToItems"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "FilterLocation"
-                        },
-                        {
-                            "name": "GetOrderTypeKey"
-                        },
-                        {
-                            "name": "DerivedColumns"
-                        },
-                        {
-                            "name": "OnlyNeeded"
-                        },
-                        {
-                            "name": "parseData"
-                        },
-                        {
-                            "name": "derivedTransactionHeaderID"
-                        },
-                        {
-                            "name": "derivedORDERID"
-                        },
-                        {
-                            "name": "RealKiosks"
-                        },
-                        {
-                            "name": "NewRows"
-                        },
-                        {
-                            "name": "ExistingAbortedOrders"
-                        }
-                    ],
-                    "scriptLines": [
-                        "parameters{",
-                        "     pdf_ts as integer (1750000010)",
-                        "}",
-                        "source(output(",
-                        "          application as string,",
-                        "          syscosmosts as integer,",
-                        "          module as string,",
-                        "          sys_etag as string,",
-                        "          sys_rid as string,",
-                        "          location as string,",
-                        "          username as string,",
-                        "          etc as string,",
-                        "          data as string,",
-                        "          userid as string,",
-                        "          company as string,",
-                        "          id as long,",
-                        "          devicename as string,",
-                        "          instant as string,",
-                        "          sys_attachments as string,",
-                        "          token as string,",
-                        "          ticks as long,",
-                        "          category as string,",
-                        "          severity as string,",
-                        "          sys_self as string,",
-                        "          type as string,",
-                        "          summary as string,",
-                        "          device as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: (\"SELECT DISTINCT c.id ?? null AS id, c.application ?? null AS application, c.company ?? null AS company, c.location ?? null AS location, c.module ?? null AS module, c.category ?? null AS category, c.type ?? null AS type, c.severity ?? null AS severity, c.token ?? null AS token, c.instant ?? null AS instant, c.username ?? null AS username, c.userid ?? null AS userid, c.device ?? null AS device, c.devicename ?? null AS devicename, c.summary ?? null AS summary, c.data ?? null AS data, c.etc ?? null AS etc, c.ticks ?? null AS ticks, c._rid ?? null AS sys_rid, c._self ?? null AS sys_self, c._etag ?? null AS sys_etag, c._attachments ?? null AS sys_attachments, c._ts ?? null AS syscosmosts FROM c WHERE c.module = 'kiosk' AND c.application = 'nge' AND c._ts > {$pdf_ts} AND (LOWER(c.type) = 'cancelled' OR LOWER(c.type) = 'ordercancelled' OR LOWER(c.type) = 'exception' OR LOWER(c.type) = 'abandoned') AND c.token > '' AND c.instant >= '2024-06-23'\"),",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> CosmosItems",
-                        "source(output(",
-                        "          id as long,",
-                        "          locationid as string,",
-                        "          categoryid as string,",
-                        "          categoryname as string,",
-                        "          isactive as boolean",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'SELECT * FROM dim.itemcategory where isactive = \\'true\\'',",
-                        "     format: 'query') ~> ItemCategory",
-                        "source(output(",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          locationid as string,",
-                        "          locationname as string,",
-                        "          organizationtype as short",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> Locations",
-                        "source(output(",
-                        "          id as long,",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          ordertypeid as string,",
-                        "          ordertypelabel as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> OrderType",
-                        "source(output(",
-                        "          transactionheaderid as string,",
-                        "          categoryid as long,",
-                        "          menuitemid as long,",
-                        "          itemid as string,",
-                        "          comboid as string,",
-                        "          ordersessionid as string,",
-                        "          itemsessionid as string,",
-                        "          itemname as string,",
-                        "          itemquantity as short,",
-                        "          itemunitprice as decimal(7,3),",
-                        "          upselllevel as string,",
-                        "          upsellpromptitemid as string,",
-                        "          orderid as string,",
-                        "          itemtype as string,",
-                        "          customize as boolean,",
-                        "          upgrade as boolean,",
-                        "          asis as boolean,",
-                        "          itemselectedtime as timestamp,",
-                        "          addtocarttime as timestamp,",
-                        "          totaltime as decimal(7,3),",
-                        "          orderdateutc as string,",
-                        "          sysinserttime as timestamp,",
-                        "          sysupdatetime as timestamp,",
-                        "          dimmenuitemid as string,",
-                        "          locationid as string,",
-                        "          abortedorderid as long",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     waterMarkColumn: 'itemsessionid',",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select *, cast(substring(ti.transactionheaderid, 7, length(ti.transactionheaderid)) as BIGINT) as abortedorderid\\nfrom fact.transactionitem as ti\\nwhere 1=1\\nand ti.transactionheaderid like \\'abort-%\\'',",
-                        "     format: 'query') ~> AnalyticalItems",
-                        "source(output(",
-                        "          kioskid as string,",
-                        "          istestkiosk as boolean",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select distinct kioskid, istestkiosk from dim.kiosk where istestkiosk = False',",
-                        "     format: 'query') ~> dimKiosk",
-                        "source(output(",
-                        "          id as long,",
-                        "          transactionheaderid as string,",
-                        "          orderid as string,",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          ordersessionid as string,",
-                        "          dateid as integer,",
-                        "          orderdateutc as string,",
-                        "          orderdatelocal as timestamp,",
-                        "          orderstatus as string,",
-                        "          ordertype as integer,",
-                        "          numberofitems as short,",
-                        "          numberofpayments as short,",
-                        "          ordersredeemedrewards as decimal(7,3),",
-                        "          ordersubtotal as decimal(7,3),",
-                        "          ordertotal as decimal(7,3),",
-                        "          ordertax as decimal(7,3),",
-                        "          ordertip as decimal(7,3),",
-                        "          orderdiscount as decimal(7,3),",
-                        "          orderbalance as decimal(7,3),",
-                        "          paymentstatus as string,",
-                        "          sourcefile as string,",
-                        "          createddate as timestamp,",
-                        "          updateddate as timestamp,",
-                        "          orderstarttime as timestamp,",
-                        "          reviewordertime as timestamp,",
-                        "          checkouttime as timestamp,",
-                        "          paystarttime as timestamp,",
-                        "          sessionendtime as timestamp,",
-                        "          precheckouttime as decimal(7,3),",
-                        "          postcheckouttime as decimal(7,3),",
-                        "          menupagetime as decimal(7,3),",
-                        "          reviewpagetime as decimal(7,3),",
-                        "          paymentpagetime as decimal(7,3),",
-                        "          totalordertime as decimal(7,3),",
-                        "          businessdate as date,",
-                        "          frequentcustomerid as string,",
-                        "          abtestid as long,",
-                        "          channel as string,",
-                        "          guestcount as integer,",
-                        "          charityamount as decimal(7,3),",
-                        "          abortedorderid as long",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select *, cast(substring(th.transactionheaderid, 7, length(th.transactionheaderid)) as BIGINT) as abortedorderid\\r\\nfrom fact.transactionheader as th\\r\\nwhere 1=1\\r\\nand th.transactionheaderid like \\'abort-%\\'',",
-                        "     format: 'query') ~> AnalyticalOrders",
-                        "derivedTransactionHeaderID, Locations exists(location == locationid,",
-                        "     negate:false,",
-                        "     broadcast: 'auto')~> FilterLocation",
-                        "FilterLocation, OrderType lookup(location == locationid",
-                        "     && device == kioskid,",
-                        "     multiple: false,",
-                        "     pickup: 'any',",
-                        "     broadcast: 'auto')~> GetOrderTypeKey",
-                        "OnlyNeeded derive(itemid = 'itemid',",
-                        "          itemname = 'itemname',",
-                        "          itemquantity = 0,",
-                        "          itemunitprice = 0.000,",
-                        "          upselllevel = '',",
-                        "          upsellpromptitemid = '') ~> DerivedColumns",
-                        "GetOrderTypeKey select(mapColumn(",
-                        "          data,",
-                        "          id = CosmosItems@id,",
-                        "          transactionheaderid,",
-                        "          ordersessionid = token,",
-                        "          orderdateutc = instant,",
-                        "          locationid = location",
-                        "     ),",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> OnlyNeeded",
-                        "DerivedColumns parse({order-id} = data ? (order as (sessionId as string)),",
-                        "          itemsessionid = data ? (order as (sessionId as string)),",
-                        "     format: 'json',",
-                        "     documentForm: 'singleDocument') ~> parseData",
-                        "RealKiosks derive(transactionheaderid = concat('abort-',toString(id))) ~> derivedTransactionHeaderID",
-                        "parseData derive(orderid = @(order=@(sessionId=concat('ord-',toString(coalesce({order-id}.{order}.sessionId, ordersessionid))))),",
-                        "          sysinserttime = currentTimestamp(),",
-                        "          orderdateutc = case(substring(orderdateutc,20,1) == '.', replace(replace(substring(orderdateutc,1,23),'T',' '), '+', '0'), replace(substring(orderdateutc,1,19),'T',' '))) ~> derivedORDERID",
-                        "ExistingAbortedOrders, dimKiosk exists(device == kioskid,",
-                        "     negate:false,",
-                        "     broadcast: 'auto')~> RealKiosks",
-                        "CosmosItems, AnalyticalItems exists(id == abortedorderid,",
-                        "     negate:true,",
-                        "     broadcast: 'auto')~> NewRows",
-                        "NewRows, AnalyticalOrders exists(CosmosItems@id == abortedorderid,",
-                        "     negate:false,",
-                        "     broadcast: 'auto')~> ExistingAbortedOrders",
-                        "derivedORDERID sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          transactionheaderid as string,",
-                        "          categoryid as long,",
-                        "          menuitemid as long,",
-                        "          itemid as string,",
-                        "          comboid as string,",
-                        "          ordersessionid as string,",
-                        "          itemsessionid as string,",
-                        "          itemname as string,",
-                        "          itemquantity as short,",
-                        "          itemunitprice as decimal(12,3),",
-                        "          upselllevel as string,",
-                        "          upsellpromptitemid as string,",
-                        "          orderid as string,",
-                        "          itemtype as string,",
-                        "          customize as boolean,",
-                        "          upgrade as boolean,",
-                        "          asis as boolean,",
-                        "          itemselectedtime as timestamp,",
-                        "          addtocarttime as timestamp,",
-                        "          totaltime as decimal(7,3),",
-                        "          orderdateutc as string,",
-                        "          sysinserttime as timestamp,",
-                        "          sysupdatetime as timestamp,",
-                        "          dimmenuitemid as string,",
-                        "          locationid as string,",
-                        "          orderdatelocal as timestamp,",
-                        "          businessdate as date,",
-                        "          syscosmosts as long,",
-                        "          frequentcustomerid as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     format: 'table',",
-                        "     postSQLs:['SELECT *\\nFROM fact.transactionitem\\nWHERE transactionheaderid IS NOT NULL\\n  AND categoryid IS NOT NULL\\n  AND menuitemid IS NOT NULL\\n  AND itemid IS NOT NULL\\n  AND ordersessionid IS NOT NULL\\n  AND itemsessionid IS NOT NULL\\n  AND itemname IS NOT NULL\\n  AND itemquantity IS NOT NULL\\n  AND itemunitprice IS NOT NULL\\n  AND upselllevel IS NOT NULL\\n  AND upsellpromptitemid IS NOT NULL\\n  AND orderid IS NOT NULL\\n'],",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     mapColumn(",
-                        "          transactionheaderid,",
-                        "          itemid,",
-                        "          ordersessionid,",
-                        "          itemsessionid = itemsessionid.order.sessionId,",
-                        "          itemname,",
-                        "          itemquantity,",
-                        "          itemunitprice,",
-                        "          upselllevel,",
-                        "          upsellpromptitemid,",
-                        "          orderid = orderid.order.sessionId,",
-                        "          sysinserttime,",
-                        "          orderdateutc,",
-                        "          locationid",
-                        "     )) ~> WriteToItems"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/CompressedGasTransactionsToADLS')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "ML"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "TransactionHeadersAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gasTransactions"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "CompressedGasTrainingDataParquet",
-                                "type": "DatasetReference"
-                            },
-                            "name": "ToADLS"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "yyww"
-                        }
-                    ],
-                    "scriptLines": [
-                        "parameters{",
-                        "     pdf_ww as integer (23),",
-                        "     pdf_orgid as string ('org-a4b81610-f019-45d2-8522-2ccee0e85bd7'),",
-                        "     pdf_yyyy as integer (2025)",
-                        "}",
-                        "source(output(",
-                        "          frequentcustomerid as string,",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          locationid as string,",
-                        "          locationname as string,",
-                        "          kioskid as string,",
-                        "          transactionheaderid as string,",
-                        "          orderitemid as string,",
-                        "          menuitemid as string,",
-                        "          itemname as string,",
-                        "          itemquantity as short,",
-                        "          categoryid as long,",
-                        "          categoryname as string,",
-                        "          itemunitprice as decimal(7,3),",
-                        "          paymentstatus as string,",
-                        "          numberofitems as short,",
-                        "          numberofpayments as short,",
-                        "          ordertotal as decimal(7,3),",
-                        "          ordersubtotal as decimal(7,3),",
-                        "          ordertip as decimal(7,3),",
-                        "          ordertax as decimal(7,3),",
-                        "          ordertypelabel as string,",
-                        "          orderdatelocal as timestamp,",
-                        "          businessdate as date,",
-                        "          weatherhumidity as integer,",
-                        "          weathercondition as string,",
-                        "          temperatureincelcius as decimal(5,2),",
-                        "          yyyy as integer,",
-                        "          mm as integer,",
-                        "          dd as integer,",
-                        "          hh as integer,",
-                        "          ww as integer",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: (\"WITH cte AS (SELECT * FROM fact.transactionheader AS th WHERE lower(th.orderstatus) = 'order-placed' AND th.locationid in (SELECT DISTINCT ol.locationid FROM dim.organizationlocation AS ol WHERE (CASE WHEN '{$pdf_orgid}' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = '{$pdf_orgid}' AND ol.organizationtype = 0) AND EXTRACT(YEAR FROM th.businessdate) :: integer = {$pdf_yyyy} AND EXTRACT(WEEK FROM th.businessdate) :: integer = {$pdf_ww}) SELECT DISTINCT th.frequentcustomerid, ol.organizationid, ol.organizationname, th.locationid, ol.locationname, th.kioskid, th.transactionheaderid, ti.itemid as orderitemid, ti.dimmenuitemid as menuitemid, ti.itemname, ti.itemquantity, ti.categoryid, ctg.categoryname, ti.itemunitprice, th.paymentstatus, th.numberofitems, th.numberofpayments, th.ordertotal, th.ordersubtotal, th.ordertip, th.ordertax, ot.ordertypelabel, th.orderdatelocal, th.businessdate, wh.humidity AS weatherhumidity, wh.condition AS weathercondition, wh.temperature_c AS temperatureincelcius, EXTRACT(YEAR FROM th.businessdate) :: integer AS yyyy, EXTRACT(MONTH FROM th.businessdate) :: integer AS mm, EXTRACT(DAY FROM th.businessdate) :: integer AS dd, EXTRACT(HOUR FROM th.orderdatelocal) :: integer AS hh, EXTRACT(WEEK FROM th.businessdate) :: integer AS ww FROM cte as th LEFT JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as ol on th.locationid = ol.locationid LEFT JOIN fact.transactionitem as ti on th.transactionheaderid = ti.transactionheaderid LEFT JOIN dim.vw_weatherhourlydata as wh on th.locationid = wh.locationid and th.businessdate = wh.weatherdate and EXTRACT(HOUR FROM th.orderdatelocal) :: integer = wh.hh LEFT JOIN dim.itemcategory as ctg on ti.categoryid = ctg.id LEFT JOIN dim.ordertype as ot on th.ordertype = ot.id\"),",
-                        "     format: 'query') ~> gasTransactions",
-                        "gasTransactions derive(yyww = concat(substring(toString(yyyy), 3, 2), lpad(toString(ww), 2, '0'))) ~> yyww",
-                        "yyww sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     format: 'parquet',",
-                        "     truncate: true,",
-                        "     umask: 0022,",
-                        "     preCommands: [],",
-                        "     postCommands: [],",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 1,",
-                        "     mapColumn(",
-                        "          frequentcustomerid,",
-                        "          organizationid,",
-                        "          organizationname,",
-                        "          locationid,",
-                        "          locationname,",
-                        "          kioskid,",
-                        "          transactionheaderid,",
-                        "          orderitemid,",
-                        "          menuitemid,",
-                        "          itemname,",
-                        "          itemquantity,",
-                        "          categoryid,",
-                        "          categoryname,",
-                        "          itemunitprice,",
-                        "          paymentstatus,",
-                        "          numberofitems,",
-                        "          numberofpayments,",
-                        "          ordertotal,",
-                        "          ordersubtotal,",
-                        "          ordertip,",
-                        "          ordertax,",
-                        "          ordertypelabel,",
-                        "          orderdatelocal,",
-                        "          businessdate,",
-                        "          weatherhumidity,",
-                        "          weathercondition,",
-                        "          temperatureincelcius,",
-                        "          yyyy,",
-                        "          mm,",
-                        "          dd,",
-                        "          hh,",
-                        "          ww,",
-                        "          yyww",
-                        "     )) ~> ToADLS"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/CopyGOUViewToGASold')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "public_vw_organizationlocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "publicVwOrganizationlocation"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrganizationLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "WriteToDimOrganizationLocation"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "AlterRow"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          organizationtype as short,",
-                        "          locationid as string,",
-                        "          locationname as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> publicVwOrganizationlocation",
-                        "publicVwOrganizationlocation alterRow(upsertIf(true())) ~> AlterRow",
-                        "AlterRow sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          locationid as string,",
-                        "          locationname as string,",
-                        "          organizationtype as short",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['locationid','organizationid'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     mapColumn(",
-                        "          organizationid,",
-                        "          organizationname,",
-                        "          locationid,",
-                        "          locationname,",
-                        "          organizationtype",
-                        "     )) ~> WriteToDimOrganizationLocation"
-                    ]
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/datasets/public_vw_organizationlocation')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/CopyGOUViewsToGAS')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "public_vw_organizationlocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "publicviewdimorganizationlocation"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "GOU_vw_userlocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "GOUViewUserLocation"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "GOUpublicOrganization",
-                                "type": "DatasetReference"
-                            },
-                            "name": "GOUOrg"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "gasCosmosLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "ngeLocation"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "gemSubscription",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gemSubscription"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrganizationLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "WriteToDimOrganizationLocationPG"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbDimUserLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "WriteToDimUserLocation"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbDimOrganization",
-                                "type": "DatasetReference"
-                            },
-                            "name": "DimOrg"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "RN"
-                        },
-                        {
-                            "name": "Latest"
-                        },
-                        {
-                            "name": "GetRoundUpForCharity"
-                        },
-                        {
-                            "name": "Upsert1"
-                        },
-                        {
-                            "name": "Upsert2"
-                        },
-                        {
-                            "name": "getCEPSubscription"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          organizationtype as short,",
-                        "          locationid as string,",
-                        "          locationname as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> publicviewdimorganizationlocation",
-                        "source(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select distinct userid, locationid from public.vw_userlocation',",
-                        "     format: 'query') ~> GOUViewUserLocation",
-                        "source(output(",
-                        "          id as string,",
-                        "          name as string,",
-                        "          address1 as string,",
-                        "          address2 as string,",
-                        "          city as string,",
-                        "          state as string,",
-                        "          zipcode as string,",
-                        "          country as string,",
-                        "          organizationtype as short,",
-                        "          status as short,",
-                        "          createdon as timestamp,",
-                        "          createdby as string,",
-                        "          modifiedon as timestamp,",
-                        "          modifiedby as string,",
-                        "          active as boolean,",
-                        "          phonenumber as string,",
-                        "          email as string,",
-                        "          isdeleted as boolean,",
-                        "          timezone as string,",
-                        "          coordinates as string,",
-                        "          dayofweek as integer,",
-                        "          minutes as integer,",
-                        "          hour as integer,",
-                        "          is_ecm_enabled as boolean,",
-                        "          is_cep_enabled as boolean,",
-                        "          is_concessionaire_enabled as boolean,",
-                        "          is_smart_upsells_enabled as boolean,",
-                        "          is_feedback_survey_enabled as boolean,",
-                        "          is_digital_menu_board_enabled as boolean,",
-                        "          is_digital_menu_default_format_enabled as boolean",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'SELECT o.*,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-E64430FF-9D39-4BB6-9D7E-FC9BAF46B23B\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_ecm_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-1625cffe-edf0-4cdf-b6e5-c48e56e2448d\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_cep_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-52B64A51-872A-4E2D-BF7A-2AD757B7E874\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_concessionaire_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-C9C2213A-2E85-440C-8662-7B5C7C1571EA\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_smart_upsells_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-8A3DE810-3321-479D-9347-AFFBFCEC9B06\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_feedback_survey_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-0657BAE7-EECF-4825-9FE6-5CCE6D18910D\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_digital_menu_board_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-109E8023-CEF5-4FBD-B28D-466758DAA1D4\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_digital_menu_default_format_enabled\\r\\nFROM public.organization as o',",
-                        "     format: 'query') ~> GOUOrg",
-                        "source(output(",
-                        "          locationid as string,",
-                        "          roundupforcharity as boolean,",
-                        "          syscosmosts as integer",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT DISTINCT\\r\\n  c.locationId ?? null as locationid, \\r\\n  c.roundUpForCharity ?? null as roundupforcharity,\\r\\n  c._ts as syscosmosts\\r\\nFROM c\\r\\nWHERE 1=1\\r\\nand lower(c.id) = \\'kiosk-config\\'',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> ngeLocation",
-                        "source(output(",
-                        "          id as string,",
-                        "          cep_subscriptions as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT c.id ?? null as id,\\r\\ntoString(c.jobs) ?? null as cep_subscriptions\\r\\nFROM c',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> gemSubscription",
-                        "ngeLocation window(over(locationid,",
-                        "          roundupforcharity),",
-                        "     desc(syscosmosts, true),",
-                        "     rn = rowNumber()) ~> RN",
-                        "RN filter(rn == 1) ~> Latest",
-                        "GOUOrg, Latest join(id == locationid,",
-                        "     joinType:'left',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> GetRoundUpForCharity",
-                        "publicviewdimorganizationlocation alterRow(upsertIf(true())) ~> Upsert1",
-                        "getCEPSubscription alterRow(upsertIf(true())) ~> Upsert2",
-                        "GetRoundUpForCharity, gemSubscription join(GOUOrg@id == gemSubscription@id,",
-                        "     joinType:'left',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> getCEPSubscription",
-                        "Upsert1 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          locationid as string,",
-                        "          locationname as string,",
-                        "          organizationtype as short",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:false,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['organizationid','locationid'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 2,",
-                        "     mapColumn(",
-                        "          organizationid,",
-                        "          organizationname,",
-                        "          locationid,",
-                        "          locationname,",
-                        "          organizationtype",
-                        "     )) ~> WriteToDimOrganizationLocationPG",
-                        "GOUViewUserLocation sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          userid as string,",
-                        "          locationid as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     truncate:true,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 3) ~> WriteToDimUserLocation",
-                        "Upsert2 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          id as string,",
-                        "          name as string,",
-                        "          address1 as string,",
-                        "          address2 as string,",
-                        "          city as string,",
-                        "          state as string,",
-                        "          zipcode as string,",
-                        "          country as string,",
-                        "          organizationtype as short,",
-                        "          status as short,",
-                        "          phonenumber as string,",
-                        "          email as string,",
-                        "          isdeleted as boolean,",
-                        "          createdon as timestamp,",
-                        "          createdby as string,",
-                        "          modifiedon as timestamp,",
-                        "          modifiedby as string,",
-                        "          active as boolean,",
-                        "          timezone as string,",
-                        "          coordinates as string,",
-                        "          dayofweek as integer,",
-                        "          hour as integer,",
-                        "          minutes as integer,",
-                        "          roundupforcharity as boolean,",
-                        "          is_ecm_enabled as boolean,",
-                        "          is_cep_enabled as boolean,",
-                        "          is_concessionaire_enabled as boolean,",
-                        "          is_smart_upsells_enabled as boolean,",
-                        "          is_feedback_survey_enabled as boolean,",
-                        "          is_digital_menu_board_enabled as boolean,",
-                        "          is_digital_menu_default_format_enabled as boolean,",
-                        "          cep_subscriptions as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:false,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['id'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 1,",
-                        "     mapColumn(",
-                        "          id = GOUOrg@id,",
-                        "          name,",
-                        "          address1,",
-                        "          address2,",
-                        "          city,",
-                        "          state,",
-                        "          zipcode,",
-                        "          country,",
-                        "          organizationtype,",
-                        "          status,",
-                        "          phonenumber,",
-                        "          email,",
-                        "          isdeleted,",
-                        "          createdon,",
-                        "          createdby,",
-                        "          modifiedon,",
-                        "          modifiedby,",
-                        "          active,",
-                        "          timezone,",
-                        "          coordinates,",
-                        "          dayofweek,",
-                        "          hour,",
-                        "          minutes,",
-                        "          roundupforcharity,",
-                        "          is_ecm_enabled,",
-                        "          is_cep_enabled,",
-                        "          is_concessionaire_enabled,",
-                        "          is_smart_upsells_enabled,",
-                        "          is_feedback_survey_enabled,",
-                        "          is_digital_menu_board_enabled,",
-                        "          is_digital_menu_default_format_enabled,",
-                        "          cep_subscriptions",
-                        "     )) ~> DimOrg"
-                    ]
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/datasets/public_vw_organizationlocation')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/CosmosCompany')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "gasCosmosCompany",
-                                "type": "DatasetReference"
-                            },
-                            "name": "Company"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbCompany",
-                                "type": "DatasetReference"
-                            },
-                            "name": "LoadCompany"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "AlterRow"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          city as string,",
-                        "          zipcode as string,",
-                        "          state as string,",
-                        "          companyname as string,",
-                        "          businesstype as string,",
-                        "          address2 as string,",
-                        "          companyid as string,",
-                        "          address1 as string,",
-                        "          businessphone as string,",
-                        "          businessemail as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'select c.companyId ?? null as companyid,\\nc.companyName ?? null as companyname,\\nc.businessEmail ?? null as businessemail,\\nc.businessPhone.formattedNumber ?? null as businessphone,\\nc.type ?? null as businesstype,\\nc.address.address1 ?? null as address1,\\nc.address.address2 ?? null as address2,\\nc.address.city ?? null as city,\\nc.address.state ?? null as state,\\nc.address.zipCode ?? null as zipcode\\nfrom c\\nWHERE c.companyName > \\'\\'',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> Company",
-                        "Company alterRow(upsertIf(true())) ~> AlterRow",
-                        "AlterRow sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          companyid as string,",
-                        "          companyname as string,",
-                        "          businessemail as string,",
-                        "          businessphone as string,",
-                        "          businesstype as string,",
-                        "          address1 as string,",
-                        "          address2 as string,",
-                        "          city as string,",
-                        "          state as string,",
-                        "          zipcode as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['companyid'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     mapColumn(",
-                        "          companyid,",
-                        "          companyname,",
-                        "          businessemail,",
-                        "          businessphone,",
-                        "          businesstype,",
-                        "          address1,",
-                        "          address2,",
-                        "          city,",
-                        "          state,",
-                        "          zipcode",
-                        "     )) ~> LoadCompany"
                     ]
                 }
             },
