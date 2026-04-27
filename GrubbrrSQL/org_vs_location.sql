@@ -13,7 +13,9 @@ WHERE 1=1
   AND active = False
 ORDER by createdon desc;
 
-SELECT * FROM dim.kioskdetails
+SELECT * FROM dim.kioskdetails;
+
+SELECT * FROM dim.kiosk;
 
 --/TRUNCATE TABLE dim.locationcatalog;
 

@@ -408,20 +408,26 @@ SELECT * FROM fact.watermarktable LIMIT 100;
 SELECT * FROM dim.feedbackstatus;
 SELECT * FROM dim.feedbackrating;
 SELECT * FROM dim.occasionsurvey LIMIT 100;
+
+--INSERT INTO fact.occasionsurveydetail_bkp
 SELECT * FROM fact.occasionsurveydetail 
 WHERE locationid = 'loc-8ef0f09d-76fd-4bce-af56-40182bc73c26'
 LIMIT 100;
+
 SELECT * FROM fact.sent_surveys LIMIT 100;
+
 SELECT * 
 FROM fact.itemssurvey 
 WHERE locationid = 'loc-8ef0f09d-76fd-4bce-af56-40182bc73c26'
 --AND th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
 LIMIT 1000;
 
+
+
 SELECT *
 FROM fact.transactionheader as th 
 WHERE th.locationid = 'loc-8ef0f09d-76fd-4bce-af56-40182bc73c26'
---AND th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
+AND th.transactionheaderid in ('ordevt-BREX7R2YQHQW2U4O','ordevt-TQUKR0GPI0UKZX7W','ordevt-1S5DAV0OG5WOEHPM','ordevt-UMJCDTPKGSVG1ELY')
 ORDER BY th.orderdatelocal DESC
 LIMIT 100;
 
