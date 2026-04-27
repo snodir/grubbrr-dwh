@@ -112,9 +112,13 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS fact.sent_surveys
     OWNER to citus;
 
-SELECT * FROM fact.itemssurvey
-
-SELECT * FROM stg.sent_surveys
+SELECT * FROM fact.occasionsurveydetail;
+SELECT * FROM fact.itemssurvey;
+SELECT * FROM stg.sent_surveys;
+SELECT * FROM fact.sent_surveys;
+SELECT * FROM fact.itemssurvey;
+SELECT * FROM dim.feedbackstatus;
+SELECT * FROM dim.feedbackrating;
 
 ALTER TABLE fact.occasionsurveydetail
 --DROP COLUMN ngesyscosmosts,
@@ -139,10 +143,11 @@ FROM fact.itemssurvey --LIMIT 100
 GROUP BY orderid, itemid
 HAVING count(*) > 1
 
-SELECT * FROM stg.sent_surveys
-SELECT * FROM fact.sent_surveys
-SELECT * FROM fact.itemssurvey
-SELECT * FROM dim.feedbackstatus
+SELECT * FROM stg.sent_surveys;
+SELECT * FROM fact.sent_surveys;
+SELECT * FROM fact.itemssurvey;
+SELECT * FROM dim.feedbackstatus;
+SELECT * FROM dim.feedbackrating;
 
 CALL fact.usp_gem_sent_surveys_to_fact();
 
@@ -403,10 +408,22 @@ SELECT * FROM fact.watermarktable LIMIT 100;
 SELECT * FROM dim.feedbackstatus;
 SELECT * FROM dim.feedbackrating;
 SELECT * FROM dim.occasionsurvey LIMIT 100;
-SELECT * FROM fact.occasionsurveydetail LIMIT 100;
+SELECT * FROM fact.occasionsurveydetail 
+WHERE locationid = 'loc-8ef0f09d-76fd-4bce-af56-40182bc73c26'
+LIMIT 100;
 SELECT * FROM fact.sent_surveys LIMIT 100;
-SELECT * FROM fact.itemssurvey LIMIT 1000;
-SELECT * FROM fact.transactionheader as th WHERE th.orderid = 'ordevt-0SK2SCECDID5KO9L' LIMIT 1000;
+SELECT * 
+FROM fact.itemssurvey 
+WHERE locationid = 'loc-8ef0f09d-76fd-4bce-af56-40182bc73c26'
+--AND th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
+LIMIT 1000;
+
+SELECT *
+FROM fact.transactionheader as th 
+WHERE th.locationid = 'loc-8ef0f09d-76fd-4bce-af56-40182bc73c26'
+--AND th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
+ORDER BY th.orderdatelocal DESC
+LIMIT 100;
 
 
 UPDATE fact.occasionsurveydetail
