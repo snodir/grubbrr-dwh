@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict Srh6knFxTdux5gILLBr4yu6OgvQbV8H56pAanBIG5Ty7bEoQYIFezJt3D4Ud6IL
+\restrict NKEOpanKeyv3kY1YCbpihE2wlHbUh3rUOBhZsoT7Zv5dQcSzDWPdRWPDBxGVZHF
 
 -- Dumped from database version 16.9 (Ubuntu 16.9-1.pgdg20.04+1)
 -- Dumped by pg_dump version 18.2
 
--- Started on 2026-04-05 21:17:43
+-- Started on 2026-04-27 12:45:48
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -42,6 +42,16 @@ CREATE SCHEMA fact;
 ALTER SCHEMA fact OWNER TO citus;
 
 --
+-- TOC entry 67 (class 2615 OID 3042094)
+-- Name: ml; Type: SCHEMA; Schema: -; Owner: citus
+--
+
+CREATE SCHEMA ml;
+
+
+ALTER SCHEMA ml OWNER TO citus;
+
+--
 -- TOC entry 52 (class 2615 OID 420272)
 -- Name: stg; Type: SCHEMA; Schema: -; Owner: citus
 --
@@ -52,11 +62,11 @@ CREATE SCHEMA stg;
 ALTER SCHEMA stg OWNER TO citus;
 
 --
--- TOC entry 953 (class 1255 OID 740034)
+-- TOC entry 991 (class 1255 OID 740034)
 -- Name: array_to_text(jsonb); Type: FUNCTION; Schema: dim; Owner: citus
 --
 
-CREATE FUNCTION dim.array_to_text(a jsonb) RETURNS text
+CREATE OR REPLACE FUNCTION dim.array_to_text(a jsonb) RETURNS text
     LANGUAGE plpgsql
     AS $$
 BEGIN
@@ -68,11 +78,11 @@ $$;
 ALTER FUNCTION dim.array_to_text(a jsonb) OWNER TO citus;
 
 --
--- TOC entry 571 (class 1255 OID 748068)
+-- TOC entry 602 (class 1255 OID 748068)
 -- Name: is_valid_jsonb(text); Type: FUNCTION; Schema: dim; Owner: citus
 --
 
-CREATE FUNCTION dim.is_valid_jsonb(input text) RETURNS boolean
+CREATE OR REPLACE FUNCTION dim.is_valid_jsonb(input text) RETURNS boolean
     LANGUAGE plpgsql IMMUTABLE
     AS $$
 BEGIN
@@ -87,11 +97,11 @@ $$;
 ALTER FUNCTION dim.is_valid_jsonb(input text) OWNER TO citus;
 
 --
--- TOC entry 725 (class 1255 OID 735591)
+-- TOC entry 757 (class 1255 OID 735591)
 -- Name: usp_grubbrr_install_base(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_grubbrr_install_base()
+CREATE OR REPLACE PROCEDURE dim.usp_grubbrr_install_base()
     LANGUAGE sql
     AS $$
 
@@ -433,11 +443,11 @@ $$;
 ALTER PROCEDURE dim.usp_grubbrr_install_base() OWNER TO citus;
 
 --
--- TOC entry 591 (class 1255 OID 2041188)
+-- TOC entry 622 (class 1255 OID 2041188)
 -- Name: usp_master_keys_for_duplicate_items(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_master_keys_for_duplicate_items()
+CREATE OR REPLACE PROCEDURE dim.usp_master_keys_for_duplicate_items()
     LANGUAGE plpgsql
     AS $$
 
@@ -504,11 +514,11 @@ $$;
 ALTER PROCEDURE dim.usp_master_keys_for_duplicate_items() OWNER TO citus;
 
 --
--- TOC entry 607 (class 1255 OID 33016)
+-- TOC entry 638 (class 1255 OID 33016)
 -- Name: fn_getdata(text, text, text, text); Type: FUNCTION; Schema: fact; Owner: citus
 --
 
-CREATE FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) RETURNS TABLE(companyid text, locationid text, eventtoken text, dateid integer, deviceid text, eventinstant timestamp without time zone, duration_type text)
+CREATE OR REPLACE FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) RETURNS TABLE(companyid text, locationid text, eventtoken text, dateid integer, deviceid text, eventinstant timestamp without time zone, duration_type text)
     LANGUAGE plpgsql
     AS $$
         begin 
@@ -537,11 +547,11 @@ CREATE FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) RETUR
 ALTER FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) OWNER TO citus;
 
 --
--- TOC entry 752 (class 1255 OID 33018)
+-- TOC entry 784 (class 1255 OID 33018)
 -- Name: getsalesreport(text, text, text); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.getsalesreport(IN _organizationid text, IN _startdate text, IN _enddate text, OUT transactioncount integer, OUT salestotal numeric, OUT avgtransaction numeric, OUT avgguest numeric, OUT avgguesttransaction numeric, OUT loyaltysales numeric, OUT loyaltypct numeric)
+CREATE OR REPLACE PROCEDURE fact.getsalesreport(IN _organizationid text, IN _startdate text, IN _enddate text, OUT transactioncount integer, OUT salestotal numeric, OUT avgtransaction numeric, OUT avgguest numeric, OUT avgguesttransaction numeric, OUT loyaltysales numeric, OUT loyaltypct numeric)
     LANGUAGE plpgsql
     AS $$
         BEGIN
@@ -581,11 +591,11 @@ CREATE PROCEDURE fact.getsalesreport(IN _organizationid text, IN _startdate text
 ALTER PROCEDURE fact.getsalesreport(IN _organizationid text, IN _startdate text, IN _enddate text, OUT transactioncount integer, OUT salestotal numeric, OUT avgtransaction numeric, OUT avgguest numeric, OUT avgguesttransaction numeric, OUT loyaltysales numeric, OUT loyaltypct numeric) OWNER TO citus;
 
 --
--- TOC entry 846 (class 1255 OID 33017)
+-- TOC entry 880 (class 1255 OID 33017)
 -- Name: updatewatermark(text); Type: FUNCTION; Schema: fact; Owner: citus
 --
 
-CREATE FUNCTION fact.updatewatermark(tablename text) RETURNS void
+CREATE OR REPLACE FUNCTION fact.updatewatermark(tablename text) RETURNS void
     LANGUAGE plpgsql
     AS $$
 		DECLARE 
@@ -607,11 +617,11 @@ CREATE FUNCTION fact.updatewatermark(tablename text) RETURNS void
 ALTER FUNCTION fact.updatewatermark(tablename text) OWNER TO citus;
 
 --
--- TOC entry 677 (class 1255 OID 700154)
+-- TOC entry 709 (class 1255 OID 700154)
 -- Name: usp_customer_menu_preferences(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_customer_menu_preferences()
+CREATE OR REPLACE PROCEDURE fact.usp_customer_menu_preferences()
     LANGUAGE sql
     AS $$
 
@@ -738,11 +748,83 @@ $$;
 ALTER PROCEDURE fact.usp_customer_menu_preferences() OWNER TO citus;
 
 --
--- TOC entry 519 (class 1255 OID 700153)
+-- TOC entry 989 (class 1255 OID 2984304)
+-- Name: usp_gem_sent_surveys_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+INSERT INTO fact.sent_surveys
+SELECT
+    organizationid,
+    locationid,
+    ordersessionid,
+    orderid,
+    gem_event_category,
+    gem_event_type,
+    survey_metadata :: jsonb as survey_metadata,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime
+FROM stg.sent_surveys AS ss
+WHERE NOT EXISTS (SELECT 1 FROM fact.sent_surveys as fs 
+                  WHERE fs.locationid = ss.locationid 
+                    AND fs.ordersessionid = ss.ordersessionid);
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) FROM fact.sent_surveys)
+WHERE watermarktablename = 'fact.sent_surveys'
+  AND source = 'gem';
+
+END;
+$$;
+
+
+ALTER PROCEDURE fact.usp_gem_sent_surveys_to_fact() OWNER TO citus;
+
+--
+-- TOC entry 810 (class 1255 OID 2874333)
+-- Name: usp_item_recommendations_stage_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+insert into fact.recommendations 
+(transactionheaderid, locationid, recommendationid, offereditems, selecteditems, isconverted, prompttimestamp, sysinserttime, syscosmosts)
+select rc.transactionheaderid,
+       rc.locationid,
+       rc.recommendationid, 
+       rc.offereditems :: jsonb, 
+       rc.selecteditems :: jsonb, 
+       case when (rc.selecteditems = '[]' or rc.selecteditems is null) then false else true end as isconverted,
+       rc.prompttimestamp, 
+       rc.sysinserttime,
+       rc.syscosmosts
+from stg.recommendations as rc
+where not exists (select 1 from fact.recommendations as th where th.transactionheaderid = rc.transactionheaderid and th.recommendationid = rc.recommendationid);
+
+END;
+$$;
+
+
+ALTER PROCEDURE fact.usp_item_recommendations_stage_to_fact() OWNER TO citus;
+
+--
+-- TOC entry 549 (class 1255 OID 700153)
 -- Name: usp_location_menu_preferences(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_location_menu_preferences()
+CREATE OR REPLACE PROCEDURE fact.usp_location_menu_preferences()
     LANGUAGE sql
     AS $$
 
@@ -864,11 +946,11 @@ $$;
 ALTER PROCEDURE fact.usp_location_menu_preferences() OWNER TO citus;
 
 --
--- TOC entry 832 (class 1255 OID 2247996)
+-- TOC entry 866 (class 1255 OID 2247996)
 -- Name: usp_location_statistics(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_location_statistics()
+CREATE OR REPLACE PROCEDURE fact.usp_location_statistics()
     LANGUAGE plpgsql
     AS $$
 
@@ -1012,11 +1094,480 @@ $$;
 ALTER PROCEDURE fact.usp_location_statistics() OWNER TO citus;
 
 --
--- TOC entry 839 (class 1255 OID 676702)
+-- TOC entry 449 (class 1255 OID 2951716)
+-- Name: usp_modifier_impression_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_impression_analysis()
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+WITH delta_impressions AS (
+SELECT *
+FROM fact.modifier_recommendations as mrc
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions' AND source = 'nge')
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_impressions as mim 
+                  WHERE mim.locationid = mrc.locationid
+                    AND mim.transactionheaderid = mrc.transactionheaderid)
+), modifier_impressions AS (
+SELECT mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       outer_elem->>'itemId'                 AS menuitemid,
+       rec->>'modifierId'                    AS modifierid,
+       outer_elem->>'parentModifierId'       AS parent_modifier_id,
+       outer_elem->>'selectionType'          AS selection_type,
+      (outer_elem->>'nestingDepth')::INTEGER AS nesting_depth,    
+      (rec->>'position')::INTEGER            AS position,
+      (rec->>'score')::NUMERIC(5, 3)         AS score,
+       outer_elem->>'strategy'               AS strategy,
+       outer_elem->>'context'                AS context,
+      (rec->>'selected')::boolean            AS selected,
+      (rec->>'preDeselected')::boolean       AS pre_deselected,
+      (rec->>'confirmedRemoved')::boolean    AS confirmed_removed,
+      (rec->>'preSelected')::boolean         AS pre_selected,
+       mrc.businessdate, 
+       mrc.orderdatelocal,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime    
+FROM delta_impressions as mrc,
+    -- Step 1: unnest the top-level array
+    jsonb_array_elements(modifier_impressions) AS outer_elem,
+    -- Step 2: unnest the nested recommendations array
+    jsonb_array_elements(outer_elem->'recommendations') AS rec
+)
+INSERT INTO fact.modifier_impressions
+SELECT *, NULL :: TIMESTAMP as sysupdatetime
+FROM modifier_impressions;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_impressions)
+WHERE watermarktablename = 'fact.modifier_impressions'
+  AND source = 'nge';
+
+END;
+$$;
+
+
+ALTER PROCEDURE fact.usp_modifier_impression_analysis() OWNER TO citus;
+
+--
+-- TOC entry 1253 (class 1255 OID 2951719)
+-- Name: usp_modifier_interaction_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_interaction_analysis()
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+WITH delta_interactions AS (
+SELECT *
+FROM fact.modifier_recommendations as mrc
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Interactions')
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mim 
+                  WHERE mim.locationid = mrc.locationid
+                    AND mim.transactionheaderid = mrc.transactionheaderid)
+), modifier_interactions AS (
+SELECT mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       outer_elem->>'itemId' as menuitemid,
+       outer_elem->>'action' as action,
+       outer_elem->>'modifierId' as modifierid,
+       (outer_elem->>'recordedAt')::TIMESTAMP as recorded_at,
+       (outer_elem->>'nestingDepth') :: INTEGER as nesting_depth,
+       outer_elem->>'selectionType' as selection_type,
+       outer_elem->>'modifierGroupId' as modifiergroupid,
+       outer_elem->>'parentModifierId' as parent_modifier_id,
+       mrc.businessdate, 
+       mrc.orderdatelocal,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime    
+FROM delta_interactions as mrc,
+    -- Step 1: unnest the top-level array
+    jsonb_array_elements(modifier_interactions) AS outer_elem
+), trxn_enrichment AS (
+SELECT mi.locationid,
+       mi.transactionheaderid,
+       mi.ordersessionid,
+       mi.orderid,
+       imd.itemid as orderitemid,
+       mi.menuitemid,
+       mi.modifiergroupid,
+       mi.modifierid,
+       imd.modifiername,
+       mi.parent_modifier_id,
+       mi.nesting_depth,
+       imd.modifierquantity,
+       imd.modifierprice,
+       imd.freequantity,
+       mi.selection_type,
+       mi.action,
+       mi.recorded_at as session_recorded_at,
+       mi.businessdate,
+       mi.orderdatelocal,
+       mi.frequentcustomerid,
+       mi.syscosmosts,
+       mi.sysinserttime
+    FROM modifier_interactions as mi 
+    LEFT JOIN fact.transactionitem as ti 
+        ON mi.locationid = ti.locationid
+        AND mi.transactionheaderid = ti.transactionheaderid
+        AND mi.menuitemid = ti.dimmenuitemid
+    LEFT JOIN fact.itemmodifier as imd 
+        ON mi.transactionheaderid = imd.transactionheaderid
+        AND ti.itemid = imd.itemid
+        AND mi.modifiergroupid = imd.modifiergroupid
+        AND mi.modifierid = imd.modifierid
+)
+INSERT INTO fact.modifier_interactions
+SELECT *, 
+       NULL :: TIMESTAMP as sysupdatetime, 
+       5 as sourceid
+FROM trxn_enrichment;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 5)
+WHERE watermarktablename = 'fact.modifier_interactions'
+  AND source = 'nge-Interactions';
+
+
+WITH delta_modifier_trxns AS (
+SELECT *
+FROM fact.itemmodifier as im
+WHERE locationid LIKE 'loc-%'
+  AND (syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options') OR
+       syscosmosts IS NULL)
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mint 
+                  WHERE mint.locationid = im.locationid
+                    AND mint.transactionheaderid = im.transactionheaderid)
+), modfr_enrichment AS (
+SELECT mt.locationid,
+       mt.transactionheaderid,
+       ti.ordersessionid,
+       ti.orderid,
+       ti.itemid as orderitemid,
+       ti.dimmenuitemid as menuitemid,
+       mt.modifiergroupid,
+       mt.modifierid,
+       mt.modifiername,
+       NULL :: TEXT as parent_modifier_id,
+       NULL :: INTEGER as nesting_depth,
+       mt.modifierquantity,
+       mt.modifierprice,
+       mt.freequantity,
+       CASE WHEN mgm.is_default = False AND mg.min_selection = 0 AND mg.max_selection >= 0 THEN 'optional'
+            WHEN mgm.is_default = False AND mg.min_selection >= 1 AND mg.max_selection >= 1 THEN 'required'
+            WHEN mgm.is_default = True THEN 'default' END selection_type,
+
+       CASE WHEN mgm.is_default = False AND mg.min_selection = 0 AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added'                  --optional modifier added
+            WHEN mgm.is_default = False AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected'              --required modifier selected
+            WHEN mgm.is_default = True AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept'                   --default modifier left selected
+            WHEN mgm.is_default = True AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,  --default modifier de-selected
+       NULL :: TEXT as session_recorded_at,
+       mt.businessdate,
+       ti.orderdatelocal,
+       ti.frequentcustomerid,
+       mt.syscosmosts,
+       mt.sysinserttime
+FROM delta_modifier_trxns as mt
+LEFT JOIN dim.modifier_group_mapping as mgm
+    ON mgm.modifiergroupid = mt.modifiergroupid
+    AND mgm.modifierid = mt.modifierid
+LEFT JOIN dim.modifier_group as mg 
+    ON mg.modifiergroupid = mt.modifiergroupid
+LEFT JOIN fact.transactionitem as ti 
+    ON mt.transactionheaderid = ti.transactionheaderid
+    AND mt.itemid = ti.itemid
+)
+INSERT INTO fact.modifier_interactions
+SELECT *, 
+       NULL :: TIMESTAMP as sysupdatetime, 
+       6 as sourceid
+FROM modfr_enrichment;
+
+
+/*
+UPDATE fact.modifier_interactions
+SET modifierquantity = im.modifierquantity,
+    modifierprice = im.modifierprice,
+    freequantity = im.freequantity
+FROM fact.itemmodifier as im 
+WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
+  AND modifier_interactions.orderid = im.orderid 
+  AND modifier_interactions.modifiergroupid = im.modifiergroupid
+  AND modifier_interactions.modifierid = im.modifierid
+  AND modifier_interactions.modifierquantity IS NULL
+  AND modifier_interactions.modifierprice IS NULL
+  AND modifier_interactions.freequantity IS NULL;
+*/
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 6)
+WHERE watermarktablename = 'fact.modifier_interactions'
+  AND source = 'nge-Options';
+
+END;
+$$;
+
+
+ALTER PROCEDURE fact.usp_modifier_interaction_analysis() OWNER TO citus;
+
+--
+-- TOC entry 462 (class 1255 OID 2874430)
+-- Name: usp_modifier_recommendation_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendation_analysis()
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+WITH delta_impressions AS (
+SELECT *
+FROM fact.modifier_recommendations as mrc
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions')
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_impressions as mim 
+                  WHERE mim.locationid = mrc.locationid
+                    AND mim.transactionheaderid = mrc.transactionheaderid)
+), modifier_impressions AS (
+SELECT mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       outer_elem->>'itemId'                 AS menuitemid,
+       rec->>'modifierId'                    AS modifierid,
+       outer_elem->>'parentModifierId'       AS parent_modifier_id,
+       outer_elem->>'selectionType'          AS selection_type,
+      (outer_elem->>'nestingDepth')::INTEGER AS nesting_depth,    
+      (rec->>'position')::INTEGER            AS position,
+      (rec->>'score')::NUMERIC(5, 3)         AS score,
+       outer_elem->>'strategy'               AS strategy,
+       outer_elem->>'context'                AS context,
+      (rec->>'selected')::boolean            AS selected,
+      (rec->>'preDeselected')::boolean       AS pre_deselected,
+      (rec->>'confirmedRemoved')::boolean    AS confirmed_removed,
+      (rec->>'preSelected')::boolean         AS pre_selected,
+       mrc.businessdate, 
+       mrc.orderdatelocal,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime    
+FROM delta_impressions as mrc,
+    -- Step 1: unnest the top-level array
+    jsonb_array_elements(modifier_impressions) AS outer_elem,
+    -- Step 2: unnest the nested recommendations array
+    jsonb_array_elements(outer_elem->'recommendations') AS rec
+)
+INSERT INTO fact.modifier_impressions
+SELECT *, NULL :: TIMESTAMP as sysupdatetime
+FROM modifier_impressions;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_impressions)
+WHERE watermarktablename = 'fact.modifier_impressions'
+  AND source = 'nge';
+
+WITH delta_interactions AS (
+SELECT *
+FROM fact.modifier_recommendations as mrc
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge')
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mim 
+                  WHERE mim.locationid = mrc.locationid
+                    AND mim.transactionheaderid = mrc.transactionheaderid)
+), modifier_interactions AS (
+SELECT mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       outer_elem->>'itemId' as menuitemid,
+       outer_elem->>'action' as action,
+       outer_elem->>'modifierId' as modifierid,
+       (outer_elem->>'recordedAt')::TIMESTAMP as recorded_at,
+       (outer_elem->>'nestingDepth') :: INTEGER as nesting_depth,
+       outer_elem->>'selectionType' as selection_type,
+       outer_elem->>'modifierGroupId' as modifiergroupid,
+       outer_elem->>'parentModifierId' as parent_modifier_id,
+       mrc.businessdate, 
+       mrc.orderdatelocal,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime    
+FROM delta_interactions as mrc,
+    -- Step 1: unnest the top-level array
+    jsonb_array_elements(modifier_interactions) AS outer_elem
+), trxn_enrichment AS (
+SELECT mi.locationid,
+       mi.transactionheaderid,
+       mi.ordersessionid,
+       mi.orderid,
+       imd.itemid as orderitemid,
+       mi.menuitemid,
+       mi.modifiergroupid,
+       mi.modifierid,
+       imd.modifiername,
+       mi.parent_modifier_id,
+       mi.nesting_depth,
+       imd.modifierquantity,
+       imd.modifierprice,
+       imd.freequantity,
+       mi.selection_type,
+       mi.action,
+       mi.recorded_at as session_recorded_at,
+       mi.businessdate,
+       mi.orderdatelocal,
+       mi.frequentcustomerid,
+       mi.syscosmosts,
+       mi.sysinserttime
+    FROM modifier_interactions as mi 
+    LEFT JOIN fact.transactionitem as ti 
+        ON mi.locationid = ti.locationid
+        AND mi.transactionheaderid = ti.transactionheaderid
+        AND mi.menuitemid = ti.dimmenuitemid
+    LEFT JOIN fact.itemmodifier as imd 
+        ON mi.transactionheaderid = imd.transactionheaderid
+        AND ti.itemid = imd.itemid
+        AND mi.modifiergroupid = imd.modifiergroupid
+        AND mi.modifierid = imd.modifierid
+)
+INSERT INTO fact.modifier_interactions
+SELECT *, NULL :: TIMESTAMP as sysupdatetime
+FROM trxn_enrichment;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+WHERE watermarktablename = 'fact.modifier_interactions'
+  AND source = 'nge';
+
+
+WITH delta_modifier_trxns AS (
+SELECT *
+FROM fact.itemmodifier as im
+WHERE (syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options') OR
+       syscosmosts IS NULL)
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mint 
+                  WHERE mint.locationid = im.locationid
+                    AND mint.transactionheaderid = im.transactionheaderid)
+), modfr_enrichment AS (
+SELECT mt.locationid,
+       mt.transactionheaderid,
+       ti.ordersessionid,
+       ti.orderid,
+       ti.itemid as orderitemid,
+       ti.dimmenuitemid as menuitemid,
+       mt.modifiergroupid,
+       mt.modifierid,
+       mt.modifiername,
+       NULL :: TEXT as parent_modifier_id,
+       NULL :: INTEGER as nesting_depth,
+       mt.modifierquantity,
+       mt.modifierprice,
+       mt.freequantity,
+       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 THEN 'optional'
+            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 THEN 'default' END selection_type,
+       CASE WHEN m.min_quantity = 0 AND m.max_quantity > 0 AND mt.modifierquantity > 0 THEN 'added'
+            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
+            WHEN m.min_quantity >= 1 AND m.max_quantity >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,
+       NULL :: TEXT as session_recorded_at,
+       mt.businessdate,
+       ti.orderdatelocal,
+       ti.frequentcustomerid,
+       mt.syscosmosts,
+       mt.sysinserttime
+FROM delta_modifier_trxns as mt
+LEFT JOIN dim.modifier as m 
+    ON mt.modifierid = m.modifierid
+LEFT JOIN fact.transactionitem as ti 
+    ON mt.transactionheaderid = ti.transactionheaderid
+    AND mt.itemid = ti.itemid
+)
+INSERT INTO fact.modifier_interactions
+SELECT *, NULL :: TIMESTAMP as sysupdatetime 
+FROM modfr_enrichment;
+
+UPDATE fact.modifier_interactions
+SET modifierquantity = im.modifierquantity,
+    modifierprice = im.modifierprice,
+    freequantity = im.freequantity
+FROM fact.itemmodifier as im 
+WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
+  AND modifier_interactions.orderid = im.orderid 
+  AND modifier_interactions.modifiergroupid = im.modifiergroupid
+  AND modifier_interactions.modifierid = im.modifierid
+  AND modifier_interactions.modifierquantity IS NULL
+  AND modifier_interactions.modifierprice IS NULL
+  AND modifier_interactions.freequantity IS NULL;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+WHERE watermarktablename = 'fact.modifier_interactions'
+  AND source = 'nge-Options';
+
+END;
+$$;
+
+
+ALTER PROCEDURE fact.usp_modifier_recommendation_analysis() OWNER TO citus;
+
+--
+-- TOC entry 977 (class 1255 OID 2874409)
+-- Name: usp_modifier_recommendations_stage_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+insert into fact.modifier_recommendations 
+(locationid, transactionheaderid, ordersessionid, orderid, modifier_impressions, modifier_interactions, 
+ businessdate, orderdateutc, frequentcustomerid, syscosmosts, sysinserttime)
+select mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       mrc.modifier_impressions :: jsonb, 
+       mrc.modifier_interactions :: jsonb, 
+       mrc.businessdate, 
+       mrc.orderdateutc,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime
+from stg.modifier_recommendation_sessions as mrc
+where not exists (select 1 from fact.modifier_recommendations as mr where mr.locationid = mrc.locationid and mr.transactionheaderid = mrc.transactionheaderid);
+
+UPDATE fact.modifier_recommendations
+SET orderdatelocal = orderdateutc::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone from dim.location) as l
+WHERE modifier_recommendations.locationid = l.locationid 
+  AND modifier_recommendations.orderdatelocal is null;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_recommendations)
+WHERE watermarktablename = 'fact.modifier_recommendations'
+  AND source = 'nge';
+
+END;
+$$;
+
+
+ALTER PROCEDURE fact.usp_modifier_recommendations_stage_to_fact() OWNER TO citus;
+
+--
+-- TOC entry 873 (class 1255 OID 676702)
 -- Name: usp_offer_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_offer_analysis()
+CREATE OR REPLACE PROCEDURE fact.usp_offer_analysis()
     LANGUAGE plpgsql
     AS $$
 
@@ -1130,11 +1681,209 @@ $$;
 ALTER PROCEDURE fact.usp_offer_analysis() OWNER TO citus;
 
 --
--- TOC entry 1085 (class 1255 OID 630014)
+-- TOC entry 570 (class 1255 OID 2993069)
+-- Name: usp_sent_surveys_to_fact_itemssurvey(); Type: PROCEDURE; Schema: fact; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+DROP TABLE IF EXISTS temp_delta_sent_surveys;
+CREATE TEMPORARY TABLE temp_delta_sent_surveys (
+    organizationid       TEXT COLLATE pg_catalog."default",
+    locationid           TEXT COLLATE pg_catalog."default",
+    ordersessionid       TEXT COLLATE pg_catalog."default",
+    transactionheaderid  TEXT COLLATE pg_catalog."default",
+    gem_event_category   TEXT COLLATE pg_catalog."default",
+    gem_event_type       TEXT COLLATE pg_catalog."default",
+    orderid              TEXT COLLATE pg_catalog."default",
+    surveyid             TEXT COLLATE pg_catalog."default",
+    itemid               TEXT COLLATE pg_catalog."default",
+    is_responded         BOOLEAN,
+    gem_event_instant    TEXT COLLATE pg_catalog."default",
+    gem_syscosmosts      BIGINT,
+    sysinserttime        TIMESTAMP,
+    sysupdatetime        TIMESTAMP,
+    menuitemid           TEXT COLLATE pg_catalog."default"
+);
+
+
+WITH delta_sent_surveys AS (
+    SELECT 
+        organizationid,
+        locationid,
+        ordersessionid,
+        orderid AS transactionheaderid,
+        gem_event_category,
+        gem_event_type,
+        survey_metadata,
+        CONCAT('ord-', (survey_metadata ->> 'orderId')::TEXT) AS orderid,
+        CASE WHEN jsonb_typeof(survey_metadata -> 'surveyIds') = 'array' THEN survey_metadata -> 'surveyIds' END AS surveyid_array,
+        CASE WHEN survey_metadata ->> 'surveyIds' NOT LIKE '[%]' THEN survey_metadata ->> 'surveyIds' END AS surveyid_text,
+        CASE WHEN jsonb_typeof(survey_metadata -> 'itemId') = 'array' THEN survey_metadata -> 'itemId' END AS itemid_array,
+        CASE WHEN survey_metadata ->> 'itemId' NOT LIKE '[%]' THEN survey_metadata ->> 'itemId' END AS itemid_text,
+        is_responded,
+        gem_event_instant,
+        gem_syscosmosts,
+        sysinserttime,
+        sysupdatetime
+    FROM fact.sent_surveys AS ss
+    WHERE ss.gem_syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
+      AND NOT EXISTS (SELECT 1 FROM fact.itemssurvey AS its 
+                      WHERE its.locationid = ss.locationid
+                        AND its.orderid = ss.orderid)
+), flattened_survey_trxns AS (
+    SELECT
+        dss.organizationid,
+        dss.locationid,
+        dss.ordersessionid,
+        dss.transactionheaderid,
+        dss.gem_event_category,
+        dss.gem_event_type,
+        dss.orderid,
+        TRIM(flat_survey.surveyid) AS surveyid,
+        --TRIM(flat_item.itemid)     AS itemid,
+        dss.is_responded,
+        dss.gem_event_instant,
+        dss.gem_syscosmosts,
+        dss.sysinserttime,
+        dss.sysupdatetime
+    FROM delta_sent_surveys AS dss
+    CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.surveyid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.surveyid_array))
+                 WHEN dss.surveyid_text  IS NOT NULL THEN string_to_array(dss.surveyid_text, ',')
+            END
+        ) AS surveyid
+    ) AS flat_survey
+    /*CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.itemid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.itemid_array))
+                 WHEN dss.itemid_text  IS NOT NULL THEN string_to_array(dss.itemid_text, ',')
+            END
+        ) AS itemid
+    ) AS flat_item*/
+), flattened_item_trxns AS (
+    SELECT
+        dss.organizationid,
+        dss.locationid,
+        dss.ordersessionid,
+        dss.transactionheaderid,
+        dss.gem_event_category,
+        dss.gem_event_type,
+        dss.orderid,
+        --TRIM(flat_survey.surveyid) AS surveyid,
+        TRIM(flat_item.itemid)     AS itemid,
+        dss.is_responded,
+        dss.gem_event_instant,
+        dss.gem_syscosmosts,
+        dss.sysinserttime,
+        dss.sysupdatetime
+    FROM delta_sent_surveys AS dss
+    /*CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.surveyid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.surveyid_array))
+                 WHEN dss.surveyid_text  IS NOT NULL THEN string_to_array(dss.surveyid_text, ',')
+            END
+        ) AS surveyid
+    ) AS flat_survey*/
+    CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.itemid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.itemid_array))
+                 WHEN dss.itemid_text  IS NOT NULL THEN string_to_array(dss.itemid_text, ',')
+            END
+        ) AS itemid
+    ) AS flat_item
+
+), joined_surveys_with_items AS (
+    SELECT st.organizationid,
+           st.locationid,
+           st.ordersessionid,
+           st.transactionheaderid,
+           st.gem_event_category,
+           st.gem_event_type,
+           st.orderid,
+           st.surveyid,
+           it.itemid,
+           st.is_responded,
+           st.gem_event_instant,
+           st.gem_syscosmosts,
+           st.sysinserttime,
+           st.sysupdatetime 
+           --ti.dimmenuitemid as menuitemid
+    FROM flattened_survey_trxns as st 
+    LEFT JOIN flattened_item_trxns as it
+        ON st.locationid = it.locationid
+        AND st.transactionheaderid = it.transactionheaderid
+)
+INSERT INTO temp_delta_sent_surveys
+SELECT * FROM joined_surveys_with_items;
+
+
+INSERT INTO fact.itemssurvey (
+    organizationid,
+    locationid,
+    ordersessionid,
+    orderid,
+    surveyissuedtimestamp,
+    gem_event_category,
+    gem_event_type,
+    surveyid,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime,
+    itemid
+)
+SELECT
+    organizationid,
+    locationid,
+    ordersessionid,
+    transactionheaderid,
+    CASE WHEN substring(gem_event_instant, 20, 1) = '.' 
+         THEN replace(replace(substring(gem_event_instant, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(gem_event_instant, 1, 19), 'T', ' ') 
+    END AS surveyissuedtimestamp,
+    gem_event_category,
+    gem_event_type,
+    surveyid,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime,
+    itemid
+FROM temp_delta_sent_surveys as tds
+WHERE NOT EXISTS (SELECT * FROM fact.itemssurvey as its 
+                  WHERE its.organizationid = tds.organizationid
+                    AND its.locationid = tds.locationid
+                    AND its.orderid = tds.transactionheaderid
+                    AND its.itemid = tds.menuitemid
+                    AND its.surveyid = tds.surveyid);
+
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) - 10 FROM fact.itemssurvey)
+WHERE watermarktablename = 'fact.itemssurvey'
+  AND source = 'gem';
+
+
+END;
+$$;
+
+
+ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey() OWNER TO citus;
+
+--
+-- TOC entry 1125 (class 1255 OID 630014)
 -- Name: usp_update_datetime_fields(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_update_datetime_fields()
+CREATE OR REPLACE PROCEDURE fact.usp_update_datetime_fields()
     LANGUAGE plpgsql
     AS $$
 BEGIN
@@ -1186,18 +1935,761 @@ UPDATE fact.transactionitem
    SET businessdate = (transactionitem.orderdatelocal)::date
 WHERE (transactionitem.businessdate IS NULL);
 
+
+UPDATE fact.watermarktable
+   SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.itemmodifier)
+WHERE watermarktablename = 'fact.itemmodifier'
+  AND source = 'nge';
+
+
 END;
 $$;
 
 
 ALTER PROCEDURE fact.usp_update_datetime_fields() OWNER TO citus;
 
+--
+-- TOC entry 1342 (class 1255 OID 3024871)
+-- Name: usp_update_occasion_survey_datetime_fields(); Type: PROCEDURE; Schema: fact; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE fact.usp_update_occasion_survey_datetime_fields()
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+UPDATE fact.occasionsurveydetail
+SET organizationid = ol.organizationid
+FROM (select * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
+WHERE occasionsurveydetail.locationid = ol.locationid 
+  and occasionsurveydetail.organizationid is null;
+
+UPDATE fact.itemssurvey
+SET organizationid = ol.organizationid
+FROM (select * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
+WHERE itemssurvey.locationid = ol.locationid 
+  and itemssurvey.organizationid is null;
+
+UPDATE fact.occasionsurveydetail
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
+WHERE occasionsurveydetail.locationid = l.locationid
+  and occasionsurveydetail.surveylocaltimestamp is null;
+
+UPDATE fact.occasionsurveydetail
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'
+WHERE surveylocaltimestamp is null;
+
+UPDATE fact.itemssurvey
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
+WHERE itemssurvey.locationid = l.locationid
+  and itemssurvey.surveylocaltimestamp is null;
+
+UPDATE fact.itemssurvey
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'
+WHERE surveylocaltimestamp is null;
+
+UPDATE fact.occasionsurveydetail
+SET dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)
+WHERE dateid is null;
+
+UPDATE fact.itemssurvey
+SET dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)
+WHERE dateid is null;
+
+UPDATE fact.watermarktable
+SET ts = tr.maxts
+FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 1) as tr 
+WHERE watermarktable.watermarktablename = tr.tablename
+  AND watermarktable.source = 'nge';
+
+UPDATE fact.watermarktable
+SET ts = tr.maxts
+FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 2) as tr 
+WHERE watermarktable.watermarktablename = tr.tablename
+  AND watermarktable.source = 'gem';
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(nge_syscosmosts), 1720000300) - 10 FROM fact.itemssurvey)
+WHERE watermarktablename = 'fact.itemssurvey'
+  AND source = 'nge';
+
+
+END;
+$$;
+
+
+ALTER PROCEDURE fact.usp_update_occasion_survey_datetime_fields() OWNER TO citus;
+
+--
+-- TOC entry 687 (class 1255 OID 3048281)
+-- Name: usp_refresh_item_modifiergroup_modifier_mapping(); Type: PROCEDURE; Schema: ml; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping()
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+    -- --------------------------------------------------------
+    -- Step 1: Truncate on every run
+    -- --------------------------------------------------------
+    TRUNCATE TABLE ml.item_modifiergroup_modifier_mapping;
+
+    -- --------------------------------------------------------
+    -- Step 2: Insert
+    -- --------------------------------------------------------
+    WITH org_loc_ctlg AS (
+        SELECT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname,
+               c.catalogid, c.catalogname
+        FROM (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
+        INNER JOIN dim.catalog AS c
+            ON  ol.organizationid = c.organizationid
+            AND ol.locationid     = c.gem_location_id
+    ),
+    org_loc_ctlg_modifiers AS (
+        SELECT
+            m.*,
+            olc.organizationid,
+            olc.organizationname,
+            olc.locationid,
+            olc.locationname,
+            --olc.catalogid,
+            olc.catalogname
+        FROM dim.modifier AS m
+        INNER JOIN org_loc_ctlg AS olc
+            ON m.catalogid = olc.catalogid
+    )
+    INSERT INTO ml.item_modifiergroup_modifier_mapping
+    SELECT
+        m.organizationid,
+        m.organizationname,
+        m.locationid,
+        m.locationname,
+        m.catalogid,
+        m.catalogname,
+        imgm.menuitemid,
+        mi.menuitemname,
+        mi.item_class_type,
+        imgm.modifiergroupid,
+        mg.modifiergroupname,
+        imgm.modifierid,
+        m.modifiername,
+        m.classification            AS modifier_class_type,
+        imgm.is_default             AS is_modifier_default,
+        mg.min_selection            AS min_quantity,
+        mg.max_selection            AS max_quantity,
+        m.allow_quantity_increment,
+        m.increment_step,
+        m.modifier_default_quantity,
+        m.is_invisible              AS is_modifier_invisible,
+        m.calories,
+        m.price,
+        m.is_modifier_active,
+        m.is_modifier_deleted,
+        m.modifier_created_on,
+        m.modifier_modified_on,
+        NOW()::TIMESTAMP            AS sysinserttime
+    FROM dim.item_modifier_group_modifier_mapping AS imgm
+    INNER JOIN org_loc_ctlg_modifiers AS m
+        ON  imgm.catalogid  = m.catalogid
+        AND imgm.modifierid = m.modifierid
+    INNER JOIN dim.menuitem AS mi
+        ON imgm.menuitemid = mi.menuitemid
+    INNER JOIN dim.modifier_group AS mg
+        ON  imgm.catalogid       = mg.catalogid
+        AND imgm.modifiergroupid = mg.modifiergroupid;
+
+END;
+$$;
+
+
+ALTER PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping() OWNER TO citus;
+
+--
+-- TOC entry 888 (class 1255 OID 3044530)
+-- Name: usp_refresh_menu_entities(); Type: PROCEDURE; Schema: ml; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_menu_entities()
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+    -- --------------------------------------------------------
+    -- Step 1: Truncate on every run
+    -- --------------------------------------------------------
+    TRUNCATE TABLE ml.menu_entities;
+
+    -- --------------------------------------------------------
+    -- Step 2: Insert
+    -- --------------------------------------------------------
+    WITH category_hierarchy AS (
+        SELECT
+            mi.*,
+            ol.organizationid,
+            ol.organizationname,
+            ctgh.locationid,
+            ol.locationname,
+            ctgh.categoryid,
+            ctgh.categoryname
+        FROM dim.menuitem AS mi
+        LEFT JOIN dim.category_hierarchy AS ctgh
+            ON mi.menuitemid = ctgh.menuitemid
+        INNER JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
+            ON ctgh.locationid = ol.locationid
+    )
+    INSERT INTO ml.menu_entities
+    SELECT DISTINCT
+        mi.organizationid,
+        mi.organizationname,
+        mi.locationid,
+        mi.locationname,
+        mi.categoryid,
+        mi.categoryname,
+        mi.menuitemid,
+        mi.menuitemname,
+        mi.catalogid,
+        mi.itemunitprice,
+        mi.price_changed_on,
+        mi.item_class_type,
+        mi.entitytype,
+        mi.calories,
+        mi.protein,
+        mi.sugar,
+        mi.fat,
+        mi.is_alcoholic,
+        mi.is_vegetarian_item,
+        mi.is_vegan_item,
+        mi.has_allergen,
+        mi.is_active,
+        mi.is_deleted,
+        mi.gms_created_on,
+        mi.gms_modified_on,
+        NOW()::TIMESTAMP     AS sysinserttime
+    FROM category_hierarchy AS mi;
+
+END;
+$$;
+
+
+ALTER PROCEDURE ml.usp_refresh_menu_entities() OWNER TO citus;
+
+--
+-- TOC entry 1120 (class 1255 OID 3048266)
+-- Name: usp_refresh_modifier_impressions(date, integer); Type: PROCEDURE; Schema: ml; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_modifier_impressions(IN p_businessdate date DEFAULT (CURRENT_DATE - 1), IN p_refresh_mode integer DEFAULT 1)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+    -- --------------------------------------------------------
+    -- Step 1: Purge strategy based on refresh mode
+    -- --------------------------------------------------------
+    IF p_refresh_mode = 0 THEN
+        -- Full load: wipe everything and reload all history
+        TRUNCATE TABLE ml.modifier_impressions;
+    ELSE
+        -- Incremental: idempotent delete for the target day only
+        DELETE FROM ml.modifier_impressions
+        WHERE businessdate = p_businessdate;
+    END IF;
+
+    -- --------------------------------------------------------
+    -- Step 2: Insert
+    -- --------------------------------------------------------
+    WITH org_loc_ctlg AS (
+        SELECT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname,
+               c.catalogid, c.catalogname
+        FROM (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
+        INNER JOIN dim.catalog AS c
+            ON  ol.organizationid = c.organizationid
+            AND ol.locationid     = c.gem_location_id
+    ),
+    org_loc_ctlg_modifiers AS (
+        SELECT
+            m.*,
+            olc.organizationid,
+            olc.organizationname,
+            olc.locationid,
+            olc.locationname,
+            --olc.catalogid,
+            olc.catalogname
+        FROM dim.modifier AS m
+        INNER JOIN org_loc_ctlg AS olc
+            ON m.catalogid = olc.catalogid
+    )
+    INSERT INTO ml.modifier_impressions
+    SELECT
+        olcm.organizationid,
+        olcm.organizationname,
+        olcm.locationname,
+        olcm.locationid,
+        olcm.catalogid,
+        olcm.catalogname,
+        m.businessdate,
+        m.orderdatelocal,
+        EXTRACT(YEAR FROM m.businessdate)::INTEGER  AS yyyy,
+        EXTRACT(WEEK FROM m.businessdate)::INTEGER  AS ww,
+        m.transactionheaderid,
+        m.ordersessionid,
+        m.orderid,
+        m.menuitemid,
+        mi.menuitemname,
+        mi.item_class_type,
+        m.modifierid,
+        olcm.modifiername,
+        olcm.classification                         AS modifier_class_type,
+        m.parent_modifier_id,
+        m.nesting_depth,
+        olcm.price                                  AS modifierprice,
+        m.selection_type,
+        m.position,
+        m.score,
+        m.strategy,
+        m.context,
+        m.selected,
+        m.pre_deselected,
+        m.confirmed_removed,
+        m.pre_selected,
+        m.frequentcustomerid,
+        NOW()::TIMESTAMP                            AS sysinserttime
+    FROM fact.modifier_impressions AS m
+    INNER JOIN org_loc_ctlg_modifiers AS olcm
+        ON  m.locationid = olcm.locationid
+        AND m.modifierid = olcm.modifierid
+    INNER JOIN dim.menuitem AS mi
+        ON mi.menuitemid = m.menuitemid
+    WHERE LOWER(m.transactionheaderid) LIKE 'ordevt-%'
+      AND (
+            p_refresh_mode = 0
+            OR m.businessdate = p_businessdate
+      );
+
+END;
+$$;
+
+
+ALTER PROCEDURE ml.usp_refresh_modifier_impressions(IN p_businessdate date, IN p_refresh_mode integer) OWNER TO citus;
+
+--
+-- TOC entry 849 (class 1255 OID 3048233)
+-- Name: usp_refresh_modifier_interactions(date, integer); Type: PROCEDURE; Schema: ml; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_modifier_interactions(IN p_businessdate date DEFAULT (CURRENT_DATE - 1), IN p_refresh_mode integer DEFAULT 1)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+    -- --------------------------------------------------------
+    -- Step 1: Purge strategy based on refresh mode
+    -- --------------------------------------------------------
+    IF p_refresh_mode = 0 THEN
+        -- Full load: wipe everything and reload all history
+        TRUNCATE TABLE ml.modifier_interactions;
+    ELSE
+        -- Incremental: idempotent delete for the target day only
+        DELETE FROM ml.modifier_interactions
+        WHERE businessdate = p_businessdate;
+    END IF;
+
+    -- --------------------------------------------------------
+    -- Step 2: Insert
+    -- --------------------------------------------------------
+    WITH trxn_items AS (
+        SELECT
+            tr.organizationid,
+            tr.organizationname,
+            tr.locationid,
+            tr.locationname,
+            tr.businessdate,
+            tr.orderdatelocal,
+            tr.transactionheaderid,
+            tr.ordersessionid,
+            tr.orderid,
+            tr.orderitemid,
+            tr.menuitemid,
+            tr.itemquantity,
+            tr.itemunitprice,
+            tr.frequentcustomerid
+        FROM ml.transactions AS tr
+        WHERE (
+                p_refresh_mode = 0
+                OR tr.businessdate = p_businessdate
+        )
+    ),
+    org_loc_ctlg AS (
+        SELECT ol.organizationid, ol.locationid, c.catalogid, c.catalogname
+        FROM (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
+        INNER JOIN dim.catalog AS c
+            ON  ol.organizationid = c.organizationid
+            AND ol.locationid     = c.gem_location_id
+    ),
+    org_loc_ctlg_modifiers AS (
+        SELECT
+            m.*,
+            olc.organizationid,
+            olc.locationid,
+            olc.catalogname
+        FROM dim.modifier AS m
+        INNER JOIN org_loc_ctlg AS olc
+            ON m.catalogid = olc.catalogid
+    )
+    INSERT INTO ml.modifier_interactions
+    SELECT
+        ti.organizationid,
+        ti.organizationname,
+        ti.locationname,
+        ti.locationid,
+        olcm.catalogid,
+        olcm.catalogname,
+        ti.businessdate,
+        ti.orderdatelocal,
+        EXTRACT(YEAR FROM ti.businessdate)::INTEGER             AS yyyy,
+        EXTRACT(WEEK FROM ti.businessdate)::INTEGER             AS ww,
+        mt.transactionheaderid,
+        ti.ordersessionid,
+        ti.orderid,
+        mt.itemid                                               AS orderitemid,
+        ti.menuitemid,
+        mi.menuitemname,
+        ti.itemquantity,
+        ti.itemunitprice,
+        mi.item_class_type,
+        mt.modifiergroupid,
+        mg.modifiergroupname,
+        mt.modifierid,
+        mt.modifiername,
+        NULL::TEXT                                              AS parent_modifier_id,
+        NULL::INTEGER                                           AS nesting_depth,
+        mt.modifierquantity,
+        mt.modifierprice,
+        mt.freequantity,
+        mgm.is_default                                          AS is_modifier_default,
+        mg.min_selection                                        AS min_quantity,
+        mg.max_selection                                        AS max_quantity,
+        CASE
+            WHEN mgm.is_default = FALSE AND mg.min_selection = 0  AND mg.max_selection >= 0 THEN 'optional'
+            WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 THEN 'required'
+            WHEN mgm.is_default = TRUE                                                       THEN 'default'
+        END                                                     AS selection_type,
+        CASE
+            WHEN mgm.is_default = FALSE AND mg.min_selection = 0  AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added'
+            WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected'
+            WHEN mgm.is_default = TRUE  AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
+            WHEN mgm.is_default = TRUE  AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0  THEN 'removed'
+        END                                                     AS action,
+        NULL::TEXT                                              AS session_recorded_at,
+        ti.frequentcustomerid,
+        olcm.modifier_default_quantity,
+        olcm.classification                                     AS modifier_class_type,
+        NOW()::TIMESTAMP                                        AS sysinserttime
+    FROM fact.itemmodifier AS mt
+    INNER JOIN trxn_items AS ti
+        ON  mt.transactionheaderid = ti.transactionheaderid
+        AND mt.itemid              = ti.orderitemid
+    INNER JOIN org_loc_ctlg_modifiers AS olcm
+        ON  ti.locationid = olcm.locationid
+        AND mt.modifierid = olcm.modifierid
+    INNER JOIN dim.menuitem AS mi
+        ON mi.menuitemid = ti.menuitemid
+    LEFT JOIN dim.modifier_group_mapping AS mgm
+        ON  mgm.modifiergroupid = mt.modifiergroupid
+        AND mgm.modifierid      = mt.modifierid
+    LEFT JOIN dim.modifier_group AS mg
+        ON mg.modifiergroupid = mt.modifiergroupid;
+
+END;
+$$;
+
+
+ALTER PROCEDURE ml.usp_refresh_modifier_interactions(IN p_businessdate date, IN p_refresh_mode integer) OWNER TO citus;
+
+--
+-- TOC entry 1032 (class 1255 OID 3042103)
+-- Name: usp_refresh_transactions(date, integer); Type: PROCEDURE; Schema: ml; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_transactions(IN p_businessdate date DEFAULT (CURRENT_DATE - 1), IN p_refresh_mode integer DEFAULT 1)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+    -- --------------------------------------------------------
+    -- Step 1: Purge strategy based on refresh mode
+    -- --------------------------------------------------------
+    IF p_refresh_mode = 0 THEN
+        -- Full load: wipe everything and reload all history
+        TRUNCATE TABLE ml.transactions;
+    ELSE
+        -- Incremental: idempotent delete for the target day only
+        DELETE FROM ml.transactions
+        WHERE businessdate = p_businessdate;
+    END IF;
+
+    -- --------------------------------------------------------
+    -- Step 2: Insert
+    -- --------------------------------------------------------
+    WITH cte AS (
+        SELECT *
+        FROM fact.transactionheader AS th
+        WHERE LOWER(th.orderstatus) = 'order-placed'
+          AND (
+                p_refresh_mode = 0
+                OR th.businessdate = p_businessdate
+          )
+    )
+    INSERT INTO ml.transactions
+    SELECT DISTINCT
+        th.frequentcustomerid,
+        ol.organizationid,
+        ol.organizationname,
+        th.locationid,
+        ol.locationname,
+        th.kioskid,
+        th.transactionheaderid,
+        th.ordersessionid,
+        th.orderid,
+        ti.itemid                                                    AS orderitemid,
+        ti.dimmenuitemid                                             AS menuitemid,
+        ti.itemname,
+        COALESCE(ti.upselllevel, '')                                 AS upselllevel,
+        mi.item_class_type,
+        ti.itemquantity,
+        ti.categoryid,
+        ctg.categoryname,
+        ti.itemunitprice,
+        th.paymentstatus,
+        th.numberofitems,
+        th.numberofpayments,
+        th.ordertotal,
+        th.ordersubtotal,
+        th.ordertip,
+        th.ordertax,
+        ot.ordertypelabel,
+        th.orderdatelocal,
+        th.businessdate,
+        wh.humidity                                                  AS weatherhumidity,
+        wh.condition                                                 AS weathercondition,
+        wh.temperature_c                                             AS temperatureincelcius,
+        EXTRACT(YEAR  FROM th.businessdate)::INTEGER                 AS yyyy,
+        EXTRACT(MONTH FROM th.businessdate)::INTEGER                 AS mm,
+        EXTRACT(DAY   FROM th.businessdate)::INTEGER                 AS dd,
+        EXTRACT(HOUR  FROM th.orderdatelocal)::INTEGER               AS hh,
+        EXTRACT(WEEK  FROM th.businessdate)::INTEGER                 AS ww,
+        NOW()::TIMESTAMP                                             AS sysinserttime
+    FROM cte AS th
+    INNER JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
+        ON th.locationid = ol.locationid
+    INNER JOIN fact.transactionitem AS ti
+        ON th.transactionheaderid = ti.transactionheaderid
+    LEFT JOIN ml.weather AS wh
+        ON  th.locationid          = wh.locationid
+        AND th.businessdate        = wh.weatherdate
+        AND EXTRACT(HOUR FROM th.orderdatelocal)::INTEGER = wh.hh
+    LEFT JOIN dim.itemcategory AS ctg
+        ON ti.categoryid = ctg.id
+    LEFT JOIN dim.menuitem AS mi
+        ON ti.menuitemid = mi.id
+    LEFT JOIN dim.ordertype AS ot
+        ON th.ordertype = ot.id;
+
+END;
+$$;
+
+
+ALTER PROCEDURE ml.usp_refresh_transactions(IN p_businessdate date, IN p_refresh_mode integer) OWNER TO citus;
+
+--
+-- TOC entry 1274 (class 1255 OID 3042129)
+-- Name: usp_refresh_upsell_analysis(date, integer); Type: PROCEDURE; Schema: ml; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_upsell_analysis(IN p_businessdate date DEFAULT (CURRENT_DATE - 1), IN p_refresh_mode integer DEFAULT 1)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+    -- --------------------------------------------------------
+    -- Step 1: Purge strategy based on refresh mode
+    -- --------------------------------------------------------
+    IF p_refresh_mode = 0 THEN
+        -- Full load: wipe everything and reload all history
+        TRUNCATE TABLE ml.upsell_analysis;
+    ELSE
+        -- Incremental: idempotent delete for the target day only
+        DELETE FROM ml.upsell_analysis
+        WHERE businessdate = p_businessdate;
+    END IF;
+
+    -- --------------------------------------------------------
+    -- Step 2: Insert
+    -- --------------------------------------------------------
+    WITH cte AS (
+        SELECT *
+        FROM fact.transactionheader
+        WHERE (
+                p_refresh_mode = 0
+                OR businessdate = p_businessdate
+        )
+    )
+    INSERT INTO ml.upsell_analysis
+    SELECT DISTINCT
+        ol.organizationid,
+        ol.organizationname,
+        oa.locationid,
+        ol.locationname,
+        th.frequentcustomerid,
+        oa.transactionheaderid,
+        oa.recommendationid,
+        oa.offereditem,
+        oa.selecteditem,
+        mi.item_class_type,
+        oa.upselltype,
+        oa.quantity,
+        th.businessdate,
+        th.orderdatelocal,
+        EXTRACT(YEAR  FROM th.businessdate)::INTEGER   AS yyyy,
+        EXTRACT(MONTH FROM th.businessdate)::INTEGER   AS mm,
+        EXTRACT(DAY   FROM th.businessdate)::INTEGER   AS dd,
+        EXTRACT(HOUR  FROM th.orderdatelocal)::INTEGER AS hh,
+        EXTRACT(WEEK  FROM th.businessdate)::INTEGER   AS ww,
+        NOW()::TIMESTAMP                               AS sysinserttime
+    FROM fact.vw_offer_analysis AS oa
+    INNER JOIN cte AS th
+        ON  oa.locationid          = th.locationid
+        AND oa.transactionheaderid = th.transactionheaderid
+    LEFT JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
+        ON oa.locationid = ol.locationid
+    LEFT JOIN dim.menuitem AS mi
+        ON (
+            CASE
+                WHEN oa.offereditem NOT LIKE 'cat-%' THEN oa.offereditem
+                ELSE oa.selecteditem
+            END
+        ) = mi.menuitemid;
+
+END;
+$$;
+
+
+ALTER PROCEDURE ml.usp_refresh_upsell_analysis(IN p_businessdate date, IN p_refresh_mode integer) OWNER TO citus;
+
+--
+-- TOC entry 883 (class 1255 OID 3042151)
+-- Name: usp_refresh_weather(date, integer); Type: PROCEDURE; Schema: ml; Owner: citus
+--
+
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_weather(IN p_businessdate date DEFAULT (CURRENT_DATE - 1), IN p_refresh_mode integer DEFAULT 1)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+    -- --------------------------------------------------------
+    -- Step 1: Purge strategy based on refresh mode
+    -- --------------------------------------------------------
+    IF p_refresh_mode = 0 THEN
+        -- Full load: wipe everything and reload all history
+        TRUNCATE TABLE ml.weather;
+    ELSE
+        -- Incremental: idempotent delete for the target day only
+        DELETE FROM ml.weather
+        WHERE weatherdate = p_businessdate;
+    END IF;
+
+    -- --------------------------------------------------------
+    -- Step 2: Insert
+    -- --------------------------------------------------------
+    WITH cte AS (
+        SELECT *
+        FROM dim.vw_weatherhourlydata
+        WHERE (
+                p_refresh_mode = 0
+                OR weatherdate = p_businessdate
+        )
+    )
+    INSERT INTO ml.weather
+    SELECT
+        ol.organizationid,
+        ol.organizationname,
+        cte.locationid,
+        ol.locationname,
+        cte.weatherdate,
+        EXTRACT(YEAR  FROM cte.weatherdate)::INTEGER AS yyyy,
+        EXTRACT(MONTH FROM cte.weatherdate)::INTEGER AS mm,
+        EXTRACT(DAY   FROM cte.weatherdate)::INTEGER AS dd,
+        EXTRACT(WEEK  FROM cte.weatherdate)::INTEGER AS ww,
+        cte.hh,
+        cte.humidity,
+        cte.condition,
+        cte.temperature_c,
+        cte.is_hot,
+        cte.is_calm,
+        cte.is_cold,
+        cte.is_cool,
+        cte.is_mild,
+        cte.is_warm,
+        cte.rain_mm,
+        cte.is_sunny,
+        cte.is_windy,
+        cte.is_cloudy,
+        cte.is_daytime,
+        cte.is_raining,
+        cte.is_snowing,
+        cte.is_very_hot,
+        cte.is_freezing,
+        cte.is_overcast,
+        cte.snowfall_mm,
+        cte.temp_bucket,
+        cte.wind_bucket,
+        cte.feels_colder,
+        cte.feels_hotter,
+        cte.food_weather,
+        cte.is_heavy_rain,
+        cte.is_light_rain,
+        cte.is_nighttime,
+        cte.is_very_windy,
+        cte.pressure_hpa,
+        cte.weather_code,
+        cte.wind_gust_kmh,
+        cte.comfort_score,
+        cte.drink_weather,
+        cte.wind_speed_kmh,
+        cte.comfort_bucket,
+        cte.humidity_bucket,
+        cte.condition_bucket,
+        cte.is_precipitating,
+        cte.precipitation_mm,
+        cte.visibility_meters,
+        cte.cloud_cover_percent,
+        cte.is_unseasonably_hot,
+        cte.is_unseasonably_cold,
+        cte.outdoor_dining_score,
+        cte.wind_direction_degrees,
+        cte.precipitation_probability,
+        cte.apparent_temperature_celsius,
+        NOW()::TIMESTAMP                             AS sysinserttime
+    FROM cte
+    LEFT JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
+        ON cte.locationid = ol.locationid;
+
+END;
+$$;
+
+
+ALTER PROCEDURE ml.usp_refresh_weather(IN p_businessdate date, IN p_refresh_mode integer) OWNER TO citus;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- TOC entry 373 (class 1259 OID 345584)
+-- TOC entry 388 (class 1259 OID 345584)
 -- Name: abtests; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1220,7 +2712,7 @@ CREATE TABLE dim.abtests (
 ALTER TABLE dim.abtests OWNER TO citus;
 
 --
--- TOC entry 339 (class 1259 OID 32819)
+-- TOC entry 354 (class 1259 OID 32819)
 -- Name: datedim; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1244,7 +2736,7 @@ CREATE TABLE dim.datedim (
 ALTER TABLE dim.datedim OWNER TO citus;
 
 --
--- TOC entry 346 (class 1259 OID 32912)
+-- TOC entry 361 (class 1259 OID 32912)
 -- Name: businessdate; Type: VIEW; Schema: dim; Owner: citus
 --
 
@@ -1327,7 +2819,7 @@ UNION
 ALTER VIEW dim.businessdate OWNER TO citus;
 
 --
--- TOC entry 410 (class 1259 OID 2178862)
+-- TOC entry 425 (class 1259 OID 2178862)
 -- Name: catalog; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1350,12 +2842,11 @@ CREATE TABLE dim.catalog (
 ALTER TABLE dim.catalog OWNER TO citus;
 
 --
--- TOC entry 408 (class 1259 OID 2039150)
+-- TOC entry 423 (class 1259 OID 2039150)
 -- Name: category_hierarchy; Type: TABLE; Schema: dim; Owner: citus
 --
 
 CREATE TABLE dim.category_hierarchy (
-    id bigint NOT NULL,
     organizationid text,
     locationid text NOT NULL,
     mapping_created_on timestamp without time zone,
@@ -1391,7 +2882,7 @@ CREATE TABLE dim.category_hierarchy (
 ALTER TABLE dim.category_hierarchy OWNER TO citus;
 
 --
--- TOC entry 338 (class 1259 OID 32811)
+-- TOC entry 353 (class 1259 OID 32811)
 -- Name: company; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1412,7 +2903,7 @@ CREATE TABLE dim.company (
 ALTER TABLE dim.company OWNER TO citus;
 
 --
--- TOC entry 379 (class 1259 OID 413623)
+-- TOC entry 394 (class 1259 OID 413623)
 -- Name: device; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1438,7 +2929,7 @@ CREATE TABLE dim.device (
 ALTER TABLE dim.device OWNER TO citus;
 
 --
--- TOC entry 409 (class 1259 OID 2039929)
+-- TOC entry 424 (class 1259 OID 2039929)
 -- Name: duplicate_items_master; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1461,7 +2952,7 @@ CREATE TABLE dim.duplicate_items_master (
 ALTER TABLE dim.duplicate_items_master OWNER TO citus;
 
 --
--- TOC entry 340 (class 1259 OID 32829)
+-- TOC entry 355 (class 1259 OID 32829)
 -- Name: element; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1475,7 +2966,7 @@ CREATE TABLE dim.element (
 ALTER TABLE dim.element OWNER TO citus;
 
 --
--- TOC entry 384 (class 1259 OID 419500)
+-- TOC entry 399 (class 1259 OID 419500)
 -- Name: experiment; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1488,7 +2979,7 @@ CREATE TABLE dim.experiment (
 ALTER TABLE dim.experiment OWNER TO citus;
 
 --
--- TOC entry 383 (class 1259 OID 419499)
+-- TOC entry 398 (class 1259 OID 419499)
 -- Name: experiment_dimkey_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
@@ -1504,8 +2995,8 @@ CREATE SEQUENCE dim.experiment_dimkey_seq
 ALTER SEQUENCE dim.experiment_dimkey_seq OWNER TO citus;
 
 --
--- TOC entry 6140 (class 0 OID 0)
--- Dependencies: 383
+-- TOC entry 6245 (class 0 OID 0)
+-- Dependencies: 398
 -- Name: experiment_dimkey_seq; Type: SEQUENCE OWNED BY; Schema: dim; Owner: citus
 --
 
@@ -1513,7 +3004,7 @@ ALTER SEQUENCE dim.experiment_dimkey_seq OWNED BY dim.experiment.dimkey;
 
 
 --
--- TOC entry 364 (class 1259 OID 180315)
+-- TOC entry 379 (class 1259 OID 180315)
 -- Name: feedbackrating; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1526,7 +3017,7 @@ CREATE TABLE dim.feedbackrating (
 ALTER TABLE dim.feedbackrating OWNER TO citus;
 
 --
--- TOC entry 363 (class 1259 OID 180310)
+-- TOC entry 378 (class 1259 OID 180310)
 -- Name: feedbackstatus; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1539,7 +3030,7 @@ CREATE TABLE dim.feedbackstatus (
 ALTER TABLE dim.feedbackstatus OWNER TO citus;
 
 --
--- TOC entry 370 (class 1259 OID 245826)
+-- TOC entry 385 (class 1259 OID 245826)
 -- Name: frequentcustomer; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1565,21 +3056,21 @@ CREATE TABLE dim.frequentcustomer (
 ALTER TABLE dim.frequentcustomer OWNER TO citus;
 
 --
--- TOC entry 401 (class 1259 OID 762124)
+-- TOC entry 416 (class 1259 OID 762124)
 -- Name: grubbrr_source_lookup; Type: TABLE; Schema: dim; Owner: citus
 --
 
 CREATE TABLE dim.grubbrr_source_lookup (
     id integer NOT NULL,
-    source character varying(10),
-    description character varying(50)
+    source text,
+    description text
 );
 
 
 ALTER TABLE dim.grubbrr_source_lookup OWNER TO citus;
 
 --
--- TOC entry 403 (class 1259 OID 862882)
+-- TOC entry 418 (class 1259 OID 862882)
 -- Name: holidays; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1598,7 +3089,7 @@ CREATE TABLE dim.holidays (
 ALTER TABLE dim.holidays OWNER TO citus;
 
 --
--- TOC entry 414 (class 1259 OID 2669323)
+-- TOC entry 429 (class 1259 OID 2669323)
 -- Name: item_modifier_group_modifier_mapping; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1626,14 +3117,15 @@ CREATE TABLE dim.item_modifier_group_modifier_mapping (
     modgrp_modfr_created_on timestamp without time zone,
     modgrp_modfr_modified_on timestamp without time zone,
     is_modgrp_modfr_invisible boolean,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
 );
 
 
 ALTER TABLE dim.item_modifier_group_modifier_mapping OWNER TO citus;
 
 --
--- TOC entry 341 (class 1259 OID 32837)
+-- TOC entry 356 (class 1259 OID 32837)
 -- Name: itemcategory; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1649,7 +3141,7 @@ CREATE TABLE dim.itemcategory (
 ALTER TABLE dim.itemcategory OWNER TO citus;
 
 --
--- TOC entry 391 (class 1259 OID 514411)
+-- TOC entry 406 (class 1259 OID 514411)
 -- Name: itemcategory_bkp; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1665,7 +3157,7 @@ CREATE TABLE dim.itemcategory_bkp (
 ALTER TABLE dim.itemcategory_bkp OWNER TO citus;
 
 --
--- TOC entry 395 (class 1259 OID 665518)
+-- TOC entry 410 (class 1259 OID 665518)
 -- Name: itemcategorymapping; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1685,7 +3177,7 @@ CREATE TABLE dim.itemcategorymapping (
 ALTER TABLE dim.itemcategorymapping OWNER TO citus;
 
 --
--- TOC entry 371 (class 1259 OID 311950)
+-- TOC entry 386 (class 1259 OID 311950)
 -- Name: kiosk; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1706,7 +3198,7 @@ CREATE TABLE dim.kiosk (
 ALTER TABLE dim.kiosk OWNER TO citus;
 
 --
--- TOC entry 394 (class 1259 OID 586491)
+-- TOC entry 409 (class 1259 OID 586491)
 -- Name: kioskdetails; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1758,7 +3250,7 @@ CREATE TABLE dim.kioskdetails (
 ALTER TABLE dim.kioskdetails OWNER TO citus;
 
 --
--- TOC entry 342 (class 1259 OID 32863)
+-- TOC entry 357 (class 1259 OID 32863)
 -- Name: location; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1781,7 +3273,7 @@ CREATE TABLE dim.location (
 ALTER TABLE dim.location OWNER TO citus;
 
 --
--- TOC entry 372 (class 1259 OID 327009)
+-- TOC entry 387 (class 1259 OID 327009)
 -- Name: locationcatalog; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1799,7 +3291,7 @@ CREATE TABLE dim.locationcatalog (
 ALTER TABLE dim.locationcatalog OWNER TO citus;
 
 --
--- TOC entry 400 (class 1259 OID 695503)
+-- TOC entry 415 (class 1259 OID 695503)
 -- Name: menuentities; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1836,7 +3328,7 @@ CREATE TABLE dim.menuentities (
 ALTER TABLE dim.menuentities OWNER TO citus;
 
 --
--- TOC entry 376 (class 1259 OID 359366)
+-- TOC entry 391 (class 1259 OID 359366)
 -- Name: menuitem; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1863,19 +3355,19 @@ CREATE TABLE dim.menuitem (
     itemunitprice numeric(12,3),
     price_changed_on timestamp without time zone,
     sysinserttime timestamp without time zone,
-    sysupdatetime timestamp without time zone
+    sysupdatetime timestamp without time zone,
+    catalogid text
 );
 
 
 ALTER TABLE dim.menuitem OWNER TO citus;
 
 --
--- TOC entry 411 (class 1259 OID 2196057)
+-- TOC entry 426 (class 1259 OID 2196057)
 -- Name: modifier; Type: TABLE; Schema: dim; Owner: citus
 --
 
 CREATE TABLE dim.modifier (
-    modifierkey bigint,
     modifierid character varying(50) NOT NULL,
     catalogid character varying(50),
     modifiername character varying(255),
@@ -1895,14 +3387,47 @@ CREATE TABLE dim.modifier (
     classification integer,
     price numeric(12,3),
     sysinserttime timestamp without time zone,
-    sysupdatetime timestamp without time zone
+    sysupdatetime timestamp without time zone,
+    price_changed_on timestamp without time zone
 );
 
 
 ALTER TABLE dim.modifier OWNER TO citus;
 
 --
--- TOC entry 412 (class 1259 OID 2196809)
+-- TOC entry 435 (class 1259 OID 2951551)
+-- Name: modifier_group; Type: TABLE; Schema: dim; Owner: citus
+--
+
+CREATE TABLE dim.modifier_group (
+    modifiergroupid character varying(50) NOT NULL,
+    modifiergroupname character varying(510) NOT NULL,
+    catalogid character varying(50) NOT NULL,
+    max_selection integer,
+    min_selection integer,
+    free_count integer,
+    pos_linked_entity_id character varying(50),
+    is_active boolean NOT NULL,
+    is_deleted boolean NOT NULL,
+    created_on timestamp without time zone,
+    modified_on timestamp without time zone,
+    negative_modifier_behavior integer,
+    created_by character varying(255),
+    modified_by character varying(255),
+    max_aggregate_count integer,
+    min_aggregate_count integer,
+    increment_step integer,
+    slider_mode boolean DEFAULT false NOT NULL,
+    slider_mode_modifier boolean DEFAULT false NOT NULL,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+);
+
+
+ALTER TABLE dim.modifier_group OWNER TO citus;
+
+--
+-- TOC entry 427 (class 1259 OID 2196809)
 -- Name: modifier_group_mapping; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1931,7 +3456,7 @@ CREATE TABLE dim.modifier_group_mapping (
 ALTER TABLE dim.modifier_group_mapping OWNER TO citus;
 
 --
--- TOC entry 366 (class 1259 OID 202916)
+-- TOC entry 381 (class 1259 OID 202916)
 -- Name: occasionsurvey; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1947,7 +3472,7 @@ CREATE TABLE dim.occasionsurvey (
 ALTER TABLE dim.occasionsurvey OWNER TO citus;
 
 --
--- TOC entry 365 (class 1259 OID 202915)
+-- TOC entry 380 (class 1259 OID 202915)
 -- Name: occasionsurvey_surveykey_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
@@ -1962,7 +3487,7 @@ ALTER TABLE dim.occasionsurvey ALTER COLUMN surveykey ADD GENERATED BY DEFAULT A
 
 
 --
--- TOC entry 343 (class 1259 OID 32880)
+-- TOC entry 358 (class 1259 OID 32880)
 -- Name: ordertype; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1978,7 +3503,7 @@ CREATE TABLE dim.ordertype (
 ALTER TABLE dim.ordertype OWNER TO citus;
 
 --
--- TOC entry 396 (class 1259 OID 672293)
+-- TOC entry 411 (class 1259 OID 672293)
 -- Name: ordertype_bkp; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -1994,7 +3519,7 @@ CREATE TABLE dim.ordertype_bkp (
 ALTER TABLE dim.ordertype_bkp OWNER TO citus;
 
 --
--- TOC entry 385 (class 1259 OID 431156)
+-- TOC entry 400 (class 1259 OID 431156)
 -- Name: organization; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -2037,7 +3562,7 @@ CREATE TABLE dim.organization (
 ALTER TABLE dim.organization OWNER TO citus;
 
 --
--- TOC entry 344 (class 1259 OID 32888)
+-- TOC entry 359 (class 1259 OID 32888)
 -- Name: organizationlocation; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -2054,7 +3579,7 @@ CREATE TABLE dim.organizationlocation (
 ALTER TABLE dim.organizationlocation OWNER TO citus;
 
 --
--- TOC entry 380 (class 1259 OID 413638)
+-- TOC entry 395 (class 1259 OID 413638)
 -- Name: peripheral; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -2076,7 +3601,7 @@ CREATE TABLE dim.peripheral (
 ALTER TABLE dim.peripheral OWNER TO citus;
 
 --
--- TOC entry 390 (class 1259 OID 471773)
+-- TOC entry 405 (class 1259 OID 471773)
 -- Name: upsellgrouplookup; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -2092,7 +3617,7 @@ CREATE TABLE dim.upsellgrouplookup (
 ALTER TABLE dim.upsellgrouplookup OWNER TO citus;
 
 --
--- TOC entry 360 (class 1259 OID 103200)
+-- TOC entry 375 (class 1259 OID 103200)
 -- Name: userlocation; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -2105,7 +3630,7 @@ CREATE TABLE dim.userlocation (
 ALTER TABLE dim.userlocation OWNER TO citus;
 
 --
--- TOC entry 345 (class 1259 OID 32906)
+-- TOC entry 360 (class 1259 OID 32906)
 -- Name: view; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -2118,7 +3643,7 @@ CREATE TABLE dim.view (
 ALTER TABLE dim.view OWNER TO citus;
 
 --
--- TOC entry 402 (class 1259 OID 806155)
+-- TOC entry 417 (class 1259 OID 806155)
 -- Name: vw_grubbrrinstallbase; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -2271,7 +3796,7 @@ CREATE TABLE dim.vw_grubbrrinstallbase (
 ALTER TABLE dim.vw_grubbrrinstallbase OWNER TO citus;
 
 --
--- TOC entry 378 (class 1259 OID 393489)
+-- TOC entry 393 (class 1259 OID 393489)
 -- Name: weather; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -2291,7 +3816,7 @@ CREATE TABLE dim.weather (
 ALTER TABLE dim.weather OWNER TO citus;
 
 --
--- TOC entry 407 (class 1259 OID 1236960)
+-- TOC entry 422 (class 1259 OID 1236960)
 -- Name: vw_weatherhourlydata; Type: VIEW; Schema: dim; Owner: citus
 --
 
@@ -2355,7 +3880,7 @@ CREATE VIEW dim.vw_weatherhourlydata AS
 ALTER VIEW dim.vw_weatherhourlydata OWNER TO citus;
 
 --
--- TOC entry 347 (class 1259 OID 32917)
+-- TOC entry 362 (class 1259 OID 32917)
 -- Name: vworganizationlocation; Type: VIEW; Schema: dim; Owner: citus
 --
 
@@ -2438,7 +3963,7 @@ UNION
 ALTER VIEW dim.vworganizationlocation OWNER TO citus;
 
 --
--- TOC entry 377 (class 1259 OID 387340)
+-- TOC entry 392 (class 1259 OID 387340)
 -- Name: weather_bkp; Type: TABLE; Schema: dim; Owner: citus
 --
 
@@ -2457,7 +3982,7 @@ CREATE TABLE dim.weather_bkp (
 ALTER TABLE dim.weather_bkp OWNER TO citus;
 
 --
--- TOC entry 406 (class 1259 OID 1071621)
+-- TOC entry 421 (class 1259 OID 1071621)
 -- Name: cep_incidents; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2487,7 +4012,7 @@ CREATE TABLE fact.cep_incidents (
 ALTER TABLE fact.cep_incidents OWNER TO citus;
 
 --
--- TOC entry 398 (class 1259 OID 693385)
+-- TOC entry 413 (class 1259 OID 693385)
 -- Name: customer_menu_preferences; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2507,7 +4032,7 @@ CREATE TABLE fact.customer_menu_preferences (
 ALTER TABLE fact.customer_menu_preferences OWNER TO citus;
 
 --
--- TOC entry 348 (class 1259 OID 32922)
+-- TOC entry 363 (class 1259 OID 32922)
 -- Name: deviceevent; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2537,7 +4062,7 @@ CREATE TABLE fact.deviceevent (
 ALTER TABLE fact.deviceevent OWNER TO citus;
 
 --
--- TOC entry 381 (class 1259 OID 413945)
+-- TOC entry 396 (class 1259 OID 413945)
 -- Name: devicehealth; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2561,7 +4086,7 @@ CREATE TABLE fact.devicehealth (
 ALTER TABLE fact.devicehealth OWNER TO citus;
 
 --
--- TOC entry 349 (class 1259 OID 32929)
+-- TOC entry 364 (class 1259 OID 32929)
 -- Name: devicestate; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2582,7 +4107,7 @@ CREATE TABLE fact.devicestate (
 ALTER TABLE fact.devicestate OWNER TO citus;
 
 --
--- TOC entry 361 (class 1259 OID 159814)
+-- TOC entry 376 (class 1259 OID 159814)
 -- Name: devicetelemetry; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2602,7 +4127,7 @@ CREATE TABLE fact.devicetelemetry (
 ALTER TABLE fact.devicetelemetry OWNER TO citus;
 
 --
--- TOC entry 350 (class 1259 OID 32945)
+-- TOC entry 365 (class 1259 OID 32945)
 -- Name: itemmodifier; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2617,14 +4142,17 @@ CREATE TABLE fact.itemmodifier (
     modifierprice numeric(12,3),
     freequantity integer,
     sysinserttime timestamp without time zone,
-    sysupdatetime timestamp without time zone
+    sysupdatetime timestamp without time zone,
+    locationid text,
+    businessdate date,
+    syscosmosts bigint
 );
 
 
 ALTER TABLE fact.itemmodifier OWNER TO citus;
 
 --
--- TOC entry 374 (class 1259 OID 352106)
+-- TOC entry 389 (class 1259 OID 352106)
 -- Name: itemssurvey; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2641,14 +4169,23 @@ CREATE TABLE fact.itemssurvey (
     surveyissuedtimestamp text,
     surveycompletedtimestamp text,
     surveylocaltimestamp timestamp without time zone,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    nge_syscosmosts bigint,
+    ordersessionid text,
+    gem_event_category text,
+    gem_event_type text,
+    is_responded boolean,
+    gem_syscosmosts bigint,
+    gem_event_instant text,
+    sysupdatetime timestamp without time zone,
+    sourceid integer
 );
 
 
 ALTER TABLE fact.itemssurvey OWNER TO citus;
 
 --
--- TOC entry 399 (class 1259 OID 693393)
+-- TOC entry 414 (class 1259 OID 693393)
 -- Name: location_menu_preferences; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2667,7 +4204,7 @@ CREATE TABLE fact.location_menu_preferences (
 ALTER TABLE fact.location_menu_preferences OWNER TO citus;
 
 --
--- TOC entry 413 (class 1259 OID 2247991)
+-- TOC entry 428 (class 1259 OID 2247991)
 -- Name: location_statistics; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2700,37 +4237,100 @@ CREATE TABLE fact.location_statistics (
 ALTER TABLE fact.location_statistics OWNER TO citus;
 
 --
--- TOC entry 415 (class 1259 OID 2812776)
--- Name: modifier_interactions; Type: TABLE; Schema: fact; Owner: citus
+-- TOC entry 432 (class 1259 OID 2874472)
+-- Name: modifier_impressions; Type: TABLE; Schema: fact; Owner: citus
 --
 
-CREATE TABLE fact.modifier_interactions (
+CREATE TABLE fact.modifier_impressions (
     locationid text NOT NULL,
     transactionheaderid text NOT NULL,
     ordersessionid text,
     orderid text,
-    orderitemid text NOT NULL,
+    menuitemid text,
+    modifierid text NOT NULL,
+    parent_modifier_id text,
+    selection_type text,
+    nesting_depth integer,
+    "position" integer,
+    score numeric(5,3),
+    strategy text,
+    context text,
+    selected boolean,
+    pre_deselected boolean,
+    confirmed_removed boolean,
+    pre_selected boolean,
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid text,
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+);
+
+
+ALTER TABLE fact.modifier_impressions OWNER TO citus;
+
+--
+-- TOC entry 433 (class 1259 OID 2874493)
+-- Name: modifier_interactions; Type: TABLE; Schema: fact; Owner: citus
+--
+
+CREATE TABLE fact.modifier_interactions (
+    locationid text,
+    transactionheaderid text NOT NULL,
+    ordersessionid text,
+    orderid text,
+    orderitemid text,
     menuitemid text,
     modifiergroupid text NOT NULL,
     modifierid text NOT NULL,
     modifiername text,
-    modifierquantity smallint,
+    parent_modifier_id text,
+    nesting_depth integer,
+    modifierquantity integer,
     modifierprice numeric(12,3),
     freequantity integer,
-    selectiontype text,
+    selection_type text,
     action text,
+    session_recorded_at text,
     businessdate date,
     orderdatelocal timestamp without time zone,
     frequentcustomerid text,
+    syscosmosts bigint,
     sysinserttime timestamp without time zone,
-    sysupdatetime timestamp without time zone
+    sysupdatetime timestamp without time zone,
+    sourceid integer
 );
 
 
 ALTER TABLE fact.modifier_interactions OWNER TO citus;
 
 --
--- TOC entry 375 (class 1259 OID 352111)
+-- TOC entry 431 (class 1259 OID 2860510)
+-- Name: modifier_recommendations; Type: TABLE; Schema: fact; Owner: citus
+--
+
+CREATE TABLE fact.modifier_recommendations (
+    locationid text NOT NULL,
+    transactionheaderid text NOT NULL,
+    ordersessionid text,
+    orderid text,
+    modifier_impressions jsonb,
+    modifier_interactions jsonb,
+    businessdate date,
+    orderdateutc text,
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid text,
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+);
+
+
+ALTER TABLE fact.modifier_recommendations OWNER TO citus;
+
+--
+-- TOC entry 390 (class 1259 OID 352111)
 -- Name: occasionsurveydetail; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2757,7 +4357,7 @@ CREATE TABLE fact.occasionsurveydetail (
 ALTER TABLE fact.occasionsurveydetail OWNER TO citus;
 
 --
--- TOC entry 351 (class 1259 OID 32952)
+-- TOC entry 366 (class 1259 OID 32952)
 -- Name: ordertiming; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2792,7 +4392,7 @@ CREATE TABLE fact.ordertiming (
 ALTER TABLE fact.ordertiming OWNER TO citus;
 
 --
--- TOC entry 382 (class 1259 OID 413957)
+-- TOC entry 397 (class 1259 OID 413957)
 -- Name: peripheralhealth; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2808,7 +4408,7 @@ CREATE TABLE fact.peripheralhealth (
 ALTER TABLE fact.peripheralhealth OWNER TO citus;
 
 --
--- TOC entry 352 (class 1259 OID 32959)
+-- TOC entry 367 (class 1259 OID 32959)
 -- Name: peripheralstate; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2826,7 +4426,7 @@ CREATE TABLE fact.peripheralstate (
 ALTER TABLE fact.peripheralstate OWNER TO citus;
 
 --
--- TOC entry 353 (class 1259 OID 32965)
+-- TOC entry 368 (class 1259 OID 32965)
 -- Name: pipelinerunstatus; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2846,7 +4446,7 @@ CREATE TABLE fact.pipelinerunstatus (
 ALTER TABLE fact.pipelinerunstatus OWNER TO citus;
 
 --
--- TOC entry 405 (class 1259 OID 888761)
+-- TOC entry 420 (class 1259 OID 888761)
 -- Name: pos_sales_details; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2868,7 +4468,7 @@ CREATE TABLE fact.pos_sales_details (
 ALTER TABLE fact.pos_sales_details OWNER TO citus;
 
 --
--- TOC entry 404 (class 1259 OID 888760)
+-- TOC entry 419 (class 1259 OID 888760)
 -- Name: pos_sales_details_id_seq; Type: SEQUENCE; Schema: fact; Owner: citus
 --
 
@@ -2883,7 +4483,7 @@ ALTER TABLE fact.pos_sales_details ALTER COLUMN id ADD GENERATED ALWAYS AS IDENT
 
 
 --
--- TOC entry 387 (class 1259 OID 454561)
+-- TOC entry 402 (class 1259 OID 454561)
 -- Name: recommendations; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2903,7 +4503,7 @@ CREATE TABLE fact.recommendations (
 ALTER TABLE fact.recommendations OWNER TO citus;
 
 --
--- TOC entry 386 (class 1259 OID 454469)
+-- TOC entry 401 (class 1259 OID 454469)
 -- Name: recommendations_bkp; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2921,7 +4521,30 @@ CREATE TABLE fact.recommendations_bkp (
 ALTER TABLE fact.recommendations_bkp OWNER TO citus;
 
 --
--- TOC entry 354 (class 1259 OID 32970)
+-- TOC entry 436 (class 1259 OID 2987102)
+-- Name: sent_surveys; Type: TABLE; Schema: fact; Owner: citus
+--
+
+CREATE TABLE fact.sent_surveys (
+    organizationid text,
+    locationid text NOT NULL,
+    ordersessionid text NOT NULL,
+    orderid text,
+    gem_event_category text,
+    gem_event_type text,
+    survey_metadata jsonb,
+    is_responded boolean,
+    gem_event_instant text,
+    gem_syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+);
+
+
+ALTER TABLE fact.sent_surveys OWNER TO citus;
+
+--
+-- TOC entry 369 (class 1259 OID 32970)
 -- Name: timingsdatalake; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2934,7 +4557,7 @@ CREATE TABLE fact.timingsdatalake (
 ALTER TABLE fact.timingsdatalake OWNER TO citus;
 
 --
--- TOC entry 355 (class 1259 OID 32977)
+-- TOC entry 370 (class 1259 OID 32977)
 -- Name: transactionheader; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -2990,7 +4613,7 @@ CREATE TABLE fact.transactionheader (
 ALTER TABLE fact.transactionheader OWNER TO citus;
 
 --
--- TOC entry 356 (class 1259 OID 32988)
+-- TOC entry 371 (class 1259 OID 32988)
 -- Name: transactionitem; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -3021,14 +4644,16 @@ CREATE TABLE fact.transactionitem (
     dimmenuitemid character varying(50),
     locationid character varying(50),
     orderdatelocal timestamp without time zone,
-    businessdate date
+    businessdate date,
+    syscosmosts bigint,
+    frequentcustomerid text
 );
 
 
 ALTER TABLE fact.transactionitem OWNER TO citus;
 
 --
--- TOC entry 367 (class 1259 OID 219255)
+-- TOC entry 382 (class 1259 OID 219255)
 -- Name: transactionitemtest; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -3063,7 +4688,7 @@ CREATE TABLE fact.transactionitemtest (
 ALTER TABLE fact.transactionitemtest OWNER TO citus;
 
 --
--- TOC entry 357 (class 1259 OID 32997)
+-- TOC entry 372 (class 1259 OID 32997)
 -- Name: transactionpayment; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -3087,7 +4712,7 @@ CREATE TABLE fact.transactionpayment (
 ALTER TABLE fact.transactionpayment OWNER TO citus;
 
 --
--- TOC entry 392 (class 1259 OID 542773)
+-- TOC entry 407 (class 1259 OID 542773)
 -- Name: transactionrefunds; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -3108,7 +4733,7 @@ CREATE TABLE fact.transactionrefunds (
 ALTER TABLE fact.transactionrefunds OWNER TO citus;
 
 --
--- TOC entry 358 (class 1259 OID 33004)
+-- TOC entry 373 (class 1259 OID 33004)
 -- Name: userbehaviour; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -3135,7 +4760,7 @@ CREATE TABLE fact.userbehaviour (
 ALTER TABLE fact.userbehaviour OWNER TO citus;
 
 --
--- TOC entry 388 (class 1259 OID 459790)
+-- TOC entry 403 (class 1259 OID 459790)
 -- Name: userbehaviour_exceptions; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -3159,7 +4784,7 @@ CREATE TABLE fact.userbehaviour_exceptions (
 ALTER TABLE fact.userbehaviour_exceptions OWNER TO citus;
 
 --
--- TOC entry 362 (class 1259 OID 165825)
+-- TOC entry 377 (class 1259 OID 165825)
 -- Name: usercheckedin; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -3187,7 +4812,7 @@ CREATE TABLE fact.usercheckedin (
 ALTER TABLE fact.usercheckedin OWNER TO citus;
 
 --
--- TOC entry 397 (class 1259 OID 676689)
+-- TOC entry 412 (class 1259 OID 676689)
 -- Name: vw_offer_analysis; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -3211,7 +4836,7 @@ CREATE TABLE fact.vw_offer_analysis (
 ALTER TABLE fact.vw_offer_analysis OWNER TO citus;
 
 --
--- TOC entry 359 (class 1259 OID 33011)
+-- TOC entry 374 (class 1259 OID 33011)
 -- Name: watermarktable; Type: TABLE; Schema: fact; Owner: citus
 --
 
@@ -3221,14 +4846,332 @@ CREATE TABLE fact.watermarktable (
     watermarkvalue timestamp without time zone,
     ticks bigint,
     ts bigint,
-    source character varying(10) NOT NULL
+    source character varying(50) NOT NULL
 );
 
 
 ALTER TABLE fact.watermarktable OWNER TO citus;
 
 --
--- TOC entry 393 (class 1259 OID 583797)
+-- TOC entry 443 (class 1259 OID 3048276)
+-- Name: item_modifiergroup_modifier_mapping; Type: TABLE; Schema: ml; Owner: citus
+--
+
+CREATE TABLE ml.item_modifiergroup_modifier_mapping (
+    organizationid text,
+    organizationname text,
+    locationid text,
+    locationname text,
+    catalogid text,
+    catalogname text,
+    menuitemid text,
+    menuitemname text,
+    item_class_type integer,
+    modifiergroupid text,
+    modifiergroupname text,
+    modifierid text,
+    modifiername text,
+    modifier_class_type integer,
+    is_modifier_default boolean,
+    min_quantity integer,
+    max_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    modifier_default_quantity integer,
+    is_modifier_invisible boolean,
+    calories text,
+    price numeric(12,4),
+    is_modifier_active boolean,
+    is_modifier_deleted boolean,
+    modifier_created_on timestamp without time zone,
+    modifier_modified_on timestamp without time zone,
+    sysinserttime timestamp without time zone
+);
+
+
+ALTER TABLE ml.item_modifiergroup_modifier_mapping OWNER TO citus;
+
+--
+-- TOC entry 439 (class 1259 OID 3044534)
+-- Name: menu_entities; Type: TABLE; Schema: ml; Owner: citus
+--
+
+CREATE TABLE ml.menu_entities (
+    organizationid text,
+    organizationname text,
+    locationid text,
+    locationname text,
+    categoryid text,
+    categoryname text,
+    menuitemid text,
+    menuitemname text,
+    catalogid text,
+    itemunitprice numeric(12,4),
+    price_changed_on timestamp without time zone,
+    item_class_type integer,
+    entitytype text,
+    calories text,
+    protein numeric(9,2),
+    sugar numeric(9,2),
+    fat numeric(9,2),
+    is_alcoholic boolean,
+    is_vegetarian_item boolean,
+    is_vegan_item boolean,
+    has_allergen boolean,
+    is_active boolean,
+    is_deleted boolean,
+    gms_created_on timestamp without time zone,
+    gms_modified_on timestamp without time zone,
+    sysinserttime timestamp without time zone
+);
+
+
+ALTER TABLE ml.menu_entities OWNER TO citus;
+
+--
+-- TOC entry 442 (class 1259 OID 3048261)
+-- Name: modifier_impressions; Type: TABLE; Schema: ml; Owner: citus
+--
+
+CREATE TABLE ml.modifier_impressions (
+    organizationid text,
+    organizationname text,
+    locationname text,
+    locationid text,
+    catalogid text,
+    catalogname text,
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    yyyy integer,
+    ww integer,
+    transactionheaderid text,
+    ordersessionid text,
+    orderid text,
+    menuitemid text,
+    menuitemname text,
+    item_class_type integer,
+    modifierid text,
+    modifiername text,
+    modifier_class_type integer,
+    parent_modifier_id text,
+    nesting_depth integer,
+    modifierprice numeric(12,4),
+    selection_type text,
+    "position" integer,
+    score numeric(10,4),
+    strategy text,
+    context text,
+    selected boolean,
+    pre_deselected boolean,
+    confirmed_removed boolean,
+    pre_selected boolean,
+    frequentcustomerid text,
+    sysinserttime timestamp without time zone
+);
+
+
+ALTER TABLE ml.modifier_impressions OWNER TO citus;
+
+--
+-- TOC entry 441 (class 1259 OID 3048228)
+-- Name: modifier_interactions; Type: TABLE; Schema: ml; Owner: citus
+--
+
+CREATE TABLE ml.modifier_interactions (
+    organizationid text,
+    organizationname text,
+    locationname text,
+    locationid text,
+    catalogid text,
+    catalogname text,
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    yyyy integer,
+    ww integer,
+    transactionheaderid text,
+    ordersessionid text,
+    orderid text,
+    orderitemid text,
+    menuitemid text,
+    menuitemname text,
+    itemquantity integer,
+    itemunitprice numeric(12,4),
+    item_class_type integer,
+    modifiergroupid text,
+    modifiergroupname text,
+    modifierid text,
+    modifiername text,
+    parent_modifier_id text,
+    nesting_depth integer,
+    modifierquantity integer,
+    modifierprice numeric(12,4),
+    freequantity integer,
+    is_modifier_default boolean,
+    min_quantity integer,
+    max_quantity integer,
+    selection_type text,
+    action text,
+    session_recorded_at text,
+    frequentcustomerid text,
+    modifier_default_quantity integer,
+    modifier_class_type integer,
+    sysinserttime timestamp without time zone
+);
+
+
+ALTER TABLE ml.modifier_interactions OWNER TO citus;
+
+--
+-- TOC entry 440 (class 1259 OID 3044562)
+-- Name: transactions; Type: TABLE; Schema: ml; Owner: citus
+--
+
+CREATE TABLE ml.transactions (
+    frequentcustomerid text,
+    organizationid text,
+    organizationname text,
+    locationid text,
+    locationname text,
+    kioskid text,
+    transactionheaderid text,
+    ordersessionid text,
+    orderid text,
+    orderitemid text,
+    menuitemid text,
+    itemname text,
+    upselllevel text,
+    item_class_type integer,
+    itemquantity integer,
+    categoryid text,
+    categoryname text,
+    itemunitprice numeric(12,4),
+    paymentstatus text,
+    numberofitems integer,
+    numberofpayments integer,
+    ordertotal numeric(14,4),
+    ordersubtotal numeric(14,4),
+    ordertip numeric(14,4),
+    ordertax numeric(14,4),
+    ordertypelabel text,
+    orderdatelocal timestamp without time zone,
+    businessdate date,
+    weatherhumidity numeric(7,2),
+    weathercondition text,
+    temperatureincelcius numeric(7,2),
+    yyyy integer,
+    mm integer,
+    dd integer,
+    hh integer,
+    ww integer,
+    sysinserttime timestamp without time zone
+);
+
+
+ALTER TABLE ml.transactions OWNER TO citus;
+
+--
+-- TOC entry 437 (class 1259 OID 3042193)
+-- Name: upsell_analysis; Type: TABLE; Schema: ml; Owner: citus
+--
+
+CREATE TABLE ml.upsell_analysis (
+    organizationid text,
+    organizationname text,
+    locationid text,
+    locationname text,
+    frequentcustomerid text,
+    transactionheaderid text,
+    recommendationid text,
+    offereditem text,
+    selecteditem text,
+    item_class_type integer,
+    upselltype text,
+    quantity integer,
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    yyyy integer,
+    mm integer,
+    dd integer,
+    hh integer,
+    ww integer,
+    sysinserttime timestamp without time zone
+);
+
+
+ALTER TABLE ml.upsell_analysis OWNER TO citus;
+
+--
+-- TOC entry 438 (class 1259 OID 3042222)
+-- Name: weather; Type: TABLE; Schema: ml; Owner: citus
+--
+
+CREATE TABLE ml.weather (
+    organizationid text,
+    organizationname text,
+    locationid text,
+    locationname text,
+    weatherdate date,
+    yyyy integer,
+    mm integer,
+    dd integer,
+    ww integer,
+    hh integer,
+    humidity integer,
+    condition text,
+    temperature_c numeric(8,2),
+    is_hot boolean,
+    is_calm boolean,
+    is_cold boolean,
+    is_cool boolean,
+    is_mild boolean,
+    is_warm boolean,
+    rain_mm numeric(8,2),
+    is_sunny boolean,
+    is_windy boolean,
+    is_cloudy boolean,
+    is_daytime boolean,
+    is_raining boolean,
+    is_snowing boolean,
+    is_very_hot boolean,
+    is_freezing boolean,
+    is_overcast boolean,
+    snowfall_mm numeric(8,2),
+    temp_bucket text,
+    wind_bucket text,
+    feels_colder boolean,
+    feels_hotter boolean,
+    food_weather text,
+    is_heavy_rain boolean,
+    is_light_rain boolean,
+    is_nighttime boolean,
+    is_very_windy boolean,
+    pressure_hpa numeric(8,2),
+    weather_code integer,
+    wind_gust_kmh numeric(8,2),
+    comfort_score integer,
+    drink_weather text,
+    wind_speed_kmh numeric(8,2),
+    comfort_bucket text,
+    humidity_bucket text,
+    condition_bucket text,
+    is_precipitating boolean,
+    precipitation_mm numeric(8,2),
+    visibility_meters numeric(8,2),
+    cloud_cover_percent numeric(8,2),
+    is_unseasonably_hot boolean,
+    is_unseasonably_cold boolean,
+    outdoor_dining_score integer,
+    wind_direction_degrees integer,
+    precipitation_probability numeric(8,2),
+    apparent_temperature_celsius numeric(8,2),
+    sysinserttime timestamp without time zone
+);
+
+
+ALTER TABLE ml.weather OWNER TO citus;
+
+--
+-- TOC entry 408 (class 1259 OID 583797)
 -- Name: kioskdetails; Type: TABLE; Schema: stg; Owner: citus
 --
 
@@ -3246,7 +5189,31 @@ CREATE TABLE stg.kioskdetails (
 ALTER TABLE stg.kioskdetails OWNER TO citus;
 
 --
--- TOC entry 389 (class 1259 OID 461038)
+-- TOC entry 430 (class 1259 OID 2849148)
+-- Name: modifier_recommendation_sessions; Type: TABLE; Schema: stg; Owner: citus
+--
+
+CREATE TABLE stg.modifier_recommendation_sessions (
+    locationid text NOT NULL,
+    transactionheaderid text NOT NULL,
+    ordersessionid text,
+    orderid text,
+    modifier_impressions text,
+    modifier_interactions text,
+    businessdate date,
+    orderdateutc text,
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid text,
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+);
+
+
+ALTER TABLE stg.modifier_recommendation_sessions OWNER TO citus;
+
+--
+-- TOC entry 404 (class 1259 OID 461038)
 -- Name: recommendations; Type: TABLE; Schema: stg; Owner: citus
 --
 
@@ -3265,7 +5232,30 @@ CREATE TABLE stg.recommendations (
 ALTER TABLE stg.recommendations OWNER TO citus;
 
 --
--- TOC entry 5761 (class 2604 OID 419503)
+-- TOC entry 434 (class 1259 OID 2944480)
+-- Name: sent_surveys; Type: TABLE; Schema: stg; Owner: citus
+--
+
+CREATE TABLE stg.sent_surveys (
+    organizationid text,
+    locationid text NOT NULL,
+    ordersessionid text NOT NULL,
+    orderid text,
+    gem_event_category text,
+    gem_event_type text,
+    survey_metadata text,
+    is_responded boolean,
+    gem_event_instant text,
+    gem_syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+);
+
+
+ALTER TABLE stg.sent_surveys OWNER TO citus;
+
+--
+-- TOC entry 5845 (class 2604 OID 419503)
 -- Name: experiment dimkey; Type: DEFAULT; Schema: dim; Owner: citus
 --
 
@@ -3273,7 +5263,7 @@ ALTER TABLE ONLY dim.experiment ALTER COLUMN dimkey SET DEFAULT nextval('dim.exp
 
 
 --
--- TOC entry 5927 (class 2606 OID 2178868)
+-- TOC entry 6011 (class 2606 OID 2178868)
 -- Name: catalog catalog_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3282,16 +5272,7 @@ ALTER TABLE ONLY dim.catalog
 
 
 --
--- TOC entry 5921 (class 2606 OID 2047555)
--- Name: category_hierarchy category_hierarchy_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
---
-
-ALTER TABLE ONLY dim.category_hierarchy
-    ADD CONSTRAINT category_hierarchy_pkey PRIMARY KEY (id);
-
-
---
--- TOC entry 5771 (class 2606 OID 32817)
+-- TOC entry 5857 (class 2606 OID 32817)
 -- Name: company company_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3300,7 +5281,7 @@ ALTER TABLE ONLY dim.company
 
 
 --
--- TOC entry 5774 (class 2606 OID 32825)
+-- TOC entry 5860 (class 2606 OID 32825)
 -- Name: datedim datedim_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3309,7 +5290,7 @@ ALTER TABLE ONLY dim.datedim
 
 
 --
--- TOC entry 5858 (class 2606 OID 413632)
+-- TOC entry 5944 (class 2606 OID 413632)
 -- Name: device device_deviceid_locationid_companyid_key; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3318,7 +5299,7 @@ ALTER TABLE ONLY dim.device
 
 
 --
--- TOC entry 5860 (class 2606 OID 413630)
+-- TOC entry 5946 (class 2606 OID 413630)
 -- Name: device device_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3327,7 +5308,7 @@ ALTER TABLE ONLY dim.device
 
 
 --
--- TOC entry 5778 (class 2606 OID 32835)
+-- TOC entry 5864 (class 2606 OID 32835)
 -- Name: element dimelement_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3336,7 +5317,7 @@ ALTER TABLE ONLY dim.element
 
 
 --
--- TOC entry 5882 (class 2606 OID 419507)
+-- TOC entry 5968 (class 2606 OID 419507)
 -- Name: experiment experiment_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3345,7 +5326,7 @@ ALTER TABLE ONLY dim.experiment
 
 
 --
--- TOC entry 5842 (class 2606 OID 779308)
+-- TOC entry 5928 (class 2606 OID 779308)
 -- Name: frequentcustomer frequent_customer_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3354,7 +5335,7 @@ ALTER TABLE ONLY dim.frequentcustomer
 
 
 --
--- TOC entry 5915 (class 2606 OID 762128)
+-- TOC entry 6001 (class 2606 OID 762128)
 -- Name: grubbrr_source_lookup grubbrr_source_lookup_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3363,7 +5344,16 @@ ALTER TABLE ONLY dim.grubbrr_source_lookup
 
 
 --
--- TOC entry 5898 (class 2606 OID 514418)
+-- TOC entry 6019 (class 2606 OID 2888241)
+-- Name: item_modifier_group_modifier_mapping item_modgrp_modfr_unq; Type: CONSTRAINT; Schema: dim; Owner: citus
+--
+
+ALTER TABLE ONLY dim.item_modifier_group_modifier_mapping
+    ADD CONSTRAINT item_modgrp_modfr_unq UNIQUE (menuitemid, modifiergroupid, modifierid);
+
+
+--
+-- TOC entry 5984 (class 2606 OID 514418)
 -- Name: itemcategory_bkp itemcategory_bkp_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3372,7 +5362,7 @@ ALTER TABLE ONLY dim.itemcategory_bkp
 
 
 --
--- TOC entry 5782 (class 2606 OID 32844)
+-- TOC entry 5868 (class 2606 OID 32844)
 -- Name: itemcategory itemcategory_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3381,7 +5371,7 @@ ALTER TABLE ONLY dim.itemcategory
 
 
 --
--- TOC entry 5844 (class 2606 OID 311956)
+-- TOC entry 5930 (class 2606 OID 311956)
 -- Name: kiosk kiosk_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3390,7 +5380,7 @@ ALTER TABLE ONLY dim.kiosk
 
 
 --
--- TOC entry 5846 (class 2606 OID 311958)
+-- TOC entry 5932 (class 2606 OID 311958)
 -- Name: kiosk kiosk_uidx; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3399,7 +5389,7 @@ ALTER TABLE ONLY dim.kiosk
 
 
 --
--- TOC entry 5923 (class 2606 OID 2047632)
+-- TOC entry 6007 (class 2606 OID 2047632)
 -- Name: category_hierarchy location_category_menuitem_unq; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3408,7 +5398,7 @@ ALTER TABLE ONLY dim.category_hierarchy
 
 
 --
--- TOC entry 5848 (class 2606 OID 327015)
+-- TOC entry 5934 (class 2606 OID 327015)
 -- Name: locationcatalog location_ctlg_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3417,7 +5407,7 @@ ALTER TABLE ONLY dim.locationcatalog
 
 
 --
--- TOC entry 5854 (class 2606 OID 387346)
+-- TOC entry 5940 (class 2606 OID 387346)
 -- Name: weather_bkp location_date_bkp_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3426,7 +5416,7 @@ ALTER TABLE ONLY dim.weather_bkp
 
 
 --
--- TOC entry 5856 (class 2606 OID 393495)
+-- TOC entry 5942 (class 2606 OID 393495)
 -- Name: weather location_date_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3435,7 +5425,7 @@ ALTER TABLE ONLY dim.weather
 
 
 --
--- TOC entry 5785 (class 2606 OID 32869)
+-- TOC entry 5871 (class 2606 OID 32869)
 -- Name: location location_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3444,7 +5434,7 @@ ALTER TABLE ONLY dim.location
 
 
 --
--- TOC entry 5925 (class 2606 OID 2047655)
+-- TOC entry 6009 (class 2606 OID 2047655)
 -- Name: duplicate_items_master locationid_categoryid_menuitemid_unq; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3453,7 +5443,7 @@ ALTER TABLE ONLY dim.duplicate_items_master
 
 
 --
--- TOC entry 5917 (class 2606 OID 806161)
+-- TOC entry 6003 (class 2606 OID 806161)
 -- Name: vw_grubbrrinstallbase locationid_deviceid_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3462,7 +5452,7 @@ ALTER TABLE ONLY dim.vw_grubbrrinstallbase
 
 
 --
--- TOC entry 5901 (class 2606 OID 594665)
+-- TOC entry 5987 (class 2606 OID 594665)
 -- Name: kioskdetails locationid_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3471,7 +5461,7 @@ ALTER TABLE ONLY dim.kioskdetails
 
 
 --
--- TOC entry 5913 (class 2606 OID 695509)
+-- TOC entry 5999 (class 2606 OID 695509)
 -- Name: menuentities menuentities_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3480,7 +5470,7 @@ ALTER TABLE ONLY dim.menuentities
 
 
 --
--- TOC entry 5850 (class 2606 OID 359373)
+-- TOC entry 5936 (class 2606 OID 359373)
 -- Name: menuitem menuitem_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3489,7 +5479,7 @@ ALTER TABLE ONLY dim.menuitem
 
 
 --
--- TOC entry 5852 (class 2606 OID 779647)
+-- TOC entry 5938 (class 2606 OID 779647)
 -- Name: menuitem menuitemid_unq; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3498,7 +5488,25 @@ ALTER TABLE ONLY dim.menuitem
 
 
 --
--- TOC entry 5931 (class 2606 OID 2196815)
+-- TOC entry 6015 (class 2606 OID 2951718)
+-- Name: modifier_group_mapping modfrgrp_modfr_unq; Type: CONSTRAINT; Schema: dim; Owner: citus
+--
+
+ALTER TABLE ONLY dim.modifier_group_mapping
+    ADD CONSTRAINT modfrgrp_modfr_unq UNIQUE (modifiergroupid, modifierid);
+
+
+--
+-- TOC entry 6023 (class 2606 OID 2951561)
+-- Name: modifier_group modifier_group_master_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
+--
+
+ALTER TABLE ONLY dim.modifier_group
+    ADD CONSTRAINT modifier_group_master_pkey PRIMARY KEY (modifiergroupid);
+
+
+--
+-- TOC entry 6017 (class 2606 OID 2196815)
 -- Name: modifier_group_mapping modifier_group_modifier_glue_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3507,16 +5515,16 @@ ALTER TABLE ONLY dim.modifier_group_mapping
 
 
 --
--- TOC entry 5929 (class 2606 OID 2196063)
--- Name: modifier modifier_master_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
+-- TOC entry 6013 (class 2606 OID 2888243)
+-- Name: modifier modifierid_unq; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
 ALTER TABLE ONLY dim.modifier
-    ADD CONSTRAINT modifier_master_pkey PRIMARY KEY (modifierid);
+    ADD CONSTRAINT modifierid_unq UNIQUE (modifierid);
 
 
 --
--- TOC entry 5903 (class 2606 OID 672299)
+-- TOC entry 5989 (class 2606 OID 672299)
 -- Name: ordertype_bkp ordertype_bkp_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3525,7 +5533,7 @@ ALTER TABLE ONLY dim.ordertype_bkp
 
 
 --
--- TOC entry 5789 (class 2606 OID 32886)
+-- TOC entry 5875 (class 2606 OID 32886)
 -- Name: ordertype ordertype_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3534,7 +5542,7 @@ ALTER TABLE ONLY dim.ordertype
 
 
 --
--- TOC entry 5884 (class 2606 OID 431163)
+-- TOC entry 5970 (class 2606 OID 431163)
 -- Name: organization organization_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3543,7 +5551,7 @@ ALTER TABLE ONLY dim.organization
 
 
 --
--- TOC entry 5794 (class 2606 OID 775937)
+-- TOC entry 5880 (class 2606 OID 775937)
 -- Name: organizationlocation organizationid_locationid_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3552,7 +5560,7 @@ ALTER TABLE ONLY dim.organizationlocation
 
 
 --
--- TOC entry 5835 (class 2606 OID 780632)
+-- TOC entry 5921 (class 2606 OID 780632)
 -- Name: occasionsurvey orgid_surveyid_pk; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3561,7 +5569,7 @@ ALTER TABLE ONLY dim.occasionsurvey
 
 
 --
--- TOC entry 5867 (class 2606 OID 413646)
+-- TOC entry 5953 (class 2606 OID 413646)
 -- Name: peripheral peripheral_deviceid_peripheralid_key; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3570,7 +5578,7 @@ ALTER TABLE ONLY dim.peripheral
 
 
 --
--- TOC entry 5870 (class 2606 OID 413644)
+-- TOC entry 5956 (class 2606 OID 413644)
 -- Name: peripheral peripheral_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3579,7 +5587,7 @@ ALTER TABLE ONLY dim.peripheral
 
 
 --
--- TOC entry 5837 (class 2606 OID 202922)
+-- TOC entry 5923 (class 2606 OID 202922)
 -- Name: occasionsurvey survey_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3588,7 +5596,7 @@ ALTER TABLE ONLY dim.occasionsurvey
 
 
 --
--- TOC entry 5894 (class 2606 OID 471809)
+-- TOC entry 5980 (class 2606 OID 471809)
 -- Name: upsellgrouplookup upsellgroupid_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3597,7 +5605,7 @@ ALTER TABLE ONLY dim.upsellgrouplookup
 
 
 --
--- TOC entry 5827 (class 2606 OID 103204)
+-- TOC entry 5913 (class 2606 OID 103204)
 -- Name: userlocation userlocation_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -3606,7 +5614,7 @@ ALTER TABLE ONLY dim.userlocation
 
 
 --
--- TOC entry 5873 (class 2606 OID 413951)
+-- TOC entry 5959 (class 2606 OID 413951)
 -- Name: devicehealth devicehealth_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3615,7 +5623,7 @@ ALTER TABLE ONLY fact.devicehealth
 
 
 --
--- TOC entry 5908 (class 2606 OID 694784)
+-- TOC entry 5994 (class 2606 OID 694784)
 -- Name: location_menu_preferences location_dayparts_itemid_itemtype_unq; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3624,7 +5632,7 @@ ALTER TABLE ONLY fact.location_menu_preferences
 
 
 --
--- TOC entry 5886 (class 2606 OID 775712)
+-- TOC entry 5972 (class 2606 OID 775712)
 -- Name: recommendations locationid_trxnid_recommendationid_pk; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3633,7 +5641,7 @@ ALTER TABLE ONLY fact.recommendations
 
 
 --
--- TOC entry 5807 (class 2606 OID 32958)
+-- TOC entry 5893 (class 2606 OID 32958)
 -- Name: ordertiming ordertiming_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3642,7 +5650,7 @@ ALTER TABLE ONLY fact.ordertiming
 
 
 --
--- TOC entry 5879 (class 2606 OID 413963)
+-- TOC entry 5965 (class 2606 OID 413963)
 -- Name: peripheralhealth peripheralhealth_healthdataid_peripheralid_key; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3651,7 +5659,7 @@ ALTER TABLE ONLY fact.peripheralhealth
 
 
 --
--- TOC entry 5919 (class 2606 OID 888772)
+-- TOC entry 6005 (class 2606 OID 888772)
 -- Name: pos_sales_details pos_sales_details_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3660,7 +5668,16 @@ ALTER TABLE ONLY fact.pos_sales_details
 
 
 --
--- TOC entry 5811 (class 2606 OID 32976)
+-- TOC entry 6025 (class 2606 OID 2987108)
+-- Name: sent_surveys sent_surveys_ordersessionid_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
+--
+
+ALTER TABLE ONLY fact.sent_surveys
+    ADD CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid);
+
+
+--
+-- TOC entry 5897 (class 2606 OID 32976)
 -- Name: timingsdatalake timingsdatalake_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3669,7 +5686,7 @@ ALTER TABLE ONLY fact.timingsdatalake
 
 
 --
--- TOC entry 5814 (class 2606 OID 294801)
+-- TOC entry 5900 (class 2606 OID 294801)
 -- Name: transactionheader transactionheader_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3678,7 +5695,7 @@ ALTER TABLE ONLY fact.transactionheader
 
 
 --
--- TOC entry 5888 (class 2606 OID 454567)
+-- TOC entry 5974 (class 2606 OID 454567)
 -- Name: recommendations transactionheaderid_recommendationid_uidx; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3687,7 +5704,7 @@ ALTER TABLE ONLY fact.recommendations
 
 
 --
--- TOC entry 5818 (class 2606 OID 57357)
+-- TOC entry 5904 (class 2606 OID 57357)
 -- Name: transactionitem transactionitem_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3696,7 +5713,7 @@ ALTER TABLE ONLY fact.transactionitem
 
 
 --
--- TOC entry 5840 (class 2606 OID 219262)
+-- TOC entry 5926 (class 2606 OID 219262)
 -- Name: transactionitemtest transactionitemtest_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3705,7 +5722,7 @@ ALTER TABLE ONLY fact.transactionitemtest
 
 
 --
--- TOC entry 5805 (class 2606 OID 1175206)
+-- TOC entry 5891 (class 2606 OID 1175206)
 -- Name: itemmodifier trxnid_itemid_mdfrgrpid_mdfrid_pk; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3714,16 +5731,7 @@ ALTER TABLE ONLY fact.itemmodifier
 
 
 --
--- TOC entry 5933 (class 2606 OID 2812782)
--- Name: modifier_interactions trxnid_itemid_modfrgrpid_modfrid_pk; Type: CONSTRAINT; Schema: fact; Owner: citus
---
-
-ALTER TABLE ONLY fact.modifier_interactions
-    ADD CONSTRAINT trxnid_itemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, orderitemid, modifiergroupid, modifierid);
-
-
---
--- TOC entry 5906 (class 2606 OID 676695)
+-- TOC entry 5992 (class 2606 OID 676695)
 -- Name: vw_offer_analysis trxnid_recommendationid_itemid_uidx; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3732,7 +5740,7 @@ ALTER TABLE ONLY fact.vw_offer_analysis
 
 
 --
--- TOC entry 5890 (class 2606 OID 459796)
+-- TOC entry 5976 (class 2606 OID 459796)
 -- Name: userbehaviour_exceptions userbehaviour_exceptions_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3741,7 +5749,7 @@ ALTER TABLE ONLY fact.userbehaviour_exceptions
 
 
 --
--- TOC entry 5823 (class 2606 OID 33010)
+-- TOC entry 5909 (class 2606 OID 33010)
 -- Name: userbehaviour userbehaviour_pkey; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3750,7 +5758,7 @@ ALTER TABLE ONLY fact.userbehaviour
 
 
 --
--- TOC entry 5825 (class 2606 OID 787891)
+-- TOC entry 5911 (class 2606 OID 2894021)
 -- Name: watermarktable watermarktablename_pk; Type: CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -3759,7 +5767,16 @@ ALTER TABLE ONLY fact.watermarktable
 
 
 --
--- TOC entry 5892 (class 2606 OID 461044)
+-- TOC entry 6021 (class 2606 OID 2959149)
+-- Name: sent_surveys sent_surveys_ordersessionid_pkey; Type: CONSTRAINT; Schema: stg; Owner: citus
+--
+
+ALTER TABLE ONLY stg.sent_surveys
+    ADD CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid);
+
+
+--
+-- TOC entry 5978 (class 2606 OID 461044)
 -- Name: recommendations transactionheaderid_recommendationid_uidx; Type: CONSTRAINT; Schema: stg; Owner: citus
 --
 
@@ -3768,7 +5785,7 @@ ALTER TABLE ONLY stg.recommendations
 
 
 --
--- TOC entry 5772 (class 1259 OID 32826)
+-- TOC entry 5858 (class 1259 OID 32826)
 -- Name: IX_dateid_datets; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3776,7 +5793,7 @@ CREATE INDEX "IX_dateid_datets" ON dim.datedim USING btree (dateid, datets);
 
 
 --
--- TOC entry 5790 (class 1259 OID 32893)
+-- TOC entry 5876 (class 1259 OID 32893)
 -- Name: IX_organizationid_locationid; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3784,7 +5801,7 @@ CREATE INDEX "IX_organizationid_locationid" ON dim.organizationlocation USING bt
 
 
 --
--- TOC entry 5769 (class 1259 OID 32818)
+-- TOC entry 5855 (class 1259 OID 32818)
 -- Name: company_id_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3792,7 +5809,7 @@ CREATE INDEX company_id_idx ON dim.company USING btree (companyid);
 
 
 --
--- TOC entry 5861 (class 1259 OID 413633)
+-- TOC entry 5947 (class 1259 OID 413633)
 -- Name: deviceid_locationid_companyid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3800,7 +5817,7 @@ CREATE INDEX deviceid_locationid_companyid_idx ON dim.device USING btree (device
 
 
 --
--- TOC entry 5783 (class 1259 OID 32870)
+-- TOC entry 5869 (class 1259 OID 32870)
 -- Name: dim_location_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3808,7 +5825,7 @@ CREATE INDEX dim_location_idx ON dim.location USING btree (locationid);
 
 
 --
--- TOC entry 5775 (class 1259 OID 32827)
+-- TOC entry 5861 (class 1259 OID 32827)
 -- Name: idx_datedim_dateid; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3816,7 +5833,7 @@ CREATE INDEX idx_datedim_dateid ON dim.datedim USING btree (dateid);
 
 
 --
--- TOC entry 5776 (class 1259 OID 32828)
+-- TOC entry 5862 (class 1259 OID 32828)
 -- Name: idx_datedim_datets; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3824,7 +5841,7 @@ CREATE INDEX idx_datedim_datets ON dim.datedim USING btree (datets);
 
 
 --
--- TOC entry 5862 (class 1259 OID 413634)
+-- TOC entry 5948 (class 1259 OID 413634)
 -- Name: idx_device_id; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3832,7 +5849,7 @@ CREATE INDEX idx_device_id ON dim.device USING btree (deviceid);
 
 
 --
--- TOC entry 5863 (class 1259 OID 413635)
+-- TOC entry 5949 (class 1259 OID 413635)
 -- Name: idx_device_location_id; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3840,7 +5857,7 @@ CREATE INDEX idx_device_location_id ON dim.device USING btree (locationid);
 
 
 --
--- TOC entry 5864 (class 1259 OID 413636)
+-- TOC entry 5950 (class 1259 OID 413636)
 -- Name: idx_device_state; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3848,7 +5865,7 @@ CREATE INDEX idx_device_state ON dim.device USING btree (state);
 
 
 --
--- TOC entry 5865 (class 1259 OID 413637)
+-- TOC entry 5951 (class 1259 OID 413637)
 -- Name: idx_device_testmode; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3856,7 +5873,7 @@ CREATE INDEX idx_device_testmode ON dim.device USING btree (testmode);
 
 
 --
--- TOC entry 5909 (class 1259 OID 695510)
+-- TOC entry 5995 (class 1259 OID 695510)
 -- Name: idx_menuentities_catalog; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3864,7 +5881,7 @@ CREATE INDEX idx_menuentities_catalog ON dim.menuentities USING btree (catalogid
 
 
 --
--- TOC entry 5910 (class 1259 OID 695512)
+-- TOC entry 5996 (class 1259 OID 695512)
 -- Name: idx_menuentities_mealavail; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3872,7 +5889,7 @@ CREATE INDEX idx_menuentities_mealavail ON dim.menuentities USING gin (mealavail
 
 
 --
--- TOC entry 5911 (class 1259 OID 695511)
+-- TOC entry 5997 (class 1259 OID 695511)
 -- Name: idx_menuentities_tags; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3880,7 +5897,7 @@ CREATE INDEX idx_menuentities_tags ON dim.menuentities USING gin (tags);
 
 
 --
--- TOC entry 5791 (class 1259 OID 32894)
+-- TOC entry 5877 (class 1259 OID 32894)
 -- Name: idx_organizationlocation_locationid; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3888,7 +5905,7 @@ CREATE INDEX idx_organizationlocation_locationid ON dim.organizationlocation USI
 
 
 --
--- TOC entry 5792 (class 1259 OID 32895)
+-- TOC entry 5878 (class 1259 OID 32895)
 -- Name: idx_organizationlocation_organizationid; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3896,7 +5913,7 @@ CREATE INDEX idx_organizationlocation_organizationid ON dim.organizationlocation
 
 
 --
--- TOC entry 5795 (class 1259 OID 32911)
+-- TOC entry 5881 (class 1259 OID 32911)
 -- Name: idx_view_viewid; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3904,7 +5921,7 @@ CREATE INDEX idx_view_viewid ON dim.view USING btree (viewid);
 
 
 --
--- TOC entry 5895 (class 1259 OID 514419)
+-- TOC entry 5981 (class 1259 OID 514419)
 -- Name: itemcategory_bkp_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3912,7 +5929,7 @@ CREATE UNIQUE INDEX itemcategory_bkp_idx ON dim.itemcategory_bkp USING btree (lo
 
 
 --
--- TOC entry 5896 (class 1259 OID 514420)
+-- TOC entry 5982 (class 1259 OID 514420)
 -- Name: itemcategory_bkp_locationid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3920,7 +5937,7 @@ CREATE INDEX itemcategory_bkp_locationid_idx ON dim.itemcategory_bkp USING btree
 
 
 --
--- TOC entry 5779 (class 1259 OID 32845)
+-- TOC entry 5865 (class 1259 OID 32845)
 -- Name: itemcategory_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3928,7 +5945,7 @@ CREATE UNIQUE INDEX itemcategory_idx ON dim.itemcategory USING btree (locationid
 
 
 --
--- TOC entry 5780 (class 1259 OID 263819)
+-- TOC entry 5866 (class 1259 OID 263819)
 -- Name: itemcategory_locationid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3936,7 +5953,7 @@ CREATE INDEX itemcategory_locationid_idx ON dim.itemcategory USING btree (locati
 
 
 --
--- TOC entry 5786 (class 1259 OID 263829)
+-- TOC entry 5872 (class 1259 OID 263829)
 -- Name: locationgroupid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3944,7 +5961,7 @@ CREATE INDEX locationgroupid_idx ON dim.location USING btree (locationgroupid);
 
 
 --
--- TOC entry 5787 (class 1259 OID 32887)
+-- TOC entry 5873 (class 1259 OID 32887)
 -- Name: order_type_uidx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3952,7 +5969,7 @@ CREATE UNIQUE INDEX order_type_uidx ON dim.ordertype USING btree (locationid, ki
 
 
 --
--- TOC entry 5833 (class 1259 OID 263842)
+-- TOC entry 5919 (class 1259 OID 263842)
 -- Name: organizationid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3960,7 +5977,7 @@ CREATE INDEX organizationid_idx ON dim.occasionsurvey USING btree (organizationi
 
 
 --
--- TOC entry 5868 (class 1259 OID 413652)
+-- TOC entry 5954 (class 1259 OID 413652)
 -- Name: peripheral_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3968,7 +5985,7 @@ CREATE INDEX peripheral_idx ON dim.peripheral USING btree (deviceid, peripherali
 
 
 --
--- TOC entry 5832 (class 1259 OID 263813)
+-- TOC entry 5918 (class 1259 OID 263813)
 -- Name: rating_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3976,7 +5993,7 @@ CREATE INDEX rating_idx ON dim.feedbackrating USING btree (rating) INCLUDE (rati
 
 
 --
--- TOC entry 5838 (class 1259 OID 263843)
+-- TOC entry 5924 (class 1259 OID 263843)
 -- Name: surveyid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3984,7 +6001,7 @@ CREATE INDEX surveyid_idx ON dim.occasionsurvey USING btree (surveyid) INCLUDE (
 
 
 --
--- TOC entry 5831 (class 1259 OID 263814)
+-- TOC entry 5917 (class 1259 OID 263814)
 -- Name: surveytransstatus_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
@@ -3992,7 +6009,7 @@ CREATE INDEX surveytransstatus_idx ON dim.feedbackstatus USING btree (surveytran
 
 
 --
--- TOC entry 5796 (class 1259 OID 32927)
+-- TOC entry 5882 (class 1259 OID 32927)
 -- Name: deviceeventidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4000,7 +6017,7 @@ CREATE INDEX deviceeventidx ON fact.deviceevent USING btree (companyid, location
 
 
 --
--- TOC entry 5797 (class 1259 OID 32928)
+-- TOC entry 5883 (class 1259 OID 32928)
 -- Name: deviceeventuidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4008,7 +6025,7 @@ CREATE INDEX deviceeventuidx ON fact.deviceevent USING btree (application, compa
 
 
 --
--- TOC entry 5871 (class 1259 OID 413952)
+-- TOC entry 5957 (class 1259 OID 413952)
 -- Name: devicehealth_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4016,7 +6033,7 @@ CREATE INDEX devicehealth_idx ON fact.devicehealth USING btree (deviceid, locati
 
 
 --
--- TOC entry 5874 (class 1259 OID 413953)
+-- TOC entry 5960 (class 1259 OID 413953)
 -- Name: deviceid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4024,7 +6041,7 @@ CREATE INDEX deviceid_idx ON fact.devicehealth USING btree (deviceid);
 
 
 --
--- TOC entry 5875 (class 1259 OID 413954)
+-- TOC entry 5961 (class 1259 OID 413954)
 -- Name: idx_devicehealth_deviceid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4032,7 +6049,7 @@ CREATE INDEX idx_devicehealth_deviceid ON fact.devicehealth USING btree (devicei
 
 
 --
--- TOC entry 5876 (class 1259 OID 413955)
+-- TOC entry 5962 (class 1259 OID 413955)
 -- Name: idx_devicehealth_deviceid_status_time; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4040,7 +6057,7 @@ CREATE INDEX idx_devicehealth_deviceid_status_time ON fact.devicehealth USING bt
 
 
 --
--- TOC entry 5877 (class 1259 OID 413956)
+-- TOC entry 5963 (class 1259 OID 413956)
 -- Name: idx_devicehealth_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4048,7 +6065,7 @@ CREATE INDEX idx_devicehealth_locationid ON fact.devicehealth USING btree (locat
 
 
 --
--- TOC entry 5799 (class 1259 OID 32934)
+-- TOC entry 5885 (class 1259 OID 32934)
 -- Name: idx_devicestate; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4056,7 +6073,7 @@ CREATE INDEX idx_devicestate ON fact.devicestate USING btree (locationid, compan
 
 
 --
--- TOC entry 5800 (class 1259 OID 32935)
+-- TOC entry 5886 (class 1259 OID 32935)
 -- Name: idx_devicestate_dateid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4064,7 +6081,7 @@ CREATE INDEX idx_devicestate_dateid ON fact.devicestate USING btree (dateid);
 
 
 --
--- TOC entry 5801 (class 1259 OID 32936)
+-- TOC entry 5887 (class 1259 OID 32936)
 -- Name: idx_devicestate_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4072,7 +6089,7 @@ CREATE INDEX idx_devicestate_locationid ON fact.devicestate USING btree (locatio
 
 
 --
--- TOC entry 5828 (class 1259 OID 159819)
+-- TOC entry 5914 (class 1259 OID 159819)
 -- Name: idx_devicetelemetry; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4080,7 +6097,7 @@ CREATE INDEX idx_devicetelemetry ON fact.devicetelemetry USING btree (locationid
 
 
 --
--- TOC entry 5829 (class 1259 OID 159820)
+-- TOC entry 5915 (class 1259 OID 159820)
 -- Name: idx_devicetelemetry_dateid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4088,7 +6105,7 @@ CREATE INDEX idx_devicetelemetry_dateid ON fact.devicetelemetry USING btree (dat
 
 
 --
--- TOC entry 5830 (class 1259 OID 159821)
+-- TOC entry 5916 (class 1259 OID 159821)
 -- Name: idx_devicetelemetry_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4096,7 +6113,7 @@ CREATE INDEX idx_devicetelemetry_locationid ON fact.devicetelemetry USING btree 
 
 
 --
--- TOC entry 5809 (class 1259 OID 309287)
+-- TOC entry 5895 (class 1259 OID 309287)
 -- Name: idx_fact_pipelinerunstatus_correlationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4104,7 +6121,7 @@ CREATE INDEX idx_fact_pipelinerunstatus_correlationid ON fact.pipelinerunstatus 
 
 
 --
--- TOC entry 5815 (class 1259 OID 32996)
+-- TOC entry 5901 (class 1259 OID 32996)
 -- Name: idx_transactionitem_headerid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4112,7 +6129,7 @@ CREATE INDEX idx_transactionitem_headerid ON fact.transactionitem USING btree (t
 
 
 --
--- TOC entry 5816 (class 1259 OID 215384)
+-- TOC entry 5902 (class 1259 OID 215384)
 -- Name: idx_transactionitemtest_headerid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4120,7 +6137,7 @@ CREATE INDEX idx_transactionitemtest_headerid ON fact.transactionitem USING btre
 
 
 --
--- TOC entry 5899 (class 1259 OID 547181)
+-- TOC entry 5985 (class 1259 OID 547181)
 -- Name: idx_transactionrefunds_headerid; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4128,7 +6145,7 @@ CREATE INDEX idx_transactionrefunds_headerid ON fact.transactionrefunds USING bt
 
 
 --
--- TOC entry 5802 (class 1259 OID 32951)
+-- TOC entry 5888 (class 1259 OID 32951)
 -- Name: itemmodifieridx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4136,7 +6153,7 @@ CREATE INDEX itemmodifieridx ON fact.itemmodifier USING btree (itemid);
 
 
 --
--- TOC entry 5798 (class 1259 OID 2198165)
+-- TOC entry 5884 (class 1259 OID 2198165)
 -- Name: ix_deviceevent_journey_lookup; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4144,7 +6161,7 @@ CREATE INDEX ix_deviceevent_journey_lookup ON fact.deviceevent USING btree (loca
 
 
 --
--- TOC entry 5904 (class 1259 OID 676696)
+-- TOC entry 5990 (class 1259 OID 676696)
 -- Name: locationid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4152,7 +6169,7 @@ CREATE INDEX locationid_idx ON fact.vw_offer_analysis USING btree (locationid);
 
 
 --
--- TOC entry 5880 (class 1259 OID 413969)
+-- TOC entry 5966 (class 1259 OID 413969)
 -- Name: peripheralhealth_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4160,7 +6177,7 @@ CREATE INDEX peripheralhealth_idx ON fact.peripheralhealth USING btree (healthda
 
 
 --
--- TOC entry 5808 (class 1259 OID 32964)
+-- TOC entry 5894 (class 1259 OID 32964)
 -- Name: peripheralstate_uidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4168,7 +6185,7 @@ CREATE UNIQUE INDEX peripheralstate_uidx ON fact.peripheralstate USING btree (de
 
 
 --
--- TOC entry 5812 (class 1259 OID 263880)
+-- TOC entry 5898 (class 1259 OID 263880)
 -- Name: transactionheader_locationid_dateid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4176,7 +6193,7 @@ CREATE INDEX transactionheader_locationid_dateid_idx ON fact.transactionheader U
 
 
 --
--- TOC entry 5803 (class 1259 OID 263867)
+-- TOC entry 5889 (class 1259 OID 263867)
 -- Name: transactionheaderid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4184,7 +6201,7 @@ CREATE INDEX transactionheaderid_idx ON fact.itemmodifier USING btree (transacti
 
 
 --
--- TOC entry 5819 (class 1259 OID 33002)
+-- TOC entry 5905 (class 1259 OID 33002)
 -- Name: transactionpayment_orderid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4192,7 +6209,7 @@ CREATE INDEX transactionpayment_orderid_idx ON fact.transactionpayment USING btr
 
 
 --
--- TOC entry 5820 (class 1259 OID 33003)
+-- TOC entry 5906 (class 1259 OID 33003)
 -- Name: transactionpaymentuidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4200,7 +6217,7 @@ CREATE INDEX transactionpaymentuidx ON fact.transactionpayment USING btree (tran
 
 
 --
--- TOC entry 5821 (class 1259 OID 263900)
+-- TOC entry 5907 (class 1259 OID 263900)
 -- Name: userbehaviour_locationid_dateid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
@@ -4208,7 +6225,111 @@ CREATE INDEX userbehaviour_locationid_dateid_idx ON fact.userbehaviour USING btr
 
 
 --
--- TOC entry 5952 (class 2606 OID 413647)
+-- TOC entry 6038 (class 1259 OID 3050933)
+-- Name: ix_ml_imm_locationid; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_imm_locationid ON ml.item_modifiergroup_modifier_mapping USING btree (locationid);
+
+
+--
+-- TOC entry 6033 (class 1259 OID 3044539)
+-- Name: ix_ml_me_locationid; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_me_locationid ON ml.menu_entities USING btree (locationid);
+
+
+--
+-- TOC entry 6034 (class 1259 OID 3044540)
+-- Name: ix_ml_me_menuitemid; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_me_menuitemid ON ml.menu_entities USING btree (menuitemid);
+
+
+--
+-- TOC entry 6036 (class 1259 OID 3050934)
+-- Name: ix_ml_mi_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_mi_locid_yyyy_ww ON ml.modifier_interactions USING btree (locationid, yyyy, ww);
+
+
+--
+-- TOC entry 6037 (class 1259 OID 3050935)
+-- Name: ix_ml_mimp_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_mimp_locid_yyyy_ww ON ml.modifier_impressions USING btree (locationid, yyyy, ww);
+
+
+--
+-- TOC entry 6035 (class 1259 OID 3050806)
+-- Name: ix_ml_trx_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_trx_locid_yyyy_ww ON ml.transactions USING btree (locationid, yyyy, ww);
+
+
+--
+-- TOC entry 6026 (class 1259 OID 3042200)
+-- Name: ix_ml_ua_businessdate; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_ua_businessdate ON ml.upsell_analysis USING btree (businessdate);
+
+
+--
+-- TOC entry 6027 (class 1259 OID 3042199)
+-- Name: ix_ml_ua_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_ua_locid_yyyy_ww ON ml.upsell_analysis USING btree (locationid, yyyy, ww);
+
+
+--
+-- TOC entry 6028 (class 1259 OID 3042198)
+-- Name: ix_ml_ua_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_ua_yyyy_ww ON ml.upsell_analysis USING btree (yyyy, ww);
+
+
+--
+-- TOC entry 6029 (class 1259 OID 3044148)
+-- Name: ix_ml_wth_locationid_weatherdate_hh; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_wth_locationid_weatherdate_hh ON ml.weather USING btree (locationid, weatherdate, hh);
+
+
+--
+-- TOC entry 6030 (class 1259 OID 3042228)
+-- Name: ix_ml_wth_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_wth_locid_yyyy_ww ON ml.weather USING btree (locationid, yyyy, ww);
+
+
+--
+-- TOC entry 6031 (class 1259 OID 3042229)
+-- Name: ix_ml_wth_weatherdate; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_wth_weatherdate ON ml.weather USING btree (weatherdate);
+
+
+--
+-- TOC entry 6032 (class 1259 OID 3042227)
+-- Name: ix_ml_wth_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
+--
+
+CREATE INDEX ix_ml_wth_yyyy_ww ON ml.weather USING btree (yyyy, ww);
+
+
+--
+-- TOC entry 6057 (class 2606 OID 413647)
 -- Name: peripheral peripheral_deviceid_fkey; Type: FK CONSTRAINT; Schema: dim; Owner: citus
 --
 
@@ -4217,7 +6338,7 @@ ALTER TABLE ONLY dim.peripheral
 
 
 --
--- TOC entry 5938 (class 2606 OID 514947)
+-- TOC entry 6043 (class 2606 OID 514947)
 -- Name: transactionitem categoryid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4226,7 +6347,7 @@ ALTER TABLE ONLY fact.transactionitem
 
 
 --
--- TOC entry 5943 (class 2606 OID 788239)
+-- TOC entry 6048 (class 2606 OID 788239)
 -- Name: devicetelemetry location_deviceid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4235,7 +6356,7 @@ ALTER TABLE ONLY fact.devicetelemetry
 
 
 --
--- TOC entry 5954 (class 2606 OID 775338)
+-- TOC entry 6059 (class 2606 OID 775338)
 -- Name: recommendations location_transactionheaderid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4244,7 +6365,7 @@ ALTER TABLE ONLY fact.recommendations
 
 
 --
--- TOC entry 5944 (class 2606 OID 788249)
+-- TOC entry 6049 (class 2606 OID 788249)
 -- Name: devicetelemetry locationid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4253,7 +6374,7 @@ ALTER TABLE ONLY fact.devicetelemetry
 
 
 --
--- TOC entry 5935 (class 2606 OID 775954)
+-- TOC entry 6040 (class 2606 OID 775954)
 -- Name: transactionheader locationid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4262,7 +6383,7 @@ ALTER TABLE ONLY fact.transactionheader
 
 
 --
--- TOC entry 5939 (class 2606 OID 779636)
+-- TOC entry 6044 (class 2606 OID 779636)
 -- Name: transactionitem locationid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4271,7 +6392,7 @@ ALTER TABLE ONLY fact.transactionitem
 
 
 --
--- TOC entry 5945 (class 2606 OID 784801)
+-- TOC entry 6050 (class 2606 OID 784801)
 -- Name: itemssurvey locationid_transactionheaderid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4280,7 +6401,7 @@ ALTER TABLE ONLY fact.itemssurvey
 
 
 --
--- TOC entry 5948 (class 2606 OID 784796)
+-- TOC entry 6053 (class 2606 OID 784796)
 -- Name: occasionsurveydetail locationid_transactionheaderid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4289,7 +6410,7 @@ ALTER TABLE ONLY fact.occasionsurveydetail
 
 
 --
--- TOC entry 5940 (class 2606 OID 774863)
+-- TOC entry 6045 (class 2606 OID 2970909)
 -- Name: transactionitem locationid_transactionheaderid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4298,7 +6419,7 @@ ALTER TABLE ONLY fact.transactionitem
 
 
 --
--- TOC entry 5942 (class 2606 OID 775974)
+-- TOC entry 6047 (class 2606 OID 775974)
 -- Name: transactionpayment locationid_transactionheaderid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4307,7 +6428,7 @@ ALTER TABLE ONLY fact.transactionpayment
 
 
 --
--- TOC entry 5955 (class 2606 OID 775984)
+-- TOC entry 6060 (class 2606 OID 775984)
 -- Name: vw_offer_analysis locationid_trxnid_recommendationid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4316,7 +6437,7 @@ ALTER TABLE ONLY fact.vw_offer_analysis
 
 
 --
--- TOC entry 5941 (class 2606 OID 359444)
+-- TOC entry 6046 (class 2606 OID 359444)
 -- Name: transactionitem menuitemid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4325,7 +6446,7 @@ ALTER TABLE ONLY fact.transactionitem
 
 
 --
--- TOC entry 5936 (class 2606 OID 775964)
+-- TOC entry 6041 (class 2606 OID 775964)
 -- Name: transactionheader ordertype_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4334,7 +6455,7 @@ ALTER TABLE ONLY fact.transactionheader
 
 
 --
--- TOC entry 5934 (class 2606 OID 788254)
+-- TOC entry 6039 (class 2606 OID 788254)
 -- Name: deviceevent orgid_locationid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4343,7 +6464,7 @@ ALTER TABLE ONLY fact.deviceevent
 
 
 --
--- TOC entry 5946 (class 2606 OID 788219)
+-- TOC entry 6051 (class 2606 OID 788219)
 -- Name: itemssurvey orgid_locationid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4352,7 +6473,7 @@ ALTER TABLE ONLY fact.itemssurvey
 
 
 --
--- TOC entry 5949 (class 2606 OID 788224)
+-- TOC entry 6054 (class 2606 OID 788224)
 -- Name: occasionsurveydetail orgid_locationid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4361,7 +6482,7 @@ ALTER TABLE ONLY fact.occasionsurveydetail
 
 
 --
--- TOC entry 5947 (class 2606 OID 780634)
+-- TOC entry 6052 (class 2606 OID 780634)
 -- Name: itemssurvey orgid_surveyid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4370,7 +6491,7 @@ ALTER TABLE ONLY fact.itemssurvey
 
 
 --
--- TOC entry 5950 (class 2606 OID 780639)
+-- TOC entry 6055 (class 2606 OID 780639)
 -- Name: occasionsurveydetail orgid_surveyid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4379,7 +6500,7 @@ ALTER TABLE ONLY fact.occasionsurveydetail
 
 
 --
--- TOC entry 5953 (class 2606 OID 413964)
+-- TOC entry 6058 (class 2606 OID 413964)
 -- Name: peripheralhealth peripheralhealth_healthdataid_fkey; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4388,7 +6509,7 @@ ALTER TABLE ONLY fact.peripheralhealth
 
 
 --
--- TOC entry 5956 (class 2606 OID 779648)
+-- TOC entry 6061 (class 2606 OID 779648)
 -- Name: vw_offer_analysis selecteditem_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4397,7 +6518,7 @@ ALTER TABLE ONLY fact.vw_offer_analysis
 
 
 --
--- TOC entry 5951 (class 2606 OID 774836)
+-- TOC entry 6056 (class 2606 OID 774836)
 -- Name: occasionsurveydetail sourceid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4406,7 +6527,7 @@ ALTER TABLE ONLY fact.occasionsurveydetail
 
 
 --
--- TOC entry 5937 (class 2606 OID 787892)
+-- TOC entry 6042 (class 2606 OID 787892)
 -- Name: transactionheader sourceid_fk; Type: FK CONSTRAINT; Schema: fact; Owner: citus
 --
 
@@ -4415,7 +6536,7 @@ ALTER TABLE ONLY fact.transactionheader
 
 
 --
--- TOC entry 6131 (class 0 OID 0)
+-- TOC entry 6236 (class 0 OID 0)
 -- Dependencies: 55
 -- Name: SCHEMA dim; Type: ACL; Schema: -; Owner: citus
 --
@@ -4425,7 +6546,7 @@ GRANT USAGE ON SCHEMA dim TO varshil;
 
 
 --
--- TOC entry 6132 (class 0 OID 0)
+-- TOC entry 6237 (class 0 OID 0)
 -- Dependencies: 56
 -- Name: SCHEMA fact; Type: ACL; Schema: -; Owner: citus
 --
@@ -4435,8 +6556,8 @@ GRANT USAGE ON SCHEMA fact TO varshil;
 
 
 --
--- TOC entry 6133 (class 0 OID 0)
--- Dependencies: 373
+-- TOC entry 6238 (class 0 OID 0)
+-- Dependencies: 388
 -- Name: TABLE abtests; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4444,8 +6565,8 @@ GRANT SELECT ON TABLE dim.abtests TO varshil;
 
 
 --
--- TOC entry 6134 (class 0 OID 0)
--- Dependencies: 339
+-- TOC entry 6239 (class 0 OID 0)
+-- Dependencies: 354
 -- Name: TABLE datedim; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4454,8 +6575,8 @@ GRANT SELECT ON TABLE dim.datedim TO varshil;
 
 
 --
--- TOC entry 6135 (class 0 OID 0)
--- Dependencies: 346
+-- TOC entry 6240 (class 0 OID 0)
+-- Dependencies: 361
 -- Name: TABLE businessdate; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4464,8 +6585,8 @@ GRANT SELECT ON TABLE dim.businessdate TO varshil;
 
 
 --
--- TOC entry 6136 (class 0 OID 0)
--- Dependencies: 338
+-- TOC entry 6241 (class 0 OID 0)
+-- Dependencies: 353
 -- Name: TABLE company; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4474,8 +6595,8 @@ GRANT SELECT ON TABLE dim.company TO varshil;
 
 
 --
--- TOC entry 6137 (class 0 OID 0)
--- Dependencies: 379
+-- TOC entry 6242 (class 0 OID 0)
+-- Dependencies: 394
 -- Name: TABLE device; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4483,8 +6604,8 @@ GRANT SELECT ON TABLE dim.device TO varshil;
 
 
 --
--- TOC entry 6138 (class 0 OID 0)
--- Dependencies: 340
+-- TOC entry 6243 (class 0 OID 0)
+-- Dependencies: 355
 -- Name: TABLE element; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4493,8 +6614,8 @@ GRANT SELECT ON TABLE dim.element TO varshil;
 
 
 --
--- TOC entry 6139 (class 0 OID 0)
--- Dependencies: 384
+-- TOC entry 6244 (class 0 OID 0)
+-- Dependencies: 399
 -- Name: TABLE experiment; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4502,8 +6623,8 @@ GRANT SELECT ON TABLE dim.experiment TO varshil;
 
 
 --
--- TOC entry 6141 (class 0 OID 0)
--- Dependencies: 364
+-- TOC entry 6246 (class 0 OID 0)
+-- Dependencies: 379
 -- Name: TABLE feedbackrating; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4511,8 +6632,8 @@ GRANT SELECT ON TABLE dim.feedbackrating TO varshil;
 
 
 --
--- TOC entry 6142 (class 0 OID 0)
--- Dependencies: 363
+-- TOC entry 6247 (class 0 OID 0)
+-- Dependencies: 378
 -- Name: TABLE feedbackstatus; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4520,8 +6641,8 @@ GRANT SELECT ON TABLE dim.feedbackstatus TO varshil;
 
 
 --
--- TOC entry 6143 (class 0 OID 0)
--- Dependencies: 370
+-- TOC entry 6248 (class 0 OID 0)
+-- Dependencies: 385
 -- Name: TABLE frequentcustomer; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4529,8 +6650,8 @@ GRANT SELECT ON TABLE dim.frequentcustomer TO varshil;
 
 
 --
--- TOC entry 6144 (class 0 OID 0)
--- Dependencies: 401
+-- TOC entry 6249 (class 0 OID 0)
+-- Dependencies: 416
 -- Name: TABLE grubbrr_source_lookup; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4538,8 +6659,8 @@ GRANT SELECT ON TABLE dim.grubbrr_source_lookup TO varshil;
 
 
 --
--- TOC entry 6145 (class 0 OID 0)
--- Dependencies: 341
+-- TOC entry 6250 (class 0 OID 0)
+-- Dependencies: 356
 -- Name: TABLE itemcategory; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4548,8 +6669,8 @@ GRANT SELECT ON TABLE dim.itemcategory TO varshil;
 
 
 --
--- TOC entry 6146 (class 0 OID 0)
--- Dependencies: 391
+-- TOC entry 6251 (class 0 OID 0)
+-- Dependencies: 406
 -- Name: TABLE itemcategory_bkp; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4557,8 +6678,8 @@ GRANT SELECT ON TABLE dim.itemcategory_bkp TO varshil;
 
 
 --
--- TOC entry 6147 (class 0 OID 0)
--- Dependencies: 395
+-- TOC entry 6252 (class 0 OID 0)
+-- Dependencies: 410
 -- Name: TABLE itemcategorymapping; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4566,8 +6687,8 @@ GRANT SELECT ON TABLE dim.itemcategorymapping TO varshil;
 
 
 --
--- TOC entry 6148 (class 0 OID 0)
--- Dependencies: 371
+-- TOC entry 6253 (class 0 OID 0)
+-- Dependencies: 386
 -- Name: TABLE kiosk; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4575,8 +6696,8 @@ GRANT SELECT ON TABLE dim.kiosk TO varshil;
 
 
 --
--- TOC entry 6149 (class 0 OID 0)
--- Dependencies: 394
+-- TOC entry 6254 (class 0 OID 0)
+-- Dependencies: 409
 -- Name: TABLE kioskdetails; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4584,8 +6705,8 @@ GRANT SELECT ON TABLE dim.kioskdetails TO varshil;
 
 
 --
--- TOC entry 6150 (class 0 OID 0)
--- Dependencies: 342
+-- TOC entry 6255 (class 0 OID 0)
+-- Dependencies: 357
 -- Name: TABLE location; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4594,8 +6715,8 @@ GRANT SELECT ON TABLE dim.location TO varshil;
 
 
 --
--- TOC entry 6151 (class 0 OID 0)
--- Dependencies: 372
+-- TOC entry 6256 (class 0 OID 0)
+-- Dependencies: 387
 -- Name: TABLE locationcatalog; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4603,8 +6724,8 @@ GRANT SELECT ON TABLE dim.locationcatalog TO varshil;
 
 
 --
--- TOC entry 6152 (class 0 OID 0)
--- Dependencies: 400
+-- TOC entry 6257 (class 0 OID 0)
+-- Dependencies: 415
 -- Name: TABLE menuentities; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4612,8 +6733,8 @@ GRANT SELECT ON TABLE dim.menuentities TO varshil;
 
 
 --
--- TOC entry 6153 (class 0 OID 0)
--- Dependencies: 376
+-- TOC entry 6258 (class 0 OID 0)
+-- Dependencies: 391
 -- Name: TABLE menuitem; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4621,8 +6742,8 @@ GRANT SELECT ON TABLE dim.menuitem TO varshil;
 
 
 --
--- TOC entry 6154 (class 0 OID 0)
--- Dependencies: 366
+-- TOC entry 6259 (class 0 OID 0)
+-- Dependencies: 381
 -- Name: TABLE occasionsurvey; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4630,8 +6751,8 @@ GRANT SELECT ON TABLE dim.occasionsurvey TO varshil;
 
 
 --
--- TOC entry 6155 (class 0 OID 0)
--- Dependencies: 343
+-- TOC entry 6260 (class 0 OID 0)
+-- Dependencies: 358
 -- Name: TABLE ordertype; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4640,8 +6761,8 @@ GRANT SELECT ON TABLE dim.ordertype TO varshil;
 
 
 --
--- TOC entry 6156 (class 0 OID 0)
--- Dependencies: 396
+-- TOC entry 6261 (class 0 OID 0)
+-- Dependencies: 411
 -- Name: TABLE ordertype_bkp; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4649,8 +6770,8 @@ GRANT SELECT ON TABLE dim.ordertype_bkp TO varshil;
 
 
 --
--- TOC entry 6157 (class 0 OID 0)
--- Dependencies: 385
+-- TOC entry 6262 (class 0 OID 0)
+-- Dependencies: 400
 -- Name: TABLE organization; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4658,8 +6779,8 @@ GRANT SELECT ON TABLE dim.organization TO varshil;
 
 
 --
--- TOC entry 6158 (class 0 OID 0)
--- Dependencies: 344
+-- TOC entry 6263 (class 0 OID 0)
+-- Dependencies: 359
 -- Name: TABLE organizationlocation; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4668,8 +6789,8 @@ GRANT SELECT ON TABLE dim.organizationlocation TO varshil;
 
 
 --
--- TOC entry 6159 (class 0 OID 0)
--- Dependencies: 380
+-- TOC entry 6264 (class 0 OID 0)
+-- Dependencies: 395
 -- Name: TABLE peripheral; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4677,8 +6798,8 @@ GRANT SELECT ON TABLE dim.peripheral TO varshil;
 
 
 --
--- TOC entry 6160 (class 0 OID 0)
--- Dependencies: 390
+-- TOC entry 6265 (class 0 OID 0)
+-- Dependencies: 405
 -- Name: TABLE upsellgrouplookup; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4686,8 +6807,8 @@ GRANT SELECT ON TABLE dim.upsellgrouplookup TO varshil;
 
 
 --
--- TOC entry 6161 (class 0 OID 0)
--- Dependencies: 360
+-- TOC entry 6266 (class 0 OID 0)
+-- Dependencies: 375
 -- Name: TABLE userlocation; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4695,8 +6816,8 @@ GRANT SELECT ON TABLE dim.userlocation TO varshil;
 
 
 --
--- TOC entry 6162 (class 0 OID 0)
--- Dependencies: 345
+-- TOC entry 6267 (class 0 OID 0)
+-- Dependencies: 360
 -- Name: TABLE view; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4705,8 +6826,8 @@ GRANT SELECT ON TABLE dim.view TO varshil;
 
 
 --
--- TOC entry 6163 (class 0 OID 0)
--- Dependencies: 378
+-- TOC entry 6268 (class 0 OID 0)
+-- Dependencies: 393
 -- Name: TABLE weather; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4714,8 +6835,8 @@ GRANT SELECT ON TABLE dim.weather TO varshil;
 
 
 --
--- TOC entry 6164 (class 0 OID 0)
--- Dependencies: 407
+-- TOC entry 6269 (class 0 OID 0)
+-- Dependencies: 422
 -- Name: TABLE vw_weatherhourlydata; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4723,8 +6844,8 @@ GRANT SELECT ON TABLE dim.vw_weatherhourlydata TO varshil;
 
 
 --
--- TOC entry 6165 (class 0 OID 0)
--- Dependencies: 347
+-- TOC entry 6270 (class 0 OID 0)
+-- Dependencies: 362
 -- Name: TABLE vworganizationlocation; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4733,8 +6854,8 @@ GRANT SELECT ON TABLE dim.vworganizationlocation TO varshil;
 
 
 --
--- TOC entry 6166 (class 0 OID 0)
--- Dependencies: 377
+-- TOC entry 6271 (class 0 OID 0)
+-- Dependencies: 392
 -- Name: TABLE weather_bkp; Type: ACL; Schema: dim; Owner: citus
 --
 
@@ -4742,8 +6863,8 @@ GRANT SELECT ON TABLE dim.weather_bkp TO varshil;
 
 
 --
--- TOC entry 6167 (class 0 OID 0)
--- Dependencies: 406
+-- TOC entry 6272 (class 0 OID 0)
+-- Dependencies: 421
 -- Name: TABLE cep_incidents; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4751,8 +6872,8 @@ GRANT SELECT ON TABLE fact.cep_incidents TO dhanraj;
 
 
 --
--- TOC entry 6168 (class 0 OID 0)
--- Dependencies: 398
+-- TOC entry 6273 (class 0 OID 0)
+-- Dependencies: 413
 -- Name: TABLE customer_menu_preferences; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4760,8 +6881,8 @@ GRANT SELECT ON TABLE fact.customer_menu_preferences TO varshil;
 
 
 --
--- TOC entry 6169 (class 0 OID 0)
--- Dependencies: 348
+-- TOC entry 6274 (class 0 OID 0)
+-- Dependencies: 363
 -- Name: TABLE deviceevent; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4770,8 +6891,8 @@ GRANT SELECT ON TABLE fact.deviceevent TO varshil;
 
 
 --
--- TOC entry 6170 (class 0 OID 0)
--- Dependencies: 381
+-- TOC entry 6275 (class 0 OID 0)
+-- Dependencies: 396
 -- Name: TABLE devicehealth; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4779,8 +6900,8 @@ GRANT SELECT ON TABLE fact.devicehealth TO varshil;
 
 
 --
--- TOC entry 6171 (class 0 OID 0)
--- Dependencies: 349
+-- TOC entry 6276 (class 0 OID 0)
+-- Dependencies: 364
 -- Name: TABLE devicestate; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4789,8 +6910,8 @@ GRANT SELECT ON TABLE fact.devicestate TO varshil;
 
 
 --
--- TOC entry 6172 (class 0 OID 0)
--- Dependencies: 361
+-- TOC entry 6277 (class 0 OID 0)
+-- Dependencies: 376
 -- Name: TABLE devicetelemetry; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4798,8 +6919,8 @@ GRANT SELECT ON TABLE fact.devicetelemetry TO varshil;
 
 
 --
--- TOC entry 6173 (class 0 OID 0)
--- Dependencies: 350
+-- TOC entry 6278 (class 0 OID 0)
+-- Dependencies: 365
 -- Name: TABLE itemmodifier; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4808,8 +6929,8 @@ GRANT SELECT ON TABLE fact.itemmodifier TO varshil;
 
 
 --
--- TOC entry 6174 (class 0 OID 0)
--- Dependencies: 374
+-- TOC entry 6279 (class 0 OID 0)
+-- Dependencies: 389
 -- Name: TABLE itemssurvey; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4817,8 +6938,8 @@ GRANT SELECT ON TABLE fact.itemssurvey TO varshil;
 
 
 --
--- TOC entry 6175 (class 0 OID 0)
--- Dependencies: 399
+-- TOC entry 6280 (class 0 OID 0)
+-- Dependencies: 414
 -- Name: TABLE location_menu_preferences; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4826,8 +6947,8 @@ GRANT SELECT ON TABLE fact.location_menu_preferences TO varshil;
 
 
 --
--- TOC entry 6176 (class 0 OID 0)
--- Dependencies: 375
+-- TOC entry 6281 (class 0 OID 0)
+-- Dependencies: 390
 -- Name: TABLE occasionsurveydetail; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4835,8 +6956,8 @@ GRANT SELECT ON TABLE fact.occasionsurveydetail TO varshil;
 
 
 --
--- TOC entry 6177 (class 0 OID 0)
--- Dependencies: 351
+-- TOC entry 6282 (class 0 OID 0)
+-- Dependencies: 366
 -- Name: TABLE ordertiming; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4845,8 +6966,8 @@ GRANT SELECT ON TABLE fact.ordertiming TO varshil;
 
 
 --
--- TOC entry 6178 (class 0 OID 0)
--- Dependencies: 382
+-- TOC entry 6283 (class 0 OID 0)
+-- Dependencies: 397
 -- Name: TABLE peripheralhealth; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4854,8 +6975,8 @@ GRANT SELECT ON TABLE fact.peripheralhealth TO varshil;
 
 
 --
--- TOC entry 6179 (class 0 OID 0)
--- Dependencies: 352
+-- TOC entry 6284 (class 0 OID 0)
+-- Dependencies: 367
 -- Name: TABLE peripheralstate; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4864,8 +6985,8 @@ GRANT SELECT ON TABLE fact.peripheralstate TO varshil;
 
 
 --
--- TOC entry 6180 (class 0 OID 0)
--- Dependencies: 353
+-- TOC entry 6285 (class 0 OID 0)
+-- Dependencies: 368
 -- Name: TABLE pipelinerunstatus; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4874,8 +6995,8 @@ GRANT SELECT ON TABLE fact.pipelinerunstatus TO varshil;
 
 
 --
--- TOC entry 6181 (class 0 OID 0)
--- Dependencies: 387
+-- TOC entry 6286 (class 0 OID 0)
+-- Dependencies: 402
 -- Name: TABLE recommendations; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4883,8 +7004,8 @@ GRANT SELECT ON TABLE fact.recommendations TO varshil;
 
 
 --
--- TOC entry 6182 (class 0 OID 0)
--- Dependencies: 386
+-- TOC entry 6287 (class 0 OID 0)
+-- Dependencies: 401
 -- Name: TABLE recommendations_bkp; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4892,8 +7013,8 @@ GRANT SELECT ON TABLE fact.recommendations_bkp TO varshil;
 
 
 --
--- TOC entry 6183 (class 0 OID 0)
--- Dependencies: 354
+-- TOC entry 6288 (class 0 OID 0)
+-- Dependencies: 369
 -- Name: TABLE timingsdatalake; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4902,8 +7023,8 @@ GRANT SELECT ON TABLE fact.timingsdatalake TO varshil;
 
 
 --
--- TOC entry 6184 (class 0 OID 0)
--- Dependencies: 355
+-- TOC entry 6289 (class 0 OID 0)
+-- Dependencies: 370
 -- Name: TABLE transactionheader; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4912,8 +7033,8 @@ GRANT SELECT ON TABLE fact.transactionheader TO varshil;
 
 
 --
--- TOC entry 6185 (class 0 OID 0)
--- Dependencies: 356
+-- TOC entry 6290 (class 0 OID 0)
+-- Dependencies: 371
 -- Name: TABLE transactionitem; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4922,8 +7043,8 @@ GRANT SELECT ON TABLE fact.transactionitem TO varshil;
 
 
 --
--- TOC entry 6186 (class 0 OID 0)
--- Dependencies: 367
+-- TOC entry 6291 (class 0 OID 0)
+-- Dependencies: 382
 -- Name: TABLE transactionitemtest; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4931,8 +7052,8 @@ GRANT SELECT ON TABLE fact.transactionitemtest TO varshil;
 
 
 --
--- TOC entry 6187 (class 0 OID 0)
--- Dependencies: 357
+-- TOC entry 6292 (class 0 OID 0)
+-- Dependencies: 372
 -- Name: TABLE transactionpayment; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4941,8 +7062,8 @@ GRANT SELECT ON TABLE fact.transactionpayment TO varshil;
 
 
 --
--- TOC entry 6188 (class 0 OID 0)
--- Dependencies: 392
+-- TOC entry 6293 (class 0 OID 0)
+-- Dependencies: 407
 -- Name: TABLE transactionrefunds; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4950,8 +7071,8 @@ GRANT SELECT ON TABLE fact.transactionrefunds TO varshil;
 
 
 --
--- TOC entry 6189 (class 0 OID 0)
--- Dependencies: 358
+-- TOC entry 6294 (class 0 OID 0)
+-- Dependencies: 373
 -- Name: TABLE userbehaviour; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4960,8 +7081,8 @@ GRANT SELECT ON TABLE fact.userbehaviour TO varshil;
 
 
 --
--- TOC entry 6190 (class 0 OID 0)
--- Dependencies: 388
+-- TOC entry 6295 (class 0 OID 0)
+-- Dependencies: 403
 -- Name: TABLE userbehaviour_exceptions; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4969,8 +7090,8 @@ GRANT SELECT ON TABLE fact.userbehaviour_exceptions TO varshil;
 
 
 --
--- TOC entry 6191 (class 0 OID 0)
--- Dependencies: 362
+-- TOC entry 6296 (class 0 OID 0)
+-- Dependencies: 377
 -- Name: TABLE usercheckedin; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4978,8 +7099,8 @@ GRANT SELECT ON TABLE fact.usercheckedin TO varshil;
 
 
 --
--- TOC entry 6192 (class 0 OID 0)
--- Dependencies: 397
+-- TOC entry 6297 (class 0 OID 0)
+-- Dependencies: 412
 -- Name: TABLE vw_offer_analysis; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4987,8 +7108,8 @@ GRANT SELECT ON TABLE fact.vw_offer_analysis TO varshil;
 
 
 --
--- TOC entry 6193 (class 0 OID 0)
--- Dependencies: 359
+-- TOC entry 6298 (class 0 OID 0)
+-- Dependencies: 374
 -- Name: TABLE watermarktable; Type: ACL; Schema: fact; Owner: citus
 --
 
@@ -4996,11 +7117,11 @@ GRANT SELECT ON TABLE fact.watermarktable TO dhanraj;
 GRANT SELECT ON TABLE fact.watermarktable TO varshil;
 
 
--- Completed on 2026-04-05 21:17:59
+-- Completed on 2026-04-27 12:46:07
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Srh6knFxTdux5gILLBr4yu6OgvQbV8H56pAanBIG5Ty7bEoQYIFezJt3D4Ud6IL
+\unrestrict NKEOpanKeyv3kY1YCbpihE2wlHbUh3rUOBhZsoT7Zv5dQcSzDWPdRWPDBxGVZHF
 
