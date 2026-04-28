@@ -5,7 +5,6 @@
 
 -- Table: dim.vw_grubbrrinstallbase
 
--- DROP TABLE IF EXISTS dim.vw_grubbrrinstallbase;
 
 SELECT *
 FROM dim.vw_grubbrrinstallbase_all_devices
