@@ -403,6 +403,25 @@ SET surveyissuedtimestamp =
          ELSE replace(substring(gem_event_instant, 1, 19), 'T', ' ') END
 WHERE gem_event_instant IS NOT NULL;
 
+CREATE TABLE IF NOT EXISTS fact.occasionsurveydetail_bkp
+(
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default",
+    dateid integer,
+    surveyid text COLLATE pg_catalog."default",
+    surveytransid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    surveyrating text COLLATE pg_catalog."default",
+    surveytransstatus text COLLATE pg_catalog."default",
+    surveyissuedtimestamp text COLLATE pg_catalog."default",
+    surveycompletedtimestamp text COLLATE pg_catalog."default",
+    surveylocaltimestamp timestamp without time zone,
+    sysinserttime timestamp without time zone,
+    syscosmosts bigint,
+    sourceid integer,
+    surveytype integer,
+    ordersessionid text COLLATE pg_catalog."default"
+)
 
 SELECT * FROM fact.watermarktable LIMIT 100;
 SELECT * FROM dim.feedbackstatus;
