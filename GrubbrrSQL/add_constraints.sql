@@ -112,13 +112,15 @@ ALTER TABLE dim.occasionsurvey
 ADD CONSTRAINT orgid_surveyid_pk UNIQUE (organizationid, surveyid);
 
 ALTER TABLE fact.itemssurvey 
-ADD CONSTRAINT orgid_surveyid_fk foreign key (organizationid, surveyid) REFERENCES dim.occasionsurvey(organizationid, surveyid);
+DROP CONSTRAINT orgid_surveyid_fk 
+FOREIGN KEY (organizationid, surveyid) REFERENCES dim.occasionsurvey(organizationid, surveyid);
 
 ALTER TABLE fact.itemssurvey 
 ADD CONSTRAINT orgid_locationid_fk foreign key (organizationid, locationid) REFERENCES dim.organizationlocation(organizationid, locationid);
 
 ALTER TABLE fact.occasionsurveydetail 
-ADD CONSTRAINT orgid_surveyid_fk foreign key (organizationid, surveyid) REFERENCES dim.occasionsurvey(organizationid, surveyid);
+DROP CONSTRAINT orgid_surveyid_fk 
+FOREIGN KEY (organizationid, surveyid) REFERENCES dim.occasionsurvey(organizationid, surveyid);
 
 ALTER TABLE fact.occasionsurveydetail 
 ADD CONSTRAINT orgid_locationid_fk foreign key (organizationid, locationid) REFERENCES dim.organizationlocation(organizationid, locationid);
