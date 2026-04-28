@@ -541,14 +541,14 @@ WHERE 1=1 --AND surveyid IS NULL
 AND NOT EXISTS (SELECT 1 FROM dim.occasionsurvey as os 
                 WHERE os.organizationid = osd.organizationid
                   AND os.surveyid = osd.surveyid
-                  AND os.surveytype = 1)
+                  AND os.surveytype = 1);
 
 SELECT * FROM fact.itemssurvey as its --
 WHERE 1=1 --AND surveyid IS NULL
 AND NOT EXISTS (SELECT 1 FROM dim.occasionsurvey as os 
                 WHERE os.organizationid = its.organizationid
                   AND os.surveyid = its.surveyid
-                  AND os.surveytype = 0)
+                  AND os.surveytype = 0);
 
 select --th.ordersessionid, 
        osd.* 

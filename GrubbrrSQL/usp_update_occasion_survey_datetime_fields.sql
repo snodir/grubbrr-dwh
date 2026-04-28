@@ -48,6 +48,16 @@ UPDATE fact.itemssurvey
 SET dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)
 WHERE dateid is null;
 
+DELETE FROM fact.occasionsurveydetail as osd
+WHERE NOT EXISTS (SELECT 1 FROM dim.occasionsurvey as os 
+                WHERE os.organizationid = osd.organizationid
+                  AND os.surveyid = osd.surveyid);
+
+DELETE FROM fact.itemssurvey as its 
+WHERE NOT EXISTS (SELECT 1 FROM dim.occasionsurvey as os 
+                WHERE os.organizationid = its.organizationid
+                  AND os.surveyid = its.surveyid);
+
 UPDATE fact.watermarktable
 SET ts = tr.maxts
 FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 1) as tr 
