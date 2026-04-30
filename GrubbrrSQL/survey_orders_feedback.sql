@@ -9,9 +9,9 @@ CREATE TABLE IF NOT EXISTS dim.occasionsurvey
     question_type INTEGER,
     selection_type INTEGER,
     survey_status INTEGER, 
-    is_deleted BOOLEAN, --ADD COLUMN IF NOT EXISTS
-    created_on TIMESTAMP, --ADD COLUMN IF NOT EXISTS
-    modified_on TIMESTAMP, --ADD COLUMN IF NOT EXISTS
+    is_deleted BOOLEAN, 
+    created_on TIMESTAMP, 
+    modified_on TIMESTAMP, 
     sysinserttime TIMESTAMP,
     sysupdatetime TIMESTAMP,
     CONSTRAINT survey_pkey PRIMARY KEY (surveykey)
@@ -26,9 +26,9 @@ ALTER TABLE IF EXISTS dim.occasionsurvey
 ADD COLUMN IF NOT EXISTS question_type INTEGER,
 ADD COLUMN IF NOT EXISTS selection_type INTEGER,
 ADD COLUMN IF NOT EXISTS survey_status INTEGER, 
-ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN, --ADD COLUMN IF NOT EXISTS
-ADD COLUMN IF NOT EXISTS created_on TIMESTAMP, --ADD COLUMN IF NOT EXISTS
-ADD COLUMN IF NOT EXISTS modified_on TIMESTAMP, --ADD COLUMN IF NOT EXISTS
+ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN, 
+ADD COLUMN IF NOT EXISTS created_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS modified_on TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
@@ -112,7 +112,7 @@ ALTER TABLE IF EXISTS stg.sent_surveys
     OWNER to citus;
 
 ALTER TABLE stg.sent_surveys
---ADD COLUMN IF NOT EXISTS orderid TEXT COLLATE pg_catalog."default";
+ orderid TEXT COLLATE pg_catalog."default";
 --DROP CONSTRAINT sent_surveys_ordersessionid_pkey
 ADD CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
 
