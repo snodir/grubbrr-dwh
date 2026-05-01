@@ -18,6 +18,15 @@ group by ol.organizationId, ol.organizationname, th.locationid, ol.locationname-
          --EXTRACT(WEEK FROM th.businessdate)::INTEGER
 order by ordercounts DESC-- first_order_time ASC--, ordercounts DESC--, 
 
+
+SELECT th.businessdate, 
+	   count(DISTINCT th.locationid) as locations,
+	   count(*) as order_count
+FROM fact.transactionheader as th 
+WHERE th.businessdate >= CAST('2026-04-01' AS DATE)
+GROUP BY th.businessdate
+ORDER BY th.businessdate DESC;
+
 SELECT *
 FROM dim.organization
 WHERE id = 'loc-003bf5fc-1391-4afd-ac29-bbf18f9ae2c3';

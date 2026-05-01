@@ -1,0 +1,197 @@
+{
+    "kioskSessionId": "Y3PHXW94F6872D9E",
+    "totals": {
+        "subTotal": 0.52,
+        "tax": 0.52,
+        "tip": 0.08,
+        "total": 1.12,
+        "discount": 0,
+        "reward": 0,
+        "serviceCharge": 0,
+        "charityAmount": 0,
+        "fees": [],
+        "taxes": []
+    },
+    "totalsCents": {
+        "subTotal": 52,
+        "tax": 52,
+        "tip": 8,
+        "total": 112,
+        "discount": 0,
+        "reward": 0,
+        "serviceCharge": 0,
+        "charityAmount": 0,
+        "fees": [],
+        "taxes": []
+    },
+    "localCurrencyDetails": {
+        "totals": 0,
+        "totalsCents": 0,
+        "currencyCode": "",
+        "additionalInfo": null
+    },
+    "items": [{
+            "orderItemId": "orditm-nJqa6x8ITF",
+            "categoryId": "cat-058aeb21-8ca6-41f1-8375-955439b528c7",
+            "categoryName": "Salads",
+            "categoryPosId": "VUC4M2CWHTUFHCWHB2ST4VTN",
+            "menuItemId": "itm-a7ef6ff8-a840-4fcc-9824-8067ec84d732",
+            "name": "combos Edit",
+            "menuItemPosId": "MUAS4G6NBIVD3RPOVQHZ7IFJ",
+            "localizedName": {
+                "translations": {
+                    "en": "combos Edit"
+                }
+            },
+            "options": [{
+                    "modifierGroupId": "modgrp-de13634f-9e50-40ee-a2a1-1c52d68cf341",
+                    "modifierGroupPosId": null,
+                    "modifierId": "modfr-7acc947b-df14-4cc9-aa56-23f729cd1e7b",
+                    "modifierPosId": null,
+                    "name": "Extra Cheese",
+                    "localizedName": {
+                        "translations": {}
+                    },
+                    "quantity": 1,
+                    "price": 0,
+                    "totalPrice": 0,
+                    "unitPriceCents": 0,
+                    "totalPriceCents": 0,
+                    "options": [],
+                    "isInvisible": false,
+                    "isDefault": false,
+                    "freeQuantity": 0,
+                    "modifierCode": null,
+                    "modifierGroupName": "Extra Cheese",
+                    "localizedModifierGroupName": {
+                        "translations": {}
+                    },
+                    "isScanned": false
+                }, {
+                    "modifierGroupId": "modgrp-b27bce7c-08f9-4db2-8ebe-92a6a5aa7067",
+                    "modifierGroupPosId": null,
+                    "modifierId": "modfr-9988990e-e9fe-442a-a34c-13ef2a254fae",
+                    "modifierPosId": null,
+                    "name": "onion",
+                    "localizedName": {
+                        "translations": {}
+                    },
+                    "quantity": 1,
+                    "price": 0.5,
+                    "totalPrice": 0.5,
+                    "unitPriceCents": 50,
+                    "totalPriceCents": 50,
+                    "options": [],
+                    "isInvisible": false,
+                    "isDefault": false,
+                    "freeQuantity": 0,
+                    "modifierCode": null,
+                    "modifierGroupName": "Extra veggies",
+                    "localizedModifierGroupName": {
+                        "translations": {}
+                    },
+                    "isScanned": false
+                }
+            ],
+            "itemPrice": 0.02,
+            "unitPrice": 0.52,
+            "totalPrice": 0.52,
+            "unitPriceCents": 52,
+            "totalPriceCents": 52,
+            "quantity": 1,
+            "specialRequest": "",
+            "upsellSource": null,
+            "rewardSource": null,
+            "itemSessionId": "FSOqCguRJhOHoG3cr5pM1",
+            "discounts": [],
+            "discountSource": {
+                "discountId": "",
+                "isHiddenOnReceipt": false
+            },
+            "conceptId": "",
+            "conceptName": "",
+            "isScanned": false
+        }
+    ],
+    "combos": [],
+    "paymentDetails": [{
+            "amount": 1.12,
+            "paymentIntegrationId": "payment-integration-cash",
+            "transactionId": "",
+            "paymentIntegrationLabel": "Cash",
+            "tenderId": "",
+            "paymentCardName": "",
+            "paymentCardNumber": "",
+            "isAmazonOnePayment": false,
+            "paymentMethod": "Cash",
+            "tenderInfo": null,
+            "status": null,
+            "captureDetails": null,
+            "settlementDetails": null
+        }
+    ],
+    "orderType": "",
+    "orderTypeLabel": "Test",
+    "orderIdentity": {
+        "orderToken": "10032",
+        "name": "Name",
+        "phone": null,
+        "phoneCountryCode": null,
+        "email": "",
+        "tableTent": "",
+        "posOrderToken": "",
+        "randomlyGeneratedFields": [],
+        "deviceImei": ""
+    },
+    "redeemedRewards": [],
+    "receiptImage": "https://test.console.grubbrr.com/order-receipt/-rO1wVbV9trF27dsV5_dJV-laMOFcLQpszIL-aSj_0l5ZrZXcOanuObvrseKXK8KfkjvDE6hKo8-qcFJpROq8Z3Tm9Hrc1uTwgd-uylK9Y4",
+    "gusetCheckImageLink": null,
+    "kioskSource": {
+        "kioskId": "ksk-32482408",
+        "name": "Kiosk-1",
+        "kioskMode": 1
+    },
+    "discounts": [],
+    "isFailedToSendToPos": false,
+    "posSubmissionStatus": 1,
+    "channel": 0,
+    "clientIpAddress": "170.55.38.166",
+    "isTestOrder": false,
+    "businessDate": "2026-04-30T00:00:00",
+    "loyaltyUser": null,
+    "guestCount": 1,
+    "upsellInformation": {
+        "upsellPrompt": [],
+        "modifierImpressions": [],
+        "modifierInteractions": []
+    },
+    "orderReceiptUrl": "https://test.console.grubbrr.com/order-receipt/-rO1wVbV9trF27dsV5_dJV-laMOFcLQpszIL-aSj_0l5ZrZXcOanuObvrseKXK8KfkjvDE6hKo8-qcFJpROq8Z3Tm9Hrc1uTwgd-uylK9Y4",
+    "loyaltyProviderTransactionId": "",
+    "loyaltyProviderPaymentTransactionId": "",
+    "orderReceiptPdfUrl": "/location/org-124ec460-cadf-4ad0-a0f9-882275895e2a/loc-1fb25c39-043f-4fe1-99d8-6e4086e24586/MJGrqGhmIvhzf89x1g970Wu53gUZY/0f2d7335d2d52fd49925394e8d2437aef1f4c3fb9067588bc0ada57911ea21c1.pdf",
+    "receiptDetails": {
+        "orderLanguage": "en",
+        "guestCheckCode": null,
+        "guestCheckCodePrefaceText": "",
+        "genesisFiscalFields": null,
+        "feedBackUrl": null,
+        "loyaltyEarnedPoints": "",
+        "loyaltyHeader": "",
+        "loyaltyFooter": "",
+        "receiptPrintingType": "Barcode",
+        "items": []
+    },
+    "concepts": [],
+    "conceptName": "",
+    "conceptId": "",
+    "orderId": "ord-MJGrqGhmIvhzf89x1g970Wu53gUZY",
+    "orderDate": "2026-04-30T16:13:53.8535155Z",
+    "locationId": "loc-1fb25c39-043f-4fe1-99d8-6e4086e24586",
+    "id": "ordevt-Y3PHXW94F6872D9E",
+    "type": "order-placed",
+    "_rid": "6ZocAK1z8AchVBQAAAAAAA==",
+    "_self": "dbs/6ZocAA==/colls/6ZocAK1z8Ac=/docs/6ZocAK1z8AchVBQAAAAAAA==/",
+    "_etag": "\"02002703-0000-0100-0000-69f37fc50000\"",
+    "_attachments": "attachments/",
+    "_ts": 1777565637
+}
