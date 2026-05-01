@@ -1,7 +1,9 @@
 SELECT *
 FROM fact.transactionheader as th 
-WHERE th.locationid = 'loc-8ef0f09d-76fd-4bce-af56-40182bc73c26'
---AND th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
+WHERE th.locationid = 'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+AND th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
+AND orderstatus = 'order-placed'
+AND th.businessdate = '2026-05-01'
 ORDER BY th.orderdatelocal DESC
 LIMIT 100;
 
