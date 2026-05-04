@@ -22,6 +22,7 @@ SELECT * FROM dim.kiosk;
 
 SELECT * FROM dim.organization
 WHERE 1=1 
+  AND is_smart_upsells_enabled = True
   AND id = 'loc-4d9abab8-1ac9-4486-90f8-fcfb26d830fc'-- 'loc-96abd656-679f-41dc-a5ef-7bca8ffc5333'-- 'loc-66d85cfc-62f3-40eb-96c3-39afb144b4e3'
   AND organizationtype = 0
 

@@ -119,6 +119,10 @@ SET ts = tr.maxts
 FROM (SELECT max(syscosmosts) as maxts, 'fact.transactionrefunds' as tablename FROM fact.transactionrefunds) as tr 
 WHERE watermarktable.watermarktablename = tr.tablename;
 
+UPDATE fact.watermarktable
+SET watermarkcolumn = 'syscosmosts'
+WHERE watermarktablename = 'fact.occasionsurveydetail'
+
 SELECT 1 as rn;
 
 SELECT *
