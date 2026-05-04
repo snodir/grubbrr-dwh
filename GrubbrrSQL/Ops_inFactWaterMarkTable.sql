@@ -35,10 +35,10 @@ WHERE watermarktable.watermarktablename = tr.tablename
   AND watermarktable.source = 'gsh';*/
 
 
---UPDATE fact.watermarktable
-SET ts = 1775002010
-WHERE watermarktablename IN ('fact.modifier_interactions')--,'fact.modifier_recommendations','fact.modifier_impressions','fact.modifier_interactions')
-  AND source IN ('nge-Interactions')--,'nge')
+UPDATE fact.watermarktable
+SET ts = 1777864681--1775002010
+WHERE watermarktablename = 'fact.transactionheader'-- IN ('fact.modifier_interactions')--,'fact.modifier_recommendations','fact.modifier_impressions','fact.modifier_interactions')
+  AND source = 'nge'-- IN ('nge-Interactions')--,'nge')
 
 --UPDATE fact.watermarktable
 SET ts = 1600000300
