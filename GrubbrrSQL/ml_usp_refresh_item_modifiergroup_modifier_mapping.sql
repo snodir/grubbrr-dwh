@@ -45,13 +45,15 @@ CREATE TABLE IF NOT EXISTS ml.item_modifiergroup_modifier_mapping (
     sysinserttime             TIMESTAMP
 );
 
+/*
+
 CREATE INDEX IF NOT EXISTS ix_ml_imm_locationid
     ON ml.item_modifiergroup_modifier_mapping (locationid);
 CREATE INDEX IF NOT EXISTS ix_ml_imm_menuitemid
     ON ml.item_modifiergroup_modifier_mapping (menuitemid);
 CREATE INDEX IF NOT EXISTS ix_ml_imm_modifierid
     ON ml.item_modifiergroup_modifier_mapping (modifierid);
-
+*/
 
 -- ============================================================
 -- STORED PROCEDURE 10: ml.usp_refresh_item_modifiergroup_modifier_mapping

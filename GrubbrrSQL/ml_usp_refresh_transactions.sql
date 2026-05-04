@@ -49,6 +49,8 @@ CREATE TABLE IF NOT EXISTS ml.transactions (
     sysinserttime        TIMESTAMP
 );
 
+/*
+
 CREATE INDEX IF NOT EXISTS ix_ml_trx_yyyy_ww
     ON ml.transactions (yyyy, ww);
 CREATE INDEX IF NOT EXISTS ix_ml_trx_locid_yyyy_ww
@@ -56,7 +58,7 @@ CREATE INDEX IF NOT EXISTS ix_ml_trx_locid_yyyy_ww
 CREATE INDEX IF NOT EXISTS ix_ml_trx_businessdate
     ON ml.transactions (businessdate);
 
-
+*/
 -- ============================================================
 -- STORED PROCEDURE 4: ml.usp_refresh_transactions
 -- Refresh type : DAILY DELETE + INSERT (idempotent) / FULL TRUNCATE + INSERT

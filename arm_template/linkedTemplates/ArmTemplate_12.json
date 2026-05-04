@@ -13,6 +13,68 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/UpdateFieldsInTrxnFactTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "UpdateFieldsInTrxnFactTables",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "UpdateFieldsInTrxnFactTables",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "TrxnOrderTypes": {},
+                                    "dimOrderType": {},
+                                    "OrderMenuItems": {},
+                                    "dimMenuItems": {},
+                                    "gemEvents": {},
+                                    "factTrxnHeaders": {},
+                                    "factTrxnItems": {},
+                                    "factTrxnHeaders2": {},
+                                    "dimOrderType2": {},
+                                    "factTrxnItems2": {},
+                                    "ItemsWithCategory": {},
+                                    "dimCategory": {},
+                                    "UpdateTransactions": {},
+                                    "UpdateTrxnItems": {},
+                                    "UpdateTrxnOrderTypes": {},
+                                    "UpdateTrxnItemsCtg": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Facts"
+                },
+                "annotations": [],
+                "lastPublishTime": "2025-05-15T19:18:52Z"
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/UpsellRecommendationsToGAS')]",
             "type": "Microsoft.DataFactory/factories/pipelines",
             "apiVersion": "2018-06-01",
@@ -378,7 +440,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-08T10:22:46Z"
             },
             "dependsOn": []
         },
@@ -567,7 +630,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-01-13T07:36:44Z"
             },
             "dependsOn": []
         },
@@ -1359,7 +1423,7 @@
                     "name": "Facts"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-18T20:30:57Z"
+                "lastPublishTime": "2026-03-23T09:13:07Z"
             },
             "dependsOn": []
         },
@@ -1409,7 +1473,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-12-24T04:57:16Z"
             },
             "dependsOn": []
         },
@@ -1828,7 +1893,7 @@
                     "name": "Facts"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-15T19:56:13Z"
+                "lastPublishTime": "2026-04-03T04:49:48Z"
             },
             "dependsOn": []
         },
@@ -2202,7 +2267,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-11-12T08:42:32Z"
             },
             "dependsOn": []
         },
@@ -2266,7 +2332,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": []
         },
@@ -2530,7 +2597,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-03-14T19:11:42Z"
             },
             "dependsOn": []
         },
@@ -2905,7 +2973,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-11-12T09:39:19Z"
             },
             "dependsOn": []
         },
@@ -3243,7 +3312,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-03-14T19:11:42Z"
             },
             "dependsOn": []
         },
@@ -3941,7 +4011,7 @@
                     "name": "Facts"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-18T20:30:57Z"
+                "lastPublishTime": "2025-07-16T12:53:33Z"
             },
             "dependsOn": []
         },
@@ -3996,7 +4066,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": []
         },
@@ -4181,7 +4252,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-08-06T06:46:56Z"
             },
             "dependsOn": []
         },
@@ -4884,10 +4956,12 @@
                 "folder": {
                     "name": "Master"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-21T06:42:29Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/gasTransactionsToAnalyticsDb')]",
+                "[concat(variables('factoryId'), '/pipelines/UpdateFieldsInTrxnFactTables')]",
                 "[concat(variables('factoryId'), '/pipelines/UpsellRecommendationsToGAS')]"
             ]
         },
@@ -5093,7 +5167,8 @@
                 "folder": {
                     "name": "Master"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-02T13:15:41Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/gemEventsToAnalyticsDb')]",
@@ -5288,7 +5363,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-15T09:26:32Z"
             },
             "dependsOn": []
         },

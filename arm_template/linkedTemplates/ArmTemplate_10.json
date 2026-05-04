@@ -13,6 +13,826 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/gmsModifiersToGAS')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "ML"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModifiers"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimModifiers"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModifierMapping"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierMappingAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimModifierMapping"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModifiersAll"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModMapping"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModfrGroup"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimModifierGroup"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "publicItemMasterGMS",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gmsModfrGroupUpdate"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "toDimModifier"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierMappingAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "toDimModifierMapping"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "updateDimModifier"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierMappingAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "updateDimModifierGroupMapping"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "toDimModifierGroup"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimModifierGroupAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "updateDimModifierGroup"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "sysinserttime"
+                        },
+                        {
+                            "name": "NewModifiers"
+                        },
+                        {
+                            "name": "NewMappings"
+                        },
+                        {
+                            "name": "sysinserttime2"
+                        },
+                        {
+                            "name": "sysupdatetime"
+                        },
+                        {
+                            "name": "sysupdatetime2"
+                        },
+                        {
+                            "name": "Update"
+                        },
+                        {
+                            "name": "Update2"
+                        },
+                        {
+                            "name": "NewModfrGroups"
+                        },
+                        {
+                            "name": "sysinserttime3"
+                        },
+                        {
+                            "name": "sysupdatetime3"
+                        },
+                        {
+                            "name": "Update3"
+                        },
+                        {
+                            "name": "RowNumber1"
+                        },
+                        {
+                            "name": "filter1"
+                        },
+                        {
+                            "name": "RowNumber2"
+                        },
+                        {
+                            "name": "filter2"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          modifierid as string,",
+                        "          catalogid as string,",
+                        "          modifiername as string,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          calories as string,",
+                        "          calories_text as string,",
+                        "          is_modifier_active as boolean,",
+                        "          is_modifier_deleted as boolean,",
+                        "          modifier_created_on as timestamp,",
+                        "          modifier_modified_on as timestamp,",
+                        "          is_modifier_default as boolean,",
+                        "          modifier_default_quantity as integer,",
+                        "          is_invisible as boolean,",
+                        "          classification as integer,",
+                        "          price as decimal(38,18),",
+                        "          price_changed_on as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'WITH latest_price AS (\\r\\nSELECT modifier_id, max(modified_on) as max_modified_on\\r\\nFROM public.pricebook\\r\\nWHERE 1=1\\r\\n  AND modifier_id IS NOT NULL\\r\\n  AND price > 0\\r\\nGROUP BY modifier_id\\r\\n)\\r\\nSELECT mm.id as modifierid,\\r\\n       mm.catalog_id as catalogid,\\r\\n       mm.name as modifiername,\\r\\n       mm.min_quantity,\\r\\n       mm.max_quantity,\\r\\n       mm.allow_quantity_increment,\\r\\n       mm.increment_step,\\r\\n       mm.calories,\\r\\n       mm.calories_text,\\r\\n       mm.is_active as is_modifier_active,\\r\\n       mm.is_deleted as is_modifier_deleted,\\r\\n       mm.created_on as modifier_created_on,\\r\\n       mm.modified_on as modifier_modified_on,\\r\\n       mm.is_default as is_modifier_default,\\r\\n       mm.default_quantity as modifier_default_quantity,\\r\\n       mm.is_invisible,\\r\\n       mm.classification,\\r\\n       pb.price :: NUMERIC(16,4) / 100 as price,\\r\\n       pb.modified_on as price_changed_on\\r\\nFROM public.modifier_master as mm\\r\\nLEFT JOIN latest_price as lp\\r\\n       ON mm.id = lp.modifier_id\\r\\nLEFT JOIN public.pricebook as pb\\r\\n       ON lp.modifier_id = pb.modifier_id\\r\\n      AND lp.max_modified_on = pb.modified_on',",
+                        "     format: 'query') ~> gmsModifiers",
+                        "source(output(",
+                        "          modifierid as string,",
+                        "          catalogid as string,",
+                        "          modifiername as string,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          calories as string,",
+                        "          calories_text as string,",
+                        "          is_modifier_active as boolean,",
+                        "          is_modifier_deleted as boolean,",
+                        "          modifier_created_on as timestamp,",
+                        "          modifier_modified_on as timestamp,",
+                        "          is_modifier_default as boolean,",
+                        "          modifier_default_quantity as integer,",
+                        "          is_invisible as boolean,",
+                        "          classification as integer,",
+                        "          price as decimal(12,3),",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp,",
+                        "          price_changed_on as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> dimModifiers",
+                        "source(output(",
+                        "          modifier_mapping_id as string,",
+                        "          modifierid as string,",
+                        "          modifiergroupid as string,",
+                        "          catalogid as string,",
+                        "          is_mapping_active as boolean,",
+                        "          is_mapping_deleted as boolean,",
+                        "          mapping_created_on as timestamp,",
+                        "          mapping_modified_on as timestamp,",
+                        "          is_default as boolean,",
+                        "          default_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          calories_text as string,",
+                        "          is_invisible as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'SELECT mg.id as modifier_mapping_id,\\r\\n       mg.modifier_master_id as modifierid,\\r\\n       mg.modifier_group_master_id as modifiergroupid,\\r\\n       mg.catalog_id as catalogid,\\r\\n       mg.is_active as is_mapping_active,\\r\\n       mg.is_deleted as is_mapping_deleted,\\r\\n       mg.created_on as mapping_created_on,\\r\\n       mg.modified_on as mapping_modified_on,\\r\\n       mg.is_default,\\r\\n       mg.default_quantity,\\r\\n       mg.allow_quantity_increment,\\r\\n       mg.increment_step,\\r\\n       mg.min_quantity,\\r\\n       mg.max_quantity,\\r\\n       mg.calories_text,\\r\\n       mg.is_invisible\\r\\nFROM public.modifier_group_modifier_glue as mg',",
+                        "     format: 'query') ~> gmsModifierMapping",
+                        "source(output(",
+                        "          modifier_mapping_id as string,",
+                        "          modifierid as string,",
+                        "          modifiergroupid as string,",
+                        "          catalogid as string,",
+                        "          is_mapping_active as boolean,",
+                        "          is_mapping_deleted as boolean,",
+                        "          mapping_created_on as timestamp,",
+                        "          mapping_modified_on as timestamp,",
+                        "          is_default as boolean,",
+                        "          default_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          calories_text as string,",
+                        "          is_invisible as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> dimModifierMapping",
+                        "source(output(",
+                        "          modifierid as string,",
+                        "          catalogid as string,",
+                        "          modifiername as string,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          calories as string,",
+                        "          calories_text as string,",
+                        "          is_modifier_active as boolean,",
+                        "          is_modifier_deleted as boolean,",
+                        "          modifier_created_on as timestamp,",
+                        "          modifier_modified_on as timestamp,",
+                        "          is_modifier_default as boolean,",
+                        "          modifier_default_quantity as integer,",
+                        "          is_invisible as boolean,",
+                        "          classification as integer,",
+                        "          price as decimal(38,18),",
+                        "          price_changed_on as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'WITH latest_price AS (\\r\\nSELECT modifier_id, max(modified_on) as max_modified_on\\r\\nFROM public.pricebook\\r\\nWHERE 1=1\\r\\n  AND modifier_id IS NOT NULL\\r\\n  AND price > 0\\r\\nGROUP BY modifier_id\\r\\n)\\r\\nSELECT mm.id as modifierid,\\r\\n       mm.catalog_id as catalogid,\\r\\n       mm.name as modifiername,\\r\\n       mm.min_quantity,\\r\\n       mm.max_quantity,\\r\\n       mm.allow_quantity_increment,\\r\\n       mm.increment_step,\\r\\n       mm.calories,\\r\\n       mm.calories_text,\\r\\n       mm.is_active as is_modifier_active,\\r\\n       mm.is_deleted as is_modifier_deleted,\\r\\n       mm.created_on as modifier_created_on,\\r\\n       mm.modified_on as modifier_modified_on,\\r\\n       mm.is_default as is_modifier_default,\\r\\n       mm.default_quantity as modifier_default_quantity,\\r\\n       mm.is_invisible,\\r\\n       mm.classification,\\r\\n       pb.price :: NUMERIC(16,4) / 100 as price,\\r\\n       pb.modified_on as price_changed_on\\r\\nFROM public.modifier_master as mm\\r\\nLEFT JOIN latest_price as lp\\r\\n       ON mm.id = lp.modifier_id\\r\\nLEFT JOIN public.pricebook as pb\\r\\n       ON lp.modifier_id = pb.modifier_id\\r\\n      AND lp.max_modified_on = pb.modified_on',",
+                        "     format: 'query') ~> gmsModifiersAll",
+                        "source(output(",
+                        "          modifier_mapping_id as string,",
+                        "          modifierid as string,",
+                        "          modifiergroupid as string,",
+                        "          catalogid as string,",
+                        "          is_mapping_active as boolean,",
+                        "          is_mapping_deleted as boolean,",
+                        "          mapping_created_on as timestamp,",
+                        "          mapping_modified_on as timestamp,",
+                        "          is_default as boolean,",
+                        "          default_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          calories_text as string,",
+                        "          is_invisible as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'SELECT mg.id as modifier_mapping_id,\\r\\n       mg.modifier_master_id as modifierid,\\r\\n       mg.modifier_group_master_id as modifiergroupid,\\r\\n       mg.catalog_id as catalogid,\\r\\n       mg.is_active as is_mapping_active,\\r\\n       mg.is_deleted as is_mapping_deleted,\\r\\n       mg.created_on as mapping_created_on,\\r\\n       mg.modified_on as mapping_modified_on,\\r\\n       mg.is_default,\\r\\n       mg.default_quantity,\\r\\n       mg.allow_quantity_increment,\\r\\n       mg.increment_step,\\r\\n       mg.min_quantity,\\r\\n       mg.max_quantity,\\r\\n       mg.calories_text,\\r\\n       mg.is_invisible\\r\\nFROM public.modifier_group_modifier_glue as mg',",
+                        "     format: 'query') ~> gmsModMapping",
+                        "source(output(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'SELECT\\r\\n    id as modifiergroupid,\\r\\n    name as modifiergroupname,\\r\\n    catalog_id as catalogid,\\r\\n    max_selection,\\r\\n    min_selection,\\r\\n    free_count,\\r\\n    pos_linked_entity_id,\\r\\n    is_active,\\r\\n    is_deleted,\\r\\n    created_on,\\r\\n    modified_on,\\r\\n    negative_modifier_behavior,\\r\\n    created_by,\\r\\n    modified_by,\\r\\n    max_aggregate_count,\\r\\n    min_aggregate_count,\\r\\n    increment_step,\\r\\n    slider_mode,\\r\\n    slider_mode_modifier\\r\\nFROM public.modifier_group_master',",
+                        "     format: 'query') ~> gmsModfrGroup",
+                        "source(output(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> dimModifierGroup",
+                        "source(output(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'SELECT\\r\\n    id as modifiergroupid,\\r\\n    name as modifiergroupname,\\r\\n    catalog_id as catalogid,\\r\\n    max_selection,\\r\\n    min_selection,\\r\\n    free_count,\\r\\n    pos_linked_entity_id,\\r\\n    is_active,\\r\\n    is_deleted,\\r\\n    created_on,\\r\\n    modified_on,\\r\\n    negative_modifier_behavior,\\r\\n    created_by,\\r\\n    modified_by,\\r\\n    max_aggregate_count,\\r\\n    min_aggregate_count,\\r\\n    increment_step,\\r\\n    slider_mode,\\r\\n    slider_mode_modifier\\r\\nFROM public.modifier_group_master',",
+                        "     format: 'query') ~> gmsModfrGroupUpdate",
+                        "filter1 derive(sysinserttime = currentTimestamp()) ~> sysinserttime",
+                        "gmsModifiers, dimModifiers exists(gmsModifiers@modifierid == dimModifiers@modifierid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> NewModifiers",
+                        "gmsModifierMapping, dimModifierMapping exists(gmsModifierMapping@modifier_mapping_id == dimModifierMapping@modifier_mapping_id,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> NewMappings",
+                        "NewMappings derive(sysinserttime = currentTimestamp()) ~> sysinserttime2",
+                        "filter2 derive(sysupdatetime = currentTimestamp()) ~> sysupdatetime",
+                        "gmsModMapping derive(sysupdatetime = currentTimestamp()) ~> sysupdatetime2",
+                        "sysupdatetime alterRow(updateIf(true())) ~> Update",
+                        "sysupdatetime2 alterRow(updateIf(true())) ~> Update2",
+                        "gmsModfrGroup, dimModifierGroup exists(gmsModfrGroup@modifiergroupid == dimModifierGroup@modifiergroupid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> NewModfrGroups",
+                        "NewModfrGroups derive(sysinserttime = currentTimestamp()) ~> sysinserttime3",
+                        "gmsModfrGroupUpdate derive(sysupdatetime = currentTimestamp()) ~> sysupdatetime3",
+                        "sysupdatetime3 alterRow(updateIf(true())) ~> Update3",
+                        "NewModifiers window(over(modifierid),",
+                        "     desc(modifier_modified_on, true),",
+                        "     rn = rowNumber()) ~> RowNumber1",
+                        "RowNumber1 filter(rn == 1) ~> filter1",
+                        "gmsModifiersAll window(over(modifierid),",
+                        "     desc(modifier_modified_on, true),",
+                        "     rn = rowNumber()) ~> RowNumber2",
+                        "RowNumber2 filter(rn == 2) ~> filter2",
+                        "sysinserttime sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifierid as string,",
+                        "          catalogid as string,",
+                        "          modifiername as string,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          calories as string,",
+                        "          calories_text as string,",
+                        "          is_modifier_active as boolean,",
+                        "          is_modifier_deleted as boolean,",
+                        "          modifier_created_on as timestamp,",
+                        "          modifier_modified_on as timestamp,",
+                        "          is_modifier_default as boolean,",
+                        "          modifier_default_quantity as integer,",
+                        "          is_invisible as boolean,",
+                        "          classification as integer,",
+                        "          price as decimal(12,3),",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp,",
+                        "          price_changed_on as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 1,",
+                        "     mapColumn(",
+                        "          modifierid,",
+                        "          catalogid,",
+                        "          modifiername,",
+                        "          min_quantity,",
+                        "          max_quantity,",
+                        "          allow_quantity_increment,",
+                        "          increment_step,",
+                        "          calories,",
+                        "          calories_text,",
+                        "          is_modifier_active,",
+                        "          is_modifier_deleted,",
+                        "          modifier_created_on,",
+                        "          modifier_modified_on,",
+                        "          price_changed_on,",
+                        "          is_modifier_default,",
+                        "          modifier_default_quantity,",
+                        "          is_invisible,",
+                        "          classification,",
+                        "          price,",
+                        "          sysinserttime",
+                        "     )) ~> toDimModifier",
+                        "sysinserttime2 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifier_mapping_id as string,",
+                        "          modifierid as string,",
+                        "          modifiergroupid as string,",
+                        "          catalogid as string,",
+                        "          is_mapping_active as boolean,",
+                        "          is_mapping_deleted as boolean,",
+                        "          mapping_created_on as timestamp,",
+                        "          mapping_modified_on as timestamp,",
+                        "          is_default as boolean,",
+                        "          default_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          calories_text as string,",
+                        "          is_invisible as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 2,",
+                        "     mapColumn(",
+                        "          modifier_mapping_id,",
+                        "          modifierid,",
+                        "          modifiergroupid,",
+                        "          is_default,",
+                        "          default_quantity,",
+                        "          allow_quantity_increment,",
+                        "          increment_step,",
+                        "          min_quantity,",
+                        "          max_quantity,",
+                        "          calories_text,",
+                        "          is_invisible,",
+                        "          sysinserttime",
+                        "     )) ~> toDimModifierMapping",
+                        "Update sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifierid as string,",
+                        "          catalogid as string,",
+                        "          modifiername as string,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          calories as string,",
+                        "          calories_text as string,",
+                        "          is_modifier_active as boolean,",
+                        "          is_modifier_deleted as boolean,",
+                        "          modifier_created_on as timestamp,",
+                        "          modifier_modified_on as timestamp,",
+                        "          is_modifier_default as boolean,",
+                        "          modifier_default_quantity as integer,",
+                        "          is_invisible as boolean,",
+                        "          classification as integer,",
+                        "          price as decimal(12,3),",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp,",
+                        "          price_changed_on as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['modifierid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 3,",
+                        "     mapColumn(",
+                        "          modifierid,",
+                        "          catalogid,",
+                        "          modifiername,",
+                        "          min_quantity,",
+                        "          max_quantity,",
+                        "          allow_quantity_increment,",
+                        "          increment_step,",
+                        "          calories,",
+                        "          calories_text,",
+                        "          is_modifier_active,",
+                        "          is_modifier_deleted,",
+                        "          modifier_created_on,",
+                        "          modifier_modified_on,",
+                        "          price_changed_on,",
+                        "          is_modifier_default,",
+                        "          modifier_default_quantity,",
+                        "          is_invisible,",
+                        "          classification,",
+                        "          price,",
+                        "          sysupdatetime",
+                        "     )) ~> updateDimModifier",
+                        "Update2 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifier_mapping_id as string,",
+                        "          modifierid as string,",
+                        "          modifiergroupid as string,",
+                        "          catalogid as string,",
+                        "          is_mapping_active as boolean,",
+                        "          is_mapping_deleted as boolean,",
+                        "          mapping_created_on as timestamp,",
+                        "          mapping_modified_on as timestamp,",
+                        "          is_default as boolean,",
+                        "          default_quantity as integer,",
+                        "          allow_quantity_increment as boolean,",
+                        "          increment_step as integer,",
+                        "          min_quantity as integer,",
+                        "          max_quantity as integer,",
+                        "          calories_text as string,",
+                        "          is_invisible as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['modifier_mapping_id'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 4,",
+                        "     mapColumn(",
+                        "          modifier_mapping_id,",
+                        "          modifierid,",
+                        "          modifiergroupid,",
+                        "          catalogid,",
+                        "          is_mapping_active,",
+                        "          is_mapping_deleted,",
+                        "          mapping_created_on,",
+                        "          mapping_modified_on,",
+                        "          is_default,",
+                        "          default_quantity,",
+                        "          allow_quantity_increment,",
+                        "          increment_step,",
+                        "          min_quantity,",
+                        "          max_quantity,",
+                        "          calories_text,",
+                        "          is_invisible,",
+                        "          sysupdatetime",
+                        "     )) ~> updateDimModifierGroupMapping",
+                        "sysinserttime3 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 5,",
+                        "     mapColumn(",
+                        "          modifiergroupid,",
+                        "          modifiergroupname,",
+                        "          catalogid,",
+                        "          max_selection,",
+                        "          min_selection,",
+                        "          free_count,",
+                        "          pos_linked_entity_id,",
+                        "          is_active,",
+                        "          is_deleted,",
+                        "          created_on,",
+                        "          modified_on,",
+                        "          negative_modifier_behavior,",
+                        "          created_by,",
+                        "          modified_by,",
+                        "          max_aggregate_count,",
+                        "          min_aggregate_count,",
+                        "          increment_step,",
+                        "          slider_mode,",
+                        "          slider_mode_modifier,",
+                        "          sysinserttime",
+                        "     )) ~> toDimModifierGroup",
+                        "Update3 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          modifiergroupid as string,",
+                        "          modifiergroupname as string,",
+                        "          catalogid as string,",
+                        "          max_selection as integer,",
+                        "          min_selection as integer,",
+                        "          free_count as integer,",
+                        "          pos_linked_entity_id as string,",
+                        "          is_active as boolean,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          negative_modifier_behavior as integer,",
+                        "          created_by as string,",
+                        "          modified_by as string,",
+                        "          max_aggregate_count as integer,",
+                        "          min_aggregate_count as integer,",
+                        "          increment_step as integer,",
+                        "          slider_mode as boolean,",
+                        "          slider_mode_modifier as boolean,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['modifiergroupid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 6,",
+                        "     mapColumn(",
+                        "          modifiergroupid,",
+                        "          modifiergroupname,",
+                        "          catalogid,",
+                        "          max_selection,",
+                        "          min_selection,",
+                        "          free_count,",
+                        "          pos_linked_entity_id,",
+                        "          is_active,",
+                        "          is_deleted,",
+                        "          created_on,",
+                        "          modified_on,",
+                        "          negative_modifier_behavior,",
+                        "          created_by,",
+                        "          modified_by,",
+                        "          max_aggregate_count,",
+                        "          min_aggregate_count,",
+                        "          increment_step,",
+                        "          slider_mode,",
+                        "          slider_mode_modifier,",
+                        "          sysupdatetime",
+                        "     )) ~> updateDimModifierGroup"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/gshDeviceHealthToAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Service-GSH"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DeviceHealthFromGshPG",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gshDeviceHealth"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "factDeviceHealthAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "PushDHToPGAnalyticsStg"
+                        }
+                    ],
+                    "transformations": [],
+                    "scriptLines": [
+                        "source(output(",
+                        "          id as long,",
+                        "          healthdatatype as string,",
+                        "          locationid as string,",
+                        "          companyid as string,",
+                        "          deviceid as string,",
+                        "          devicetype as string,",
+                        "          status as string,",
+                        "          statusmessage as string,",
+                        "          healthdatatime as timestamp,",
+                        "          statuschangetime as timestamp,",
+                        "          inserttime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> gshDeviceHealth",
+                        "gshDeviceHealth sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as long,",
+                        "          healthdatatype as string,",
+                        "          locationid as string,",
+                        "          companyid as string,",
+                        "          deviceid as string,",
+                        "          devicetype as string,",
+                        "          status as string,",
+                        "          statusmessage as string,",
+                        "          healthdatatime as timestamp,",
+                        "          statuschangetime as timestamp,",
+                        "          inserttime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     truncate:true,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> PushDHToPGAnalyticsStg"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/gshDeviceHealthToAnalyticsDbDeviceState')]",
             "type": "Microsoft.DataFactory/factories/dataflows",
             "apiVersion": "2018-06-01",
@@ -1696,9 +2516,6 @@
                             "name": "OnlyNeededFields"
                         },
                         {
-                            "name": "CheckDimOccSurvey"
-                        },
-                        {
                             "name": "NewFeedbacksOnly"
                         },
                         {
@@ -1739,6 +2556,9 @@
                         },
                         {
                             "name": "CheckTransactions"
+                        },
+                        {
+                            "name": "CheckDimOccSurvey"
                         }
                     ],
                     "scriptLines": [
@@ -1934,7 +2754,7 @@
                         "deriveDateID select(mapColumn(",
                         "          surveycompletedtimestamp = timestamp,",
                         "          surveyrating,",
-                        "          surveytype,",
+                        "          surveytype = surveytype_text_int,",
                         "          locationid = ngOccasionSurvey@locationid,",
                         "          orderid = ngOccasionSurvey@orderid,",
                         "          ordersessionid,",
@@ -1948,26 +2768,21 @@
                         "     ),",
                         "     skipDuplicateMapInputs: true,",
                         "     skipDuplicateMapOutputs: true) ~> OnlyNeededFields",
-                        "LiveOrderSurveys, dimOccasionSurvey join(ngOccasionSurvey@surveyid == dimOccasionSurvey@surveyid,",
-                        "     joinType:'left',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> CheckDimOccSurvey",
                         "ngOccasionSurvey, checkFactOccSurvey exists(ngOccasionSurvey@locationid == checkFactOccSurvey@locationid",
                         "     && ngOccasionSurvey@surveytransid == checkFactOccSurvey@surveytransid",
                         "     && ngOccasionSurvey@orderid == checkFactOccSurvey@orderid,",
                         "     negate:true,",
                         "     broadcast: 'auto')~> NewFeedbacksOnly",
-                        "CheckDimOccSurvey, dimOrgLocation join(ngOccasionSurvey@locationid == dimOrgLocation@locationid,",
+                        "LiveOrderSurveys, dimOrgLocation join(ngOccasionSurvey@locationid == dimOrgLocation@locationid,",
                         "     joinType:'left',",
                         "     matchType:'exact',",
                         "     ignoreSpaces: false,",
                         "     broadcast: 'auto')~> GetOrgID",
-                        "GetOrgID derive(timestamp = coalesce(timestamp, sysdatets),",
+                        "CheckDimOccSurvey derive(timestamp = coalesce(timestamp, sysdatets),",
                         "          sysinserttime = currentTimestamp(),",
                         "          organizationid = coalesce(dimOccasionSurvey@organizationid, dimOrgLocation@organizationid),",
                         "          sourceid = 1,",
-                        "          surveytype = case(isInteger(surveyrating), 1, 2)) ~> deriveDateID",
+                        "          surveytype_text_int = case(isInteger(surveyrating), 1, 2)) ~> deriveDateID",
                         "OnlyNeededFields cast(output(",
                         "          surveycompletedtimestamp as string",
                         "     ),",
@@ -2016,6 +2831,12 @@
                         "     && parsed_data.orderId == transactionheaderid,",
                         "     negate:false,",
                         "     broadcast: 'auto')~> CheckTransactions",
+                        "GetOrgID, dimOccasionSurvey join(dimOrgLocation@organizationid == dimOccasionSurvey@organizationid",
+                        "     && ngOccasionSurvey@surveyid == dimOccasionSurvey@surveyid,",
+                        "     joinType:'inner',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> CheckDimOccSurvey",
                         "cast1 sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
@@ -2851,247 +3672,6 @@
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/RefreshMLTables')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "WeatherML",
-                        "type": "Lookup",
-                        "dependsOn": [],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_weather(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "MenuEntitiesML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "WeatherML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_menu_entities();\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "ModifierEntitiesML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "MenuEntitiesML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_item_modifiergroup_modifier_mapping();\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "TransactionsML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "ModifierEntitiesML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_transactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "UpsellAnalysisML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "TransactionsML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_upsell_analysis(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "ModifierInteractionsML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "UpsellAnalysisML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_modifier_interactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "ModifierImpressionsML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "ModifierInteractionsML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_modifier_impressions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "folder": {
-                    "name": "ML"
-                },
-                "annotations": []
-            },
-            "dependsOn": []
-        },
-        {
             "name": "[concat(parameters('factoryName'), '/AbortedItemsToPG')]",
             "type": "Microsoft.DataFactory/factories/pipelines",
             "apiVersion": "2018-06-01",
@@ -3425,7 +4005,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-03-14T19:11:42Z"
             },
             "dependsOn": []
         },
@@ -3972,7 +4553,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-06T16:20:18Z"
             },
             "dependsOn": []
         },
@@ -4107,7 +4689,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-07-15T13:24:48Z"
             },
             "dependsOn": []
         },
@@ -9871,7 +10454,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-24T13:53:04Z"
             },
             "dependsOn": []
         },
@@ -10450,7 +11034,8 @@
                 "folder": {
                     "name": "Dimensions/Stand-Alone"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-02-23T10:21:30Z"
             },
             "dependsOn": []
         },
@@ -10561,109 +11146,11 @@
                 "folder": {
                     "name": "AdHoc"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-03-31T14:51:17Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/ngeLocationsToBronze')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/DevicesAndPeripherals')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "gshDevicesAndPeripheralsToAnalyticsDb",
-                        "type": "ExecuteDataFlow",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
-                        "dependsOn": [],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "dataflow": {
-                                "referenceName": "gshDevicesAndPeripheralsToAnalyticsDb",
-                                "type": "DataFlowReference",
-                                "parameters": {},
-                                "datasetParameters": {
-                                    "gshDevices": {},
-                                    "gshPeripheral": {},
-                                    "gshDeviceHealth": {},
-                                    "CheckFactDevHealth": {},
-                                    "gshPeripheralHealth": {},
-                                    "CheckFactPeripHealth": {},
-                                    "dimDevice": {},
-                                    "dimPeripheral": {},
-                                    "factDeviceHealth": {},
-                                    "factPeripHealth": {}
-                                }
-                            },
-                            "staging": {},
-                            "compute": {
-                                "coreCount": 8,
-                                "computeType": "General"
-                            },
-                            "traceLevel": "Fine"
-                        }
-                    },
-                    {
-                        "name": "DevicesAndPeripherals",
-                        "type": "ExecuteDataFlow",
-                        "dependsOn": [
-                            {
-                                "activity": "gshDevicesAndPeripheralsToAnalyticsDb",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "dataflow": {
-                                "referenceName": "DevicesAndPeripherals",
-                                "type": "DataFlowReference",
-                                "parameters": {},
-                                "datasetParameters": {
-                                    "gshDevices": {},
-                                    "gshPeripheral": {},
-                                    "dimDevice": {},
-                                    "dimPeripheral": {}
-                                }
-                            },
-                            "staging": {},
-                            "compute": {
-                                "coreCount": 8,
-                                "computeType": "General"
-                            },
-                            "traceLevel": "Fine"
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "folder": {
-                    "name": "Facts"
-                },
-                "annotations": [],
-                "lastPublishTime": "2024-03-15T19:56:13Z"
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/dataflows/gshDevicesAndPeripheralsToAnalyticsDb')]"
             ]
         }
     ]

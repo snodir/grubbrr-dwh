@@ -249,33 +249,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/BronzeToSilver')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "Wait_a_second",
-                        "type": "Wait",
-                        "dependsOn": [],
-                        "userProperties": [],
-                        "typeProperties": {
-                            "waitTimeInSeconds": 1
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "folder": {
-                    "name": "DWH-Medallion/Silver-Transformation"
-                },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:12Z"
             },
             "dependsOn": []
         },
@@ -301,7 +276,8 @@
                 "folder": {
                     "name": "DWH-Medallion/Gold-Analytics"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-10-17T11:58:52Z"
             },
             "dependsOn": []
         },
@@ -613,6 +589,35 @@
                         "schedule": {
                             "hours": [
                                 5
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GemAbortedEvents')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Stopped",
+                "pipelines": [],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2024-07-12T14:00:00",
+                        "timeZone": "Eastern Standard Time",
+                        "schedule": {
+                            "hours": [
+                                6,
+                                10,
+                                14,
+                                18,
+                                22
                             ]
                         }
                     }

@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS ml.upsell_analysis (
     sysinserttime       TIMESTAMP
 );
 
+/*
+
 CREATE INDEX IF NOT EXISTS ix_ml_ua_yyyy_ww
     ON ml.upsell_analysis (yyyy, ww);
 CREATE INDEX IF NOT EXISTS ix_ml_ua_locid_yyyy_ww
@@ -39,7 +41,7 @@ CREATE INDEX IF NOT EXISTS ix_ml_ua_locid_yyyy_ww
 CREATE INDEX IF NOT EXISTS ix_ml_ua_businessdate
     ON ml.upsell_analysis (businessdate);
 
-
+*/
 -- ============================================================
 -- STORED PROCEDURE 5: ml.usp_refresh_upsell_analysis
 -- Refresh type : DAILY DELETE + INSERT (idempotent) / FULL TRUNCATE + INSERT

@@ -13,35 +13,6 @@
     },
     "resources": [
         {
-            "name": "[concat(parameters('factoryName'), '/GemAbortedEvents')]",
-            "type": "Microsoft.DataFactory/factories/triggers",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "runtimeState": "Stopped",
-                "pipelines": [],
-                "type": "ScheduleTrigger",
-                "typeProperties": {
-                    "recurrence": {
-                        "frequency": "Day",
-                        "interval": 1,
-                        "startTime": "2024-07-12T14:00:00",
-                        "timeZone": "Eastern Standard Time",
-                        "schedule": {
-                            "hours": [
-                                6,
-                                10,
-                                14,
-                                18,
-                                22
-                            ]
-                        }
-                    }
-                }
-            },
-            "dependsOn": []
-        },
-        {
             "name": "[concat(parameters('factoryName'), '/KiosksCosmosToPG')]",
             "type": "Microsoft.DataFactory/factories/pipelines",
             "apiVersion": "2018-06-01",
@@ -80,7 +51,7 @@
                     "name": "Dimensions/Stand-Alone"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-21T14:59:35Z"
+                "lastPublishTime": "2025-02-21T17:44:13Z"
             },
             "dependsOn": []
         },
@@ -1599,6 +1570,59 @@
                 "typeProperties": {
                     "schema": "fact",
                     "table": "devicestate"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DeviceTelemetryAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Service-GSH/AnalyticsDb"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "deviceid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "telemetryname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "telemetryvalue",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "telemetrytime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "devicetelemetry"
                 }
             },
             "dependsOn": []

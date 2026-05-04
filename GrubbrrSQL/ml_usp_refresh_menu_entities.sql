@@ -43,11 +43,13 @@ CREATE TABLE IF NOT EXISTS ml.menu_entities (
     sysinserttime      TIMESTAMP
 );
 
+/*
+
 CREATE INDEX IF NOT EXISTS ix_ml_me_locationid
     ON ml.menu_entities (locationid);
 CREATE INDEX IF NOT EXISTS ix_ml_me_menuitemid
     ON ml.menu_entities (menuitemid);
-
+*/
 
 -- ============================================================
 -- STORED PROCEDURE 7: ml.usp_refresh_menu_entities
@@ -117,6 +119,13 @@ BEGIN
 END;
 $BODY$;
 ALTER PROCEDURE ml.usp_refresh_menu_entities() OWNER TO citus;
+
+
+
+
+
+
+
 
 WITH org_loc_lookup AS (
     SELECT DISTINCT ol.organizationid, ol.organizationname,

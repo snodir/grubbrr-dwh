@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS ml.weather (
     sysinserttime                TIMESTAMP
 );
 
+/*
+
 CREATE INDEX IF NOT EXISTS ix_ml_wth_yyyy_ww
     ON ml.weather (yyyy, ww);
 CREATE INDEX IF NOT EXISTS ix_ml_wth_locid_yyyy_ww
@@ -79,7 +81,7 @@ CREATE INDEX IF NOT EXISTS ix_ml_wth_weatherdate
     ON ml.weather (weatherdate);
 CREATE INDEX IF NOT EXISTS ix_ml_wth_locationid_weatherdate_hh
     ON ml.weather (locationid, weatherdate, hh);
-
+*/
 
 -- ============================================================
 -- STORED PROCEDURE 6: ml.usp_refresh_weather

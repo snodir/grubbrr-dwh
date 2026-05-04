@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS ml.modifier_interactions (
     sysinserttime             TIMESTAMP
 );
 
+
+/*
 CREATE INDEX IF NOT EXISTS ix_ml_mi_yyyy_ww
     ON ml.modifier_interactions (yyyy, ww);
 CREATE INDEX IF NOT EXISTS ix_ml_mi_locid_yyyy_ww
@@ -59,7 +61,7 @@ CREATE INDEX IF NOT EXISTS ix_ml_mi_locid_yyyy_ww
 CREATE INDEX IF NOT EXISTS ix_ml_mi_businessdate
     ON ml.modifier_interactions (businessdate);
 
-
+*/
 -- ============================================================
 -- STORED PROCEDURE 8: ml.usp_refresh_modifier_interactions
 -- Refresh type : DAILY DELETE + INSERT (idempotent) / FULL TRUNCATE + INSERT

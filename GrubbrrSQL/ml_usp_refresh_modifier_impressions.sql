@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS ml.modifier_impressions (
     sysinserttime       TIMESTAMP
 );
 
+/*
+
 CREATE INDEX IF NOT EXISTS ix_ml_mimp_yyyy_ww
     ON ml.modifier_impressions (yyyy, ww);
 CREATE INDEX IF NOT EXISTS ix_ml_mimp_locid_yyyy_ww
@@ -54,7 +56,7 @@ CREATE INDEX IF NOT EXISTS ix_ml_mimp_locid_yyyy_ww
 CREATE INDEX IF NOT EXISTS ix_ml_mimp_businessdate
     ON ml.modifier_impressions (businessdate);
 
-
+*/
 -- ============================================================
 -- STORED PROCEDURE 9: ml.usp_refresh_modifier_impressions
 -- Refresh type : DAILY DELETE + INSERT (idempotent) / FULL TRUNCATE + INSERT

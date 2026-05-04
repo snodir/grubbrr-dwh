@@ -249,7 +249,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:12Z"
             },
             "dependsOn": []
         },
@@ -587,7 +588,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-03-14T19:11:42Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/AbortedItemsFromCosmosGEMToFact')]",
@@ -1137,7 +1139,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-06T16:20:18Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/MergedAbortedEventsFromCosmosGEMToFact')]",
@@ -1156,11 +1159,65 @@
                     {
                         "name": "Wait_a_second",
                         "type": "Wait",
-                        "dependsOn": [],
+                        "dependsOn": [
+                            {
+                                "activity": "CopyOrders",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
                         "userProperties": [],
                         "typeProperties": {
                             "waitTimeInSeconds": 1
                         }
+                    },
+                    {
+                        "name": "CopyOrders",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "JsonSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "recursive": true,
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "JsonReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzurePostgreSqlSink",
+                                "writeBatchSize": 1000000,
+                                "writeBatchTimeout": "00:30:00",
+                                "writeMethod": "CopyCommand"
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ngeOrdersToBronzeADLSjson",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "TransactionHeadersAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
                     }
                 ],
                 "policy": {
@@ -1169,9 +1226,13 @@
                 "folder": {
                     "name": "DWH-Medallion/Silver-Transformation"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-30T18:08:35Z"
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/ngeOrdersToBronzeADLSjson')]",
+                "[concat(variables('factoryId'), '/datasets/TransactionHeadersAnalyticsDb')]"
+            ]
         },
         {
             "name": "[concat(parameters('factoryName'), '/ChildPipCompressedTrainingDataML')]",
@@ -1304,7 +1365,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-07-15T13:24:48Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbDateDim')]",
@@ -7071,7 +7133,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-24T13:53:04Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbDateDim')]",
@@ -7280,7 +7343,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-08-06T06:46:56Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbOrganizationLocation')]",
@@ -7862,7 +7926,8 @@
                 "folder": {
                     "name": "Dimensions/Stand-Alone"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-02-23T10:21:30Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/CopyGOUViewsToGAS')]",
@@ -7979,7 +8044,8 @@
                 "folder": {
                     "name": "AdHoc"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-03-31T14:51:17Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/gasCosmosLocation')]",
@@ -8080,7 +8146,7 @@
                     "name": "Facts"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-15T19:56:13Z"
+                "lastPublishTime": "2025-05-27T07:14:00Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gshDevicesAndPeripheralsToAnalyticsDb')]",
@@ -8164,7 +8230,8 @@
                 "folder": {
                     "name": "Dimensions"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/dimABTests')]",
@@ -8248,7 +8315,8 @@
                 "folder": {
                     "name": "Dimensions"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/DimFrequentCustomer')]",
@@ -8707,7 +8775,8 @@
                 "folder": {
                     "name": "Dimensions"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-03-26T18:31:41Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gmsMenuItemsToGAS')]",
@@ -9731,7 +9800,7 @@
                     "name": "Dimensions"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-19T18:03:56Z"
+                "lastPublishTime": "2026-02-27T11:58:18Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/CosmosOrdersItemsCategories')]",
@@ -9939,7 +10008,8 @@
                 "folder": {
                     "name": "Dimensions"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-06-25T17:34:45Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbLocation')]",
@@ -10645,7 +10715,8 @@
                 "folder": {
                     "name": "Master"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-21T06:42:29Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/DimensionUpdateOrdersToAnalyticsDb')]",
@@ -10858,7 +10929,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-08-06T06:46:56Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbOrganizationLocation')]",
@@ -10944,7 +11016,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-03-04T19:53:28Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gemEventToParquet')]"
@@ -11066,7 +11139,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-09-22T12:08:00Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/GEMUserBehaviourETL')]",
@@ -11456,7 +11530,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-07-21T10:35:18Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gemUserBehaviourEventsToFact')]",
@@ -11666,7 +11741,8 @@
                 "folder": {
                     "name": "Master"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-02T13:15:41Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/gemEventsToAnalyticsDb')]",
@@ -11688,6 +11764,8 @@
                     {
                         "name": "GrubbrrInstallBaseDashboard",
                         "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
                         "dependsOn": [],
                         "policy": {
                             "timeout": "0.12:00:00",
@@ -11730,7 +11808,7 @@
                         "type": "Lookup",
                         "dependsOn": [
                             {
-                                "activity": "GrubbrrInstallBaseDashboard",
+                                "activity": "UpdateExtraFeatures",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -11757,6 +11835,164 @@
                                 "parameters": {}
                             }
                         }
+                    },
+                    {
+                        "name": "UpdateExtraFeatures",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "NewGrubbrrInstallBaseDashboard",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "CosmosDbSqlApiSource",
+                                "query": "SELECT DISTINCT\r\nc.locationId as locationid,\r\ntoString(c.receipt) ?? null as kiosk_receipt_settings,\r\ntoString(c.fonts) ?? null as kiosk_fonts,\r\ntoString(c.template.textOverrides) ?? null as kiosk_appearance_text_overrides,\r\ntoString(c.styleOptions) ?? null as kiosk_appearance_style_options,\r\nc._ts as syscosmosts\r\nFROM c \r\nWHERE 1=1\r\nand c.type = 'kiosk-appearance'",
+                                "preferredRegions": []
+                            },
+                            "sink": {
+                                "type": "AzurePostgreSqlSink",
+                                "writeBatchSize": 1000000,
+                                "writeBatchTimeout": "00:30:00",
+                                "writeMethod": "Upsert",
+                                "upsertSettings": {
+                                    "keys": [
+                                        "locationid"
+                                    ]
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "path": "$['locationid']"
+                                        },
+                                        "sink": {
+                                            "name": "locationid",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['kiosk_receipt_settings']"
+                                        },
+                                        "sink": {
+                                            "name": "kiosk_receipt_settings",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['kiosk_fonts']"
+                                        },
+                                        "sink": {
+                                            "name": "kiosk_fonts",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['kiosk_appearance_text_overrides']"
+                                        },
+                                        "sink": {
+                                            "name": "kiosk_appearance_text_overrides",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['kiosk_appearance_style_options']"
+                                        },
+                                        "sink": {
+                                            "name": "kiosk_appearance_style_options",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['syscosmosts']"
+                                        },
+                                        "sink": {
+                                            "name": "syscosmosts",
+                                            "type": "Int64"
+                                        }
+                                    }
+                                ],
+                                "mapComplexValuesToString": true
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "gasCosmosLocation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DimKioskDetailsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "NewGrubbrrInstallBaseDashboard",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [
+                            {
+                                "activity": "GrubbrrInstallBaseDashboard",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "NewGrubbrrInstallBaseDashboard",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "ngeLocationKiosks": {},
+                                    "posProvider": {},
+                                    "ngeLoyaltyConfiguration": {},
+                                    "ngePaymentProvider": {},
+                                    "ngeKioskScanner": {},
+                                    "dimKioskDetails": {},
+                                    "UpdatePOS": {},
+                                    "UpdateLoyalty": {},
+                                    "UpdatePaymentPrvd": {},
+                                    "UpdateScanners": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
                     }
                 ],
                 "policy": {
@@ -11765,11 +12001,15 @@
                 "folder": {
                     "name": "Dimensions"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-28T04:24:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/GrubbrrInstallBaseDashboard')]",
-                "[concat(variables('factoryId'), '/datasets/dim_vw_grubbrrinstallbase_AnalyticsDb')]"
+                "[concat(variables('factoryId'), '/datasets/dim_vw_grubbrrinstallbase_AnalyticsDb')]",
+                "[concat(variables('factoryId'), '/datasets/gasCosmosLocation')]",
+                "[concat(variables('factoryId'), '/datasets/DimKioskDetailsAnalyticsDb')]",
+                "[concat(variables('factoryId'), '/dataflows/NewGrubbrrInstallBaseDashboard')]"
             ]
         },
         {
@@ -11912,7 +12152,8 @@
                 "folder": {
                     "name": "DWH-Medallion/Bronze-Ingestion"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-11-05T11:04:32Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/gasOrdersCosmos')]",
@@ -11969,7 +12210,7 @@
                     "name": "Dimensions/Stand-Alone"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-21T14:59:35Z"
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/CosmosOrdersItemsCategories')]"
@@ -12014,7 +12255,7 @@
                     "name": "Dimensions/Stand-Alone"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-21T14:59:35Z"
+                "lastPublishTime": "2025-02-21T17:44:13Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LoadKiosksFromCosmosDbToAnalyticsDb')]"
@@ -12070,7 +12311,7 @@
                     "name": "Dimensions/Stand-Alone"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-21T14:59:35Z"
+                "lastPublishTime": "2025-03-25T17:15:07Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/OldCosmosOrdersMenus')]"
@@ -12191,7 +12432,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-21T06:28:53Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/ngeModifierUpsellRecommendationsToGAS')]",
@@ -12232,7 +12474,9 @@
                                 "datasetParameters": {
                                     "CosmosSurvey": {},
                                     "checkDimOccasionSurvey": {},
-                                    "dimOccasionSurvey": {}
+                                    "CosmosSurveyAll": {},
+                                    "dimOccasionSurvey": {},
+                                    "updateDimOccasionSurvey": {}
                                 }
                             },
                             "staging": {},
@@ -12826,7 +13070,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-20T10:26:21Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/dimOccasionSurvey')]",
@@ -12895,7 +13140,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gasOrderItemsFromCosmosToAnalyticsDb')]"
@@ -12950,10 +13196,255 @@
                 "folder": {
                     "name": "Dimensions/Stand-Alone"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/CosmosOrderTypes')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/RefreshMLTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "WeatherML",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL ml.usp_refresh_weather(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "mlTransactionsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "MenuEntitiesML",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "WeatherML",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL ml.usp_refresh_menu_entities();\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "mlTransactionsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "ModifierEntitiesML",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "MenuEntitiesML",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL ml.usp_refresh_item_modifiergroup_modifier_mapping();\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "mlTransactionsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "TransactionsML",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "ModifierEntitiesML",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL ml.usp_refresh_transactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "mlTransactionsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "UpsellAnalysisML",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "TransactionsML",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL ml.usp_refresh_upsell_analysis(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "mlTransactionsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "ModifierInteractionsML",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "UpsellAnalysisML",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL ml.usp_refresh_modifier_interactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "mlTransactionsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "ModifierImpressionsML",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "ModifierInteractionsML",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL ml.usp_refresh_modifier_impressions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "mlTransactionsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "ML"
+                },
+                "annotations": [],
+                "lastPublishTime": "2026-04-26T14:59:46Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/mlTransactionsAnalyticsDb')]"
             ]
         },
         {
@@ -13366,7 +13857,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-11-27T06:26:28Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbOrganizationLocation')]",
@@ -13911,7 +14403,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-01-12T12:59:59Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbOrganizationLocation')]",
@@ -13948,7 +14441,8 @@
                 "folder": {
                     "name": "DWH-Medallion/Gold-Analytics"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-10-17T11:58:52Z"
             },
             "dependsOn": []
         },
@@ -15116,7 +15610,8 @@
                 "folder": {
                     "name": "AdHoc"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-03-12T05:14:41Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/TestGASOrderHeaders')]",
@@ -15330,7 +15825,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-15T09:26:32Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbOrganizationLocation')]",
@@ -15457,7 +15953,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-08-06T10:14:05Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gasTransactionRefunds')]",
@@ -15783,7 +16280,8 @@
                 "folder": {
                     "name": "AdHoc"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-01-29T09:50:03Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/TransactionHeadersAnalyticsDb')]",
@@ -15849,7 +16347,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-05-15T19:18:52Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/UpdateFieldsInTrxnFactTables')]"
@@ -16221,7 +16720,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-08T10:22:46Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/ngeUpsellRecommendationsToGAS')]",
@@ -17165,7 +17665,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-01-16T13:37:01Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbDateDim')]",
@@ -17367,7 +17868,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-01-13T07:36:44Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbOrganizationLocation')]",
@@ -18162,7 +18664,7 @@
                     "name": "Facts"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-18T20:30:57Z"
+                "lastPublishTime": "2026-03-23T09:13:07Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/GASOrderHeadersFromCosmosToAnalyticsDb')]",
@@ -18220,7 +18722,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-12-24T04:57:16Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gemCepIncidents')]"
@@ -18641,7 +19144,7 @@
                     "name": "Facts"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-15T19:56:13Z"
+                "lastPublishTime": "2026-04-03T04:49:48Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/MergedEventsFromCosmosGEMToFact')]",
@@ -19019,7 +19522,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-11-12T08:42:32Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gemOrderTimingFromCosmosToPG')]",
@@ -19087,7 +19591,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gemUserBehaviourEventsToFact')]"
@@ -19353,7 +19858,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-03-14T19:11:42Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gemUserCheckedInToPG')]",
@@ -19732,7 +20238,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-11-12T09:39:19Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gshDeviceHealthToAnalyticsDbDeviceState')]",
@@ -20074,7 +20581,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-03-14T19:11:42Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gshDeviceTelemetryToAnalyticsDb')]",
@@ -20775,7 +21283,7 @@
                     "name": "Facts"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-18T20:30:57Z"
+                "lastPublishTime": "2025-07-16T12:53:33Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/GXSOrderHeadersFromCosmosToAnalyticsDb')]",
@@ -20836,7 +21344,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/GASOrderHeadersFromCosmosToAnalyticsDb')]"
@@ -28692,7 +29201,55 @@
                     },
                     {
                         "name": "surveytype",
-                        "type": "text",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "question_type",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "selection_type",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "survey_status",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
                     }
@@ -32592,6 +33149,7 @@
                 "typeProperties": {
                     "location": {
                         "type": "AzureBlobFSLocation",
+                        "fileName": "sample_order_json.json",
                         "folderPath": "grubbrr-nge/orders",
                         "fileSystem": "bronze"
                     }
@@ -40570,6 +41128,9 @@
                         },
                         {
                             "name": "Update4"
+                        },
+                        {
+                            "name": "ArrJsonToString"
                         }
                     ],
                     "scriptLines": [
@@ -40731,7 +41292,11 @@
                         "     desc(syscosmosts, true),",
                         "     rn = rowNumber()) ~> RowNumber2",
                         "RowNumber2 filter(rn == 1) ~> filter1",
-                        "filter1 alterRow(updateIf(true())) ~> Update4",
+                        "ArrJsonToString alterRow(updateIf(true())) ~> Update4",
+                        "filter1 derive(kiosk_receipt_settings = toString(kiosk_receipt_settings),",
+                        "          kiosk_appearance_style_options = toString(kiosk_appearance_style_options),",
+                        "          kiosk_appearance_text_overrides = toString(kiosk_appearance_text_overrides),",
+                        "          kiosk_fonts = toString(kiosk_fonts)) ~> ArrJsonToString",
                         "Upsert sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
@@ -43235,6 +43800,631 @@
                 "[concat(variables('factoryId'), '/datasets/gasOrdersCosmos')]",
                 "[concat(variables('factoryId'), '/datasets/AnalyticsDbMenuItem')]",
                 "[concat(variables('factoryId'), '/datasets/publicItemMasterGMS')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/NewGrubbrrInstallBaseDashboard')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Dimensions-GAS"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "gasCosmosLocation",
+                                "type": "DatasetReference"
+                            },
+                            "name": "ngeLocationKiosks"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "cosmosConnectorConfiguration",
+                                "type": "DatasetReference"
+                            },
+                            "name": "posProvider"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "ngeLoyaltyConfigurations",
+                                "type": "DatasetReference"
+                            },
+                            "name": "ngeLoyaltyConfiguration"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gasCosmosLocation",
+                                "type": "DatasetReference"
+                            },
+                            "name": "ngePaymentProvider"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gasCosmosLocation",
+                                "type": "DatasetReference"
+                            },
+                            "name": "ngeKioskScanner"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "DimKioskDetailsAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimKioskDetails"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "DimKioskDetailsAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "UpdatePOS"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "DimKioskDetailsAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "UpdateLoyalty"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "DimKioskDetailsAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "UpdatePaymentPrvd"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "DimKioskDetailsAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "UpdateScanners"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "toString"
+                        },
+                        {
+                            "name": "OnlyNeeded"
+                        },
+                        {
+                            "name": "RowNum"
+                        },
+                        {
+                            "name": "RecentItems"
+                        },
+                        {
+                            "name": "ListOfPOS"
+                        },
+                        {
+                            "name": "ArrayToString"
+                        },
+                        {
+                            "name": "Update"
+                        },
+                        {
+                            "name": "RN"
+                        },
+                        {
+                            "name": "MostRecent"
+                        },
+                        {
+                            "name": "ArrayToStr"
+                        },
+                        {
+                            "name": "ListOfLoyaltyPrvd"
+                        },
+                        {
+                            "name": "Update1"
+                        },
+                        {
+                            "name": "RowNumber"
+                        },
+                        {
+                            "name": "MostRecents"
+                        },
+                        {
+                            "name": "ListOfPaymentPrvd"
+                        },
+                        {
+                            "name": "ArrayToString2"
+                        },
+                        {
+                            "name": "Update2"
+                        },
+                        {
+                            "name": "Upsert"
+                        },
+                        {
+                            "name": "RowNumber1"
+                        },
+                        {
+                            "name": "RecentState"
+                        },
+                        {
+                            "name": "ArrToString"
+                        },
+                        {
+                            "name": "Update3"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          syscosmosts as integer,",
+                        "          devicetype as string,",
+                        "          syncversion as string,",
+                        "          locationid as string,",
+                        "          companyid as string,",
+                        "          id as string,",
+                        "          kiosks as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT DISTINCT c.id ?? null as id,\\r\\nc._ts ?? null as syscosmosts,\\r\\nc.type ?? null as devicetype,\\r\\nc.locationId ?? null as locationid,\\r\\nc.companyId ?? null as companyid,\\r\\ntoString(c.kiosks) ?? null as kiosks,\\r\\n--c.orderToken ?? null as ordertoken,\\r\\nc.syncVersion.kioskSyncVersion ?? null as syncversion\\r\\nFROM c\\r\\nWHERE is_defined(c.kiosks) = true\\r\\nand c.type = \\'kiosks\\'',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> ngeLocationKiosks",
+                        "source(output(",
+                        "          locationid as string,",
+                        "          pos_provider as string,",
+                        "          syscosmosts as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'select distinct c.locationId as locationid, \\r\\nc.integrationDefinitionId as pos_provider, \\r\\nc._ts as syscosmosts\\r\\nfrom c\\r\\nwhere c.isDeleted = false',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> posProvider",
+                        "source(output(",
+                        "          locationid as string,",
+                        "          loyalty_provider as string,",
+                        "          syscosmosts as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT distinct c.locationId as locationid,\\r\\nc.type as loyalty_provider,\\r\\nc._ts as syscosmosts\\r\\nFROM c',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> ngeLoyaltyConfiguration",
+                        "source(output(",
+                        "          locationid as string,",
+                        "          payment_provider as string,",
+                        "          syscosmosts as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT distinct c.locationId ?? null as locationid,\\r\\npid.paymentIntegrationId ?? null as payment_provider,\\r\\nc._ts ?? null as syscosmosts\\r\\nFROM c\\r\\njoin pid in c.paymentIntegrations.config\\r\\nWHERE 1=1\\r\\nand c.type = \\'kiosk-config\\'',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> ngePaymentProvider",
+                        "source(output(",
+                        "          preorder_popup_enabled as boolean,",
+                        "          tips_settings as string,",
+                        "          localization as string,",
+                        "          loyalty_feature as boolean,",
+                        "          calories_enabled as boolean,",
+                        "          disclaimer_text as string,",
+                        "          syscosmosts as integer,",
+                        "          scanner as (deviceConfiguration as (serialPortOptions as (port as string, baudRate as integer, parity as short, dataBits as boolean, stopBits as boolean, flowControl as boolean)), externalBarcodeScannerModel as string),",
+                        "          recent_orders_enabled as boolean,",
+                        "          calculate_default_modifier_price as boolean,",
+                        "          loyalty_display_settings as string,",
+                        "          perform_pos_status_check as boolean,",
+                        "          pos_auto_applied_discount as boolean,",
+                        "          locationid as string,",
+                        "          menu_behavior_config as string,",
+                        "          round_up_for_charity as boolean,",
+                        "          ada_configuration as (adaModeEnabled as boolean),",
+                        "          item_special_request as (enabled as boolean, characterLimit as short),",
+                        "          order_limit_config as string,",
+                        "          business_hours_config as string,",
+                        "          order_types as string,",
+                        "          play_card_config as (enabled as boolean, hardwareSettings as (lightsComPort as string, cardDispenserComPort as string, cardDispenserBaudRate as integer), connectivitySettings as (playCardHardwareApiUrl as string, playCardAgentApiUrl as string), itemSettings as (newTimePlayCardItemId as integer, newPointPlayCardItemId as short), appearanceSettings as (playCardProfileImages as (name as string, storagePath as string, displayOrder as boolean, isActive as boolean)[], hideItemNameOnPlayCardScreen as boolean)),",
+                        "          search_functionality_enabled as boolean,",
+                        "          preorder_popup_text as string,",
+                        "          track_kiosk_user_behavior as boolean,",
+                        "          pickup_flow as boolean,",
+                        "          legal_copy_enabled as boolean,",
+                        "          scan_and_go_enabled as boolean,",
+                        "          age_verification as (enabled as boolean, selfValidationRequired as boolean, staffApprovalRequired as boolean)",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT DISTINCT \\r\\nc.locationId ?? null as locationid, \\r\\nc.barcodeScannerConfiguration ?? null as scanner,\\r\\nc.itemSpecialRequestSettings ?? null as item_special_request,\\r\\nc.legalCopyEnabled ?? null as legal_copy_enabled,\\r\\nc.adaConfiguration ?? null as ada_configuration,\\r\\nc.calculateDefaultModifierPrice ?? null as calculate_default_modifier_price,\\r\\nc.trackKioskUserBehavior ?? null as track_kiosk_user_behavior,\\r\\nc.loyaltyFeature ?? null as loyalty_feature,\\r\\nc.pickupFlow ?? null as pickup_flow,\\r\\nc.posAutoAppliedDiscount ?? null as pos_auto_applied_discount,\\r\\nc.searchFunctionalityEnabled ?? null as search_functionality_enabled,\\r\\nc.recentOrdersEnabled ?? null as recent_orders_enabled,\\r\\nc.playCardConfig ?? null as play_card_config,\\r\\nc.roundUpForCharity ?? null as round_up_for_charity,\\r\\nc.caloriesEnabled ?? null as calories_enabled,\\r\\nc.scanAndGoEnabled ?? null as scan_and_go_enabled,\\r\\nc.ageVerification ?? null as age_verification,\\r\\ntoString(c.tips) ?? null as tips_settings,\\r\\ntoString(c.businessHoursConfiguration) ?? null as business_hours_config,\\r\\ntoString(c.orderLimitsConfig) ?? null as order_limit_config,\\r\\ntoString(c.orderTypes) ?? null as order_types,\\r\\ntoString(c.localization) ?? null as localization,\\r\\nc.disclaimerConfiguration.disclaimerText ?? null as disclaimer_text,\\r\\nc.preOrderPopupConfiguration.preOrderPopup ?? null as preorder_popup_enabled,\\r\\nc.preOrderPopupConfiguration.preOrderPopupText ?? null as preorder_popup_text,\\r\\ntoString(c.loyaltyDisplaySettings) ?? null as loyalty_display_settings,\\r\\ntoString(c.menuBehaviorConfiguration) ?? null as menu_behavior_config,\\r\\nc.checkPosFlow ?? null as perform_pos_status_check,\\r\\nc._ts as syscosmosts\\r\\nFROM c\\r\\nWHERE 1=1\\r\\nand c.type = \\'kiosk-config\\'',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> ngeKioskScanner",
+                        "ngeLocationKiosks derive(syncversion = toString(syncversion),",
+                        "          kiosks = toString(kiosks),",
+                        "          sysinserttime = currentTimestamp()) ~> toString",
+                        "toString select(mapColumn(",
+                        "          syscosmosts,",
+                        "          devicetype,",
+                        "          syncversion,",
+                        "          locationid,",
+                        "          companyid,",
+                        "          id,",
+                        "          kiosks,",
+                        "          sysinserttime",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> OnlyNeeded",
+                        "posProvider window(over(locationid,",
+                        "          pos_provider),",
+                        "     desc(syscosmosts, true),",
+                        "     rn = rowNumber()) ~> RowNum",
+                        "RowNum filter(rn == 1) ~> RecentItems",
+                        "RecentItems aggregate(groupBy(locationid),",
+                        "     pos_provider = collect(case(like(pos_provider, 'pid-%'), substring(pos_provider, 5, length(pos_provider)), pos_provider))) ~> ListOfPOS",
+                        "ListOfPOS derive(number_of_pos_providers = size(pos_provider),",
+                        "          pos_provider = replace(replace(toString(pos_provider), ' ', ''), '\\\\', '')) ~> ArrayToString",
+                        "ArrayToString alterRow(updateIf(true())) ~> Update",
+                        "ngeLoyaltyConfiguration window(over(locationid,",
+                        "          loyalty_provider),",
+                        "     desc(syscosmosts, true),",
+                        "     rn = rowNumber()) ~> RN",
+                        "RN filter(rn == 1) ~> MostRecent",
+                        "ListOfLoyaltyPrvd derive(loyalty_provider = replace(replace(toString(loyalty_provider), ' ', ''), '\\\\', '')) ~> ArrayToStr",
+                        "MostRecent aggregate(groupBy(locationid),",
+                        "     loyalty_provider = collect(loyalty_provider)) ~> ListOfLoyaltyPrvd",
+                        "ArrayToStr alterRow(updateIf(true())) ~> Update1",
+                        "ngePaymentProvider window(over(locationid,",
+                        "          payment_provider),",
+                        "     desc(syscosmosts, true),",
+                        "     rn = rowNumber()) ~> RowNumber",
+                        "RowNumber filter(rn == 1) ~> MostRecents",
+                        "MostRecents aggregate(groupBy(locationid),",
+                        "     payment_provider = collect(case(like(payment_provider, 'payment-integration-%'), substring(payment_provider, 21, length(payment_provider)), payment_provider))) ~> ListOfPaymentPrvd",
+                        "ListOfPaymentPrvd derive(payment_provider = replace(replace(toString(payment_provider), ' ', ''), '\\\\', '')) ~> ArrayToString2",
+                        "ArrayToString2 alterRow(updateIf(true())) ~> Update2",
+                        "OnlyNeeded alterRow(upsertIf(true())) ~> Upsert",
+                        "ngeKioskScanner window(over(locationid),",
+                        "     desc(syscosmosts, true),",
+                        "     rn = rowNumber()) ~> RowNumber1",
+                        "RowNumber1 filter(rn == 1) ~> RecentState",
+                        "RecentState derive(scanners = toString(scanner),",
+                        "          item_special_request = toString(item_special_request),",
+                        "          play_card_config = toString(play_card_config),",
+                        "          age_verification = toString(age_verification),",
+                        "          ada_configuration = toString(ada_configuration),",
+                        "          tips_settings = toString(tips_settings),",
+                        "          localization = toString(localization),",
+                        "          loyalty_display_settings = toString(loyalty_display_settings),",
+                        "          order_limit_config = toString(order_limit_config),",
+                        "          business_hours_config = toString(business_hours_config),",
+                        "          order_types = toString(order_types),",
+                        "          menu_behavior_config = toString(menu_behavior_config)) ~> ArrToString",
+                        "ArrToString alterRow(updateIf(true())) ~> Update3",
+                        "Upsert sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as string,",
+                        "          locationid as string,",
+                        "          kiosks as string,",
+                        "          devicetype as string,",
+                        "          syncversion as string,",
+                        "          syscosmosts as long,",
+                        "          sysinserttime as timestamp,",
+                        "          pos_provider as string,",
+                        "          loyalty_provider as string,",
+                        "          payment_provider as string,",
+                        "          scanners as string,",
+                        "          item_special_request as string,",
+                        "          legal_copy_enabled as boolean,",
+                        "          ada_configuration as string,",
+                        "          calculate_default_modifier_price as boolean,",
+                        "          track_kiosk_user_behavior as boolean,",
+                        "          loyalty_feature as boolean,",
+                        "          pickup_flow as boolean,",
+                        "          pos_auto_applied_discount as boolean,",
+                        "          search_functionality_enabled as boolean,",
+                        "          recent_orders_enabled as boolean,",
+                        "          play_card_config as string,",
+                        "          round_up_for_charity as boolean,",
+                        "          calories_enabled as boolean,",
+                        "          scan_and_go_enabled as boolean,",
+                        "          age_verification as string,",
+                        "          tips_settings as string,",
+                        "          business_hours_config as string,",
+                        "          order_types as string,",
+                        "          localization as string,",
+                        "          kiosk_receipt_settings as string,",
+                        "          kiosk_fonts as string,",
+                        "          kiosk_appearance_text_overrides as string,",
+                        "          kiosk_appearance_style_options as string,",
+                        "          loyalty_display_settings as string,",
+                        "          preorder_popup_enabled as boolean,",
+                        "          preorder_popup_text as string,",
+                        "          disclaimer_text as string,",
+                        "          order_limit_config as string,",
+                        "          menu_behavior_config as string,",
+                        "          perform_pos_status_check as boolean",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:false,",
+                        "     upsertable:true,",
+                        "     keys:['locationid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 1,",
+                        "     mapColumn(",
+                        "          id,",
+                        "          locationid,",
+                        "          kiosks,",
+                        "          devicetype,",
+                        "          syncversion,",
+                        "          syscosmosts,",
+                        "          sysinserttime",
+                        "     )) ~> dimKioskDetails",
+                        "Update sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as string,",
+                        "          locationid as string,",
+                        "          kiosks as string,",
+                        "          devicetype as string,",
+                        "          syncversion as string,",
+                        "          syscosmosts as long,",
+                        "          sysinserttime as timestamp,",
+                        "          pos_provider as string,",
+                        "          loyalty_provider as string,",
+                        "          payment_provider as string,",
+                        "          scanners as string,",
+                        "          item_special_request as string,",
+                        "          legal_copy_enabled as boolean,",
+                        "          ada_configuration as string,",
+                        "          calculate_default_modifier_price as boolean,",
+                        "          track_kiosk_user_behavior as boolean,",
+                        "          loyalty_feature as boolean,",
+                        "          pickup_flow as boolean,",
+                        "          pos_auto_applied_discount as boolean,",
+                        "          search_functionality_enabled as boolean,",
+                        "          recent_orders_enabled as boolean,",
+                        "          play_card_config as string,",
+                        "          round_up_for_charity as boolean,",
+                        "          calories_enabled as boolean,",
+                        "          scan_and_go_enabled as boolean,",
+                        "          age_verification as string,",
+                        "          tips_settings as string,",
+                        "          business_hours_config as string,",
+                        "          order_types as string,",
+                        "          localization as string,",
+                        "          kiosk_receipt_settings as string,",
+                        "          kiosk_fonts as string,",
+                        "          kiosk_appearance_text_overrides as string,",
+                        "          kiosk_appearance_style_options as string,",
+                        "          loyalty_display_settings as string,",
+                        "          preorder_popup_enabled as boolean,",
+                        "          preorder_popup_text as string,",
+                        "          disclaimer_text as string,",
+                        "          order_limit_config as string,",
+                        "          menu_behavior_config as string,",
+                        "          perform_pos_status_check as boolean",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['locationid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 2,",
+                        "     mapColumn(",
+                        "          locationid,",
+                        "          pos_provider",
+                        "     )) ~> UpdatePOS",
+                        "Update1 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as string,",
+                        "          locationid as string,",
+                        "          kiosks as string,",
+                        "          devicetype as string,",
+                        "          syncversion as string,",
+                        "          syscosmosts as long,",
+                        "          sysinserttime as timestamp,",
+                        "          pos_provider as string,",
+                        "          loyalty_provider as string,",
+                        "          payment_provider as string,",
+                        "          scanners as string,",
+                        "          item_special_request as string,",
+                        "          legal_copy_enabled as boolean,",
+                        "          ada_configuration as string,",
+                        "          calculate_default_modifier_price as boolean,",
+                        "          track_kiosk_user_behavior as boolean,",
+                        "          loyalty_feature as boolean,",
+                        "          pickup_flow as boolean,",
+                        "          pos_auto_applied_discount as boolean,",
+                        "          search_functionality_enabled as boolean,",
+                        "          recent_orders_enabled as boolean,",
+                        "          play_card_config as string,",
+                        "          round_up_for_charity as boolean,",
+                        "          calories_enabled as boolean,",
+                        "          scan_and_go_enabled as boolean,",
+                        "          age_verification as string,",
+                        "          tips_settings as string,",
+                        "          business_hours_config as string,",
+                        "          order_types as string,",
+                        "          localization as string,",
+                        "          kiosk_receipt_settings as string,",
+                        "          kiosk_fonts as string,",
+                        "          kiosk_appearance_text_overrides as string,",
+                        "          kiosk_appearance_style_options as string,",
+                        "          loyalty_display_settings as string,",
+                        "          preorder_popup_enabled as boolean,",
+                        "          preorder_popup_text as string,",
+                        "          disclaimer_text as string,",
+                        "          order_limit_config as string,",
+                        "          menu_behavior_config as string,",
+                        "          perform_pos_status_check as boolean",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['locationid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 3,",
+                        "     mapColumn(",
+                        "          locationid,",
+                        "          loyalty_provider",
+                        "     )) ~> UpdateLoyalty",
+                        "Update2 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as string,",
+                        "          locationid as string,",
+                        "          kiosks as string,",
+                        "          devicetype as string,",
+                        "          syncversion as string,",
+                        "          syscosmosts as long,",
+                        "          sysinserttime as timestamp,",
+                        "          pos_provider as string,",
+                        "          loyalty_provider as string,",
+                        "          payment_provider as string,",
+                        "          scanners as string,",
+                        "          item_special_request as string,",
+                        "          legal_copy_enabled as boolean,",
+                        "          ada_configuration as string,",
+                        "          calculate_default_modifier_price as boolean,",
+                        "          track_kiosk_user_behavior as boolean,",
+                        "          loyalty_feature as boolean,",
+                        "          pickup_flow as boolean,",
+                        "          pos_auto_applied_discount as boolean,",
+                        "          search_functionality_enabled as boolean,",
+                        "          recent_orders_enabled as boolean,",
+                        "          play_card_config as string,",
+                        "          round_up_for_charity as boolean,",
+                        "          calories_enabled as boolean,",
+                        "          scan_and_go_enabled as boolean,",
+                        "          age_verification as string,",
+                        "          tips_settings as string,",
+                        "          business_hours_config as string,",
+                        "          order_types as string,",
+                        "          localization as string,",
+                        "          kiosk_receipt_settings as string,",
+                        "          kiosk_fonts as string,",
+                        "          kiosk_appearance_text_overrides as string,",
+                        "          kiosk_appearance_style_options as string,",
+                        "          loyalty_display_settings as string,",
+                        "          preorder_popup_enabled as boolean,",
+                        "          preorder_popup_text as string,",
+                        "          disclaimer_text as string,",
+                        "          order_limit_config as string,",
+                        "          menu_behavior_config as string,",
+                        "          perform_pos_status_check as boolean",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['locationid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 4,",
+                        "     mapColumn(",
+                        "          locationid,",
+                        "          payment_provider",
+                        "     )) ~> UpdatePaymentPrvd",
+                        "Update3 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as string,",
+                        "          locationid as string,",
+                        "          kiosks as string,",
+                        "          devicetype as string,",
+                        "          syncversion as string,",
+                        "          syscosmosts as long,",
+                        "          sysinserttime as timestamp,",
+                        "          pos_provider as string,",
+                        "          loyalty_provider as string,",
+                        "          payment_provider as string,",
+                        "          scanners as string,",
+                        "          item_special_request as string,",
+                        "          legal_copy_enabled as boolean,",
+                        "          ada_configuration as string,",
+                        "          calculate_default_modifier_price as boolean,",
+                        "          track_kiosk_user_behavior as boolean,",
+                        "          loyalty_feature as boolean,",
+                        "          pickup_flow as boolean,",
+                        "          pos_auto_applied_discount as boolean,",
+                        "          search_functionality_enabled as boolean,",
+                        "          recent_orders_enabled as boolean,",
+                        "          play_card_config as string,",
+                        "          round_up_for_charity as boolean,",
+                        "          calories_enabled as boolean,",
+                        "          scan_and_go_enabled as boolean,",
+                        "          age_verification as string,",
+                        "          tips_settings as string,",
+                        "          business_hours_config as string,",
+                        "          order_types as string,",
+                        "          localization as string,",
+                        "          kiosk_receipt_settings as string,",
+                        "          kiosk_fonts as string,",
+                        "          kiosk_appearance_text_overrides as string,",
+                        "          kiosk_appearance_style_options as string,",
+                        "          loyalty_display_settings as string,",
+                        "          preorder_popup_enabled as boolean,",
+                        "          preorder_popup_text as string,",
+                        "          disclaimer_text as string,",
+                        "          order_limit_config as string,",
+                        "          menu_behavior_config as string,",
+                        "          perform_pos_status_check as boolean",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['locationid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 5,",
+                        "     mapColumn(",
+                        "          locationid,",
+                        "          scanners,",
+                        "          item_special_request,",
+                        "          legal_copy_enabled,",
+                        "          ada_configuration,",
+                        "          calculate_default_modifier_price,",
+                        "          track_kiosk_user_behavior,",
+                        "          loyalty_feature,",
+                        "          pickup_flow,",
+                        "          pos_auto_applied_discount,",
+                        "          search_functionality_enabled,",
+                        "          recent_orders_enabled,",
+                        "          play_card_config,",
+                        "          round_up_for_charity,",
+                        "          calories_enabled,",
+                        "          scan_and_go_enabled,",
+                        "          age_verification,",
+                        "          tips_settings,",
+                        "          business_hours_config,",
+                        "          order_types,",
+                        "          localization,",
+                        "          loyalty_display_settings,",
+                        "          preorder_popup_enabled,",
+                        "          preorder_popup_text,",
+                        "          disclaimer_text,",
+                        "          order_limit_config,",
+                        "          menu_behavior_config,",
+                        "          perform_pos_status_check",
+                        "     )) ~> UpdateScanners"
+                    ]
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/gasCosmosLocation')]",
+                "[concat(variables('factoryId'), '/datasets/cosmosConnectorConfiguration')]",
+                "[concat(variables('factoryId'), '/datasets/ngeLoyaltyConfigurations')]",
+                "[concat(variables('factoryId'), '/datasets/DimKioskDetailsAnalyticsDb')]"
             ]
         },
         {
@@ -54025,6 +55215,13 @@
                                 "type": "DatasetReference"
                             },
                             "name": "checkDimOccasionSurvey"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "gasSurveyCosmos",
+                                "type": "DatasetReference"
+                            },
+                            "name": "CosmosSurveyAll"
                         }
                     ],
                     "sinks": [
@@ -54034,6 +55231,13 @@
                                 "type": "DatasetReference"
                             },
                             "name": "dimOccasionSurvey"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimOccasionSurveyAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "updateDimOccasionSurvey"
                         }
                     ],
                     "transformations": [
@@ -54041,19 +55245,31 @@
                             "name": "NewSurveysOnly"
                         },
                         {
-                            "name": "surveytype"
+                            "name": "sysinserttime"
+                        },
+                        {
+                            "name": "sysupdatetime"
+                        },
+                        {
+                            "name": "Update"
                         }
                     ],
                     "scriptLines": [
                         "source(output(",
+                        "          survey_status as integer,",
+                        "          modified_on as string,",
                         "          organizationid as string,",
-                        "          surveyid as string,",
+                        "          is_deleted as boolean,",
+                        "          selection_type as integer,",
+                        "          surveytype as integer,",
+                        "          question_type as integer,",
                         "          surveyname as string,",
-                        "          surveytype as boolean",
+                        "          created_on as string,",
+                        "          surveyid as string",
                         "     ),",
                         "     allowSchemaDrift: true,",
                         "     validateSchema: false,",
-                        "     query: 'SELECT distinct c.organizationId as organizationid,\\nc.surveyId as surveyid,\\nc.name as surveyname,\\nc.surveyType as surveytype\\nFROM survey as c\\nwhere 1 = 1 \\nand c.status = 1\\nand c.isDeleted = false',",
+                        "     query: 'SELECT DISTINCT c.organizationId as organizationid,\\nc.surveyId as surveyid,\\nc.name as surveyname,\\nc.surveyType as surveytype,\\nc.questionType as question_type,\\nc.selectionType as selection_type,\\nc.status as survey_status,\\nc.isDeleted as is_deleted,\\nc.createdOn as created_on,\\nc.modifiedOn as modified_on\\nFROM survey as c',",
                         "     format: 'documentQuery',",
                         "     systemColumns: false) ~> CosmosSurvey",
                         "source(output(",
@@ -54061,25 +55277,64 @@
                         "          organizationid as string,",
                         "          surveyid as string,",
                         "          surveyname as string,",
-                        "          surveytype as string",
+                        "          surveytype as integer,",
+                        "          question_type as integer,",
+                        "          selection_type as integer,",
+                        "          survey_status as integer,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
                         "     ),",
                         "     allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     isolationLevel: 'READ_UNCOMMITTED',",
                         "     format: 'table') ~> checkDimOccasionSurvey",
+                        "source(output(",
+                        "          survey_status as integer,",
+                        "          modified_on as string,",
+                        "          organizationid as string,",
+                        "          is_deleted as boolean,",
+                        "          selection_type as integer,",
+                        "          surveytype as integer,",
+                        "          question_type as integer,",
+                        "          surveyname as string,",
+                        "          created_on as string,",
+                        "          surveyid as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT DISTINCT c.organizationId as organizationid,\\nc.surveyId as surveyid,\\nc.name as surveyname,\\nc.surveyType as surveytype,\\nc.questionType as question_type,\\nc.selectionType as selection_type,\\nc.status as survey_status,\\nc.isDeleted as is_deleted,\\nc.createdOn as created_on,\\nc.modifiedOn as modified_on\\nFROM survey as c',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> CosmosSurveyAll",
                         "CosmosSurvey, checkDimOccasionSurvey exists(CosmosSurvey@surveyid == checkDimOccasionSurvey@surveyid",
                         "     && CosmosSurvey@organizationid == checkDimOccasionSurvey@organizationid,",
                         "     negate:true,",
                         "     broadcast: 'auto')~> NewSurveysOnly",
-                        "NewSurveysOnly derive(surveytype = iif(surveytype == true(), '1', '0')) ~> surveytype",
-                        "surveytype sink(allowSchemaDrift: true,",
+                        "NewSurveysOnly derive(sysinserttime = currentTimestamp(),",
+                        "          created_on = toTimestamp(case(substring(created_on,20,1) == '.', replace(replace(substring(created_on,1,23),'T',' '), '+', '0'), concat(replace(substring(created_on,1,19),'T',' '), '.000')), 'yyyy-MM-dd HH:mm:ss.SSS', 'UTC'),",
+                        "          modified_on = toTimestamp(case(substring(modified_on,20,1) == '.', replace(replace(substring(modified_on,1,23),'T',' '), '+', '0'), concat(replace(substring(modified_on,1,19),'T',' '), '.000')), 'yyyy-MM-dd HH:mm:ss.SSS', 'UTC')) ~> sysinserttime",
+                        "CosmosSurveyAll derive(sysupdatetime = currentTimestamp(),",
+                        "          created_on = toTimestamp(case(substring(created_on,20,1) == '.', replace(replace(substring(created_on,1,23),'T',' '), '+', '0'), concat(replace(substring(created_on,1,19),'T',' '), '.000')), 'yyyy-MM-dd HH:mm:ss.SSS', 'UTC'),",
+                        "          modified_on = toTimestamp(case(substring(modified_on,20,1) == '.', replace(replace(substring(modified_on,1,23),'T',' '), '+', '0'), concat(replace(substring(modified_on,1,19),'T',' '), '.000')), 'yyyy-MM-dd HH:mm:ss.SSS', 'UTC')) ~> sysupdatetime",
+                        "sysupdatetime alterRow(updateIf(true())) ~> Update",
+                        "sysinserttime sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
                         "          surveykey as long,",
                         "          organizationid as string,",
                         "          surveyid as string,",
                         "          surveyname as string,",
-                        "          surveytype as string",
+                        "          surveytype as integer,",
+                        "          question_type as integer,",
+                        "          selection_type as integer,",
+                        "          survey_status as integer,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
                         "     ),",
                         "     deletable:false,",
                         "     insertable:true,",
@@ -54092,8 +55347,53 @@
                         "          organizationid,",
                         "          surveyid,",
                         "          surveyname,",
-                        "          surveytype",
-                        "     )) ~> dimOccasionSurvey"
+                        "          surveytype,",
+                        "          question_type,",
+                        "          selection_type,",
+                        "          survey_status,",
+                        "          is_deleted,",
+                        "          created_on,",
+                        "          modified_on,",
+                        "          sysinserttime",
+                        "     )) ~> dimOccasionSurvey",
+                        "Update sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          surveykey as long,",
+                        "          organizationid as string,",
+                        "          surveyid as string,",
+                        "          surveyname as string,",
+                        "          surveytype as integer,",
+                        "          question_type as integer,",
+                        "          selection_type as integer,",
+                        "          survey_status as integer,",
+                        "          is_deleted as boolean,",
+                        "          created_on as timestamp,",
+                        "          modified_on as timestamp,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['organizationid','surveyid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          organizationid,",
+                        "          surveyid,",
+                        "          surveyname,",
+                        "          surveytype,",
+                        "          question_type,",
+                        "          selection_type,",
+                        "          survey_status,",
+                        "          is_deleted,",
+                        "          created_on,",
+                        "          modified_on,",
+                        "          sysupdatetime",
+                        "     )) ~> updateDimOccasionSurvey"
                     ]
                 }
             },
@@ -54173,19 +55473,19 @@
                             "description": "Creates an explicit mapping for each drifted column"
                         },
                         {
-                            "name": "GetOrganizationID"
-                        },
-                        {
                             "name": "NewFeedbacksOnly"
-                        },
-                        {
-                            "name": "CheckDimOccasionSurvey"
                         },
                         {
                             "name": "LiveOrderSurveys"
                         },
                         {
                             "name": "Update"
+                        },
+                        {
+                            "name": "CheckDimOccSurvey"
+                        },
+                        {
+                            "name": "GetOrganizationID"
                         }
                     ],
                     "scriptLines": [
@@ -54335,26 +55635,29 @@
                         "          timestamp as string",
                         "     ),",
                         "     errors: true) ~> cast1",
-                        "GetOrganizationID derive(sysdatets = toString(byName('sysdatets'))) ~> MapDrifted1",
-                        "CheckDimOccasionSurvey, dimOrgLocation lookup(ngItemsSurvey@locationid == dimOrgLocation@locationid,",
-                        "     multiple: false,",
-                        "     pickup: 'any',",
-                        "     broadcast: 'auto')~> GetOrganizationID",
+                        "CheckDimOccSurvey derive(sysdatets = toString(byName('sysdatets'))) ~> MapDrifted1",
                         "ngItemsSurvey, CheckfactItemsSurvey exists(ngItemsSurvey@locationid == CheckfactItemsSurvey@locationid",
                         "     && ngItemsSurvey@orderid == CheckfactItemsSurvey@orderid",
                         "     && ngItemsSurvey@surveyid == CheckfactItemsSurvey@surveyid",
                         "     && ngItemsSurvey@itemid == CheckfactItemsSurvey@itemid,",
                         "     negate:false,",
                         "     broadcast: 'auto')~> NewFeedbacksOnly",
-                        "LiveOrderSurveys, dimOccasionSurvey lookup(ngItemsSurvey@surveyid == dimOccasionSurvey@surveyid,",
-                        "     multiple: false,",
-                        "     pickup: 'any',",
-                        "     broadcast: 'auto')~> CheckDimOccasionSurvey",
                         "NewFeedbacksOnly, factTrxnHeaders exists(ngItemsSurvey@locationid == factTrxnHeaders@locationid",
                         "     && ngItemsSurvey@orderid == transactionheaderid,",
                         "     negate:false,",
                         "     broadcast: 'auto')~> LiveOrderSurveys",
                         "FieldsNeeded alterRow(updateIf(true())) ~> Update",
+                        "GetOrganizationID, dimOccasionSurvey join(dimOrgLocation@organizationid == dimOccasionSurvey@organizationid",
+                        "     && ngItemsSurvey@surveyid == dimOccasionSurvey@surveyid,",
+                        "     joinType:'inner',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> CheckDimOccSurvey",
+                        "LiveOrderSurveys, dimOrgLocation join(ngItemsSurvey@locationid == dimOrgLocation@locationid,",
+                        "     joinType:'inner',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> GetOrganizationID",
                         "Update sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
@@ -61840,9 +63143,6 @@
                             "name": "OnlyNeededFields"
                         },
                         {
-                            "name": "CheckDimOccSurvey"
-                        },
-                        {
                             "name": "NewFeedbacksOnly"
                         },
                         {
@@ -61883,6 +63183,9 @@
                         },
                         {
                             "name": "CheckTransactions"
+                        },
+                        {
+                            "name": "CheckDimOccSurvey"
                         }
                     ],
                     "scriptLines": [
@@ -62078,7 +63381,7 @@
                         "deriveDateID select(mapColumn(",
                         "          surveycompletedtimestamp = timestamp,",
                         "          surveyrating,",
-                        "          surveytype,",
+                        "          surveytype = surveytype_text_int,",
                         "          locationid = ngOccasionSurvey@locationid,",
                         "          orderid = ngOccasionSurvey@orderid,",
                         "          ordersessionid,",
@@ -62092,26 +63395,21 @@
                         "     ),",
                         "     skipDuplicateMapInputs: true,",
                         "     skipDuplicateMapOutputs: true) ~> OnlyNeededFields",
-                        "LiveOrderSurveys, dimOccasionSurvey join(ngOccasionSurvey@surveyid == dimOccasionSurvey@surveyid,",
-                        "     joinType:'left',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> CheckDimOccSurvey",
                         "ngOccasionSurvey, checkFactOccSurvey exists(ngOccasionSurvey@locationid == checkFactOccSurvey@locationid",
                         "     && ngOccasionSurvey@surveytransid == checkFactOccSurvey@surveytransid",
                         "     && ngOccasionSurvey@orderid == checkFactOccSurvey@orderid,",
                         "     negate:true,",
                         "     broadcast: 'auto')~> NewFeedbacksOnly",
-                        "CheckDimOccSurvey, dimOrgLocation join(ngOccasionSurvey@locationid == dimOrgLocation@locationid,",
+                        "LiveOrderSurveys, dimOrgLocation join(ngOccasionSurvey@locationid == dimOrgLocation@locationid,",
                         "     joinType:'left',",
                         "     matchType:'exact',",
                         "     ignoreSpaces: false,",
                         "     broadcast: 'auto')~> GetOrgID",
-                        "GetOrgID derive(timestamp = coalesce(timestamp, sysdatets),",
+                        "CheckDimOccSurvey derive(timestamp = coalesce(timestamp, sysdatets),",
                         "          sysinserttime = currentTimestamp(),",
                         "          organizationid = coalesce(dimOccasionSurvey@organizationid, dimOrgLocation@organizationid),",
                         "          sourceid = 1,",
-                        "          surveytype = case(isInteger(surveyrating), 1, 2)) ~> deriveDateID",
+                        "          surveytype_text_int = case(isInteger(surveyrating), 1, 2)) ~> deriveDateID",
                         "OnlyNeededFields cast(output(",
                         "          surveycompletedtimestamp as string",
                         "     ),",
@@ -62160,6 +63458,12 @@
                         "     && parsed_data.orderId == transactionheaderid,",
                         "     negate:false,",
                         "     broadcast: 'auto')~> CheckTransactions",
+                        "GetOrgID, dimOccasionSurvey join(dimOrgLocation@organizationid == dimOccasionSurvey@organizationid",
+                        "     && ngOccasionSurvey@surveyid == dimOccasionSurvey@surveyid,",
+                        "     joinType:'inner',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> CheckDimOccSurvey",
                         "cast1 sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",
@@ -63018,249 +64322,6 @@
                 "[concat(variables('factoryId'), '/datasets/factRecommendationsAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/TransactionHeadersAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/stgRecommendationsAnalyticsDb')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/RefreshMLTables')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "WeatherML",
-                        "type": "Lookup",
-                        "dependsOn": [],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_weather(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "MenuEntitiesML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "WeatherML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_menu_entities();\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "ModifierEntitiesML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "MenuEntitiesML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_item_modifiergroup_modifier_mapping();\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "TransactionsML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "ModifierEntitiesML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_transactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "UpsellAnalysisML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "TransactionsML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_upsell_analysis(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "ModifierInteractionsML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "UpsellAnalysisML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_modifier_interactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "ModifierImpressionsML",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "ModifierInteractionsML",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL ml.usp_refresh_modifier_impressions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 1);\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "mlTransactionsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "folder": {
-                    "name": "ML"
-                },
-                "annotations": []
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/datasets/mlTransactionsAnalyticsDb')]"
             ]
         }
     ]

@@ -13,6 +13,103 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/DevicesAndPeripherals')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "gshDevicesAndPeripheralsToAnalyticsDb",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "gshDevicesAndPeripheralsToAnalyticsDb",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "gshDevices": {},
+                                    "gshPeripheral": {},
+                                    "gshDeviceHealth": {},
+                                    "CheckFactDevHealth": {},
+                                    "gshPeripheralHealth": {},
+                                    "CheckFactPeripHealth": {},
+                                    "dimDevice": {},
+                                    "dimPeripheral": {},
+                                    "factDeviceHealth": {},
+                                    "factPeripHealth": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "DevicesAndPeripherals",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [
+                            {
+                                "activity": "gshDevicesAndPeripheralsToAnalyticsDb",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "DevicesAndPeripherals",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "gshDevices": {},
+                                    "gshPeripheral": {},
+                                    "dimDevice": {},
+                                    "dimPeripheral": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Facts"
+                },
+                "annotations": [],
+                "lastPublishTime": "2025-05-27T07:14:00Z"
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/DimensionABTests')]",
             "type": "Microsoft.DataFactory/factories/pipelines",
             "apiVersion": "2018-06-01",
@@ -89,7 +186,8 @@
                 "folder": {
                     "name": "Dimensions"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": []
         },
@@ -170,7 +268,8 @@
                 "folder": {
                     "name": "Dimensions"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": []
         },
@@ -626,7 +725,8 @@
                 "folder": {
                     "name": "Dimensions"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-03-26T18:31:41Z"
             },
             "dependsOn": []
         },
@@ -1645,7 +1745,7 @@
                     "name": "Dimensions"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-19T18:03:56Z"
+                "lastPublishTime": "2026-02-27T11:58:18Z"
             },
             "dependsOn": []
         },
@@ -1845,7 +1945,8 @@
                 "folder": {
                     "name": "ML"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-08-06T06:46:56Z"
             },
             "dependsOn": []
         },
@@ -1928,7 +2029,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-03-04T19:53:28Z"
             },
             "dependsOn": []
         },
@@ -2048,7 +2150,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-09-22T12:08:00Z"
             },
             "dependsOn": []
         },
@@ -2435,7 +2538,8 @@
                 "folder": {
                     "name": "Events"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-07-21T10:35:18Z"
             },
             "dependsOn": []
         },
@@ -2448,6 +2552,8 @@
                     {
                         "name": "GrubbrrInstallBaseDashboard",
                         "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
                         "dependsOn": [],
                         "policy": {
                             "timeout": "0.12:00:00",
@@ -2490,7 +2596,7 @@
                         "type": "Lookup",
                         "dependsOn": [
                             {
-                                "activity": "GrubbrrInstallBaseDashboard",
+                                "activity": "UpdateExtraFeatures",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -2517,6 +2623,164 @@
                                 "parameters": {}
                             }
                         }
+                    },
+                    {
+                        "name": "UpdateExtraFeatures",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "NewGrubbrrInstallBaseDashboard",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "CosmosDbSqlApiSource",
+                                "query": "SELECT DISTINCT\r\nc.locationId as locationid,\r\ntoString(c.receipt) ?? null as kiosk_receipt_settings,\r\ntoString(c.fonts) ?? null as kiosk_fonts,\r\ntoString(c.template.textOverrides) ?? null as kiosk_appearance_text_overrides,\r\ntoString(c.styleOptions) ?? null as kiosk_appearance_style_options,\r\nc._ts as syscosmosts\r\nFROM c \r\nWHERE 1=1\r\nand c.type = 'kiosk-appearance'",
+                                "preferredRegions": []
+                            },
+                            "sink": {
+                                "type": "AzurePostgreSqlSink",
+                                "writeBatchSize": 1000000,
+                                "writeBatchTimeout": "00:30:00",
+                                "writeMethod": "Upsert",
+                                "upsertSettings": {
+                                    "keys": [
+                                        "locationid"
+                                    ]
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "path": "$['locationid']"
+                                        },
+                                        "sink": {
+                                            "name": "locationid",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['kiosk_receipt_settings']"
+                                        },
+                                        "sink": {
+                                            "name": "kiosk_receipt_settings",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['kiosk_fonts']"
+                                        },
+                                        "sink": {
+                                            "name": "kiosk_fonts",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['kiosk_appearance_text_overrides']"
+                                        },
+                                        "sink": {
+                                            "name": "kiosk_appearance_text_overrides",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['kiosk_appearance_style_options']"
+                                        },
+                                        "sink": {
+                                            "name": "kiosk_appearance_style_options",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['syscosmosts']"
+                                        },
+                                        "sink": {
+                                            "name": "syscosmosts",
+                                            "type": "Int64"
+                                        }
+                                    }
+                                ],
+                                "mapComplexValuesToString": true
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "gasCosmosLocation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DimKioskDetailsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "NewGrubbrrInstallBaseDashboard",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [
+                            {
+                                "activity": "GrubbrrInstallBaseDashboard",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "NewGrubbrrInstallBaseDashboard",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "ngeLocationKiosks": {},
+                                    "posProvider": {},
+                                    "ngeLoyaltyConfiguration": {},
+                                    "ngePaymentProvider": {},
+                                    "ngeKioskScanner": {},
+                                    "dimKioskDetails": {},
+                                    "UpdatePOS": {},
+                                    "UpdateLoyalty": {},
+                                    "UpdatePaymentPrvd": {},
+                                    "UpdateScanners": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
                     }
                 ],
                 "policy": {
@@ -2525,7 +2789,8 @@
                 "folder": {
                     "name": "Dimensions"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-28T04:24:22Z"
             },
             "dependsOn": []
         },
@@ -2669,7 +2934,8 @@
                 "folder": {
                     "name": "DWH-Medallion/Bronze-Ingestion"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-11-05T11:04:32Z"
             },
             "dependsOn": []
         },
@@ -2721,7 +2987,7 @@
                     "name": "Dimensions/Stand-Alone"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-21T14:59:35Z"
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": []
         },
@@ -2775,7 +3041,7 @@
                     "name": "Dimensions/Stand-Alone"
                 },
                 "annotations": [],
-                "lastPublishTime": "2024-03-21T14:59:35Z"
+                "lastPublishTime": "2025-03-25T17:15:07Z"
             },
             "dependsOn": []
         },
@@ -2894,7 +3160,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-21T06:28:53Z"
             },
             "dependsOn": []
         },
@@ -2931,7 +3198,9 @@
                                 "datasetParameters": {
                                     "CosmosSurvey": {},
                                     "checkDimOccasionSurvey": {},
-                                    "dimOccasionSurvey": {}
+                                    "CosmosSurveyAll": {},
+                                    "dimOccasionSurvey": {},
+                                    "updateDimOccasionSurvey": {}
                                 }
                             },
                             "staging": {},
@@ -3525,7 +3794,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-04-20T10:26:21Z"
             },
             "dependsOn": []
         },
@@ -3587,7 +3857,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": []
         },
@@ -3640,7 +3911,8 @@
                 "folder": {
                     "name": "Dimensions/Stand-Alone"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
             },
             "dependsOn": []
         },
@@ -4808,7 +5080,8 @@
                 "folder": {
                     "name": "AdHoc"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-03-12T05:14:41Z"
             },
             "dependsOn": []
         },
@@ -4932,7 +5205,8 @@
                 "folder": {
                     "name": "Facts"
                 },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2025-08-06T10:14:05Z"
             },
             "dependsOn": []
         },
@@ -5255,68 +5529,8 @@
                 "folder": {
                     "name": "AdHoc"
                 },
-                "annotations": []
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/UpdateFieldsInTrxnFactTables')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "UpdateFieldsInTrxnFactTables",
-                        "type": "ExecuteDataFlow",
-                        "dependsOn": [],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "dataflow": {
-                                "referenceName": "UpdateFieldsInTrxnFactTables",
-                                "type": "DataFlowReference",
-                                "parameters": {},
-                                "datasetParameters": {
-                                    "TrxnOrderTypes": {},
-                                    "dimOrderType": {},
-                                    "OrderMenuItems": {},
-                                    "dimMenuItems": {},
-                                    "gemEvents": {},
-                                    "factTrxnHeaders": {},
-                                    "factTrxnItems": {},
-                                    "factTrxnHeaders2": {},
-                                    "dimOrderType2": {},
-                                    "factTrxnItems2": {},
-                                    "ItemsWithCategory": {},
-                                    "dimCategory": {},
-                                    "UpdateTransactions": {},
-                                    "UpdateTrxnItems": {},
-                                    "UpdateTrxnOrderTypes": {},
-                                    "UpdateTrxnItemsCtg": {}
-                                }
-                            },
-                            "staging": {},
-                            "compute": {
-                                "coreCount": 8,
-                                "computeType": "General"
-                            },
-                            "traceLevel": "Fine"
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "folder": {
-                    "name": "Facts"
-                },
-                "annotations": []
+                "annotations": [],
+                "lastPublishTime": "2026-01-29T09:50:03Z"
             },
             "dependsOn": []
         }
