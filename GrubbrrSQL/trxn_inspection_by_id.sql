@@ -2,9 +2,29 @@ SELECT *
 FROM fact.transactionheader as th 
 WHERE th.locationid = 'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
 AND th.transactionheaderid = 'ordevt-FV1VLK96WO1JL0J0'
-AND orderstatus = 'order-placed'
+AND th.orderstatus = 'order-placed'
 AND th.businessdate = '2026-05-01'
 ORDER BY th.orderdatelocal DESC
+LIMIT 100;
+
+SELECT *
+FROM fact.itemmodifier as im 
+WHERE 1=1 
+--AND im.locationid = 'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+AND im.transactionheaderid = 'ordevt-N1S9WD4EOAS7DY6V'
+--AND im.businessdate = '2026-05-01'
+--ORDER BY im.orderdatelocal DESC
+LIMIT 100;
+
+
+
+SELECT *
+FROM fact.modifier_interactions as mi 
+WHERE 1=1 
+--AND mi.locationid = 'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+--AND mi.transactionheaderid = 'ordevt-N1S9WD4EOAS7DY6V'
+--AND im.businessdate = '2026-05-01'
+--ORDER BY im.orderdatelocal DESC
 LIMIT 100;
 
 
