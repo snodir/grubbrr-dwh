@@ -33,7 +33,7 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 SELECT *
-FROM dim.occasionsurvey
+FROM dim.occasionsurvey;
 
 SELECT organizationid, surveyid, count(*)
 FROM dim.occasionsurvey
