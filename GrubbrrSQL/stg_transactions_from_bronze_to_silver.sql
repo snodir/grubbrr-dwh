@@ -1,3 +1,5 @@
+SELECT * FROM stg.transactionheader
+
 CREATE TABLE IF NOT EXISTS stg.transactionheader (
     -- identifiers
     id                                  text COLLATE pg_catalog."default"    NOT NULL,
