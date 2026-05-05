@@ -181,3 +181,16 @@ INNER JOIN public.item_master as i
 WHERE 1=1
   AND ctlg.gem_location_id IS NOT NULL
   AND ctlg.gem_location_id <> ''
+
+SELECT ctlg.gem_location_id as locationid,
+       c.id as categoryid,
+       c.name as categoryname,
+       c.catalog_id as catalogid,
+       c.is_active as is_category_active,
+       c.is_deleted as is_category_deleted,
+       c.created_on as category_created_on,
+       c.modified_on as category_modified_on
+FROM public.category_master as c 
+INNER JOIN public.catalog as ctlg
+    ON ctlg.id = c.catalog_id
+LIMIT 1000
