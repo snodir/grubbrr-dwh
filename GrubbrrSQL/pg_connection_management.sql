@@ -32,3 +32,16 @@ JOIN pg_stat_activity blocking
 WHERE cardinality(pg_blocking_pids(blocked.pid)) > 0;
 
 SELECT pg_terminate_backend(<blocking_pid>);
+
+SELECT pid,
+       usename,
+       application_name,
+       state,
+       wait_event_type,
+       wait_event,
+       now() - query_start AS duration,
+       query
+FROM   pg_stat_activity
+WHERE  datname = current_database()
+  --AND  state != 'idle'
+ORDER BY duration DESC;

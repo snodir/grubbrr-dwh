@@ -1,22 +1,22 @@
-select ol.organizationId, ol.organizationname, 
+SELECT ol.organizationId, ol.organizationname, 
        th.locationid, ol.locationname, --th.businessdate,
 	   --EXTRACT(YEAR FROM th.businessdate)::INTEGER as yyyy,
        --EXTRACT(WEEK FROM th.businessdate)::INTEGER as ww,
        count(1) as ordercounts, sum(ordertotal) as amtspent, avg(ordertotal) as avg_amtspent,
 	   min(orderdatelocal) as first_order_time,
 	   max(orderdatelocal) as latest_order_time
-from (select * from fact.transactionheader WHERE businessdate >= '2026-01-01') as th
-inner join (select * from dim.organizationlocation where organizationtype = 0) as ol 
+FROM (SELECT * FROM fact.transactionheader WHERE businessdate >= '2026-01-01') as th
+INNER JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
         on th.locationid = ol.locationid
-where 1=1
+WHERE 1=1
 --and ol.organizationid = 'org-ug5zsn9mpq'
 --and th.locationid = 'loc-8ead49a8-798b-4786-988a-90bbbb4775c7'-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
 and th.orderstatus = 'order-placed'
 --and th.businessdate = '2026-03-30' :: DATE-- BETWEEN '2023-01-01' and CURRENT_DATE :: date--'2025-07-13' --
-group by ol.organizationId, ol.organizationname, th.locationid, ol.locationname--, th.businessdate
+GROUP BY ol.organizationId, ol.organizationname, th.locationid, ol.locationname--, th.businessdate
    		 --EXTRACT(YEAR FROM th.businessdate)::INTEGER
          --EXTRACT(WEEK FROM th.businessdate)::INTEGER
-order by ordercounts DESC-- first_order_time ASC--, ordercounts DESC--, 
+ORDER BY ordercounts DESC-- first_order_time ASC--, ordercounts DESC--, 
 
 
 SELECT th.businessdate, 
@@ -27,11 +27,31 @@ WHERE th.businessdate >= CAST('2026-04-01' AS DATE)
 GROUP BY th.businessdate
 ORDER BY th.businessdate DESC;
 
+WITH trxn_by_day_parts AS (
+	SELECT *, 
+		CASE WHEN EXTRACT(HOUR FROM th.orderdatelocal) BETWEEN 0 AND 5 THEN 'Overnight_0_5'
+			 WHEN EXTRACT(HOUR FROM th.orderdatelocal) BETWEEN 6 AND 9 THEN 'Breakfast_6_9'
+			 WHEN EXTRACT(HOUR FROM th.orderdatelocal) BETWEEN 10 AND 13 THEN 'Lunch_10_13'
+			 WHEN EXTRACT(HOUR FROM th.orderdatelocal) BETWEEN 14 AND 15 THEN 'Afternoon_Snack_14_15'
+			 WHEN EXTRACT(HOUR FROM th.orderdatelocal) BETWEEN 16 AND 21 THEN 'Dinner_16_21'
+			 WHEN EXTRACT(HOUR FROM th.orderdatelocal) BETWEEN 22 AND 23 THEN 'Late_Night_22_23'
+		END AS day_parts
+	FROM fact.transactionheader as th
+)
+SELECT th.day_parts, 
+	   count(*) as total_orders,
+	   sum(th.ordertotal) as total_amount_spent
+FROM trxn_by_day_parts as th 
+--WHERE th.businessdate >= CAST('2026-04-01' AS DATE)
+GROUP BY th.day_parts;
+ORDER BY total_orders DESC;
+
+
 SELECT *
 FROM dim.organization
 WHERE id = 'loc-003bf5fc-1391-4afd-ac29-bbf18f9ae2c3';
 --["loc-73ad6e86-1f5c-4123-adbb-4b12339ea171","loc-8ead49a8-798b-4786-988a-90bbbb4775c7","loc-26335157-cfac-40a3-b901-2bca43618bc6","loc-96f0d639-95a2-4e42-b9ba-35e836bec523","loc-353c730c-36ca-4575-95f8-38516cdc9de7","loc-f8417e68-4a8a-4fa6-8c9b-780564b86a90","loc-d30b1e76-3b2b-42cf-b357-f4790df19159"]
-select to_jsonb(array_agg(locationname)) as locations,
+SELECT to_jsonb(array_agg(locationname)) as locations,
 	   to_jsonb(array_agg(locationid)) as locationids,
 	   jsonb_agg(
 			jsonb_build_object(
@@ -39,8 +59,8 @@ select to_jsonb(array_agg(locationname)) as locations,
 				'locationname', locationname
 			)
 	   )
-from dim.organizationlocation 
-where organizationname like 'Bojangles'
+FROM dim.organizationlocation 
+WHERE organizationname like 'Bojangles'
 and (locationname like '0927%Steele%'
   or locationname like '2031%Wax%'
   or locationname like '%Monroe%'
@@ -117,22 +137,22 @@ CASE WHEN EXISTS
 	 THEN 1 ELSE 0 END has_data
 
 
-select ol.organizationId, ol.organizationname, 
+SELECT ol.organizationId, ol.organizationname, 
        th.locationid, ol.locationname, th.businessdate,
 	   min(orderdateutc) :: timestamp as first_order_time,
        min(orderdateutc) :: timestamp with time zone AT TIME ZONE 'America/New_York' as NY_first_order_time,
        max(orderdateutc) :: timestamp as latest_order_time,
        max(orderdateutc) :: timestamp with time zone AT TIME ZONE 'America/New_York' as NY_last_order_time
-from fact.transactionheader as th
-inner join (select * from dim.organizationlocation where organizationtype = 0) as ol 
+FROM fact.transactionheader as th
+INNER JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
         on th.locationid = ol.locationid
-where 1=1
+WHERE 1=1
 --and ol.organizationid = 'org-ug5zsn9mpq'
 --and th.locationid = 'loc-8ead49a8-798b-4786-988a-90bbbb4775c7'-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
 and th.orderstatus = 'order-placed'
 and th.businessdate = '2026-03-30' :: DATE
-group by ol.organizationId, ol.organizationname, th.locationid, ol.locationname, th.businessdate
-order by first_order_time ASC
+GROUP BY ol.organizationId, ol.organizationname, th.locationid, ol.locationname, th.businessdate
+ORDER BY first_order_time ASC
 
 /*
 org-2ad9799e-2df3-4ebb-9563-8772f5638552	Rohan's Org	loc-96abd656-679f-41dc-a5ef-7bca8ffc5333	BurgerKing par	998
@@ -144,7 +164,7 @@ com-3owh66znkd	Akshit NCR test	loc-ebd23f7f-a4e3-452a-a643-db13ee756fc5	Zinger's
 
 SELECT count(*)
 FROM fact.transactionheader as th
-where 1=1
+WHERE 1=1
 --and th.orderstatus = 'order-placed'
 --and businessdate BETWEEN '2025-01-01' AND '2025-12-01'
 and createddate BETWEEN '2025-01-01' AND '2025-12-01'
@@ -336,10 +356,10 @@ AND (CASE WHEN '@{pipeline().parameters.organizationId}' NOT LIKE 'loc-%' THEN o
 
 --DELETE FROM fact.transactionheader--item--
 SELECT * FROM fact.transactionitem--header--
-where ordersessionid in
+WHERE ordersessionid in
 (
 	SELECT th.ordersessionid
-	from fact.transactionheader as th
+	FROM fact.transactionheader as th
 	WHERE 1=1 
 	and th.orderstatus = 'order-placed'
 	and th.ordersessionid <> ''
@@ -348,7 +368,7 @@ where ordersessionid in
 )
 and orderid = 'ord-';
 
---select * from fact.transactionitem limit 10
+--SELECT * FROM fact.transactionitem limit 10
 
 ALTER TABLE fact.transactionitem 
 add CONSTRAINT locationid_transactionheaderid_fk FOREIGN KEY (locationid, transactionheaderid) REFERENCES fact.transactionheader(locationid, transactionheaderid);
