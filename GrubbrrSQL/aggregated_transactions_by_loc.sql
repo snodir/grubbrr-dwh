@@ -9,7 +9,7 @@ FROM (SELECT * FROM fact.transactionheader WHERE businessdate >= '2026-01-01') a
 INNER JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
         on th.locationid = ol.locationid
 WHERE 1=1
---and ol.organizationid = 'org-ug5zsn9mpq'
+and ol.organizationid = 'org-490e23ce-6f23-4d3d-8544-8728f0965cfc'
 --and th.locationid = 'loc-8ead49a8-798b-4786-988a-90bbbb4775c7'-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
 and th.orderstatus = 'order-placed'
 --and th.businessdate = '2026-03-30' :: DATE-- BETWEEN '2023-01-01' and CURRENT_DATE :: date--'2025-07-13' --
@@ -18,6 +18,7 @@ GROUP BY ol.organizationId, ol.organizationname, th.locationid, ol.locationname-
          --EXTRACT(WEEK FROM th.businessdate)::INTEGER
 ORDER BY ordercounts DESC-- first_order_time ASC--, ordercounts DESC--, 
 
+--SELECT max(orderdatelocal) FROM fact.transactionheader
 
 SELECT th.businessdate, 
 	   count(DISTINCT th.locationid) as locations,
