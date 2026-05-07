@@ -23,7 +23,7 @@ SELECT th.businessdate,
 	   count(DISTINCT th.locationid) as locations,
 	   count(*) as order_count
 FROM fact.transactionheader as th 
-WHERE th.businessdate >= CAST('2026-04-01' AS DATE)
+WHERE th.businessdate >= CAST('2026-05-01' AS DATE)
 GROUP BY th.businessdate
 ORDER BY th.businessdate DESC;
 

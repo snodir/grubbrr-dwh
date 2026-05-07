@@ -1,4 +1,5 @@
-SELECT * FROM stg.transactionheader
+--SELECT * FROM stg.transactionheader;
+--DROP TABLE IF EXISTS stg.transactionheader;
 
 CREATE TABLE IF NOT EXISTS stg.transactionheader (
     -- identifiers
@@ -37,7 +38,7 @@ CREATE TABLE IF NOT EXISTS stg.transactionheader (
     receiptImage                        text COLLATE pg_catalog."default",
     orderReceiptUrl                     text COLLATE pg_catalog."default",
     orderReceiptPdfUrl                  text COLLATE pg_catalog."default",
-    gusetCheckImageLink                 text COLLATE pg_catalog."default",           -- note: typo preserved from source
+    guestCheckImageLink                 text COLLATE pg_catalog."default",           -- note: typo preserved from source
 
     -- nested objects (stored as JSON strings)
     totals                              text COLLATE pg_catalog."default",
@@ -57,12 +58,13 @@ CREATE TABLE IF NOT EXISTS stg.transactionheader (
     concepts                            text COLLATE pg_catalog."default",
 
     -- CosmosDB system fields
-    _rid                                text COLLATE pg_catalog."default",
-    _self                               text COLLATE pg_catalog."default",
-    _etag                               text COLLATE pg_catalog."default",
-    _attachments                        text COLLATE pg_catalog."default",
-    syscosmosts                         BIGINT,
-    filepath text COLLATE pg_catalog."default",
+    sys_rid                                text COLLATE pg_catalog."default",
+    sys_self                               text COLLATE pg_catalog."default",
+    sys_etag                               text COLLATE pg_catalog."default",
+    sys_attachments                        text COLLATE pg_catalog."default",
+    sys_lsn                                BIGINT,
+    syscosmosts                            BIGINT,
+    bronze_filepath text COLLATE pg_catalog."default",
     CONSTRAINT pk_transactionheader PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
@@ -71,5 +73,5 @@ ALTER TABLE IF EXISTS stg.transactionheader
 OWNER TO citus;
 
 ALTER TABLE IF EXISTS stg.transactionheader
-ADD COLUMN IF NOT EXISTS filepath text COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS bronze_filepath text COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS concepts text COLLATE pg_catalog."default";
