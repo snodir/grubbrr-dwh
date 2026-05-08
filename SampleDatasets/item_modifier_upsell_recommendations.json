@@ -1,0 +1,118 @@
+"upsellInformation": {
+        "upsellPrompt": [{
+                "promptId": "db10f9be-cc13-403a-b49d-04ff0d7b862b",
+                "offeredItems": [{
+                        "itemId": "cat-e2567790-0710-430b-aa17-e6a776a0d9fc",
+                        "upsellGroupId": "upslg-82511a58-ee58-4b76-a982-c2e4644b6c85",
+                        "upsellLevel": "Order",
+                        "promptItemId": ""
+                    }, {
+                        "itemId": "cat-22553343-bd87-482b-8787-466f2a7b6276",
+                        "upsellGroupId": "upslg-82511a58-ee58-4b76-a982-c2e4644b6c85",
+                        "upsellLevel": "Order",
+                        "promptItemId": ""
+                    }
+                ],
+                "selectedItems": [
+                        {
+                            "itemId": "itm-17d3788a-7352-4d29-b548-8e69e79a544d",
+                            "upsellGroupId": "upslg-73705592-6830-49ff-aa7c-dc8d4a2ac5ee",
+                            "upsellLevel": "Order",
+                            "promptItemId": "",
+                            "quantity": 1,
+                            "modifiers": []
+                        }
+                "promptTime": "2026-05-04T03:48:01Z",
+                "modalVersion": ""
+            }
+        ],
+            "modifierImpressions": [
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
+                            "score": 0,
+                            "position": 0,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                            "score": 0,
+                            "position": 1,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
+                            "score": 0,
+                            "position": 2,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33",
+                            "score": 0,
+                            "position": 3,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d",
+                            "score": 0,
+                            "position": 4,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                }
+            ],
+            "modifierInteractions": [
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                }
+            ]
+    }

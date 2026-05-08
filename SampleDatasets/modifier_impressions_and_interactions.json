@@ -1,0 +1,2792 @@
+[
+    {
+        "kioskSessionId": "8F0HYY2OL2FU183R",
+        "totals": {
+            "subTotal": 4.25,
+            "tax": 0.3,
+            "tip": 0,
+            "total": 4.55,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "totalsCents": {
+            "subTotal": 425,
+            "tax": 30,
+            "tip": 0,
+            "total": 455,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "items": [
+            {
+                "orderItemId": "orditm-GFZG1Rg8_J",
+                "categoryId": "cat-6af654d5-86fc-44d6-8624-35ac111e60f2",
+                "categoryName": "Garlic Bread",
+                "categoryPosId": "",
+                "menuItemId": "itm-2a0be03b-30a7-45f9-b573-39c266bfd9d5",
+                "name": "Veggie Supremo",
+                "menuItemPosId": "",
+                "localizedName": {
+                    "translations": {}
+                },
+                "options": [],
+                "itemPrice": 4.25,
+                "unitPrice": 4.25,
+                "totalPrice": 4.25,
+                "unitPriceCents": 425,
+                "totalPriceCents": 425,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "GQ3vpHt2VOYxNfKJlu__F",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            }
+        ],
+        "combos": [],
+        "paymentDetails": [
+            {
+                "amount": 4.55,
+                "paymentIntegrationId": "payment-integration-clover",
+                "transactionId": "HPQNDTJT6X72T",
+                "paymentIntegrationLabel": "Credit",
+                "tenderId": "WQ1NANR4K7C7C",
+                "paymentCardName": "VISA",
+                "paymentCardNumber": "************4318",
+                "isAmazonOnePayment": false,
+                "paymentMethod": "Card",
+                "tenderInfo": {
+                    "cardInfo": {
+                        "cardType": "Visa",
+                        "lastFour": "4318",
+                        "zipCode": "",
+                        "processorAuthCode": "",
+                        "expirationMonth": "",
+                        "expirationYear": "",
+                        "maskedCardNumber": "",
+                        "availableBalance": 0
+                    },
+                    "storedValueInfo": null
+                },
+                "status": null,
+                "captureDetails": null,
+                "settlementDetails": null
+            }
+        ],
+        "orderType": "11KM7YFCMW82M",
+        "orderTypeLabel": "Dine In",
+        "orderIdentity": {
+            "orderToken": "10002",
+            "name": "",
+            "phone": null,
+            "phoneCountryCode": null,
+            "email": "",
+            "tableTent": "",
+            "posOrderToken": "",
+            "randomlyGeneratedFields": [],
+            "deviceImei": ""
+        },
+        "redeemedRewards": [],
+        "receiptImage": "https://test.console.grubbrr.com/order-receipt/cyOem0daTlyPUH1lITtHWslOGZ-RUEYa339Mspr5L9ObSwbSfRfTkvXZISNyGB5EgR62DHaSK-HTVoCc9FtYmA",
+        "gusetCheckImageLink": null,
+        "kioskSource": {
+            "kioskId": "ksk-57130518",
+            "name": "Test Kiosk",
+            "kioskMode": 3
+        },
+        "discounts": [],
+        "isFailedToSendToPos": false,
+        "posSubmissionStatus": 1,
+        "channel": 0,
+        "clientIpAddress": "202.131.96.138",
+        "isTestOrder": false,
+        "businessDate": "2026-04-06T00:00:00",
+        "loyaltyUser": null,
+        "guestCount": 1,
+        "upsellInformation": {
+            "upsellPrompt": [],
+            "modifierImpressions": null,
+            "modifierInteractions": null
+        },
+        "orderReceiptUrl": "https://test.console.grubbrr.com/order-receipt/cyOem0daTlyPUH1lITtHWslOGZ-RUEYa339Mspr5L9ObSwbSfRfTkvXZISNyGB5EgR62DHaSK-HTVoCc9FtYmA",
+        "loyaltyProviderTransactionId": "",
+        "loyaltyProviderPaymentTransactionId": "",
+        "orderReceiptPdfUrl": "",
+        "receiptDetails": {
+            "orderLanguage": "en",
+            "guestCheckCode": null,
+            "guestCheckCodePrefaceText": "",
+            "genesisFiscalFields": null,
+            "feedBackUrl": null,
+            "loyaltyEarnedPoints": "",
+            "loyaltyHeader": "",
+            "loyaltyFooter": "",
+            "receiptPrintingType": "Barcode",
+            "items": []
+        },
+        "concepts": [],
+        "conceptName": "",
+        "conceptId": "",
+        "orderId": "ord-J83AY5YWZ0H7E",
+        "orderDate": "2026-04-06T07:22:30.7897514Z",
+        "locationId": "loc-cda001e9-c4ee-40bf-af66-e1cd3a9d0a81",
+        "id": "ordevt-8F0HYY2OL2FU183R",
+        "type": "order-placed",
+        "_rid": "6ZocAK1z8AdRTxQAAAAAAA==",
+        "_self": "dbs/6ZocAA==/colls/6ZocAK1z8Ac=/docs/6ZocAK1z8AdRTxQAAAAAAA==/",
+        "_etag": "\"0b00e2e0-0000-0100-0000-69d35f3c0000\"",
+        "_attachments": "attachments/",
+        "_ts": 1775460156
+    },
+    {
+        "kioskSessionId": "HG5FLB0RY37FYVCR",
+        "totals": {
+            "subTotal": 16.49,
+            "tax": 1.4,
+            "tip": 3.29,
+            "total": 21.18,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "totalsCents": {
+            "subTotal": 1649,
+            "tax": 140,
+            "tip": 329,
+            "total": 2118,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "items": [
+            {
+                "orderItemId": "orditm-YNs75QBbJE",
+                "categoryId": "cat-c365f07b-8c25-4651-b63d-6058bbdce394",
+                "categoryName": "Sandwiches",
+                "categoryPosId": null,
+                "menuItemId": "itm-068909f8-71d6-40ef-87e8-dda0088ac1d1",
+                "name": "Turkey (Off The Frame)",
+                "menuItemPosId": null,
+                "localizedName": {
+                    "translations": {
+                        "en": "Turkey (Off The Frame)",
+                        "es": "Turkey (Off The Frame)"
+                    }
+                },
+                "options": [],
+                "itemPrice": 16.49,
+                "unitPrice": 16.49,
+                "totalPrice": 16.49,
+                "unitPriceCents": 1649,
+                "totalPriceCents": 1649,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "sSL6sQlGrdxDy_kTZlfE3",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            }
+        ],
+        "combos": [],
+        "paymentDetails": [
+            {
+                "amount": 21.18,
+                "paymentIntegrationId": "payment-integration-cash",
+                "transactionId": "",
+                "paymentIntegrationLabel": "Pay with Cash",
+                "tenderId": "",
+                "paymentCardName": "",
+                "paymentCardNumber": "",
+                "isAmazonOnePayment": false,
+                "paymentMethod": "Cash",
+                "tenderInfo": null,
+                "status": null,
+                "captureDetails": null,
+                "settlementDetails": null
+            }
+        ],
+        "orderType": "DineIn",
+        "orderTypeLabel": "Dine In",
+        "orderIdentity": {
+            "orderToken": "210001",
+            "name": "",
+            "phone": "",
+            "phoneCountryCode": null,
+            "email": "",
+            "tableTent": "",
+            "posOrderToken": "",
+            "randomlyGeneratedFields": [],
+            "deviceImei": null
+        },
+        "redeemedRewards": [],
+        "receiptImage": "https://test.console.grubbrr.com/order-receipt/uMNGt2lqbUJVilBpkAverU4w405k7y1stbtSuXBQVzQHI2gkIkNToxdEjRMbnYJZpk0KuANbB2bZakRpWSM5twbDxSGLodxCAoXvMVXe3MQ",
+        "gusetCheckImageLink": null,
+        "kioskSource": {
+            "kioskId": "ksk-17074608",
+            "name": "Sonu's Desk",
+            "kioskMode": 3
+        },
+        "discounts": [],
+        "isFailedToSendToPos": false,
+        "posSubmissionStatus": 1,
+        "channel": 0,
+        "clientIpAddress": "122.176.229.77",
+        "isTestOrder": true,
+        "businessDate": "2026-04-02T00:00:00",
+        "loyaltyUser": null,
+        "guestCount": 1,
+        "upsellInformation": {
+            "upsellPrompt": [],
+            "modifierImpressions": null,
+            "modifierInteractions": null
+        },
+        "orderReceiptUrl": "https://test.console.grubbrr.com/order-receipt/uMNGt2lqbUJVilBpkAverU4w405k7y1stbtSuXBQVzQHI2gkIkNToxdEjRMbnYJZpk0KuANbB2bZakRpWSM5twbDxSGLodxCAoXvMVXe3MQ",
+        "loyaltyProviderTransactionId": "",
+        "loyaltyProviderPaymentTransactionId": "",
+        "orderReceiptPdfUrl": "/location/org-d54ec735-238b-454f-ba73-6ec9d3a7a955/loc-56db8917-3e54-4be9-941b-5d2d4a5a4c22/11580304540672377440/d8293e992ba22a2c37bcce8287501caa5267e149ba7bdb157124d94b6f4400e1.pdf",
+        "receiptDetails": {
+            "orderLanguage": "en",
+            "guestCheckCode": null,
+            "guestCheckCodePrefaceText": "Earn Points for this order by using this code on the loyalty app",
+            "genesisFiscalFields": null,
+            "feedBackUrl": "https://www.google.com/",
+            "loyaltyEarnedPoints": "",
+            "loyaltyHeader": "",
+            "loyaltyFooter": "",
+            "receiptPrintingType": "Barcode",
+            "items": []
+        },
+        "concepts": [],
+        "conceptName": "",
+        "conceptId": "",
+        "orderId": "ord-11580304540672377440",
+        "orderDate": "2026-04-02T12:14:55.5419738Z",
+        "locationId": "loc-56db8917-3e54-4be9-941b-5d2d4a5a4c22",
+        "id": "ordevt-HG5FLB0RY37FYVCR",
+        "type": "order-placed",
+        "_rid": "6ZocAK1z8Af9ThQAAAAAAA==",
+        "_self": "dbs/6ZocAA==/colls/6ZocAK1z8Ac=/docs/6ZocAK1z8Af9ThQAAAAAAA==/",
+        "_etag": "\"eb00e175-0000-0100-0000-69cf88c60000\"",
+        "_attachments": "attachments/",
+        "_ts": 1775208646
+    },
+    {
+        "kioskSessionId": "RDNOLBCL2HQDCLN2",
+        "totals": {
+            "subTotal": 13.83,
+            "tax": 2.34,
+            "tip": 0,
+            "total": 16.17,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": [
+                {
+                    "label": "State Tax",
+                    "amount": 0,
+                    "taxId": "3",
+                    "total": 0
+                },
+                {
+                    "label": "Reduced State Tax",
+                    "amount": 0,
+                    "taxId": "2",
+                    "total": 0
+                },
+                {
+                    "label": "Municipal Tax",
+                    "amount": 0,
+                    "taxId": "1",
+                    "total": 0
+                }
+            ]
+        },
+        "totalsCents": {
+            "subTotal": 1383,
+            "tax": 234,
+            "tip": 0,
+            "total": 1617,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": [
+                {
+                    "label": "State Tax",
+                    "amount": 0,
+                    "taxId": "3",
+                    "total": 0
+                },
+                {
+                    "label": "Reduced State Tax",
+                    "amount": 0,
+                    "taxId": "2",
+                    "total": 0
+                },
+                {
+                    "label": "Municipal Tax",
+                    "amount": 0,
+                    "taxId": "1",
+                    "total": 0
+                }
+            ]
+        },
+        "items": [
+            {
+                "orderItemId": "orditm-qOMGZLhTXs",
+                "categoryId": "cat-298def8f-602f-4402-a53a-31efe6ac6f5e",
+                "categoryName": "Pizza",
+                "categoryPosId": "",
+                "menuItemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                "name": "Margherita",
+                "menuItemPosId": "",
+                "localizedName": {
+                    "translations": {
+                        "en": "",
+                        "es": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
+                        "modifierPosId": null,
+                        "name": "Bacon",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "لحم مقدد",
+                                "de": "Bacon",
+                                "en": "Bacon",
+                                "es": "Bacon",
+                                "fr": "Bacon",
+                                "ja": "ベーコン",
+                                "nl": "Spek",
+                                "ar-EG": "لحم مقدد"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 2.49,
+                        "totalPrice": 2.49,
+                        "unitPriceCents": 249,
+                        "totalPriceCents": 249,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Add on",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Añadir"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                        "modifierPosId": null,
+                        "name": "Veggie",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "نباتي",
+                                "de": "Gemüse",
+                                "en": "Veggie",
+                                "es": "Veggie",
+                                "fr": "Végétariens",
+                                "ja": "ベジ",
+                                "nl": "Veggie",
+                                "ar-EG": "نباتي"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0.3,
+                        "totalPrice": 0.3,
+                        "unitPriceCents": 30,
+                        "totalPriceCents": 30,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Add on",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Añadir"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
+                        "modifierPosId": null,
+                        "name": "Mushroom",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "فطر",
+                                "de": "Pilz",
+                                "en": "Mushroom",
+                                "es": "Champiñón",
+                                "fr": "Champignon",
+                                "ja": "キノコ",
+                                "nl": "Paddenstoel",
+                                "ar-EG": "فطر"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0.59,
+                        "totalPrice": 0.59,
+                        "unitPriceCents": 59,
+                        "totalPriceCents": 59,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Add on",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Añadir"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                        "modifierPosId": null,
+                        "name": "Testing Cheddar Cheese",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "اختبار جبن الشيدر",
+                                "de": "Test von Cheddarkäse",
+                                "en": "Testing Cheddar Cheese",
+                                "es": "Probando el queso cheddar",
+                                "fr": "Test du fromage cheddar",
+                                "ja": "チェダーチーズのテスト",
+                                "nl": "Cheddar kaas testen",
+                                "ar-EG": "اختبار جبن الشيدر"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Testing Cheese ( modifier Grp)",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Queso de prueba (modificador Grp)"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-a3a01ab4-50b5-47d6-b6d9-88e8ae3a33dd",
+                        "modifierPosId": null,
+                        "name": "Beans",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "الفاصوليا",
+                                "de": "Bohnen",
+                                "en": "Beans",
+                                "es": "Frijoles",
+                                "fr": "Haricots",
+                                "ja": "豆",
+                                "nl": "Bonen",
+                                "ar-EG": "الفاصوليا"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Topping",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Topping"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-feb4196e-1d95-49fd-9f81-6e9b3f2b3678",
+                        "modifierPosId": null,
+                        "name": "egg",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "بيضة",
+                                "de": "Ei",
+                                "en": "egg",
+                                "es": "huevo",
+                                "fr": "œuf",
+                                "ja": "卵",
+                                "nl": "Ei",
+                                "ar-EG": "بيضة"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Topping",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Topping"
+                            }
+                        }
+                    }
+                ],
+                "itemPrice": 5.25,
+                "unitPrice": 13.83,
+                "totalPrice": 13.83,
+                "unitPriceCents": 1383,
+                "totalPriceCents": 1383,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "4ZRdcVVNiY2p9tVcfGI0h",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            }
+        ],
+        "combos": [],
+        "paymentDetails": [
+            {
+                "amount": 16.17,
+                "paymentIntegrationId": "payment-integration-cash",
+                "transactionId": "",
+                "paymentIntegrationLabel": "Cash",
+                "tenderId": "",
+                "paymentCardName": "",
+                "paymentCardNumber": "",
+                "isAmazonOnePayment": false,
+                "paymentMethod": "Cash",
+                "tenderInfo": null,
+                "status": null,
+                "captureDetails": null,
+                "settlementDetails": null
+            }
+        ],
+        "orderType": "cc5d2fa4-63c0-40da-ac87-a2c6db971744",
+        "orderTypeLabel": "Dine In",
+        "orderIdentity": {
+            "orderToken": "170015",
+            "name": "",
+            "phone": null,
+            "phoneCountryCode": null,
+            "email": "",
+            "tableTent": "",
+            "posOrderToken": "19",
+            "randomlyGeneratedFields": [],
+            "deviceImei": ""
+        },
+        "redeemedRewards": [],
+        "receiptImage": "https://test.console.grubbrr.com/order-receipt/GEBLQZSFL5_bojgSxcoSjXMWpEXXm39rc-hhbr5AeXRasKTIl9iBlaomNpntARd408MXDNP3w7WLaCf3WzQLSLA028HShBdtYvEYuGAUtKh3vJqj2kIjDCXHmlovpCoZ",
+        "gusetCheckImageLink": "https://ik.imagekit.io/oz4zkedcbp/nge-img-test/location/org-tf5i2lw1qz/loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e/guestCheckCode-0253178a-ca9a-4957-9f2a-b4bdc82173b3/3eb647d07f41c82e3ab9936751c8436b0133e0db60dcc41f30a2f51182502bd1.jpg",
+        "kioskSource": {
+            "kioskId": "ksk-42238075",
+            "name": "Dhruvit",
+            "kioskMode": 3
+        },
+        "discounts": [],
+        "isFailedToSendToPos": false,
+        "posSubmissionStatus": 1,
+        "channel": 0,
+        "clientIpAddress": "170.55.38.166",
+        "isTestOrder": true,
+        "businessDate": "2026-04-02T00:00:00",
+        "loyaltyUser": null,
+        "guestCount": 1,
+        "upsellInformation": {
+            "upsellPrompt": [
+                {
+                    "promptId": "805ab872-d7f8-4e45-9344-043218fe41f7",
+                    "offeredItems": [
+                        {
+                            "itemId": "itm-95172b19-41bd-479b-83df-091e962ddb52",
+                            "upsellGroupId": "upslg-d64b53a8-55e7-425c-8750-69fe4469d19f",
+                            "upsellLevel": "Order",
+                            "promptItemId": ""
+                        }
+                    ],
+                    "selectedItems": [],
+                    "promptTime": "2026-04-02T21:03:59Z",
+                    "modalVersion": ""
+                }
+            ],
+            "modifierImpressions": [
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
+                            "score": 0,
+                            "position": 0,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                            "score": 0,
+                            "position": 1,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
+                            "score": 0,
+                            "position": 2,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33",
+                            "score": 0,
+                            "position": 3,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d",
+                            "score": 0,
+                            "position": 4,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                }
+            ],
+            "modifierInteractions": [
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                }
+            ]
+        },
+        "orderReceiptUrl": "https://test.console.grubbrr.com/order-receipt/GEBLQZSFL5_bojgSxcoSjXMWpEXXm39rc-hhbr5AeXRasKTIl9iBlaomNpntARd408MXDNP3w7WLaCf3WzQLSLA028HShBdtYvEYuGAUtKh3vJqj2kIjDCXHmlovpCoZ",
+        "loyaltyProviderTransactionId": "",
+        "loyaltyProviderPaymentTransactionId": "",
+        "orderReceiptPdfUrl": "/location/org-tf5i2lw1qz/loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e/0253178a-ca9a-4957-9f2a-b4bdc82173b3/b39692be7e16817d3d060d52c2d64de091a55cdacbc3af6540272244eb21d013.pdf",
+        "receiptDetails": {
+            "orderLanguage": "en",
+            "guestCheckCode": null,
+            "guestCheckCodePrefaceText": "Earn Points for this order by using this code on the loyalty app",
+            "genesisFiscalFields": null,
+            "feedBackUrl": null,
+            "loyaltyEarnedPoints": "",
+            "loyaltyHeader": "",
+            "loyaltyFooter": "",
+            "receiptPrintingType": "Barcode",
+            "items": []
+        },
+        "concepts": [],
+        "conceptName": "",
+        "conceptId": "",
+        "orderId": "ord-0253178a-ca9a-4957-9f2a-b4bdc82173b3",
+        "orderDate": "2026-04-02T21:16:22.4537275Z",
+        "locationId": "loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e",
+        "id": "ordevt-RDNOLBCL2HQDCLN2",
+        "type": "order-placed",
+        "_rid": "6ZocAK1z8AcWTxQAAAAAAA==",
+        "_self": "dbs/6ZocAA==/colls/6ZocAK1z8Ac=/docs/6ZocAK1z8AcWTxQAAAAAAA==/",
+        "_etag": "\"e4006e00-0000-0100-0000-69cedca90000\"",
+        "_attachments": "attachments/",
+        "_ts": 1775164585
+    },
+    {
+        "kioskSessionId": "W6QVJKYYYIVZSRIA",
+        "totals": {
+            "subTotal": 10.45,
+            "tax": 1.77,
+            "tip": 0,
+            "total": 12.22,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": [
+                {
+                    "label": "State Tax",
+                    "amount": 0,
+                    "taxId": "3",
+                    "total": 0
+                },
+                {
+                    "label": "Reduced State Tax",
+                    "amount": 0,
+                    "taxId": "2",
+                    "total": 0
+                },
+                {
+                    "label": "Municipal Tax",
+                    "amount": 0,
+                    "taxId": "1",
+                    "total": 0
+                }
+            ]
+        },
+        "totalsCents": {
+            "subTotal": 1045,
+            "tax": 177,
+            "tip": 0,
+            "total": 1222,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": [
+                {
+                    "label": "State Tax",
+                    "amount": 0,
+                    "taxId": "3",
+                    "total": 0
+                },
+                {
+                    "label": "Reduced State Tax",
+                    "amount": 0,
+                    "taxId": "2",
+                    "total": 0
+                },
+                {
+                    "label": "Municipal Tax",
+                    "amount": 0,
+                    "taxId": "1",
+                    "total": 0
+                }
+            ]
+        },
+        "items": [
+            {
+                "orderItemId": "orditm-ijutExtEER",
+                "categoryId": "cat-298def8f-602f-4402-a53a-31efe6ac6f5e",
+                "categoryName": "Pizza",
+                "categoryPosId": "",
+                "menuItemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                "name": "Margherita",
+                "menuItemPosId": "",
+                "localizedName": {
+                    "translations": {
+                        "en": "",
+                        "es": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                        "modifierPosId": null,
+                        "name": "Testing Cheddar Cheese",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "اختبار جبن الشيدر",
+                                "de": "Test von Cheddarkäse",
+                                "en": "Testing Cheddar Cheese",
+                                "es": "Probando el queso cheddar",
+                                "fr": "Test du fromage cheddar",
+                                "ja": "チェダーチーズのテスト",
+                                "nl": "Cheddar kaas testen",
+                                "ar-EG": "اختبار جبن الشيدر"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Testing Cheese ( modifier Grp)",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Queso de prueba (modificador Grp)"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-a3a01ab4-50b5-47d6-b6d9-88e8ae3a33dd",
+                        "modifierPosId": null,
+                        "name": "Beans",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "الفاصوليا",
+                                "de": "Bohnen",
+                                "en": "Beans",
+                                "es": "Frijoles",
+                                "fr": "Haricots",
+                                "ja": "豆",
+                                "nl": "Bonen",
+                                "ar-EG": "الفاصوليا"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Topping",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Topping"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-feb4196e-1d95-49fd-9f81-6e9b3f2b3678",
+                        "modifierPosId": null,
+                        "name": "egg",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "بيضة",
+                                "de": "Ei",
+                                "en": "egg",
+                                "es": "huevo",
+                                "fr": "œuf",
+                                "ja": "卵",
+                                "nl": "Ei",
+                                "ar-EG": "بيضة"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Topping",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Topping"
+                            }
+                        }
+                    }
+                ],
+                "itemPrice": 5.25,
+                "unitPrice": 10.45,
+                "totalPrice": 10.45,
+                "unitPriceCents": 1045,
+                "totalPriceCents": 1045,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "OtVvLEF5xncmkaPaubrCl",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            }
+        ],
+        "combos": [],
+        "paymentDetails": [
+            {
+                "amount": 12.22,
+                "paymentIntegrationId": "payment-integration-cash",
+                "transactionId": "",
+                "paymentIntegrationLabel": "Cash",
+                "tenderId": "",
+                "paymentCardName": "",
+                "paymentCardNumber": "",
+                "isAmazonOnePayment": false,
+                "paymentMethod": "Cash",
+                "tenderInfo": null,
+                "status": null,
+                "captureDetails": null,
+                "settlementDetails": null
+            }
+        ],
+        "orderType": "cc5d2fa4-63c0-40da-ac87-a2c6db971744",
+        "orderTypeLabel": "Dine In",
+        "orderIdentity": {
+            "orderToken": "170014",
+            "name": "",
+            "phone": null,
+            "phoneCountryCode": null,
+            "email": "",
+            "tableTent": "",
+            "posOrderToken": "18",
+            "randomlyGeneratedFields": [],
+            "deviceImei": ""
+        },
+        "redeemedRewards": [],
+        "receiptImage": "https://test.console.grubbrr.com/order-receipt/2ciseK5je62H1KX0teVAM7G0H1r44r0ybPeOa5qHbC_nqvMSbK_W7MLoRlfNuxBOSTTtrvFy3jHV4XEg5SxjTzutGp6hB0qSYPN5aQIAGUF6GzzhmFieU0MuGRyRfzst",
+        "gusetCheckImageLink": "https://ik.imagekit.io/oz4zkedcbp/nge-img-test/location/org-tf5i2lw1qz/loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e/guestCheckCode-dbb1ee7e-0f3e-474d-8cbc-6ceeda26d580/b72d93ead3e680b6149a1ee10658ad87175e3a907abcbea706e57ef87ceadbc9.jpg",
+        "kioskSource": {
+            "kioskId": "ksk-42238075",
+            "name": "Dhruvit",
+            "kioskMode": 3
+        },
+        "discounts": [],
+        "isFailedToSendToPos": false,
+        "posSubmissionStatus": 1,
+        "channel": 0,
+        "clientIpAddress": "170.55.38.166",
+        "isTestOrder": true,
+        "businessDate": "2026-04-02T00:00:00",
+        "loyaltyUser": null,
+        "guestCount": 1,
+        "upsellInformation": {
+            "upsellPrompt": [
+                {
+                    "promptId": "5fe2c2cb-fd30-4a68-b5bb-704707efd4d1",
+                    "offeredItems": [
+                        {
+                            "itemId": "itm-95172b19-41bd-479b-83df-091e962ddb52",
+                            "upsellGroupId": "upslg-d64b53a8-55e7-425c-8750-69fe4469d19f",
+                            "upsellLevel": "Order",
+                            "promptItemId": ""
+                        }
+                    ],
+                    "selectedItems": [],
+                    "promptTime": "2026-04-02T21:01:39Z",
+                    "modalVersion": ""
+                }
+            ],
+            "modifierImpressions": [
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
+                            "score": 0,
+                            "position": 0,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                            "score": 0,
+                            "position": 1,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
+                            "score": 0,
+                            "position": 2,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33",
+                            "score": 0,
+                            "position": 3,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d",
+                            "score": 0,
+                            "position": 4,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                }
+            ],
+            "modifierInteractions": []
+        },
+        "orderReceiptUrl": "https://test.console.grubbrr.com/order-receipt/2ciseK5je62H1KX0teVAM7G0H1r44r0ybPeOa5qHbC_nqvMSbK_W7MLoRlfNuxBOSTTtrvFy3jHV4XEg5SxjTzutGp6hB0qSYPN5aQIAGUF6GzzhmFieU0MuGRyRfzst",
+        "loyaltyProviderTransactionId": "",
+        "loyaltyProviderPaymentTransactionId": "",
+        "orderReceiptPdfUrl": "/location/org-tf5i2lw1qz/loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e/dbb1ee7e-0f3e-474d-8cbc-6ceeda26d580/882f3d0cab32c1b814aeeae6ccf57635e769283f56fd4eedfeca463aa1f84a39.pdf",
+        "receiptDetails": {
+            "orderLanguage": "en",
+            "guestCheckCode": null,
+            "guestCheckCodePrefaceText": "Earn Points for this order by using this code on the loyalty app",
+            "genesisFiscalFields": null,
+            "feedBackUrl": null,
+            "loyaltyEarnedPoints": "",
+            "loyaltyHeader": "",
+            "loyaltyFooter": "",
+            "receiptPrintingType": "Barcode",
+            "items": []
+        },
+        "concepts": [],
+        "conceptName": "",
+        "conceptId": "",
+        "orderId": "ord-dbb1ee7e-0f3e-474d-8cbc-6ceeda26d580",
+        "orderDate": "2026-04-02T21:03:33.8426135Z",
+        "locationId": "loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e",
+        "id": "ordevt-W6QVJKYYYIVZSRIA",
+        "type": "order-placed",
+        "_rid": "6ZocAK1z8AcVTxQAAAAAAA==",
+        "_self": "dbs/6ZocAA==/colls/6ZocAK1z8Ac=/docs/6ZocAK1z8AcVTxQAAAAAAA==/",
+        "_etag": "\"e3005cd6-0000-0100-0000-69ced9a90000\"",
+        "_attachments": "attachments/",
+        "_ts": 1775163817
+    },
+    {
+        "kioskSessionId": "U1QT5OXZ3GRW48Y6",
+        "totals": {
+            "subTotal": 18.04,
+            "tax": 3.07,
+            "tip": 0,
+            "total": 21.11,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": [
+                {
+                    "label": "State Tax",
+                    "amount": 0,
+                    "taxId": "3",
+                    "total": 0
+                },
+                {
+                    "label": "Reduced State Tax",
+                    "amount": 0,
+                    "taxId": "2",
+                    "total": 0
+                },
+                {
+                    "label": "Municipal Tax",
+                    "amount": 0,
+                    "taxId": "1",
+                    "total": 0
+                }
+            ]
+        },
+        "totalsCents": {
+            "subTotal": 1804,
+            "tax": 307,
+            "tip": 0,
+            "total": 2111,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": [
+                {
+                    "label": "State Tax",
+                    "amount": 0,
+                    "taxId": "3",
+                    "total": 0
+                },
+                {
+                    "label": "Reduced State Tax",
+                    "amount": 0,
+                    "taxId": "2",
+                    "total": 0
+                },
+                {
+                    "label": "Municipal Tax",
+                    "amount": 0,
+                    "taxId": "1",
+                    "total": 0
+                }
+            ]
+        },
+        "items": [
+            {
+                "orderItemId": "orditm-SN1klTEST2",
+                "categoryId": "cat-298def8f-602f-4402-a53a-31efe6ac6f5e",
+                "categoryName": "Pizza",
+                "categoryPosId": "",
+                "menuItemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                "name": "Margherita",
+                "menuItemPosId": "",
+                "localizedName": {
+                    "translations": {
+                        "en": "",
+                        "es": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
+                        "modifierPosId": null,
+                        "name": "Bacon",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "لحم مقدد",
+                                "de": "Bacon",
+                                "en": "Bacon",
+                                "es": "Bacon",
+                                "fr": "Bacon",
+                                "ja": "ベーコン",
+                                "nl": "Spek",
+                                "ar-EG": "لحم مقدد"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 2.49,
+                        "totalPrice": 2.49,
+                        "unitPriceCents": 249,
+                        "totalPriceCents": 249,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Add on",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Añadir"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                        "modifierPosId": null,
+                        "name": "Veggie",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "نباتي",
+                                "de": "Gemüse",
+                                "en": "Veggie",
+                                "es": "Veggie",
+                                "fr": "Végétariens",
+                                "ja": "ベジ",
+                                "nl": "Veggie",
+                                "ar-EG": "نباتي"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0.3,
+                        "totalPrice": 0.3,
+                        "unitPriceCents": 30,
+                        "totalPriceCents": 30,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Add on",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Añadir"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
+                        "modifierPosId": null,
+                        "name": "Small",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "صغير",
+                                "de": "Klein",
+                                "en": "Small",
+                                "es": "Pequeño",
+                                "fr": "Petit",
+                                "ja": "小さい",
+                                "nl": "Klein",
+                                "ar-EG": "صغير"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0.8,
+                        "totalPrice": 0.8,
+                        "unitPriceCents": 80,
+                        "totalPriceCents": 80,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Make Your Size",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Haz tu talla"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-34a41569-3913-44f2-ba1c-909dbc130b29",
+                        "modifierPosId": null,
+                        "name": "Medium",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "الوسيط",
+                                "de": "Medium",
+                                "en": "Medium",
+                                "es": "Medio",
+                                "fr": "Moyen",
+                                "ja": "メディア",
+                                "nl": "Medium",
+                                "ar-EG": "الوسيط"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 1,
+                        "totalPrice": 1,
+                        "unitPriceCents": 100,
+                        "totalPriceCents": 100,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Make Your Size",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Haz tu talla"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-85ff1f8a-b2cf-4fd0-a027-390d18687f06",
+                        "modifierPosId": null,
+                        "name": "American",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "أمريكي",
+                                "de": "Amerikaner",
+                                "en": "American",
+                                "es": "Americano",
+                                "fr": "Américain",
+                                "ja": "アメリカ",
+                                "nl": "Amerikaans",
+                                "ar-EG": "أمريكي"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 5,
+                        "totalPrice": 5,
+                        "unitPriceCents": 500,
+                        "totalPriceCents": 500,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-9c2f882c-0918-4b82-99ab-50caefd3ba1a",
+                                "modifierPosId": null,
+                                "name": "silce",
+                                "localizedName": {
+                                    "translations": {
+                                        "ar": "سيلسي",
+                                        "de": "Silce",
+                                        "en": "silce",
+                                        "es": "Silce",
+                                        "fr": "Silce",
+                                        "ja": "シルセ",
+                                        "nl": "Silce",
+                                        "ar-EG": "سيلسي"
+                                    }
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "american",
+                                "localizedModifierGroupName": {
+                                    "translations": {
+                                        "es": "americano"
+                                    }
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Testing Cheese ( modifier Grp)",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Queso de prueba (modificador Grp)"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-a3a01ab4-50b5-47d6-b6d9-88e8ae3a33dd",
+                        "modifierPosId": null,
+                        "name": "Beans",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "الفاصوليا",
+                                "de": "Bohnen",
+                                "en": "Beans",
+                                "es": "Frijoles",
+                                "fr": "Haricots",
+                                "ja": "豆",
+                                "nl": "Bonen",
+                                "ar-EG": "الفاصوليا"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Topping",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Topping"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-feb4196e-1d95-49fd-9f81-6e9b3f2b3678",
+                        "modifierPosId": null,
+                        "name": "egg",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "بيضة",
+                                "de": "Ei",
+                                "en": "egg",
+                                "es": "huevo",
+                                "fr": "œuf",
+                                "ja": "卵",
+                                "nl": "Ei",
+                                "ar-EG": "بيضة"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Topping",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Topping"
+                            }
+                        }
+                    }
+                ],
+                "itemPrice": 5.25,
+                "unitPrice": 18.04,
+                "totalPrice": 18.04,
+                "unitPriceCents": 1804,
+                "totalPriceCents": 1804,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "fxGnbhxvK65pihGOxhIz6",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            }
+        ],
+        "combos": [],
+        "paymentDetails": [
+            {
+                "amount": 21.11,
+                "paymentIntegrationId": "payment-integration-cash",
+                "transactionId": "",
+                "paymentIntegrationLabel": "Cash",
+                "tenderId": "",
+                "paymentCardName": "",
+                "paymentCardNumber": "",
+                "isAmazonOnePayment": false,
+                "paymentMethod": "Cash",
+                "tenderInfo": null,
+                "status": null,
+                "captureDetails": null,
+                "settlementDetails": null
+            }
+        ],
+        "orderType": "cc5d2fa4-63c0-40da-ac87-a2c6db971744",
+        "orderTypeLabel": "Dine In",
+        "orderIdentity": {
+            "orderToken": "170003",
+            "name": "",
+            "phone": null,
+            "phoneCountryCode": null,
+            "email": "",
+            "tableTent": "",
+            "posOrderToken": "17",
+            "randomlyGeneratedFields": [],
+            "deviceImei": ""
+        },
+        "redeemedRewards": [],
+        "receiptImage": "https://test.console.grubbrr.com/order-receipt/Lbd7CLfFs9weGvlSyb6zDu6DjeuRWlpchQfPvaj5QIEGbQic9OaCY99Jqc6fW5o3ZMNMM2GWYCV5CkcaFHhdcRdIK77xvvgo68fb3S6pp-X9idtLqcp3c1RmjFUFm9vE",
+        "gusetCheckImageLink": "https://ik.imagekit.io/oz4zkedcbp/nge-img-test/location/org-tf5i2lw1qz/loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e/guestCheckCode-06008997-429b-40b1-8ecf-aa3a0774a49c/14e5bc0fa964dbc0d11442a59ca42258f615d1be069a5da815b24c64103fb644.jpg",
+        "kioskSource": {
+            "kioskId": "ksk-42238075",
+            "name": "Dhruvit",
+            "kioskMode": 3
+        },
+        "discounts": [],
+        "isFailedToSendToPos": false,
+        "posSubmissionStatus": 1,
+        "channel": 0,
+        "clientIpAddress": "170.55.38.166",
+        "isTestOrder": true,
+        "businessDate": "2026-04-02T00:00:00",
+        "loyaltyUser": null,
+        "guestCount": 1,
+        "upsellInformation": {
+            "upsellPrompt": [
+                {
+                    "promptId": "285392c9-7676-4a3a-ab50-285aad14cd95",
+                    "offeredItems": [
+                        {
+                            "itemId": "itm-95172b19-41bd-479b-83df-091e962ddb52",
+                            "upsellGroupId": "upslg-d64b53a8-55e7-425c-8750-69fe4469d19f",
+                            "upsellLevel": "Order",
+                            "promptItemId": ""
+                        }
+                    ],
+                    "selectedItems": [],
+                    "promptTime": "2026-04-02T20:17:03Z",
+                    "modalVersion": ""
+                }
+            ],
+            "modifierImpressions": [
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-667d144f-1609-4445-a00e-14385a589632",
+                            "score": 0,
+                            "position": 0,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                            "score": 0,
+                            "position": 1,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
+                            "score": 0,
+                            "position": 2,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33",
+                            "score": 0,
+                            "position": 3,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d",
+                            "score": 0,
+                            "position": 4,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-97be03f7-768e-44b5-91c3-bd613b93ac0e",
+                            "score": 0,
+                            "position": 0,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
+                            "score": 0,
+                            "position": 1,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-34a41569-3913-44f2-ba1c-909dbc130b29",
+                            "score": 0,
+                            "position": 2,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                            "score": 0,
+                            "position": 0,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-85ff1f8a-b2cf-4fd0-a027-390d18687f06",
+                            "score": 0,
+                            "position": 1,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-cd69f484-f7a0-4bd2-b536-ca6463ad69d6",
+                            "score": 0,
+                            "position": 2,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-ba2bfe83-e648-4f0a-a16b-f3e32a070d69",
+                            "score": 0,
+                            "position": 3,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-3e9f2fba-fd1c-44f8-9c2d-c687e0cdb010_modfr-228aff62-842c-42c9-a135-6dd58f894e86",
+                            "score": 0,
+                            "position": 0,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-3e9f2fba-fd1c-44f8-9c2d-c687e0cdb010_modfr-8d7924f9-3228-4e85-a84f-bad3a1995e36",
+                            "score": 0,
+                            "position": 1,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597_modfr-9c2f882c-0918-4b82-99ab-50caefd3ba1a",
+                            "score": 0,
+                            "position": 0,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597_modfr-57e754c8-0faa-4b2c-83c1-b71874ce5a68",
+                            "score": 0,
+                            "position": 1,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                }
+            ],
+            "modifierInteractions": [
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-667d144f-1609-4445-a00e-14385a589632",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
+                    "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-34a41569-3913-44f2-ba1c-909dbc130b29",
+                    "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-85ff1f8a-b2cf-4fd0-a027-390d18687f06",
+                    "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                    "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                    "selectionType": "optional",
+                    "action": "removed",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                    "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                    "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                    "selectionType": "optional",
+                    "action": "removed",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                    "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                    "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                    "selectionType": "optional",
+                    "action": "removed",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597_modfr-9c2f882c-0918-4b82-99ab-50caefd3ba1a",
+                    "modifierGroupId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                }
+            ]
+        },
+        "orderReceiptUrl": "https://test.console.grubbrr.com/order-receipt/Lbd7CLfFs9weGvlSyb6zDu6DjeuRWlpchQfPvaj5QIEGbQic9OaCY99Jqc6fW5o3ZMNMM2GWYCV5CkcaFHhdcRdIK77xvvgo68fb3S6pp-X9idtLqcp3c1RmjFUFm9vE",
+        "loyaltyProviderTransactionId": "",
+        "loyaltyProviderPaymentTransactionId": "",
+        "orderReceiptPdfUrl": "/location/org-tf5i2lw1qz/loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e/06008997-429b-40b1-8ecf-aa3a0774a49c/d8d8abe176b7ffae01b219d07845736faac5243671dd1aa836e08073c8398bfc.pdf",
+        "receiptDetails": {
+            "orderLanguage": "en",
+            "guestCheckCode": null,
+            "guestCheckCodePrefaceText": "Earn Points for this order by using this code on the loyalty app",
+            "genesisFiscalFields": null,
+            "feedBackUrl": null,
+            "loyaltyEarnedPoints": "",
+            "loyaltyHeader": "",
+            "loyaltyFooter": "",
+            "receiptPrintingType": "Barcode",
+            "items": []
+        },
+        "concepts": [],
+        "conceptName": "",
+        "conceptId": "",
+        "orderId": "ord-06008997-429b-40b1-8ecf-aa3a0774a49c",
+        "orderDate": "2026-04-02T20:20:58.2224125Z",
+        "locationId": "loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e",
+        "id": "ordevt-U1QT5OXZ3GRW48Y6",
+        "type": "order-placed",
+        "_rid": "6ZocAK1z8AcTTxQAAAAAAA==",
+        "_self": "dbs/6ZocAA==/colls/6ZocAK1z8Ac=/docs/6ZocAK1z8AcTTxQAAAAAAA==/",
+        "_etag": "\"e300d945-0000-0100-0000-69cecfac0000\"",
+        "_attachments": "attachments/",
+        "_ts": 1775161260
+    },
+    {
+        "kioskSessionId": "8QIJH9CFJ4WXUN2N",
+        "totals": {
+            "subTotal": 18.04,
+            "tax": 3.07,
+            "tip": 0,
+            "total": 21.11,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": [
+                {
+                    "label": "State Tax",
+                    "amount": 0,
+                    "taxId": "3",
+                    "total": 0
+                },
+                {
+                    "label": "Reduced State Tax",
+                    "amount": 0,
+                    "taxId": "2",
+                    "total": 0
+                },
+                {
+                    "label": "Municipal Tax",
+                    "amount": 0,
+                    "taxId": "1",
+                    "total": 0
+                }
+            ]
+        },
+        "totalsCents": {
+            "subTotal": 1804,
+            "tax": 307,
+            "tip": 0,
+            "total": 2111,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": [
+                {
+                    "label": "State Tax",
+                    "amount": 0,
+                    "taxId": "3",
+                    "total": 0
+                },
+                {
+                    "label": "Reduced State Tax",
+                    "amount": 0,
+                    "taxId": "2",
+                    "total": 0
+                },
+                {
+                    "label": "Municipal Tax",
+                    "amount": 0,
+                    "taxId": "1",
+                    "total": 0
+                }
+            ]
+        },
+        "items": [
+            {
+                "orderItemId": "orditm-kpt6z6UhAs",
+                "categoryId": "cat-298def8f-602f-4402-a53a-31efe6ac6f5e",
+                "categoryName": "Pizza",
+                "categoryPosId": "",
+                "menuItemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                "name": "Margherita",
+                "menuItemPosId": "",
+                "localizedName": {
+                    "translations": {
+                        "en": "",
+                        "es": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
+                        "modifierPosId": null,
+                        "name": "Bacon",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "لحم مقدد",
+                                "de": "Bacon",
+                                "en": "Bacon",
+                                "es": "Bacon",
+                                "fr": "Bacon",
+                                "ja": "ベーコン",
+                                "nl": "Spek",
+                                "ar-EG": "لحم مقدد"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 2.49,
+                        "totalPrice": 2.49,
+                        "unitPriceCents": 249,
+                        "totalPriceCents": 249,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Add on",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Añadir"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                        "modifierPosId": null,
+                        "name": "Veggie",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "نباتي",
+                                "de": "Gemüse",
+                                "en": "Veggie",
+                                "es": "Veggie",
+                                "fr": "Végétariens",
+                                "ja": "ベジ",
+                                "nl": "Veggie",
+                                "ar-EG": "نباتي"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0.3,
+                        "totalPrice": 0.3,
+                        "unitPriceCents": 30,
+                        "totalPriceCents": 30,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Add on",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Añadir"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
+                        "modifierPosId": null,
+                        "name": "Small",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "صغير",
+                                "de": "Klein",
+                                "en": "Small",
+                                "es": "Pequeño",
+                                "fr": "Petit",
+                                "ja": "小さい",
+                                "nl": "Klein",
+                                "ar-EG": "صغير"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0.8,
+                        "totalPrice": 0.8,
+                        "unitPriceCents": 80,
+                        "totalPriceCents": 80,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Make Your Size",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Haz tu talla"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                        "modifierPosId": null,
+                        "name": "Testing Cheddar Cheese",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "اختبار جبن الشيدر",
+                                "de": "Test von Cheddarkäse",
+                                "en": "Testing Cheddar Cheese",
+                                "es": "Probando el queso cheddar",
+                                "fr": "Test du fromage cheddar",
+                                "ja": "チェダーチーズのテスト",
+                                "nl": "Cheddar kaas testen",
+                                "ar-EG": "اختبار جبن الشيدر"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Testing Cheese ( modifier Grp)",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Queso de prueba (modificador Grp)"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-cd69f484-f7a0-4bd2-b536-ca6463ad69d6",
+                        "modifierPosId": null,
+                        "name": "Testing Mozzarella",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "اختبار موزاريلا",
+                                "de": "Mozzarella testen",
+                                "en": "Testing Mozzarella",
+                                "es": "Probando la mozzarella",
+                                "fr": "Test de la mozzarella",
+                                "ja": "モッツァレラのテスト",
+                                "nl": "Mozzarella testen",
+                                "ar-EG": "اختبار موزاريلا"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 1,
+                        "totalPrice": 1,
+                        "unitPriceCents": 100,
+                        "totalPriceCents": 100,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-cca74f10-eb49-4b70-a393-0b3f28f56646",
+                                "modifierPosId": null,
+                                "name": "Shredded",
+                                "localizedName": {
+                                    "translations": {
+                                        "ar": "ممزق",
+                                        "de": "Zerrissen",
+                                        "en": "Shredded",
+                                        "es": "Destrozados",
+                                        "fr": "Déchiquetés",
+                                        "ja": "シュレッデッド",
+                                        "nl": "Verscheurd",
+                                        "ar-EG": "ممزق"
+                                    }
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Mozzarella",
+                                "localizedModifierGroupName": {
+                                    "translations": {
+                                        "es": "Mozzarella"
+                                    }
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Testing Cheese ( modifier Grp)",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Queso de prueba (modificador Grp)"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-ba2bfe83-e648-4f0a-a16b-f3e32a070d69",
+                        "modifierPosId": null,
+                        "name": "Papper jack",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "بابر جاك",
+                                "de": "Papper Jack",
+                                "en": "Papper jacket",
+                                "es": "Jacko Papper",
+                                "fr": "Crique papper",
+                                "ja": "パッパージャック",
+                                "nl": "Papper jack",
+                                "ar-EG": "بابر جاك"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 3,
+                        "totalPrice": 3,
+                        "unitPriceCents": 300,
+                        "totalPriceCents": 300,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-bca99758-24ec-452c-a82c-013be817abab",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-c05421c5-75e4-4eba-9b85-904e403bfd62",
+                                "modifierPosId": null,
+                                "name": "Shredded",
+                                "localizedName": {
+                                    "translations": {
+                                        "ar": "ممزق",
+                                        "de": "Zerrissen",
+                                        "en": "Shredded",
+                                        "es": "Destrozados",
+                                        "fr": "Déchiquetés",
+                                        "ja": "シュレッデッド",
+                                        "nl": "Verscheurd",
+                                        "ar-EG": "ممزق"
+                                    }
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Papper jack",
+                                "localizedModifierGroupName": {
+                                    "translations": {
+                                        "es": "Gato Papper"
+                                    }
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Testing Cheese ( modifier Grp)",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Queso de prueba (modificador Grp)"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-a3a01ab4-50b5-47d6-b6d9-88e8ae3a33dd",
+                        "modifierPosId": null,
+                        "name": "Beans",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "الفاصوليا",
+                                "de": "Bohnen",
+                                "en": "Beans",
+                                "es": "Frijoles",
+                                "fr": "Haricots",
+                                "ja": "豆",
+                                "nl": "Bonen",
+                                "ar-EG": "الفاصوليا"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Topping",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Topping"
+                            }
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-feb4196e-1d95-49fd-9f81-6e9b3f2b3678",
+                        "modifierPosId": null,
+                        "name": "egg",
+                        "localizedName": {
+                            "translations": {
+                                "ar": "بيضة",
+                                "de": "Ei",
+                                "en": "egg",
+                                "es": "huevo",
+                                "fr": "œuf",
+                                "ja": "卵",
+                                "nl": "Ei",
+                                "ar-EG": "بيضة"
+                            }
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Topping",
+                        "localizedModifierGroupName": {
+                            "translations": {
+                                "es": "Topping"
+                            }
+                        }
+                    }
+                ],
+                "itemPrice": 5.25,
+                "unitPrice": 18.04,
+                "totalPrice": 18.04,
+                "unitPriceCents": 1804,
+                "totalPriceCents": 1804,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "QVjrRh3jKkpSKJITUOmAZ",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            }
+        ],
+        "combos": [],
+        "paymentDetails": [
+            {
+                "amount": 21.11,
+                "paymentIntegrationId": "payment-integration-cash",
+                "transactionId": "",
+                "paymentIntegrationLabel": "Cash",
+                "tenderId": "",
+                "paymentCardName": "",
+                "paymentCardNumber": "",
+                "isAmazonOnePayment": false,
+                "paymentMethod": "Cash",
+                "tenderInfo": null,
+                "status": null,
+                "captureDetails": null,
+                "settlementDetails": null
+            }
+        ],
+        "orderType": "cc5d2fa4-63c0-40da-ac87-a2c6db971744",
+        "orderTypeLabel": "Dine In",
+        "orderIdentity": {
+            "orderToken": "170001",
+            "name": "",
+            "phone": null,
+            "phoneCountryCode": null,
+            "email": "",
+            "tableTent": "",
+            "posOrderToken": "16",
+            "randomlyGeneratedFields": [],
+            "deviceImei": ""
+        },
+        "redeemedRewards": [],
+        "receiptImage": "https://test.console.grubbrr.com/order-receipt/y6YtnbOvmhyjrY5Mnsb4RhFkEa70qWZ98ZuTOlnzh9hWHXx4pokwqSpeFuBh3M6aNOA7trJb_OQatvqtIUMEtU2uhkbwMyIqzno_PE_Yejue5BT0t9-ZPcwheOvSHfSu",
+        "gusetCheckImageLink": "https://ik.imagekit.io/oz4zkedcbp/nge-img-test/location/org-tf5i2lw1qz/loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e/guestCheckCode-f8342dd9-5816-4882-b024-52d2587a581d/f0341840436043b2384b61e20f3d989f82274630cea5eb3c1ab7984ba4b56fc5.jpg",
+        "kioskSource": {
+            "kioskId": "ksk-42238075",
+            "name": "Dhruvit",
+            "kioskMode": 3
+        },
+        "discounts": [],
+        "isFailedToSendToPos": false,
+        "posSubmissionStatus": 1,
+        "channel": 0,
+        "clientIpAddress": "170.55.38.166",
+        "isTestOrder": true,
+        "businessDate": "2026-04-02T00:00:00",
+        "loyaltyUser": null,
+        "guestCount": 1,
+        "upsellInformation": {
+            "upsellPrompt": [
+                {
+                    "promptId": "dd5a319a-d5c8-4b60-a26d-f7f8733fc20d",
+                    "offeredItems": [
+                        {
+                            "itemId": "itm-95172b19-41bd-479b-83df-091e962ddb52",
+                            "upsellGroupId": "upslg-d64b53a8-55e7-425c-8750-69fe4469d19f",
+                            "upsellLevel": "Order",
+                            "promptItemId": ""
+                        }
+                    ],
+                    "selectedItems": [],
+                    "promptTime": "2026-04-02T20:15:52Z",
+                    "modalVersion": ""
+                }
+            ],
+            "modifierImpressions": [
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-667d144f-1609-4445-a00e-14385a589632",
+                            "score": 0,
+                            "position": 0,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                            "score": 0,
+                            "position": 1,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
+                            "score": 0,
+                            "position": 2,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33",
+                            "score": 0,
+                            "position": 3,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d",
+                            "score": 0,
+                            "position": 4,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-97be03f7-768e-44b5-91c3-bd613b93ac0e",
+                            "score": 0,
+                            "position": 0,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
+                            "score": 0,
+                            "position": 1,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-34a41569-3913-44f2-ba1c-909dbc130b29",
+                            "score": 0,
+                            "position": 2,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
+                            "score": 0,
+                            "position": 0,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-85ff1f8a-b2cf-4fd0-a027-390d18687f06",
+                            "score": 0,
+                            "position": 1,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-cd69f484-f7a0-4bd2-b536-ca6463ad69d6",
+                            "score": 0,
+                            "position": 2,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-ba2bfe83-e648-4f0a-a16b-f3e32a070d69",
+                            "score": 0,
+                            "position": 3,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-3e9f2fba-fd1c-44f8-9c2d-c687e0cdb010_modfr-228aff62-842c-42c9-a135-6dd58f894e86",
+                            "score": 0,
+                            "position": 0,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-3e9f2fba-fd1c-44f8-9c2d-c687e0cdb010_modfr-8d7924f9-3228-4e85-a84f-bad3a1995e36",
+                            "score": 0,
+                            "position": 1,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7_modfr-c00bce5e-dd37-40c6-9b47-4a39eb0e47fa",
+                            "score": 0,
+                            "position": 0,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7_modfr-cca74f10-eb49-4b70-a393-0b3f28f56646",
+                            "score": 0,
+                            "position": 1,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "selectionType": "default",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "strategy": "default",
+                    "recommendations": [
+                        {
+                            "modifierId": "modgrp-bca99758-24ec-452c-a82c-013be817abab_modfr-760d2a8d-8803-4a83-b55e-db9012e8bed1",
+                            "score": 0,
+                            "position": 0,
+                            "selected": null,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        },
+                        {
+                            "modifierId": "modgrp-bca99758-24ec-452c-a82c-013be817abab_modfr-c05421c5-75e4-4eba-9b85-904e403bfd62",
+                            "score": 0,
+                            "position": 1,
+                            "selected": true,
+                            "preDeselected": null,
+                            "confirmedRemoved": null,
+                            "preSelected": null
+                        }
+                    ],
+                    "context": null
+                }
+            ],
+            "modifierInteractions": [
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-667d144f-1609-4445-a00e-14385a589632",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
+                    "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
+                    "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-cd69f484-f7a0-4bd2-b536-ca6463ad69d6",
+                    "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-ba2bfe83-e648-4f0a-a16b-f3e32a070d69",
+                    "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
+                    "selectionType": "optional",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7_modfr-c00bce5e-dd37-40c6-9b47-4a39eb0e47fa",
+                    "modifierGroupId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7",
+                    "selectionType": "required",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7_modfr-cca74f10-eb49-4b70-a393-0b3f28f56646",
+                    "modifierGroupId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7",
+                    "selectionType": "required",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                },
+                {
+                    "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
+                    "modifierId": "modgrp-bca99758-24ec-452c-a82c-013be817abab_modfr-c05421c5-75e4-4eba-9b85-904e403bfd62",
+                    "modifierGroupId": "modgrp-bca99758-24ec-452c-a82c-013be817abab",
+                    "selectionType": "required",
+                    "action": "added",
+                    "nestingDepth": 0,
+                    "parentModifierId": null,
+                    "recordedAt": null
+                }
+            ]
+        },
+        "orderReceiptUrl": "https://test.console.grubbrr.com/order-receipt/y6YtnbOvmhyjrY5Mnsb4RhFkEa70qWZ98ZuTOlnzh9hWHXx4pokwqSpeFuBh3M6aNOA7trJb_OQatvqtIUMEtU2uhkbwMyIqzno_PE_Yejue5BT0t9-ZPcwheOvSHfSu",
+        "loyaltyProviderTransactionId": "",
+        "loyaltyProviderPaymentTransactionId": "",
+        "orderReceiptPdfUrl": "/location/org-tf5i2lw1qz/loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e/f8342dd9-5816-4882-b024-52d2587a581d/6a15d52b123a3907e8b54e7a57da631da57be15ac263ac991987a53caadab5cb.pdf",
+        "receiptDetails": {
+            "orderLanguage": "en",
+            "guestCheckCode": null,
+            "guestCheckCodePrefaceText": "Earn Points for this order by using this code on the loyalty app",
+            "genesisFiscalFields": null,
+            "feedBackUrl": "https://test.console.grubbrr.com/survey/eyJPcmRlcklkIjoib3JkZXZ0LThRSUpIOUNGSjRXWFVOMk4iLCJMb2NhdGlvbklkIjoibG9jLWIzMGY1NWI0LWZjMGItNDBiNy1hZjAwLTI5YmIyZjY1M2MxZSIsIk9yZGVyRGF0ZSI6IjIwMjYtMDQtMDJUMjA6MTY6MDUuMTk5ODgxN1oifQ==",
+            "loyaltyEarnedPoints": "",
+            "loyaltyHeader": "",
+            "loyaltyFooter": "",
+            "receiptPrintingType": "Barcode",
+            "items": []
+        },
+        "concepts": [],
+        "conceptName": "",
+        "conceptId": "",
+        "orderId": "ord-f8342dd9-5816-4882-b024-52d2587a581d",
+        "orderDate": "2026-04-02T20:16:05.1998817Z",
+        "locationId": "loc-b30f55b4-fc0b-40b7-af00-29bb2f653c1e",
+        "id": "ordevt-8QIJH9CFJ4WXUN2N",
+        "type": "order-placed",
+        "_rid": "6ZocAK1z8AcRTxQAAAAAAA==",
+        "_self": "dbs/6ZocAA==/colls/6ZocAK1z8Ac=/docs/6ZocAK1z8AcRTxQAAAAAAA==/",
+        "_etag": "\"e3009033-0000-0100-0000-69cece880000\"",
+        "_attachments": "attachments/",
+        "_ts": 1775160968
+    }
+]
