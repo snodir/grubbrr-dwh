@@ -47,6 +47,8 @@ FROM trxn_by_day_parts as th
 GROUP BY th.day_parts;
 ORDER BY total_orders DESC;
 
+SELECT count(*) FROM fact.transactionheader; --P=2,900,940
+SELECT count(*) FROM fact.transactionitem;	 --P=5,124,830
 
 SELECT *
 FROM dim.organization
