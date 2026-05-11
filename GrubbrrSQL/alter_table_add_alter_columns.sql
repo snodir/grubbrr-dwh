@@ -737,8 +737,10 @@ $body$;
 
 --CALL dim.usp_grubbrr_install_base();
 CREATE OR REPLACE PROCEDURE dim.usp_grubbrr_install_base()
-LANGUAGE sql
+LANGUAGE plpgsql
 AS $BODY$
+
+BEGIN
 
 TRUNCATE table dim.vw_grubbrrinstallbase;
 
@@ -1072,8 +1074,11 @@ AND kiosk_mode = 'Live';
 --AND is_test_kiosk = False
 --AND is_test_mode_on = False;
 
+END;
 $BODY$;
 
+ALTER PROCEDURE dim.usp_grubbrr_install_base_all_devices()
+    OWNER TO citus;
 
 -- PROCEDURE: fact.usp_update_datetime_fields()
 

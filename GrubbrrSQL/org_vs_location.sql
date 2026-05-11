@@ -17,8 +17,28 @@ SELECT * FROM dim.kioskdetails;
 
 SELECT * FROM dim.kiosk;
 
+SELECT DISTINCT o.id, o.name, k.kioskid, k.kioskname, o.organizationtype, o.status,
+       CASE o.status 
+       WHEN 0 THEN 'Draft' 
+       WHEN 1 THEN 'Onboarding' 
+       WHEN 2 THEN 'Live' 
+       WHEN 3 THEN 'Cancelled' END as location_status
+FROM dim.organization as o
+INNER JOIN dim.kiosk as k 
+        ON o.id = k.locationid
+WHERE o.active = True 
+  AND o.status = 2
+  AND k.istestkiosk = False;
+
+SELECT * FROM dim.kiosk;
+
 --/TRUNCATE TABLE dim.locationcatalog;
 
+CASE dd.kiosk_mode 
+WHEN 1 THEN 'Live' 
+WHEN 2 THEN 'Demo' 
+WHEN 3 THEN 'Test' 
+END as kiosk_mode,
 
 SELECT * FROM dim.organization
 WHERE 1=1 
@@ -53,7 +73,7 @@ group by locationid
 --INSERT INTO dim.organization(id, name, address1, address2, city, state, zipcode, timezone, coordinates)
 select locationid, locationname, address1, address2, city,
        state, zipcode, timezone, 
-       case when latitude = '' or latitude is NULL or longitude = '' or longitude is NULL then NULL 
+       case WHEN latitude = '' or latitude is NULL or longitude = '' or longitude is NULL then NULL 
             else concat('(', latitude, ',', longitude, ')') end as coordinates
 from dim.location as l
 WHERE not exists (SELECT id FROM dim.organization as o where o.id = l.locationid)
@@ -61,7 +81,7 @@ WHERE not exists (SELECT id FROM dim.organization as o where o.id = l.locationid
 
 --INSERT INTO dim.organizationlocation(organizationid, locationid, locationname)
 select companyid, locationid, locationname,
-       address1, address2, city, state, zipcode, timezone, case when latitude = '' or latitude is NULL or longitude = '' or longitude is NULL then NULL else concat('(', latitude, ',', longitude, ')') end as coordinates
+       address1, address2, city, state, zipcode, timezone, case WHEN latitude = '' or latitude is NULL or longitude = '' or longitude is NULL then NULL else concat('(', latitude, ',', longitude, ')') end as coordinates
 from dim.location as l
 WHERE not exists (SELECT * FROM dim.organizationlocation as ol where ol.locationid = l.locationid and ol.organizationid = l.companyid)
 
@@ -165,7 +185,7 @@ SELECT distinct ol.organizationid,
        ol.locationid,
        ol.locationname,
        ol.organizationtype,
-       sum(case when o.roundupforcharity = True then 1 else 0 end) over(partition by ol.organizationid) as org_level_roundup_for_charity,
+       sum(case WHEN o.roundupforcharity = True then 1 else 0 end) over(partition by ol.organizationid) as org_level_roundup_for_charity,
        count(*) over(partition by ol.organizationid) as count_by_org --locationid
 FROM dim.organizationlocation as ol --mapping of organizations and its locations 2,570
 INNER JOIN dim.organization as o 
@@ -175,7 +195,7 @@ where 1=1
 --order by count_by_org desc, ol.organizationid
 )
 UPDATE dim.organizationlocation
-   SET roundupforcharity = case when cte.org_level_roundup_for_charity > 0 then True else False end
+   SET roundupforcharity = case WHEN cte.org_level_roundup_for_charity > 0 then True else False end
 FROM cte 
 WHERE organizationlocation.organizationid = cte.organizationid
   AND organizationlocation.locationid = cte.locationid

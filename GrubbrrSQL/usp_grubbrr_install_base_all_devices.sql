@@ -4,180 +4,27 @@
 
 
 -- Table: dim.vw_grubbrrinstallbase
-
-
-SELECT *
-FROM dim.vw_grubbrrinstallbase_all_devices
-WHERE kiosk_mode = 'Demo';
-
-
-CREATE TABLE IF NOT EXISTS dim.vw_grubbrrinstallbase_all_devices
-(
-    organization_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    organization_name text COLLATE pg_catalog."default" NOT NULL,
-    location_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    location_name text COLLATE pg_catalog."default" NOT NULL,
-    kiosk_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
-    kiosk_name text COLLATE pg_catalog."default",
-    kiosk_hardware_id character varying(50) COLLATE pg_catalog."default",
-    kiosk_software_version character varying(50) COLLATE pg_catalog."default",
-    os_type character varying(50) COLLATE pg_catalog."default",
-    serial_number character varying(50) COLLATE pg_catalog."default",
-    is_test_mode boolean,
-    is_demo_kiosk boolean,
-    is_test_mode_on boolean,
-    last_login_time timestamp without time zone,
-    last_sync_time timestamp without time zone,
-    device_created_on timestamp without time zone,
-    device_deleted_on timestamp without time zone,
-    is_test_kiosk boolean,
-    device_type character varying(50) COLLATE pg_catalog."default",
-    is_activated boolean,
-    payment_integration_configs jsonb,
-    printer_configs jsonb,
-    kiosk_activation character varying(50) COLLATE pg_catalog."default",
-    is_kiosk_deleted boolean,
-    kiosk_mode character varying(10) COLLATE pg_catalog."default",
-    kiosk_logging integer,
-    is_goast_kiosk boolean,
-    loyalty_login_otp character varying(50) COLLATE pg_catalog."default",
-    pos_provider jsonb,
-    payment_provider jsonb,
-    payment_device_type character varying(50) COLLATE pg_catalog."default",
-    loyalty_provider jsonb,
-    scanners jsonb,
-    organization_status character varying(20) COLLATE pg_catalog."default",
-    location_status character varying(20) COLLATE pg_catalog."default",
-    is_org_active boolean,
-    is_loc_active boolean,
-    is_org_deleted boolean,
-    is_loc_deleted boolean,
-    org_go_live_date timestamp without time zone,
-    loc_go_live_date timestamp without time zone,
-    org_created_date timestamp without time zone,
-    loc_created_date timestamp without time zone,
-    is_org_ecm_enabled boolean,
-    is_org_cep_enabled boolean,
-    is_org_concessionaire_enabled boolean,
-    is_org_smart_upsells_enabled boolean,
-    is_org_feedback_survey_enabled boolean,
-    is_org_digital_menu_board_enabled boolean,
-    is_org_digital_menu_default_format_enabled boolean,
-    is_loc_ecm_enabled boolean,
-    is_loc_cep_enabled boolean,
-    is_loc_concessionaire_enabled boolean,
-    is_loc_smart_upsells_enabled boolean,
-    is_loc_feedback_survey_enabled boolean,
-    is_loc_digital_menu_board_enabled boolean,
-    is_loc_digital_menu_default_format_enabled boolean,
-    sysinserttime timestamp without time zone,
-    sysupdatetime timestamp without time zone,
-    item_special_request jsonb,
-    legal_copy_enabled boolean,
-    ada_configuration jsonb,
-    calculate_default_modifier_price boolean,
-    track_kiosk_user_behavior boolean,
-    loyalty_feature boolean,
-    pickup_flow boolean,
-    pos_auto_applied_discount boolean,
-    search_functionality_enabled boolean,
-    recent_orders_enabled boolean,
-    play_card_config jsonb,
-    round_up_for_charity boolean,
-    calories_enabled boolean,
-    scan_and_go_enabled boolean,
-    age_verification jsonb,
-    tips_enabled boolean,
-    apply_before_taxes boolean,
-    auto_print_enabled boolean,
-    include_pos_order_number boolean,
-    show_qr_code_when_print_receipt_fails boolean,
-    print_modifier_group_names boolean,
-    print_default_modifiers boolean,
-    print_free_modifiers boolean,
-    print_priced_modifiers boolean,
-    enable_email_receipts boolean,
-    enable_sms_receipt boolean,
-    qr_code_for_receipt boolean,
-    show_screensaver boolean,
-    business_hours_show_message boolean,
-    business_hours_enabled boolean,
-    pos_hours_enabled boolean,
-    quantity_limit_per_item integer,
-    quantity_limit_per_order integer,
-    max_discount_per_order integer,
-    show_item_asis_option boolean,
-    enable_minimum_order_total boolean,
-    auto_apply_min_qty_to_first_modifier boolean,
-    show_make_it_a_meal_option boolean,
-    enable_combo_auto_skip boolean,
-    number_of_item_upsell_prompts_per_order integer,
-    can_enter_code_for_discount boolean,
-    can_scan_qr_code_for_discount boolean,
-    can_select_from_list_for_discount boolean,
-    enabled_languages jsonb,
-    display_modifier_group_restriction boolean,
-    allow_user_to_collapse_or_expand_modifier_groups boolean,
-    show_modifier_group_names_on_order_review boolean,
-    show_default_modifier_on_order_review boolean,
-    auto_expand_modifier_group boolean,
-    enable_nested_modifier_indentation boolean,
-    open_nested_modifiers_in_popup boolean,
-    category_header_display_mode text COLLATE pg_catalog."default",
-    category_header_logo_display_mode text COLLATE pg_catalog."default",
-    show_item_description boolean,
-    category_name_position text COLLATE pg_catalog."default",
-    hide_sold_out_item_and_modifier_on_kiosk boolean,
-    make_category_sidebar_translucent boolean,
-    enable_single_step_subcategory_flow boolean,
-    remove_category_highlighted_border boolean,
-    enable_extended_combo_mode boolean,
-    button_style text COLLATE pg_catalog."default",
-    show_discount_code_button boolean,
-    make_item_combo_images_rounded boolean,
-    show_loyalty_points_on_header boolean,
-    show_card_accepted_payment_options boolean,
-    show_google_pay_accepted_payment_options boolean,
-    show_apple_pay_accepted_payment_options boolean,
-    show_cash_accepted_payment_options boolean,
-    show_tap_to_order_cta boolean,
-    use_text_for_cta boolean,
-    use_image_for_cta boolean,
-    choose_a_currency jsonb,
-    choose_a_locale text COLLATE pg_catalog."default",
-    order_number_start integer,
-    allotment integer,
-    negative_modifier_behavior jsonb,
-    disclaimer_text text COLLATE pg_catalog."default",
-    preorder_popup_enabled boolean,
-    preorder_popup_text text COLLATE pg_catalog."default",
-    order_types_identity_config jsonb,
-    show_category_highlighted_color boolean,
-    cep_subscriptions jsonb,
-    perform_pos_status_check boolean,
-    CONSTRAINT locationid_kioskid_pk PRIMARY KEY (location_id, kiosk_id),
-    CONSTRAINT organizationid_locationid_fk FOREIGN KEY (organization_id, location_id)
-        REFERENCES dim.organizationlocation (organizationid, locationid) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-)
-
-TABLESPACE pg_default;
-
-ALTER TABLE IF EXISTS dim.vw_grubbrrinstallbase_all_devices
-    OWNER to citus;
-
-
-
 /*
-CREATE OR REPLACE PROCEDURE dim.usp_grubbrr_install_base(
-	)
-LANGUAGE 'sql'
-AS $BODY$
+
+SELECT * 
+FROM dim.vw_grubbrrinstallbase_all_devices
+WHERE 1=1
+--AND location_status = 'Live'
+--AND is_loc_active = True
+--AND kiosk_mode = 'Live';
+--AND is_kiosk_deleted = False
+--AND is_test_kiosk = False
+--AND is_test_mode_on = False;
 
 */
 
-TRUNCATE table dim.vw_grubbrrinstallbase_all_devices;
+CREATE OR REPLACE PROCEDURE dim.usp_grubbrr_install_base_all_devices()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+TRUNCATE TABLE dim.vw_grubbrrinstallbase_all_devices;
 
 WITH order_types_identities as (
 SELECT 
@@ -501,7 +348,7 @@ inner join dim.organization as loc
 )
 INSERT INTO dim.vw_grubbrrinstallbase_all_devices
 SELECT * FROM total
-WHERE 1=1
+WHERE 1=1;
 --AND location_status = 'Live'
 --AND is_loc_active = True
 --AND kiosk_mode = 'Live';
@@ -509,18 +356,166 @@ WHERE 1=1
 --AND is_test_kiosk = False
 --AND is_test_mode_on = False;
 
-/*$BODY$;
-ALTER PROCEDURE dim.usp_grubbrr_install_base()
-    OWNER TO citus;
 
-*/
+END;
+$BODY$;
 
-SELECT * 
-FROM dim.vw_grubbrrinstallbase_all_devices
-WHERE 1=1
---AND location_status = 'Live'
---AND is_loc_active = True
---AND kiosk_mode = 'Live';
---AND is_kiosk_deleted = False
---AND is_test_kiosk = False
---AND is_test_mode_on = False;
+ALTER PROCEDURE dim.usp_grubbrr_install_base_all_devices()
+OWNER TO citus;
+
+
+CREATE TABLE IF NOT EXISTS dim.vw_grubbrrinstallbase_all_devices
+(
+    organization_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    organization_name text COLLATE pg_catalog."default" NOT NULL,
+    location_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    location_name text COLLATE pg_catalog."default" NOT NULL,
+    kiosk_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    kiosk_name text COLLATE pg_catalog."default",
+    kiosk_hardware_id character varying(50) COLLATE pg_catalog."default",
+    kiosk_software_version character varying(50) COLLATE pg_catalog."default",
+    os_type character varying(50) COLLATE pg_catalog."default",
+    serial_number character varying(50) COLLATE pg_catalog."default",
+    is_test_mode boolean,
+    is_demo_kiosk boolean,
+    is_test_mode_on boolean,
+    last_login_time timestamp without time zone,
+    last_sync_time timestamp without time zone,
+    device_created_on timestamp without time zone,
+    device_deleted_on timestamp without time zone,
+    is_test_kiosk boolean,
+    device_type character varying(50) COLLATE pg_catalog."default",
+    is_activated boolean,
+    payment_integration_configs jsonb,
+    printer_configs jsonb,
+    kiosk_activation character varying(50) COLLATE pg_catalog."default",
+    is_kiosk_deleted boolean,
+    kiosk_mode character varying(10) COLLATE pg_catalog."default",
+    kiosk_logging integer,
+    is_goast_kiosk boolean,
+    loyalty_login_otp character varying(50) COLLATE pg_catalog."default",
+    pos_provider jsonb,
+    payment_provider jsonb,
+    payment_device_type character varying(50) COLLATE pg_catalog."default",
+    loyalty_provider jsonb,
+    scanners jsonb,
+    organization_status character varying(20) COLLATE pg_catalog."default",
+    location_status character varying(20) COLLATE pg_catalog."default",
+    is_org_active boolean,
+    is_loc_active boolean,
+    is_org_deleted boolean,
+    is_loc_deleted boolean,
+    org_go_live_date timestamp without time zone,
+    loc_go_live_date timestamp without time zone,
+    org_created_date timestamp without time zone,
+    loc_created_date timestamp without time zone,
+    is_org_ecm_enabled boolean,
+    is_org_cep_enabled boolean,
+    is_org_concessionaire_enabled boolean,
+    is_org_smart_upsells_enabled boolean,
+    is_org_feedback_survey_enabled boolean,
+    is_org_digital_menu_board_enabled boolean,
+    is_org_digital_menu_default_format_enabled boolean,
+    is_loc_ecm_enabled boolean,
+    is_loc_cep_enabled boolean,
+    is_loc_concessionaire_enabled boolean,
+    is_loc_smart_upsells_enabled boolean,
+    is_loc_feedback_survey_enabled boolean,
+    is_loc_digital_menu_board_enabled boolean,
+    is_loc_digital_menu_default_format_enabled boolean,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    item_special_request jsonb,
+    legal_copy_enabled boolean,
+    ada_configuration jsonb,
+    calculate_default_modifier_price boolean,
+    track_kiosk_user_behavior boolean,
+    loyalty_feature boolean,
+    pickup_flow boolean,
+    pos_auto_applied_discount boolean,
+    search_functionality_enabled boolean,
+    recent_orders_enabled boolean,
+    play_card_config jsonb,
+    round_up_for_charity boolean,
+    calories_enabled boolean,
+    scan_and_go_enabled boolean,
+    age_verification jsonb,
+    tips_enabled boolean,
+    apply_before_taxes boolean,
+    auto_print_enabled boolean,
+    include_pos_order_number boolean,
+    show_qr_code_when_print_receipt_fails boolean,
+    print_modifier_group_names boolean,
+    print_default_modifiers boolean,
+    print_free_modifiers boolean,
+    print_priced_modifiers boolean,
+    enable_email_receipts boolean,
+    enable_sms_receipt boolean,
+    qr_code_for_receipt boolean,
+    show_screensaver boolean,
+    business_hours_show_message boolean,
+    business_hours_enabled boolean,
+    pos_hours_enabled boolean,
+    quantity_limit_per_item integer,
+    quantity_limit_per_order integer,
+    max_discount_per_order integer,
+    show_item_asis_option boolean,
+    enable_minimum_order_total boolean,
+    auto_apply_min_qty_to_first_modifier boolean,
+    show_make_it_a_meal_option boolean,
+    enable_combo_auto_skip boolean,
+    number_of_item_upsell_prompts_per_order integer,
+    can_enter_code_for_discount boolean,
+    can_scan_qr_code_for_discount boolean,
+    can_select_from_list_for_discount boolean,
+    enabled_languages jsonb,
+    display_modifier_group_restriction boolean,
+    allow_user_to_collapse_or_expand_modifier_groups boolean,
+    show_modifier_group_names_on_order_review boolean,
+    show_default_modifier_on_order_review boolean,
+    auto_expand_modifier_group boolean,
+    enable_nested_modifier_indentation boolean,
+    open_nested_modifiers_in_popup boolean,
+    category_header_display_mode text COLLATE pg_catalog."default",
+    category_header_logo_display_mode text COLLATE pg_catalog."default",
+    show_item_description boolean,
+    category_name_position text COLLATE pg_catalog."default",
+    hide_sold_out_item_and_modifier_on_kiosk boolean,
+    make_category_sidebar_translucent boolean,
+    enable_single_step_subcategory_flow boolean,
+    remove_category_highlighted_border boolean,
+    enable_extended_combo_mode boolean,
+    button_style text COLLATE pg_catalog."default",
+    show_discount_code_button boolean,
+    make_item_combo_images_rounded boolean,
+    show_loyalty_points_on_header boolean,
+    show_card_accepted_payment_options boolean,
+    show_google_pay_accepted_payment_options boolean,
+    show_apple_pay_accepted_payment_options boolean,
+    show_cash_accepted_payment_options boolean,
+    show_tap_to_order_cta boolean,
+    use_text_for_cta boolean,
+    use_image_for_cta boolean,
+    choose_a_currency jsonb,
+    choose_a_locale text COLLATE pg_catalog."default",
+    order_number_start integer,
+    allotment integer,
+    negative_modifier_behavior jsonb,
+    disclaimer_text text COLLATE pg_catalog."default",
+    preorder_popup_enabled boolean,
+    preorder_popup_text text COLLATE pg_catalog."default",
+    order_types_identity_config jsonb,
+    show_category_highlighted_color boolean,
+    cep_subscriptions jsonb,
+    perform_pos_status_check boolean,
+    CONSTRAINT locationid_kioskid_pk PRIMARY KEY (location_id, kiosk_id),
+    CONSTRAINT organizationid_locationid_fk FOREIGN KEY (organization_id, location_id)
+        REFERENCES dim.organizationlocation (organizationid, locationid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.vw_grubbrrinstallbase_all_devices
+    OWNER to citus;
