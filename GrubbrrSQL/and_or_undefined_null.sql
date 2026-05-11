@@ -9,6 +9,14 @@ SELECT NULL IS NULL null_is_null,
        NULL = NULL null_equal_null,
        NULL <> NULL null_not_equal_null;
 
+
+SELECT 
+    '/orders/transactionpayment/date=2026-05-08/hour=20/' < '/orders/transactionpayment/date=2026-05-08/hour=21/' as hour_comparison,
+    '/orders/transactionpayment/date=2026-05-09/hour=20/' > '/orders/transactionpayment/date=2026-05-08/hour=20/' as day_comparison,
+    '/orders/transactionpayment/date=2026-06-08/hour=20/' > '/orders/transactionpayment/date=2026-05-08/hour=20/' as month_comparison,
+    '/orders/transactionpayment/date=2027-05-08/hour=20/' > '/orders/transactionpayment/date=2026-05-08/hour=20/' as year_comparison;
+
+
 select count(1) from c --320,859
 select * from c order by c._ts desc
 
