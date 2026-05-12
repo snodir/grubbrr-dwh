@@ -5,13 +5,15 @@ WHERE dt.yearval = 2026
 
 CREATE SCHEMA IF NOT EXISTS etl;
 
+SELECT * FROM etl.bronze_partition_registry;
 
-
+DROP TABLE IF EXISTS etl.bronze_partition_registry;
 CREATE TABLE IF NOT EXISTS etl.bronze_partition_registry (
     dateid              INTEGER,
     layer               TEXT COLLATE pg_catalog."default",
     entity              TEXT COLLATE pg_catalog."default",
     partition_path      TEXT COLLATE pg_catalog."default",
+    partition_date      DATE,
     partition_year      SMALLINT,
     partition_month     SMALLINT,
     partition_day       SMALLINT,
@@ -43,6 +45,7 @@ SELECT
            SUBSTRING(dt.dateid :: TEXT, 7, 2), '/',
            SUBSTRING(dt.dateid :: TEXT, 9, 2)
     ) AS partition_path,
+    dt.dayval,
     dt.yearval as partition_year,
     dt.monthval as partition_month,
     SUBSTRING(dt.dateid :: TEXT, 7, 2) :: INTEGER as partition_day,
@@ -71,6 +74,7 @@ SELECT
            SUBSTRING(dt.dateid :: TEXT, 7, 2), '/',
            SUBSTRING(dt.dateid :: TEXT, 9, 2)
     ) AS partition_path,
+    dt.dayval,
     dt.yearval as partition_year,
     dt.monthval as partition_month,
     SUBSTRING(dt.dateid :: TEXT, 7, 2) :: INTEGER as partition_day,
