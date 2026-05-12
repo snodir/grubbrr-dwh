@@ -19,7 +19,7 @@
 
 -- ✅ Also correct: positional (no name needed, just pass values in order)
 --DROP PROCEDURE IF EXISTS ml.usp_refresh_item_modifiergroup_modifier_mapping()
---CALL ml.usp_refresh_item_modifiergroup_modifier_mapping('org-490e23ce-6f23-4d3d-8544-8728f0965cfc');
+--CALL ml.usp_refresh_item_modifiergroup_modifier_mapping(p_organizationid => 'org-490e23ce-6f23-4d3d-8544-8728f0965cfc');
 --SELECT count(*) FROM dim.item_modifier_group_modifier_mapping LIMIT 1000;
 --SELECT * FROM ml.item_modifiergroup_modifier_mapping LIMIT 1000;
 
@@ -88,8 +88,14 @@ BEGIN
     -- --------------------------------------------------------
     -- Step 1: Delete only rows for this organization on every run
     -- --------------------------------------------------------
+    WITH org_loc_lookup AS (
+        SELECT organizationid, organizationname, locationid, locationname
+        FROM dim.organizationlocation
+        WHERE organizationid = p_organizationid
+          AND organizationtype = 0
+    )
     DELETE FROM ml.item_modifiergroup_modifier_mapping
-    WHERE organizationid = p_organizationid;
+    WHERE locationid IN (SELECT locationid FROM org_loc_lookup);
 
     -- --------------------------------------------------------
     -- Step 2: Insert
