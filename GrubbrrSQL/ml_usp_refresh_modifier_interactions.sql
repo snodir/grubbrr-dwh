@@ -5,8 +5,8 @@
 -- ============================================================
 
 -- ✅ Also correct: positional (no name needed, just pass values in order)
---CALL ml.usp_refresh_modifier_interactions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 0);
-
+--CALL ml.usp_refresh_modifier_interactions(p_refresh_mode => 1);
+--DROP PROCEDURE IF EXISTS ml.usp_refresh_modifier_interactions(DATE, INT);
 --SELECT count(*) FROM ml.modifier_interactions
 --SELECT * FROM ml.modifier_interactions LIMIT 1000;
 
@@ -63,21 +63,62 @@ CREATE INDEX IF NOT EXISTS ix_ml_mi_businessdate
 
 */
 -- ============================================================
--- STORED PROCEDURE 8: ml.usp_refresh_modifier_interactions
--- Refresh type : DAILY DELETE + INSERT (idempotent) / FULL TRUNCATE + INSERT
--- Parameters   : p_businessdate DATE  (default: yesterday)
---                  The specific calendar day to delete and reload.
---                p_refresh_mode INT   (default: 1)
---                  1 = Incremental – delete/insert for p_businessdate only
---                  0 = Full load   – TRUNCATE the table, then insert ALL history
--- Notes        : Depends on ml.transactions being refreshed first.
+-- STORED PROCEDURE: ml.usp_refresh_modifier_interactions
+--
+-- PURPOSE:
+--   Refreshes the ml.modifier_interactions table by expanding
+--   transaction items into their individual modifier selections.
+--   Enriches each modifier interaction with group rules, selection
+--   type classification, and the action taken (added, removed,
+--   kept, selected). Supports a full historical reload or an
+--   incremental refresh from the last loaded date onward.
+--
+-- PARAMETERS:
+--   p_refresh_mode  INT  (default: 1)
+--     1 = Incremental – deletes and reloads data from the current
+--         max(businessdate) in the target table onward. Ensures the
+--         most recent (potentially partial) day is corrected and any
+--         new data since the last run is captured.
+--     0 = Full load – truncates the entire table and reloads all
+--         available history from the source. Use sparingly; intended
+--         for initial loads or full reseeds only.
+--
+-- INCREMENTAL LOGIC:
+--   The procedure reads max(businessdate) from ml.modifier_interactions
+--   at runtime and stores it in v_max_businessdate. This same value is
+--   used for both the DELETE and the source query, guaranteeing they
+--   are always in sync regardless of when the proc runs.
+--   On a cold start (empty table), v_max_businessdate will be NULL,
+--   causing the WHERE filter to evaluate to NULL and load everything —
+--   effectively behaving like a full load automatically.
+--
+-- DEPENDENCIES:
+--   ml.transactions must be refreshed before running this procedure,
+--   as it is used as the primary transaction source in the trxn_items CTE.
+--
+-- SOURCE OBJECTS:
+--   ml.transactions               – pre-aggregated transaction items (must be current)
+--   fact.itemmodifier             – one row per modifier applied to a transaction item
+--   dim.organizationlocation      – maps locationid to org/location names (type=0 only)
+--   dim.catalog                   – links org+location to a catalog
+--   dim.modifier                  – modifier definitions and classifications
+--   dim.menuitem                  – menu item name and class type lookup
+--   dim.modifier_group_mapping    – maps modifiers to their groups, including is_default flag
+--   dim.modifier_group            – modifier group rules (min/max selection quantities)
+--
+-- TARGET TABLE:
+--   ml.modifier_interactions
+--
+-- OWNER: citus
 -- ============================================================
 CREATE OR REPLACE PROCEDURE ml.usp_refresh_modifier_interactions(
-    p_businessdate  DATE DEFAULT CURRENT_DATE - 1,
     p_refresh_mode  INT  DEFAULT 1
 )
 LANGUAGE plpgsql
 AS $BODY$
+DECLARE
+    v_max_businessdate DATE;  -- Holds the current max date in the target table;
+                              -- used to anchor both the delete and the source filter
 BEGIN
 
     -- --------------------------------------------------------
@@ -87,15 +128,23 @@ BEGIN
         -- Full load: wipe everything and reload all history
         TRUNCATE TABLE ml.modifier_interactions;
     ELSE
-        -- Incremental: idempotent delete for the target day only
+        -- Incremental: capture the latest date already loaded,
+        -- delete it (in case it was a partial load), then reload
+        -- from that date forward so no gaps or duplicates occur
+        SELECT MAX(businessdate) INTO v_max_businessdate FROM ml.modifier_interactions;
+
         DELETE FROM ml.modifier_interactions
-        WHERE businessdate = p_businessdate;
+        WHERE businessdate >= v_max_businessdate;
     END IF;
 
     -- --------------------------------------------------------
     -- Step 2: Insert
+    -- Filter the source to the same date window used in Step 1.
+    -- On a full load (mode=0), the date filter is bypassed entirely.
     -- --------------------------------------------------------
     WITH trxn_items AS (
+        -- Pull the relevant transaction item fields from ml.transactions.
+        -- This is the date-filtered entry point for the entire query.
         SELECT
             tr.organizationid,
             tr.organizationname,
@@ -113,11 +162,13 @@ BEGIN
             tr.frequentcustomerid
         FROM ml.transactions AS tr
         WHERE (
-                p_refresh_mode = 0
-                OR tr.businessdate = p_businessdate
+                p_refresh_mode = 0                       -- full load: no date restriction
+                OR tr.businessdate >= v_max_businessdate -- incremental: from max date onward
         )
     ),
     org_loc_ctlg AS (
+        -- Resolve each org+location to its corresponding catalog.
+        -- Type=0 filters to standard locations only.
         SELECT ol.organizationid, ol.locationid, c.catalogid, c.catalogname
         FROM (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
         INNER JOIN dim.catalog AS c
@@ -125,6 +176,8 @@ BEGIN
             AND ol.locationid     = c.gem_location_id
     ),
     org_loc_ctlg_modifiers AS (
+        -- Enrich each modifier with its catalog and location context
+        -- so it can be joined to transaction items by locationid + modifierid.
         SELECT
             m.*,
             olc.organizationid,
@@ -159,30 +212,32 @@ BEGIN
         mg.modifiergroupname,
         mt.modifierid,
         mt.modifiername,
-        NULL::TEXT                                              AS parent_modifier_id,
-        NULL::INTEGER                                           AS nesting_depth,
+        NULL::TEXT                                              AS parent_modifier_id,   -- reserved for future nested modifier support
+        NULL::INTEGER                                           AS nesting_depth,        -- reserved for future nested modifier support
         mt.modifierquantity,
         mt.modifierprice,
         mt.freequantity,
         mgm.is_default                                          AS is_modifier_default,
         mg.min_selection                                        AS min_quantity,
         mg.max_selection                                        AS max_quantity,
+        -- Classify whether the modifier was optional, required, or a default selection
         CASE
             WHEN mgm.is_default = FALSE AND mg.min_selection = 0  AND mg.max_selection >= 0 THEN 'optional'
             WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 THEN 'required'
             WHEN mgm.is_default = TRUE                                                       THEN 'default'
         END                                                     AS selection_type,
+        -- Classify the action the customer took on this modifier
         CASE
-            WHEN mgm.is_default = FALSE AND mg.min_selection = 0  AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added'
-            WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected'
-            WHEN mgm.is_default = TRUE  AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
-            WHEN mgm.is_default = TRUE  AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0  THEN 'removed'
+            WHEN mgm.is_default = FALSE AND mg.min_selection = 0  AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added'    -- customer explicitly added an optional modifier
+            WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected'  -- customer selected a required modifier
+            WHEN mgm.is_default = TRUE  AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept'      -- customer left the default modifier in place
+            WHEN mgm.is_default = TRUE  AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0  THEN 'removed'   -- customer actively removed a default modifier
         END                                                     AS action,
-        NULL::TEXT                                              AS session_recorded_at,
+        NULL::TEXT                                              AS session_recorded_at,  -- reserved for future session tracking
         ti.frequentcustomerid,
         olcm.modifier_default_quantity,
         olcm.classification                                     AS modifier_class_type,
-        NOW()::TIMESTAMP                                        AS sysinserttime
+        NOW()::TIMESTAMP                                        AS sysinserttime         -- audit timestamp for when the row was loaded
     FROM fact.itemmodifier AS mt
     INNER JOIN trxn_items AS ti
         ON  mt.transactionheaderid = ti.transactionheaderid
@@ -200,7 +255,7 @@ BEGIN
 
 END;
 $BODY$;
-ALTER PROCEDURE ml.usp_refresh_modifier_interactions(DATE, INT) OWNER TO citus;
+ALTER PROCEDURE ml.usp_refresh_modifier_interactions(INT) OWNER TO citus;
 
 
 WITH org_loc_lookup AS (

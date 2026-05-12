@@ -8,11 +8,26 @@
 --               extraction time from ml.modifier_interactions.
 -- ============================================================
 
+/*
+	"firstRow": {
+		"organizationid": "org-490e23ce-6f23-4d3d-8544-8728f0965cfc",
+		"organizationname": "Houston Hot Chicken",
+		"locationid": "loc-bc017a27-667a-4bcd-b10c-a0e21794d992",
+		"locationname": "Phoenix - Camelback"
+	},
+*/
+
 -- ✅ Also correct: positional (no name needed, just pass values in order)
---CALL ml.usp_refresh_item_modifiergroup_modifier_mapping();
+--CALL ml.usp_refresh_item_modifiergroup_modifier_mapping('org-490e23ce-6f23-4d3d-8544-8728f0965cfc');
 --SELECT count(*) FROM dim.item_modifier_group_modifier_mapping LIMIT 1000;
 --SELECT * FROM ml.item_modifiergroup_modifier_mapping LIMIT 1000;
 
+SELECT count(*) 
+FROM dim.item_modifier_group_modifier_mapping LIMIT 100 --355,226
+
+SELECT count(*)
+FROM dim.menuitem --ORDER BY id DESC --206,905
+LIMIT 100
 
 CREATE TABLE IF NOT EXISTS ml.item_modifiergroup_modifier_mapping (
     organizationid            TEXT COLLATE pg_catalog."default",
@@ -61,6 +76,94 @@ CREATE INDEX IF NOT EXISTS ix_ml_imm_modifierid
 -- Notes        : Pure dimension data — no parameters, no date scoping.
 --                Selection frequency stats computed at extraction time.
 -- ============================================================
+
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(
+    p_organizationid TEXT  -- or replace INT with the appropriate type (e.g. UUID, BIGINT)
+)
+LANGUAGE plpgsql
+AS $BODY$
+BEGIN
+
+    -- --------------------------------------------------------
+    -- Step 1: Delete only rows for this organization on every run
+    -- --------------------------------------------------------
+    DELETE FROM ml.item_modifiergroup_modifier_mapping
+    WHERE organizationid = p_organizationid;
+
+    -- --------------------------------------------------------
+    -- Step 2: Insert
+    -- --------------------------------------------------------
+    WITH org_loc_ctlg AS (
+        SELECT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname,
+               c.catalogid, c.catalogname
+        FROM (
+            SELECT * FROM dim.organizationlocation
+            WHERE organizationid = p_organizationid  -- filter applied here
+              AND organizationtype = 0 
+        ) AS ol
+        INNER JOIN dim.catalog AS c
+            ON  ol.organizationid = c.organizationid
+            AND ol.locationid     = c.gem_location_id
+    ),
+    org_loc_ctlg_modifiers AS (
+        SELECT
+            m.*,
+            olc.organizationid,
+            olc.organizationname,
+            olc.locationid,
+            olc.locationname,
+            --olc.catalogid,
+            olc.catalogname
+        FROM dim.modifier AS m
+        INNER JOIN org_loc_ctlg AS olc
+            ON m.catalogid = olc.catalogid
+    )
+    INSERT INTO ml.item_modifiergroup_modifier_mapping
+    SELECT
+        m.organizationid,
+        m.organizationname,
+        m.locationid,
+        m.locationname,
+        m.catalogid,
+        m.catalogname,
+        imgm.menuitemid,
+        mi.menuitemname,
+        mi.item_class_type,
+        imgm.modifiergroupid,
+        mg.modifiergroupname,
+        imgm.modifierid,
+        m.modifiername,
+        m.classification            AS modifier_class_type,
+        imgm.is_default             AS is_modifier_default,
+        mg.min_selection            AS min_quantity,
+        mg.max_selection            AS max_quantity,
+        m.allow_quantity_increment,
+        m.increment_step,
+        m.modifier_default_quantity,
+        m.is_invisible              AS is_modifier_invisible,
+        m.calories,
+        m.price,
+        m.is_modifier_active,
+        m.is_modifier_deleted,
+        m.modifier_created_on,
+        m.modifier_modified_on,
+        NOW()::TIMESTAMP            AS sysinserttime
+    FROM dim.item_modifier_group_modifier_mapping AS imgm
+    INNER JOIN org_loc_ctlg_modifiers AS m
+        ON  imgm.catalogid  = m.catalogid
+        AND imgm.modifierid = m.modifierid
+    INNER JOIN dim.menuitem AS mi
+        ON imgm.menuitemid = mi.menuitemid
+    INNER JOIN dim.modifier_group AS mg
+        ON  imgm.catalogid       = mg.catalogid
+        AND imgm.modifiergroupid = mg.modifiergroupid;
+
+END;
+$BODY$;
+ALTER PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(TEXT) OWNER TO citus;
+
+/*
+
 CREATE OR REPLACE PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping()
 LANGUAGE plpgsql
 AS $BODY$
@@ -139,6 +242,7 @@ END;
 $BODY$;
 ALTER PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping() OWNER TO citus;
 
+*/
 
 WITH org_loc_lookup AS (
     SELECT DISTINCT ol.organizationid, ol.organizationname,

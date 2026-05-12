@@ -3,11 +3,12 @@
 -- Granularity : one row per (location, date, hour)
 -- Refresh     : daily (date column = weatherdate)
 -- ============================================================
-
+-- DROP PROCEDURE IF EXISTS ml.usp_refresh_weather(DATE, INT);
 -- ✅ Also correct: positional (no name needed, just pass values in order)
---CALL ml.usp_refresh_weather(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 0);
+--CALL ml.usp_refresh_weather(p_refresh_mode => 1);
 
---SELECT count(*) FROM ml.weather ORDER BY weatherdate DESC LIMIT 1000;
+SELECT *-- count(*) 
+FROM ml.weather ORDER BY weatherdate DESC LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS ml.weather (
     organizationid               TEXT COLLATE pg_catalog."default",
@@ -94,11 +95,12 @@ CREATE INDEX IF NOT EXISTS ix_ml_wth_locationid_weatherdate_hh
 -- Notes        : Date column in output is weatherdate (not businessdate).
 -- ============================================================
 CREATE OR REPLACE PROCEDURE ml.usp_refresh_weather(
-    p_businessdate  DATE DEFAULT CURRENT_DATE - 1,
     p_refresh_mode  INT  DEFAULT 1
 )
 LANGUAGE plpgsql
 AS $BODY$
+DECLARE
+    v_max_weatherdate DATE;
 BEGIN
 
     -- --------------------------------------------------------
@@ -108,9 +110,12 @@ BEGIN
         -- Full load: wipe everything and reload all history
         TRUNCATE TABLE ml.weather;
     ELSE
-        -- Incremental: idempotent delete for the target day only
+        -- Incremental: capture the current max date, delete it,
+        -- then reload from that date forward (picks up any new data too)
+        SELECT MAX(weatherdate) INTO v_max_weatherdate FROM ml.weather;
+
         DELETE FROM ml.weather
-        WHERE weatherdate = p_businessdate;
+        WHERE weatherdate >= v_max_weatherdate;
     END IF;
 
     -- --------------------------------------------------------
@@ -120,8 +125,8 @@ BEGIN
         SELECT *
         FROM dim.vw_weatherhourlydata
         WHERE (
-                p_refresh_mode = 0
-                OR weatherdate = p_businessdate
+            p_refresh_mode = 0
+            OR weatherdate >= v_max_weatherdate
         )
     )
     INSERT INTO ml.weather
@@ -191,7 +196,7 @@ BEGIN
 
 END;
 $BODY$;
-ALTER PROCEDURE ml.usp_refresh_weather(DATE, INT) OWNER TO citus;
+ALTER PROCEDURE ml.usp_refresh_weather(INT) OWNER TO citus;
 
 
 WITH org_loc_lookup AS (

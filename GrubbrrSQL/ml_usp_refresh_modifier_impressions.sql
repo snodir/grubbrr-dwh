@@ -6,10 +6,10 @@
 -- ============================================================
 
 -- ✅ Also correct: positional (no name needed, just pass values in order)
---CALL ml.usp_refresh_modifier_impressions(p_businessdate => CURRENT_DATE - 1, p_refresh_mode => 0);
-
+--CALL ml.usp_refresh_modifier_impressions(p_refresh_mode => 1);
+--DROP PROCEDURE IF EXISTS ml.usp_refresh_modifier_impressions(DATE, INTEGER);
 --SELECT * FROM ml.modifier_impressions LIMIT 1000;
-
+--SELECT * FROM fact.modifier_impressions LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS ml.modifier_impressions (
     organizationid      TEXT COLLATE pg_catalog."default",
@@ -58,21 +58,58 @@ CREATE INDEX IF NOT EXISTS ix_ml_mimp_businessdate
 
 */
 -- ============================================================
--- STORED PROCEDURE 9: ml.usp_refresh_modifier_impressions
--- Refresh type : DAILY DELETE + INSERT (idempotent) / FULL TRUNCATE + INSERT
--- Parameters   : p_businessdate DATE  (default: yesterday)
---                  The specific calendar day to delete and reload.
---                p_refresh_mode INT   (default: 1)
---                  1 = Incremental – delete/insert for p_businessdate only
---                  0 = Full load   – TRUNCATE the table, then insert ALL history
--- Notes        : Source is fact.modifier_impressions (not fact.itemmodifier).
+-- STORED PROCEDURE: ml.usp_refresh_modifier_impressions
+--
+-- PURPOSE:
+--   Refreshes the ml.modifier_impressions table by enriching raw
+--   modifier impression events with org/location context, modifier
+--   definitions, and menu item classifications. Each row represents
+--   a single modifier being shown to a customer during an order
+--   session, along with whether it was selected, pre-selected,
+--   removed, etc. Supports a full historical reload or an incremental
+--   refresh from the last loaded date onward.
+--
+-- PARAMETERS:
+--   p_refresh_mode  INT  (default: 1)
+--     1 = Incremental – deletes and reloads data from the current
+--         max(businessdate) in the target table onward. Ensures the
+--         most recent (potentially partial) day is corrected and any
+--         new data since the last run is captured.
+--     0 = Full load – truncates the entire table and reloads all
+--         available history from the source. Use sparingly; intended
+--         for initial loads or full reseeds only.
+--
+-- INCREMENTAL LOGIC:
+--   The procedure reads max(businessdate) from ml.modifier_impressions
+--   at runtime and stores it in v_max_businessdate. This same value is
+--   used for both the DELETE and the source query, guaranteeing they
+--   are always in sync regardless of when the proc runs.
+--   On a cold start (empty table), v_max_businessdate will be NULL,
+--   causing the WHERE filter to evaluate to NULL and load everything —
+--   effectively behaving like a full load automatically.
+--
+-- SOURCE OBJECTS:
+--   fact.modifier_impressions     – one row per modifier shown during an order session;
+--                                   filtered to rows whose transactionheaderid begins
+--                                   with 'ordevt-' to exclude non-order events
+--   dim.organizationlocation      – maps locationid to org/location names (type=0 only)
+--   dim.catalog                   – links org+location to a catalog
+--   dim.modifier                  – modifier definitions, pricing, and classifications
+--   dim.menuitem                  – menu item name and class type lookup
+--
+-- TARGET TABLE:
+--   ml.modifier_impressions
+--
+-- OWNER: citus
 -- ============================================================
 CREATE OR REPLACE PROCEDURE ml.usp_refresh_modifier_impressions(
-    p_businessdate  DATE DEFAULT CURRENT_DATE - 1,
     p_refresh_mode  INT  DEFAULT 1
 )
 LANGUAGE plpgsql
 AS $BODY$
+DECLARE
+    v_max_businessdate DATE;  -- Holds the current max date in the target table;
+                              -- used to anchor both the delete and the source filter
 BEGIN
 
     -- --------------------------------------------------------
@@ -82,15 +119,23 @@ BEGIN
         -- Full load: wipe everything and reload all history
         TRUNCATE TABLE ml.modifier_impressions;
     ELSE
-        -- Incremental: idempotent delete for the target day only
+        -- Incremental: capture the latest date already loaded,
+        -- delete it (in case it was a partial load), then reload
+        -- from that date forward so no gaps or duplicates occur
+        SELECT MAX(businessdate) INTO v_max_businessdate FROM ml.modifier_impressions;
+
         DELETE FROM ml.modifier_impressions
-        WHERE businessdate = p_businessdate;
+        WHERE businessdate >= v_max_businessdate;
     END IF;
 
     -- --------------------------------------------------------
     -- Step 2: Insert
+    -- Filter the source to the same date window used in Step 1.
+    -- On a full load (mode=0), the date filter is bypassed entirely.
     -- --------------------------------------------------------
     WITH org_loc_ctlg AS (
+        -- Resolve each org+location to its corresponding catalog.
+        -- Type=0 filters to standard locations only.
         SELECT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname,
                c.catalogid, c.catalogname
         FROM (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) AS ol
@@ -99,6 +144,8 @@ BEGIN
             AND ol.locationid     = c.gem_location_id
     ),
     org_loc_ctlg_modifiers AS (
+        -- Enrich each modifier with its catalog and location context
+        -- so it can be joined to impression events by locationid + modifierid.
         SELECT
             m.*,
             olc.organizationid,
@@ -145,23 +192,22 @@ BEGIN
         m.confirmed_removed,
         m.pre_selected,
         m.frequentcustomerid,
-        NOW()::TIMESTAMP                            AS sysinserttime
+        NOW()::TIMESTAMP                            AS sysinserttime  -- audit timestamp for when the row was loaded
     FROM fact.modifier_impressions AS m
     INNER JOIN org_loc_ctlg_modifiers AS olcm
         ON  m.locationid = olcm.locationid
         AND m.modifierid = olcm.modifierid
     INNER JOIN dim.menuitem AS mi
         ON mi.menuitemid = m.menuitemid
-    WHERE LOWER(m.transactionheaderid) LIKE 'ordevt-%'
+    WHERE LOWER(m.transactionheaderid) LIKE 'ordevt-%'  -- exclude non-order events (e.g. kiosk idle sessions)
       AND (
-            p_refresh_mode = 0
-            OR m.businessdate = p_businessdate
+            p_refresh_mode = 0                          -- full load: no date restriction
+            OR m.businessdate >= v_max_businessdate     -- incremental: from max date onward
       );
 
 END;
 $BODY$;
-ALTER PROCEDURE ml.usp_refresh_modifier_impressions(DATE, INT) OWNER TO citus;
-
+ALTER PROCEDURE ml.usp_refresh_modifier_impressions(INT) OWNER TO citus;
 
 WITH org_loc_lookup AS (
     SELECT DISTINCT ol.organizationid, ol.organizationname,

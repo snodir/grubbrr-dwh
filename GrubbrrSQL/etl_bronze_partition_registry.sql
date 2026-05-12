@@ -10,6 +10,21 @@ SELECT --*,
 FROM etl.bronze_partition_registry
 WHERE partition_date = CURRENT_DATE
 
+SELECT 
+    dateid, 
+    layer, 
+    entity, 
+    partition_path,
+    SUBSTRING(partition_path, 1, 21) as partition_date_path,
+    partition_date, 
+    partition_year, 
+    partition_month, 
+    partition_day, 
+    partition_hour
+FROM etl.bronze_partition_registry
+WHERE entity = 'events'
+  AND partition_date = CURRENT_DATE
+  AND status = 'pending';
 
 
 DROP TABLE IF EXISTS etl.bronze_partition_registry;
