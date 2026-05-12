@@ -18,6 +18,7 @@
 */
 
 -- ✅ Also correct: positional (no name needed, just pass values in order)
+--DROP PROCEDURE IF EXISTS ml.usp_refresh_item_modifiergroup_modifier_mapping()
 --CALL ml.usp_refresh_item_modifiergroup_modifier_mapping('org-490e23ce-6f23-4d3d-8544-8728f0965cfc');
 --SELECT count(*) FROM dim.item_modifier_group_modifier_mapping LIMIT 1000;
 --SELECT * FROM ml.item_modifiergroup_modifier_mapping LIMIT 1000;

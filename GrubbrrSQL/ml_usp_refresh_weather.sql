@@ -5,7 +5,7 @@
 -- ============================================================
 -- DROP PROCEDURE IF EXISTS ml.usp_refresh_weather(DATE, INT);
 -- ✅ Also correct: positional (no name needed, just pass values in order)
---CALL ml.usp_refresh_weather(p_refresh_mode => 1);
+-- CALL ml.usp_refresh_weather(p_refresh_mode => 1);
 
 SELECT *-- count(*) 
 FROM ml.weather ORDER BY weatherdate DESC LIMIT 1000;
