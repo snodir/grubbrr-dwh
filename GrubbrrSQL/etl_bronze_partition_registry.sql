@@ -5,7 +5,12 @@ WHERE dt.yearval = 2026
 
 CREATE SCHEMA IF NOT EXISTS etl;
 
-SELECT * FROM etl.bronze_partition_registry;
+SELECT --*,
+  dateid, layer, entity, partition_path, partition_date, partition_year, partition_month, partition_day, partition_hour
+FROM etl.bronze_partition_registry
+WHERE partition_date = CURRENT_DATE
+
+
 
 DROP TABLE IF EXISTS etl.bronze_partition_registry;
 CREATE TABLE IF NOT EXISTS etl.bronze_partition_registry (

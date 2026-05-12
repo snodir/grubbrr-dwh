@@ -11,7 +11,7 @@ FROM fact.prod_to_stage_migration_audit
 WHERE 1=1
   --AND table_name NOT IN ('userlocation','device','weather','stage_watermark','peripheral','prod_to_stage_migration_audit','company','datedim','weather','menuentities','menuentities_0912','holidays','prod_to_stage_migration_audit_bkp','location_statistics','duplicate_items_master','item_modifier_group_modifier_mapping','userbehaviour','deviceevent')
   --AND sysupdatetime_after_migration is NULL ,'userbehaviour','deviceevent','userlocation',
-  AND table_name IN ('occasionsurvey','userbehaviour','deviceevent')
+  --AND table_name IN ('occasionsurvey','userbehaviour','deviceevent')
 )
 SELECT *
 FROM unique_records
