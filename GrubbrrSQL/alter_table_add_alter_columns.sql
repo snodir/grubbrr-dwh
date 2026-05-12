@@ -1077,7 +1077,7 @@ AND kiosk_mode = 'Live';
 END;
 $BODY$;
 
-ALTER PROCEDURE dim.usp_grubbrr_install_base_all_devices()
+ALTER PROCEDURE dim.usp_grubbrr_install_base()
     OWNER TO citus;
 
 -- PROCEDURE: fact.usp_update_datetime_fields()

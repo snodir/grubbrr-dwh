@@ -23,6 +23,10 @@ ALTER TABLE dim.occasionsurvey
     OWNER to citus;
 
 ALTER TABLE IF EXISTS dim.occasionsurvey
+ALTER COLUMN surveykey --Stage env only
+DROP IDENTITY IF EXISTS;
+
+ALTER TABLE IF EXISTS dim.occasionsurvey
 ADD COLUMN IF NOT EXISTS question_type INTEGER,
 ADD COLUMN IF NOT EXISTS selection_type INTEGER,
 ADD COLUMN IF NOT EXISTS survey_status INTEGER, 
