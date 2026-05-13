@@ -16,6 +16,11 @@ GROUP BY fc.frequentcustomerid,
 ORDER BY fc.frequentcustomerid, x_times_selected DESC
 LIMIT 1000
 
+SELECT * FROM dim.frequentcustomer 
+WHERE organizationid = 'org-490e23ce-6f23-4d3d-8544-8728f0965cfc'
+ORDER BY ordercount DESC LIMIT 1000;
+
+SELECT * FROM dim.organizationlocation WHERE organizationname = 'Houston Hot Chicken'
 
 SELECT 
     frequentcustomerid,

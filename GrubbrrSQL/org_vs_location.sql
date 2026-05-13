@@ -33,13 +33,13 @@ WHERE o.active = True
 SELECT * FROM dim.kiosk;
 
 --/TRUNCATE TABLE dim.locationcatalog;
-
+/*
 CASE dd.kiosk_mode 
 WHEN 1 THEN 'Live' 
 WHEN 2 THEN 'Demo' 
 WHEN 3 THEN 'Test' 
 END as kiosk_mode,
-
+*/
 SELECT * FROM dim.organization
 WHERE 1=1 
   AND is_smart_upsells_enabled = True
