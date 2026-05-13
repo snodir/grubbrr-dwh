@@ -382,3 +382,30 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.prod_to_stage_migration_audit
     OWNER to citus;
+
+
+SELECT id,
+       hidden,
+       max_quantity,
+       increment_step,
+       hide_nested_modifiers,
+       is_deleted,
+       created_on,
+       modified_on,
+       is_active,
+       item_master_id,
+       modifier_master_id,
+       modifier_group_master_id,
+       catalog_id,
+       pos_linked_entity_id,
+       is_default,
+       is_included_in_item_price,
+       is_invisible,
+       display_order,
+       created_by,
+       modified_by,
+       min_quantity,
+       pos_overrided_fields,
+       replace(replace(pos_overrided_fields :: TEXT, 'NULL,', ''), ',NULL', '') :: TEXT[]
+from public.item_modifier_group_modifier_config
+LIMIT 1000
