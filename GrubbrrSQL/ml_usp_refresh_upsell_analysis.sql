@@ -7,7 +7,7 @@
 -- ✅ Also correct: positional (no name needed, just pass values in order)
 -- DROP PROCEDURE IF EXISTS ml.usp_refresh_upsell_analysis(DATE, INTEGER);
 -- CALL ml.usp_refresh_upsell_analysis(p_refresh_mode => 1);
-
+--SELECT count(*) FROM ml.upsell_analysis ORDER BY sysinserttime DESC LIMIT 1000; --P=1,235,308
 --SELECT * FROM ml.upsell_analysis ORDER BY sysinserttime DESC LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS ml.upsell_analysis (

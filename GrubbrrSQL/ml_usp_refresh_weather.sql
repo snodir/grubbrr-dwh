@@ -7,8 +7,9 @@
 -- ✅ Also correct: positional (no name needed, just pass values in order)
 -- CALL ml.usp_refresh_weather(p_refresh_mode => 1);
 
-SELECT *-- count(*) 
-FROM ml.weather ORDER BY weatherdate DESC LIMIT 1000;
+SELECT *--count(*) --P=1,579,824***S=2,043,600
+FROM ml.weather ORDER BY weatherdate DESC 
+LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS ml.weather (
     organizationid               TEXT COLLATE pg_catalog."default",

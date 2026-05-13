@@ -39,10 +39,10 @@ TABLESPACE pg_default;
 
 ALTER TABLE fact.modifier_recommendations
 OWNER TO citus;
-
+SELECT * FROM stg.modifier_recommendation_sessions;
 SELECT * FROM fact.modifier_recommendations;
 SELECT * FROM fact.modifier_impressions;
-SELECT * FROM fact.modifier_interactions;
+SELECT * FROM fact.modifier_interactions LIMIT 100;
 --CALL fact.usp_item_recommendations_stage_to_fact();
 CREATE OR REPLACE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
 LANGUAGE plpgsql

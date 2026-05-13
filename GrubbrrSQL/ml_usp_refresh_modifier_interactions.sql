@@ -5,10 +5,10 @@
 -- ============================================================
 
 -- ✅ Also correct: positional (no name needed, just pass values in order)
---CALL ml.usp_refresh_modifier_interactions(p_refresh_mode => 1);
+--CALL ml.usp_refresh_modifier_interactions(p_refresh_mode => 0);
 --DROP PROCEDURE IF EXISTS ml.usp_refresh_modifier_interactions(DATE, INT);
---SELECT count(*) FROM ml.modifier_interactions
---SELECT * FROM ml.modifier_interactions LIMIT 1000;
+--SELECT count(*) FROM ml.modifier_interactions --P=6,323,406
+--SELECT * FROM ml.modifier_interactions LIMIT 1000; 
 
 
 CREATE TABLE IF NOT EXISTS ml.modifier_interactions (
