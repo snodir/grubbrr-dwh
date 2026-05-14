@@ -5,8 +5,7 @@ WHERE dt.yearval = 2026
 
 CREATE SCHEMA IF NOT EXISTS etl;
 
-SELECT --*,
-  dateid, layer, entity, partition_path, partition_date, partition_year, partition_month, partition_day, partition_hour
+SELECT *--, dateid, layer, entity, partition_path, partition_date, partition_year, partition_month, partition_day, partition_hour
 FROM etl.bronze_partition_registry
 WHERE partition_date = CURRENT_DATE
 
@@ -23,8 +22,17 @@ SELECT
     partition_hour
 FROM etl.bronze_partition_registry
 WHERE entity = 'events'
-  AND partition_date = CURRENT_DATE
+  AND dateid > TO_CHAR(NOW() - INTERVAL '1 days', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
+  AND dateid < TO_CHAR(NOW() - INTERVAL '2 hours', 'YYYYMMDDHH24') :: BIGINT --2 hours deduction because of late-arriving files
   AND status = 'pending';
+
+UPDATE etl.bronze_partition_registry
+SET started_at = NOW() :: TIMESTAMP,
+    adf_pipeline_run_id = '@{pipeline().RunId}' :: TEXT
+WHERE entity = 'events'
+  AND partition_path = '@{item().partition_path}';
+
+SELECT '@{item().partition_path}' AS partition_path;
 
 
 DROP TABLE IF EXISTS etl.bronze_partition_registry;
