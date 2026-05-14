@@ -19,7 +19,15 @@
 
 -- ✅ Also correct: positional (no name needed, just pass values in order)
 --DROP PROCEDURE IF EXISTS ml.usp_refresh_item_modifiergroup_modifier_mapping()
---CALL ml.usp_refresh_item_modifiergroup_modifier_mapping(p_organizationid => 'org-490e23ce-6f23-4d3d-8544-8728f0965cfc');
+
+--CALL dim.usp_master_keys_for_duplicate_items();
+--CALL fact.usp_location_statistics();
+--CALL ml.usp_refresh_item_modifiergroup_modifier_mapping(p_organizationid => 'org-5cf80db5-7a28-4dcf-846b-8cdf5f362269');
+
+
+--without an index on catalogid, and unique constraint on menuitemid, this took more than 20 minutes, and even did not complete, 
+--but after adding these 2, it took 00:00:01.766 (hh:mm:ss.ms)
+
 --SELECT count(*) FROM dim.item_modifier_group_modifier_mapping LIMIT 1000;
 --SELECT * FROM ml.item_modifiergroup_modifier_mapping LIMIT 1000;
 
@@ -91,7 +99,7 @@ BEGIN
     WITH org_loc_lookup AS (
         SELECT organizationid, organizationname, locationid, locationname
         FROM dim.organizationlocation
-        WHERE organizationid = p_organizationid
+        WHERE CASE WHEN p_organizationid NOT LIKE 'loc-%' THEN organizationid ELSE locationid END = p_organizationid
           AND organizationtype = 0
     )
     DELETE FROM ml.item_modifiergroup_modifier_mapping
@@ -105,7 +113,7 @@ BEGIN
                c.catalogid, c.catalogname
         FROM (
             SELECT * FROM dim.organizationlocation
-            WHERE organizationid = p_organizationid  -- filter applied here
+            WHERE CASE WHEN p_organizationid NOT LIKE 'loc-%' THEN organizationid ELSE locationid END = p_organizationid
               AND organizationtype = 0 
         ) AS ol
         INNER JOIN dim.catalog AS c
@@ -160,7 +168,8 @@ BEGIN
         ON  imgm.catalogid  = m.catalogid
         AND imgm.modifierid = m.modifierid
     INNER JOIN dim.menuitem AS mi
-        ON imgm.menuitemid = mi.menuitemid
+        ON imgm.catalogid = mi.catalogid
+        AND imgm.menuitemid = mi.menuitemid
     INNER JOIN dim.modifier_group AS mg
         ON  imgm.catalogid       = mg.catalogid
         AND imgm.modifiergroupid = mg.modifiergroupid;
