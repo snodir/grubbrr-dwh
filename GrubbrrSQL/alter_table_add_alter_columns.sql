@@ -77,6 +77,9 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS catalogid text COLLATE pg_catalog."default";
 
+CREATE INDEX IF NOT EXISTS ix_dim_menuitem_catalogid
+    ON dim.menuitem(catalogid);
+
 
 CREATE TABLE IF NOT EXISTS dim.occasionsurvey
 (
@@ -262,6 +265,8 @@ ALTER TABLE IF EXISTS dim.modifier
 DROP COLUMN IF EXISTS modifierkey,
 ADD COLUMN IF NOT EXISTS price_changed_on TIMESTAMP;
 
+CREATE INDEX IF NOT EXISTS ix_dim_modifier_catalogid
+    ON dim.modifier(catalogid);
 
 CREATE TABLE IF NOT EXISTS dim.modifier_group --gms.public.modifier_group_master
 (
