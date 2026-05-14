@@ -14,6 +14,18 @@ TABLESPACE pg_default;
 ALTER TABLE dim.itemcategory
     OWNER to citus;
 
+SELECT locationid, categoryid, count(*)
+FROM dim.itemcategory
+GROUP BY locationid, categoryid
+HAVING count(*) > 1;
+
+
+SELECT categoryid, count(*)
+FROM dim.itemcategory
+GROUP BY categoryid
+HAVING count(*) > 1;
+
+
 -- Index: dim.itemcategory_idx
 CREATE UNIQUE INDEX IF NOT EXISTS itemcategory_idx
     ON dim.itemcategory USING btree

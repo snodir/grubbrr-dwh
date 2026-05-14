@@ -18,9 +18,11 @@ create table dim.frequentcustomer
     sysupdatetime timestamp
 );
 
-ALTER TABLE dim.frequentcustomer
---ADD CONSTRAINT customerkey_pk PRIMARY KEY (customerkey),
-DROP CONSTRAINT frequentcustomerid_unq UNIQUE (frequentcustomerid)
+ALTER TABLE IF EXISTS dim.frequentcustomer
+--ALTER COLUMN customerkey DROP IDENTITY,
+--DROP CONSTRAINT customerkey_pk
+--DROP CONSTRAINT frequentcustomerid_unq UNIQUE (frequentcustomerid)
+ADD CONSTRAINT customerkey_pk PRIMARY KEY (frequentcustomerid),
 
 /*
 Mapping:
