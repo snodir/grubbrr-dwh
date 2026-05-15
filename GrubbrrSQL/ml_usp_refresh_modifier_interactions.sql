@@ -52,6 +52,9 @@ CREATE TABLE IF NOT EXISTS ml.modifier_interactions (
     sysinserttime             TIMESTAMP
 );
 
+-- 1. Grant USAGE on the schema (allows access to object names)
+GRANT USAGE ON SCHEMA ml TO varshil;
+GRANT SELECT ON TABLE ml.modifier_interactions TO varshil;
 
 /*
 CREATE INDEX IF NOT EXISTS ix_ml_mi_yyyy_ww

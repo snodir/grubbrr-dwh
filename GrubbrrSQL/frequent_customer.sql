@@ -53,7 +53,7 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS dim.frequentcustomer_bkp
     OWNER to citus;
 
---INSERT INTO dim.frequentcustomer_bkp
+--INSERT INTO dim.frequentcustomer_bkp --178,238
 SELECT * FROM dim.frequentcustomer
 --TRUNCATE TABLE dim.frequentcustomer
 
