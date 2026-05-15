@@ -42,8 +42,10 @@ SELECT
     partition_hour
 FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
-  AND dateid >= (SELECT max(dateid) FROM etl.bronze_partition_registry 
-                 WHERE entity = 'orders' AND status = 'completed')
+  AND dateid >= (SELECT max(dateid) 
+                 FROM etl.bronze_partition_registry 
+                 WHERE entity = 'orders' 
+                   AND status = 'completed')
   AND status = 'pending'
 ORDER BY dateid
 LIMIT 6

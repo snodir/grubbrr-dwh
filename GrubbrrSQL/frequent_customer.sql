@@ -24,6 +24,39 @@ ALTER TABLE IF EXISTS dim.frequentcustomer
 --DROP CONSTRAINT frequentcustomerid_unq UNIQUE (frequentcustomerid)
 ADD CONSTRAINT customerkey_pk PRIMARY KEY (frequentcustomerid),
 
+-- Table: dim.frequentcustomer
+
+-- DROP TABLE IF EXISTS dim.frequentcustomer;
+
+CREATE TABLE IF NOT EXISTS dim.frequentcustomer_bkp
+(
+    customerkey bigint NOT NULL,
+    frequentcustomerid text COLLATE pg_catalog."default" NOT NULL,
+    firstname text COLLATE pg_catalog."default",
+    lastname text COLLATE pg_catalog."default",
+    email text COLLATE pg_catalog."default",
+    phone text COLLATE pg_catalog."default",
+    source text COLLATE pg_catalog."default",
+    organizationid text COLLATE pg_catalog."default",
+    createddate text COLLATE pg_catalog."default",
+    lastorderdate text COLLATE pg_catalog."default",
+    ordercount integer NOT NULL DEFAULT 0,
+    amountspent numeric NOT NULL DEFAULT 0,
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT frequentcustomer_bkp_pk PRIMARY KEY (frequentcustomerid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.frequentcustomer_bkp
+    OWNER to citus;
+
+--INSERT INTO dim.frequentcustomer_bkp
+SELECT * FROM dim.frequentcustomer
+--TRUNCATE TABLE dim.frequentcustomer
+
 /*
 Mapping:
 
@@ -37,6 +70,9 @@ FreqCustomer.CreateDate = FrequentCustomer.CreateDate
 FreqCustomer.LastOrderDate = FrequentCustomer.LastOrderDate*/
 
 --SELECT 1=1, null = null
+
+
+
 
 SELECT max(length(locationid)), max(length(userid))
 FROM dim.userlocation
