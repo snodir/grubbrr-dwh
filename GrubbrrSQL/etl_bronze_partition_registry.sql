@@ -4,10 +4,12 @@ WHERE dt.yearval = 2026
   AND dt.monthval = 5;
 
 CREATE SCHEMA IF NOT EXISTS etl;
-
+--30 days * 24 hours * 2 (events/orders)
 SELECT *--, dateid, layer, entity, partition_path, partition_date, partition_year, partition_month, partition_day, partition_hour
 FROM etl.bronze_partition_registry
-WHERE partition_date = CURRENT_DATE
+WHERE entity = 'orders'
+  --AND dateid >= TO_CHAR(NOW() - INTERVAL '6 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
+  --AND dateid <= TO_CHAR(NOW() - INTERVAL '1 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files
 
 SELECT 
     dateid, 
@@ -21,17 +23,37 @@ SELECT
     partition_day, 
     partition_hour
 FROM etl.bronze_partition_registry
-WHERE entity = 'events'
-  AND dateid > TO_CHAR(NOW() - INTERVAL '1 days', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
-  AND dateid < TO_CHAR(NOW() - INTERVAL '2 hours', 'YYYYMMDDHH24') :: BIGINT --2 hours deduction because of late-arriving files
+WHERE entity = 'orders'
+  AND dateid >= TO_CHAR(NOW() - INTERVAL '6 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
+  AND dateid <= TO_CHAR(NOW() - INTERVAL '1 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files
   AND status = 'pending';
+
+
+SELECT 
+    dateid, 
+    layer, 
+    entity, 
+    partition_path,
+    SUBSTRING(partition_path, 1, 21) as partition_date_path,
+    partition_date, 
+    partition_year, 
+    partition_month, 
+    partition_day, 
+    partition_hour
+FROM etl.bronze_partition_registry
+WHERE entity = 'orders'
+  AND dateid >= (SELECT max(dateid) FROM etl.bronze_partition_registry 
+                 WHERE entity = 'orders' AND status = 'completed')
+  AND status = 'pending'
+ORDER BY dateid
+LIMIT 6
 
 UPDATE etl.bronze_partition_registry
 SET started_at = NOW() :: TIMESTAMP,
     adf_pipeline_run_id = '@{pipeline().RunId}' :: TEXT
 WHERE entity = 'events'
-  AND partition_path = '@{item().partition_path}';
-
+  AND dateid = @{item().dateid};
+  
 SELECT '@{item().partition_path}' AS partition_path;
 
 
@@ -54,12 +76,13 @@ CREATE TABLE IF NOT EXISTS etl.bronze_partition_registry (
     error_message       TEXT COLLATE pg_catalog."default",
     sysinserttime       TIMESTAMP,
     sysupdatetime       TIMESTAMP,
-    PRIMARY KEY (entity, partition_year, partition_month, partition_day, partition_hour)
+    PRIMARY KEY (entity, dateid)
 )
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS etl.bronze_partition_registry
     OWNER TO citus;
+
 
 
 INSERT INTO etl.bronze_partition_registry
