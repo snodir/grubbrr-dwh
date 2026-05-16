@@ -11,6 +11,8 @@ SELECT to_timestamp(1775002010), to_timestamp(1600000300);
 1769669258
 */
 
+SELECT * FROM information_schema.columns WHERE column_name IN ('gem_syscosmosts','nge_syscosmosts');
+
 SELECT wt_nge.ts as maxts_nge, wt_gem.ts as maxts_gem
 FROM (SELECT * FROM fact.watermarktable WHERE watermarktablename = 'fact.occasionsurveydetail' AND source = 'nge') as wt_nge
 INNER JOIN (SELECT * FROM fact.watermarktable WHERE watermarktablename = 'fact.occasionsurveydetail' AND source = 'gem') as wt_gem

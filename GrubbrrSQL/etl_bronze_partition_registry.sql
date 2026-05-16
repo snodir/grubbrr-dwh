@@ -24,9 +24,10 @@ SELECT
     partition_hour
 FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
-  AND dateid >= TO_CHAR(NOW() - INTERVAL '6 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
-  AND dateid <= TO_CHAR(NOW() - INTERVAL '1 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files
-  AND status = 'pending';
+  AND dateid >= TO_CHAR(NOW() - INTERVAL '32 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
+  AND dateid <= TO_CHAR(NOW() - INTERVAL '24 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files
+  AND status = 'pending'
+ORDER BY dateid;
 
 
 SELECT 
