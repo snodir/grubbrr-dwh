@@ -10,18 +10,19 @@ FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
   --AND dateid >= TO_CHAR(NOW() - INTERVAL '6 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
   --AND dateid <= TO_CHAR(NOW() - INTERVAL '1 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files
-
+SELECT LENGTH('orders/raw/2026/05/15/23')
 SELECT 
     dateid, 
     layer, 
     entity, 
     partition_path,
     SUBSTRING(partition_path, 1, 21) as partition_date_path,
-    partition_date, 
+    partition_date :: TEXT AS partition_date,
     partition_year, 
     partition_month, 
     partition_day, 
-    partition_hour
+    partition_hour,
+    SUBSTRING(partition_path, 23, 2) as partition_hh
 FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
   AND dateid >= TO_CHAR(NOW() - INTERVAL '32 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
