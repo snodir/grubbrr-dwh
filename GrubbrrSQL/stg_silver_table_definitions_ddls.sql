@@ -6,6 +6,8 @@
 
 CREATE SCHEMA IF NOT EXISTS stg;
 
+SELECT * FROM stg.silver_transaction_header;
+
 -- ============================================================
 -- 1. stg.silver_transaction_header
 --    Source sink: SilverTrxnHeaderParquet
