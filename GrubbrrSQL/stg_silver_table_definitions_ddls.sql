@@ -6,13 +6,36 @@
 
 CREATE SCHEMA IF NOT EXISTS stg;
 
+
+
 SELECT * FROM stg.silver_transaction_header;
+SELECT * FROM stg.silver_transaction_item;
+SELECT * FROM stg.silver_transaction_combo_items;
+SELECT * FROM stg.silver_transaction_payment;
+SELECT * FROM stg.silver_item_modifiers;
+SELECT * FROM stg.silver_upsell_recommendations;
+SELECT * FROM stg.silver_modifier_recommendations;
+SELECT * FROM stg.silver_modifier_interactions;
+SELECT * FROM stg.silver_modifier_impressions;
+
+/*
+TRUNCATE TABLE stg.silver_transaction_header;
+TRUNCATE TABLE stg.silver_transaction_item;
+TRUNCATE TABLE stg.silver_transaction_combo_items;
+TRUNCATE TABLE stg.silver_transaction_payment;
+TRUNCATE TABLE stg.silver_item_modifiers;
+TRUNCATE TABLE stg.silver_upsell_recommendations;
+TRUNCATE TABLE stg.silver_modifier_recommendations;
+TRUNCATE TABLE stg.silver_modifier_interactions;
+TRUNCATE TABLE stg.silver_modifier_impressions;
+*/
 
 -- ============================================================
 -- 1. stg.silver_transaction_header
 --    Source sink: SilverTrxnHeaderParquet
 --    Branch: BronzeOrdersJson → TrxnHeaderColumns → SilverTransformTime
 -- ============================================================
+--DROP TABLE IF EXISTS stg.silver_transaction_header
 CREATE TABLE IF NOT EXISTS stg.silver_transaction_header (
     -- Order identity
     transactionheaderid         TEXT COLLATE pg_catalog."default",
@@ -103,7 +126,7 @@ ALTER TABLE IF EXISTS stg.silver_transaction_header
 --    Source sink: SilverTrxnItemParquet
 --    Branch: BronzeOrdersJson → TrxnItemColumns → flattenItemsArray → SilverTransformTime2
 -- ============================================================
-DROP TABLE IF EXISTS stg.silver_transaction_item;
+--DROP TABLE IF EXISTS stg.silver_transaction_item;
 CREATE TABLE IF NOT EXISTS stg.silver_transaction_item (
     -- Order / session identity
     transactionheaderid             TEXT COLLATE pg_catalog."default",
@@ -167,11 +190,12 @@ ALTER TABLE IF EXISTS stg.silver_transaction_item
     OWNER to citus;
 
 -- ============================================================
--- 3. stg.silver_item_modifier
+-- 3. stg.silver_item_modifiers
 --    Source sink: SilverTrxnItemModifiersParquet
 --    Branch: flattenItemsArray → FlattenModifiers → SilverTransformTime3
 -- ============================================================
-CREATE TABLE IF NOT EXISTS stg.silver_item_modifier (
+--DROP TABLE IF EXISTS stg.silver_item_modifiers;
+CREATE TABLE IF NOT EXISTS stg.silver_item_modifiers (
     -- Order / session identity
     transactionheaderid                 TEXT COLLATE pg_catalog."default",
     orderid                             TEXT COLLATE pg_catalog."default",
@@ -244,7 +268,7 @@ CREATE TABLE IF NOT EXISTS stg.silver_item_modifier (
     silver_folderpath                   TEXT COLLATE pg_catalog."default"
 ) TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS stg.silver_item_modifier
+ALTER TABLE IF EXISTS stg.silver_item_modifiers
     OWNER to citus;
 
 -- ============================================================
@@ -252,6 +276,7 @@ ALTER TABLE IF EXISTS stg.silver_item_modifier
 --    Source sink: SilverTrxnPaymentsParquet
 --    Branch: BronzeOrdersJson → TrxnPaymentsColumns → flattenPayments → SilverTransformTime4
 -- ============================================================
+--DROP TABLE IF EXISTS stg.silver_transaction_payment
 CREATE TABLE IF NOT EXISTS stg.silver_transaction_payment (
     -- Order / session identity
     transactionheaderid             TEXT COLLATE pg_catalog."default",
@@ -312,7 +337,7 @@ ALTER TABLE IF EXISTS stg.silver_transaction_payment
 --    Branch: BronzeOrdersJson → TrxnComboColumns → flattenCombosArray
 --            → flattenComponentSelectionsArray → SilverTransformTime5
 -- ============================================================
---DROP TABLE stg.silver_transaction_combo_item
+--DROP TABLE stg.silver_transaction_combo_items
 CREATE TABLE IF NOT EXISTS stg.silver_transaction_combo_items (
     -- Order / session identity
     transactionheaderid                     TEXT COLLATE pg_catalog."default",
@@ -395,10 +420,11 @@ ALTER TABLE IF EXISTS stg.silver_transaction_combo_items
     OWNER to citus;
 
 -- ============================================================
--- 6. stg.silver_upsell_recommendation
+-- 6. stg.silver_upsell_recommendations
 --    Source sink: SilverUpsellRecommendationsParquet
 --    Branch: BronzeOrdersJson → ItemUpsellRecommColumns → flattenUpsellPrompt → SilverTransformTime6
 -- ============================================================
+--DROP TABLE IF EXISTS stg.silver_upsell_recommendations
 CREATE TABLE IF NOT EXISTS stg.silver_upsell_recommendations (
     -- Order / session identity
     transactionheaderid         TEXT COLLATE pg_catalog."default",
@@ -443,6 +469,7 @@ ALTER TABLE IF EXISTS stg.silver_upsell_recommendations
 --    Note: raw modifier_interactions + modifier_impressions arrays,
 --          before the further unrolling that produces sinks 8 and 9.
 -- ============================================================
+--DROP TABLE IF EXISTS stg.silver_modifier_recommendations
 CREATE TABLE IF NOT EXISTS stg.silver_modifier_recommendations (
     -- Order / session identity
     transactionheaderid         TEXT COLLATE pg_catalog."default",
@@ -481,6 +508,7 @@ ALTER TABLE IF EXISTS stg.silver_modifier_recommendations
 --    Source sink: SilverModifierInteractionsParquet
 --    Branch: ModifierRecommendations → ModifierInteractions → SilverTransformTime8
 -- ============================================================
+--DROP TABLE IF EXISTS stg.silver_modifier_interactions
 CREATE TABLE IF NOT EXISTS stg.silver_modifier_interactions (
     -- Order / session identity
     transactionheaderid                     TEXT COLLATE pg_catalog."default",
@@ -525,6 +553,7 @@ ALTER TABLE IF EXISTS stg.silver_modifier_interactions
 --    Branch: ModifierRecommendations → ModifierImpressions
 --            → ImpressionRecommendations → SilverTransformTime9
 -- ============================================================
+--DROP TABLE IF EXISTS stg.silver_modifier_impressions
 CREATE TABLE IF NOT EXISTS stg.silver_modifier_impressions (
     -- Order / session identity
     transactionheaderid                     TEXT COLLATE pg_catalog."default",
