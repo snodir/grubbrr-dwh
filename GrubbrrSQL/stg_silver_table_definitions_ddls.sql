@@ -17,6 +17,8 @@ SELECT * FROM stg.silver_upsell_recommendations;
 SELECT * FROM stg.silver_modifier_recommendations;
 SELECT * FROM stg.silver_modifier_interactions;
 SELECT * FROM stg.silver_modifier_impressions;
+SELECT * FROM stg.silver_kiosk_events;
+SELECT * FROM stg.silver_cep_incidents;
 
 /*
 TRUNCATE TABLE stg.silver_transaction_header;
@@ -597,4 +599,91 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_impressions (
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_modifier_impressions
+    OWNER to citus;
+
+
+-- ============================================================
+-- stg.silver_kiosk_events
+-- Source: KeepNecessaryCols1 → KioskEvents (nge + kiosk)
+--         → SilverTransformTime1
+-- ============================================================
+CREATE TABLE IF NOT EXISTS stg.silver_kiosk_events (
+    -- Core event identity
+    id                      TEXT COLLATE pg_catalog."default",
+    application             TEXT COLLATE pg_catalog."default",
+    companyid               TEXT COLLATE pg_catalog."default",           -- renamed from: company
+    locationid              TEXT COLLATE pg_catalog."default",           -- renamed from: location
+    eventmodule             TEXT COLLATE pg_catalog."default",           -- renamed from: module
+    eventcategory           TEXT COLLATE pg_catalog."default",           -- renamed from: category
+    eventtype               TEXT COLLATE pg_catalog."default",           -- renamed from: type
+    severity                TEXT COLLATE pg_catalog."default",
+    token                   TEXT COLLATE pg_catalog."default",
+
+    -- Temporal
+    eventinstant            TEXT COLLATE pg_catalog."default",    -- renamed from: instant
+
+    -- User / device context
+    username                TEXT COLLATE pg_catalog."default",
+    userid                  TEXT COLLATE pg_catalog."default",
+    device                  TEXT COLLATE pg_catalog."default",
+    devicename              TEXT COLLATE pg_catalog."default",
+
+    -- Payload
+    summary                 TEXT COLLATE pg_catalog."default",
+    data                    TEXT COLLATE pg_catalog."default",
+
+    -- CosmosDB system fields (kept)
+    syscosmosticks          BIGINT,         -- renamed from: ticks | cast via toLong()
+    syscosmosts             BIGINT,        -- renamed from: _ts
+
+    -- Silver layer metadata
+    silver_transform_time   TEXT COLLATE pg_catalog."default",
+    silver_folderpath       TEXT COLLATE pg_catalog."default"
+) TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.silver_kiosk_events
+    OWNER to citus;
+
+
+-- ============================================================
+-- stg.silver_cep_incidents
+-- Source: KeepNecessaryCols2 → ConnectorEvents
+--         (nge + connector + critical + order + ordersubmitresponse)
+--         → SilverTransformTime2
+-- ============================================================
+CREATE TABLE IF NOT EXISTS stg.silver_cep_incidents (
+    -- Core event identity
+    id                      TEXT COLLATE pg_catalog."default",
+    application             TEXT COLLATE pg_catalog."default",
+    companyid               TEXT COLLATE pg_catalog."default",
+    locationid              TEXT COLLATE pg_catalog."default",
+    eventmodule             TEXT COLLATE pg_catalog."default",
+    eventcategory           TEXT COLLATE pg_catalog."default",
+    eventtype               TEXT COLLATE pg_catalog."default",
+    severity                TEXT COLLATE pg_catalog."default",
+    token                   TEXT COLLATE pg_catalog."default",
+
+    -- Temporal
+    eventinstant            TEXT COLLATE pg_catalog."default",
+
+    -- User / device context
+    username                TEXT COLLATE pg_catalog."default",
+    userid                  TEXT COLLATE pg_catalog."default",
+    device                  TEXT COLLATE pg_catalog."default",
+    devicename              TEXT COLLATE pg_catalog."default",
+
+    -- Payload
+    summary                 TEXT COLLATE pg_catalog."default",
+    data                    TEXT COLLATE pg_catalog."default",
+
+    -- CosmosDB system fields (kept)
+    syscosmosticks          BIGINT,
+    syscosmosts             BIGINT,
+
+    -- Silver layer metadata
+    silver_transform_time   TEXT COLLATE pg_catalog."default",
+    silver_folderpath       TEXT COLLATE pg_catalog."default"
+) TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.silver_cep_incidents
     OWNER to citus;
