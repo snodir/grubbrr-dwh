@@ -91,7 +91,7 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS etl.bronze_partition_registry
     OWNER TO citus;
 
-
+--DELETE FROM etl.bronze_partition_registry WHERE entity = 'events'
 
 INSERT INTO etl.bronze_partition_registry
 SELECT 

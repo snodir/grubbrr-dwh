@@ -17,8 +17,51 @@ SELECT * FROM stg.silver_upsell_recommendations;
 SELECT * FROM stg.silver_modifier_recommendations;
 SELECT * FROM stg.silver_modifier_interactions;
 SELECT * FROM stg.silver_modifier_impressions;
-SELECT * FROM stg.silver_kiosk_events;
+SELECT * FROM stg.silver_kiosk_events WHERE token = '79EGW2F5UYYT7TBS';
 SELECT * FROM stg.silver_cep_incidents;
+
+SELECT * FROM stg.silver_kiosk_events WHERE token = '79EGW2F5UYYT7TBS';
+SELECT * FROM stg.silver_transaction_header WHERE ordersessionid = '79EGW2F5UYYT7TBS';
+
+SELECT ke.companyid,
+    th.locationid,
+    th.transactionheaderid,
+    th.orderid,
+    th.ordersessionid,
+    th.businessdate,
+    th.kioskid,
+    th.kiosk_mode,
+    th.is_test_order,
+    ke.application,
+    ke.eventmodule,
+    ke.eventcategory,
+    ke.eventtype,
+    ke.eventinstant,
+    th.orderdateutc
+FROM stg.silver_kiosk_events as ke 
+INNER JOIN stg.silver_transaction_header as th 
+    ON ke.locationid = th.locationid
+    AND ke.token = th.ordersessionid
+WHERE th.ordersessionid = '79EGW2F5UYYT7TBS'
+ORDER BY ke.syscosmosticks;
+
+SELECT ke.locationid, ke.token, --ke.eventcategory, ke.eventtype,
+    min(CASE WHEN lower(ke.eventcategory) = 'session' AND lower (ke.eventtype) = 'started' THEN eventinstant END) AS session_started,
+    min(CASE WHEN lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'revieworderclicked' THEN eventinstant END) AS review_order_clicked,
+    min(CASE WHEN lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'checkoutclicked' THEN eventinstant END) AS checkout_clicked,
+    min(CASE WHEN lower(ke.eventcategory) = 'payment' AND lower (ke.eventtype) = 'create' THEN eventinstant END) AS payment_create,
+    max(CASE WHEN lower(ke.eventcategory) IN ('session','order') AND lower(ke.eventtype) = 'closed' THEN eventinstant END) AS order_session_closed
+FROM stg.silver_kiosk_events as ke 
+WHERE 1=1
+AND ke.token = '79EGW2F5UYYT7TBS'
+AND ((lower(ke.eventcategory) = 'session' AND lower (ke.eventtype) = 'started') OR 
+     (lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'revieworderclicked') OR 
+     (lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'checkoutclicked') OR 
+     (lower(ke.eventcategory) = 'payment' AND lower (ke.eventtype) = 'create') OR  
+     (lower(ke.eventcategory) IN ('session','order') AND lower(ke.eventtype) = 'closed'))
+AND lower(ke.severity) = 'information'
+GROUP BY ke.locationid, ke.token--, ke.eventcategory, ke.eventtype
+ORDER BY session_started;
 
 /*
 TRUNCATE TABLE stg.silver_transaction_header;
