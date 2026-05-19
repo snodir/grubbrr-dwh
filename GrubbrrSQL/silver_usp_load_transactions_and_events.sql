@@ -22,7 +22,7 @@ SELECT
     END as orderdateutc,
     order_completion_status AS orderstatus,
     ordertype as ordertypeid,
-    ordertypelabel,
+    --ordertypelabel,
     usd_amount :: NUMERIC(12,3) AS ordertotal,
     usd_subtotal :: NUMERIC(12,3) AS ordersubtotal,
     usd_tax :: NUMERIC(12,3) AS ordertax,
@@ -38,14 +38,24 @@ SELECT
     ROW_NUMBER() OVER(PARTITION BY locationid, transactionheaderid ORDER BY orderdateutc DESC) as row_num
 FROM stg.silver_transaction_header
 WHERE is_test_order = False OR is_test_order IS NULL
-)
-SELECT 
+), qualified_trxns AS (
+SELECT dt.*, 
+    ot.id as ordertype,
+    dt.orderdateutc :: TIMESTAMPTZ AT TIME ZONE l.timezone AS orderdatelocal
 FROM delta_transactions as dt
 LEFT JOIN dim.ordertype as ot 
     ON dt.locationid = ot.locationid
     AND dt.kioskid = ot.kioskid
     AND dt.ordertypeid = ot.ordertypeid
+LEFT JOIN dim.location as l 
+    ON dt.locationid = l.locationid
 WHERE row_num = 1
+AND NOT EXISTS (SELECT 1 FROM fact.transactionheader as th
+                WHERE dt.locationid = th.locationid
+                  AND dt.transactionheaderid = th.transactionheaderid)
+)
+SELECT *
+FROM qualified_trxns as qt 
 
 SELECT ke.companyid,
     th.locationid,
