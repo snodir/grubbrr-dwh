@@ -23,8 +23,9 @@ SELECT
     order_completion_status AS orderstatus,
     ordertype as ordertypeid,
     --ordertypelabel,
-    usd_amount :: NUMERIC(12,3) AS ordertotal,
+    usd_reward :: NUMERIC(12,3) AS ordersredeemedrewards,
     usd_subtotal :: NUMERIC(12,3) AS ordersubtotal,
+    usd_amount :: NUMERIC(12,3) AS ordertotal,
     usd_tax :: NUMERIC(12,3) AS ordertax,
     usd_tip :: NUMERIC(12,3) AS ordertip,
     usd_discount :: NUMERIC(12,3) AS orderdiscount,
@@ -54,8 +55,31 @@ AND NOT EXISTS (SELECT 1 FROM fact.transactionheader as th
                 WHERE dt.locationid = th.locationid
                   AND dt.transactionheaderid = th.transactionheaderid)
 )
-SELECT *
-FROM qualified_trxns as qt 
+SELECT ROW_NUMBER() OVER(ORDER BY syscosmosts) + (SELECT max(id) FROM fact.transactionheader) AS id,
+    transactionheaderid,
+    orderid,
+    locationid,
+    kioskid,
+    ordersessionid,
+    CAST(TO_CHAR(orderdatelocal, 'YYYYMMDDHH24') as INTEGER) AS dateid,
+    orderdateutc,
+    orderdatelocal,
+    orderstatus,
+    ordertype,
+    ordersredeemedrewards,
+    ordersubtotal,
+    ordertotal,
+    ordertax,
+    orderdiscount,
+    charityamount,
+    orderservicecharge,
+    businessdate,
+    channel,
+    guestcount,
+    frequentcustomerid,
+    customername,
+    now() :: TIMESTAMP AS createddate
+FROM qualified_trxns  
 
 SELECT ke.companyid,
     th.locationid,
