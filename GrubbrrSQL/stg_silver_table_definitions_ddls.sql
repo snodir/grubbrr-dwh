@@ -58,6 +58,13 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_header (
     kiosk_name                  TEXT COLLATE pg_catalog."default",
     kiosk_mode                  INTEGER,
     channel                     INTEGER,
+    
+    -- Items and Payments Array
+    items_array                 TEXT COLLATE pg_catalog."default",
+    payments_array              TEXT COLLATE pg_catalog."default",
+
+    numberofitems               SMALLINT,
+    numberofpayments            SMALLINT,
 
     -- Concept
     concept_id                  TEXT COLLATE pg_catalog."default",

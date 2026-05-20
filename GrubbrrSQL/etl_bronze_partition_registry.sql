@@ -27,8 +27,8 @@ SELECT
     SUBSTRING(partition_path, 23, 2) as partition_hh
 FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
-  AND partition_date = '2026-05-15' :: DATE
-  AND partition_hour IN (6, 7, 8, 10, 11, 12, 13, 14, 18)
+  AND partition_date IN ('2026-05-18' :: DATE, '2026-05-19' :: DATE)
+  --AND partition_hour IN (6, 7, 8, 9, 10, 11, 12, 16)
   --AND dateid >= TO_CHAR(NOW() - INTERVAL '54 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
   --AND dateid <= TO_CHAR(NOW() - INTERVAL '46 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files
   AND status = 'pending'
