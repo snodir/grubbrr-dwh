@@ -7,7 +7,7 @@
 CREATE SCHEMA IF NOT EXISTS stg;
 
 
-
+/*
 SELECT * FROM stg.silver_transaction_header;
 SELECT * FROM stg.silver_transaction_item;
 SELECT * FROM stg.silver_transaction_combo_items;
@@ -17,12 +17,13 @@ SELECT * FROM stg.silver_upsell_recommendations;
 SELECT * FROM stg.silver_modifier_recommendations;
 SELECT * FROM stg.silver_modifier_interactions;
 SELECT * FROM stg.silver_modifier_impressions;
+SELECT * FROM stg.silver_transaction_refunds;
 SELECT * FROM stg.silver_kiosk_events;
 SELECT * FROM stg.silver_cep_incidents;
 
 SELECT * FROM stg.silver_kiosk_events WHERE token = '79EGW2F5UYYT7TBS';
 SELECT * FROM stg.silver_transaction_header WHERE ordersessionid = '79EGW2F5UYYT7TBS';
-
+*/
 
 
 /*
@@ -611,6 +612,33 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_impressions (
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_modifier_impressions
+    OWNER to citus;
+
+
+-- Table: fact.transactionrefunds
+
+-- DROP TABLE IF EXISTS fact.transactionrefunds;
+
+CREATE TABLE IF NOT EXISTS stg.silver_transaction_refunds
+(
+    locationid              TEXT COLLATE pg_catalog."default",
+    transactionheaderid     TEXT COLLATE pg_catalog."default" NOT NULL,
+    orderid                 TEXT COLLATE pg_catalog."default",
+    original_transaction_id TEXT COLLATE pg_catalog."default",
+    refund_transaction_id   TEXT COLLATE pg_catalog."default",
+    refund_type             TEXT COLLATE pg_catalog."default",
+    refunded_amount         NUMERIC(12,3),
+    order_completion_status TEXT COLLATE pg_catalog."default",
+    orderdateutc            TEXT COLLATE pg_catalog."default",
+    syscosmosts             BIGINT,
+    bronze_filepath         TEXT COLLATE pg_catalog."default",
+    silver_transform_time   TEXT COLLATE pg_catalog."default",
+    silver_folderpath       TEXT COLLATE pg_catalog."default"
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.silver_transaction_refunds
     OWNER to citus;
 
 
