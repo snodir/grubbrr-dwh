@@ -61,6 +61,7 @@ SET source = CASE WHEN watermarktablename in ('fact.transactionrefunds','fact.tr
 --1753100010 = 2025-07-21 12:13:30+00
 SELECT CURRENT_TIMESTAMP, to_timestamp(1763675405) as sample_ts,
        now(), 
+       to_timestamp(1708637922) as first_order_ts,
        to_timestamp(1769669258) as now2207, 
        to_timestamp(1753300000) as nge1,
        to_timestamp(1750000010) as nge2,

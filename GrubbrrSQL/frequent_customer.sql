@@ -54,7 +54,9 @@ ALTER TABLE IF EXISTS dim.frequentcustomer_bkp
     OWNER to citus;
 
 --INSERT INTO dim.frequentcustomer_bkp --178,238
-SELECT * FROM dim.frequentcustomer
+SELECT *--count(*) 
+FROM dim.frequentcustomer --227,642
+ORDER BY ordercount DESC LIMIT 100
 --TRUNCATE TABLE dim.frequentcustomer
 
 /*
