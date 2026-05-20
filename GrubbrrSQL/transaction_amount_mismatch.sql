@@ -39,10 +39,12 @@ SELECT th.transactionheaderid,
        th.ordersredeemedrewards,
        th.orderservicecharge,
        th.charityamount,
-       th.syscosmosts
+       th.syscosmosts,
+       th.businessdate,
+       th.orderdatelocal
 FROM fact.transactionheader as th 
-WHERE th.locationid = 'loc-e73fdbc1-d8cb-4e88-9809-8f7041cab09b'
-AND th.businessdate = '2026-01-26'-- BETWEEN '2026-01-26' AND '2026-01'
+WHERE th.locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-e73fdbc1-d8cb-4e88-9809-8f7041cab09b'
+--AND th.businessdate = '2026-01-26'-- BETWEEN '2026-01-26' AND '2026-01'
 AND th.orderstatus = 'order-placed'
 ORDER BY th.syscosmosts DESC
 

@@ -480,6 +480,46 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_11')]"
             ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_13",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_13.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_12')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_14",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_14.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_13')]"
+            ]
         }
     ]
 }

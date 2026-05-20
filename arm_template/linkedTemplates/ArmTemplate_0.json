@@ -255,33 +255,6 @@
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/SilverToGold')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "Wait_a_second",
-                        "type": "Wait",
-                        "dependsOn": [],
-                        "userProperties": [],
-                        "typeProperties": {
-                            "waitTimeInSeconds": 1
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "folder": {
-                    "name": "DWH-Medallion/Gold-Analytics"
-                },
-                "annotations": [],
-                "lastPublishTime": "2025-10-17T11:58:52Z"
-            },
-            "dependsOn": []
-        },
-        {
             "name": "[concat(parameters('factoryName'), '/ADLSgas')]",
             "type": "Microsoft.DataFactory/factories/linkedServices",
             "apiVersion": "2018-06-01",
@@ -517,113 +490,494 @@
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/GASDimensions')]",
-            "type": "Microsoft.DataFactory/factories/triggers",
+            "name": "[concat(parameters('factoryName'), '/KiosksCosmosToPG')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
             "apiVersion": "2018-06-01",
             "properties": {
-                "annotations": [],
-                "runtimeState": "Stopped",
-                "pipelines": [],
-                "type": "ScheduleTrigger",
-                "typeProperties": {
-                    "recurrence": {
-                        "frequency": "Day",
-                        "interval": 1,
-                        "startTime": "2024-07-12T14:00:00",
-                        "timeZone": "Eastern Standard Time",
-                        "schedule": {
-                            "hours": [
-                                6,
-                                10,
-                                14,
-                                18,
-                                22
-                            ]
+                "activities": [
+                    {
+                        "name": "LoadKiosksFromGASCosmosToAnalyticsDb",
+                        "type": "AzureFunctionActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "functionName": "kiosk_http_trigger",
+                            "headers": {
+                                "Accept-Language": "en-us",
+                                "Content-Type": "application/json"
+                            },
+                            "method": "GET"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LoadKiosksFromCosmosDbToAnalyticsDb",
+                            "type": "LinkedServiceReference"
                         }
                     }
-                }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Dimensions/Stand-Alone"
+                },
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:13Z"
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LoadKiosksFromCosmosDbToAnalyticsDb')]"
+            ]
         },
         {
-            "name": "[concat(parameters('factoryName'), '/GASOrganizationlocation')]",
-            "type": "Microsoft.DataFactory/factories/triggers",
+            "name": "[concat(parameters('factoryName'), '/AnalyticsDbCompany')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Dimensions-GAS/AnalyticsDbDim"
+                },
                 "annotations": [],
-                "runtimeState": "Stopped",
-                "pipelines": [],
-                "type": "ScheduleTrigger",
-                "typeProperties": {
-                    "recurrence": {
-                        "frequency": "Day",
-                        "interval": 1,
-                        "startTime": "2024-04-27T14:00:00",
-                        "timeZone": "Eastern Standard Time",
-                        "schedule": {
-                            "hours": [
-                                5
-                            ]
-                        }
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "companyid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "companyname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "businessemail",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "businessphone",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "businesstype",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "address1",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "address2",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "city",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "state",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "zipcode",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
                     }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "company"
                 }
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OrdersPGNew')]"
+            ]
         },
         {
-            "name": "[concat(parameters('factoryName'), '/GSHDeviceHealth')]",
-            "type": "Microsoft.DataFactory/factories/triggers",
+            "name": "[concat(parameters('factoryName'), '/AnalyticsDbDateDim')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
-                "description": "Get Devices from GSH",
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Dimensions-GAS/AnalyticsDbDim"
+                },
                 "annotations": [],
-                "runtimeState": "Stopped",
-                "pipelines": [],
-                "type": "ScheduleTrigger",
-                "typeProperties": {
-                    "recurrence": {
-                        "frequency": "Day",
-                        "interval": 1,
-                        "startTime": "2024-07-12T14:00:00",
-                        "timeZone": "Eastern Standard Time",
-                        "schedule": {
-                            "hours": [
-                                5
-                            ]
-                        }
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "dateid",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "datets",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "hourofday",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "dayval",
+                        "type": "date",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "daynum",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "dayname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "weekval",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "monthval",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "monthname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "quarterval",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "yearval",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "daypart",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "dayofyear",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
                     }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "datedim"
                 }
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OrdersPGNew')]"
+            ]
         },
         {
-            "name": "[concat(parameters('factoryName'), '/GemAbortedEvents')]",
-            "type": "Microsoft.DataFactory/factories/triggers",
+            "name": "[concat(parameters('factoryName'), '/AnalyticsDbDimElement')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Dimensions-GAS/AnalyticsDbDim"
+                },
                 "annotations": [],
-                "runtimeState": "Stopped",
-                "pipelines": [],
-                "type": "ScheduleTrigger",
-                "typeProperties": {
-                    "recurrence": {
-                        "frequency": "Day",
-                        "interval": 1,
-                        "startTime": "2024-07-12T14:00:00",
-                        "timeZone": "Eastern Standard Time",
-                        "schedule": {
-                            "hours": [
-                                6,
-                                10,
-                                14,
-                                18,
-                                22
-                            ]
-                        }
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "elementid",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sourceelementid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "elementname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
                     }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "element"
                 }
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OrdersPGNew')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AnalyticsDbDimOrganization')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "name",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "address1",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "address2",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "city",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "state",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "zipcode",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "country",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationtype",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "status",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "phonenumber",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "email",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "isdeleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "createdon",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "createdby",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifiedon",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifiedby",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "timezone",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "coordinates",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "dayofweek",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "hour",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "minutes",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "roundupforcharity",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_ecm_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_cep_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_concessionaire_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_smart_upsells_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_feedback_survey_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_digital_menu_board_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_digital_menu_default_format_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "cep_subscriptions",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "organization"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OrdersPGNew')]"
+            ]
         }
     ]
 }

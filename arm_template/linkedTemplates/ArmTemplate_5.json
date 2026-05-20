@@ -13,7 +13,99 @@
     },
     "resources": [
         {
-            "name": "[concat(parameters('factoryName'), '/factItemsSurveyAnalyticsDb')]",
+            "name": "[concat(parameters('factoryName'), '/dimCatalog')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "catalogid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogname",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_catalog_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalog_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalog_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_company_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_location_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_sync_in_progress",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_standalone",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_master",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_ecm_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "catalog"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimCategoryHierarchyAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -37,62 +129,152 @@
                         "scale": 0
                     },
                     {
-                        "name": "dateid",
+                        "name": "mapping_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "mapping_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_mapping_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_mapping_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalog_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalog_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_catalog_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_catalog_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "category_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "category_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_category_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_category_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "entitytype",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_class_type",
                         "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "surveyid",
+                        "name": "menuitemname",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "surveytransid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemrating",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveytransstatus",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveyissuedtimestamp",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveycompletedtimestamp",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveylocaltimestamp",
+                        "name": "item_created_on",
                         "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_item_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_item_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
                         "precision": 0,
                         "scale": 0
                     },
@@ -103,69 +285,21 @@
                         "scale": 0
                     },
                     {
-                        "name": "nge_syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_event_category",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_event_type",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_responded",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_event_instant",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
                         "name": "sysupdatetime",
                         "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sourceid",
-                        "type": "integer",
                         "precision": 0,
                         "scale": 0
                     }
                 ],
                 "typeProperties": {
-                    "schema": "fact",
-                    "table": "itemssurvey"
+                    "schema": "dim",
+                    "table": "category_hierarchy"
                 }
             },
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/factModifierInteractions')]",
+            "name": "[concat(parameters('factoryName'), '/dimDeviceAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -177,31 +311,515 @@
                 "type": "AzurePostgreSqlTable",
                 "schema": [
                     {
+                        "name": "id",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "deviceid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "devicetype",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "devicename",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "companyid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "currentversion",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ipaddress",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "state",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "previousstate",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "statechangedate",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "enrollmentdate",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "disenrollmentdate",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "disenrollmentreason",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "testmode",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "device"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimFrequentCustomerAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "customerkey",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "frequentcustomerid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "firstname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "lastname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "email",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "phone",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "source",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "createddate",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "lastorderdate",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordercount",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "amountspent",
+                        "type": "numeric",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "frequentcustomer"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimItemCategoryMapping')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "categoryid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "subcategoryid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "isactive",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "isdeleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifiedon",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "itemcategorymapping"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimItemModifierGroupModifierMappingAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "catalogid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifiergroupid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifierid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itm_modgrp_min_selection",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itm_modgrp_max_selection",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itm_modgrp_free_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_itm_modgrp_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_itm_modgrp_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itm_modgrp_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itm_modgrp_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_itm_modgrp_invisible",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_default",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "min_quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "max_quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "allow_quantity_increment",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "increment_step",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "default_quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_modgrp_modfr_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_modgrp_modfr_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modgrp_modfr_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modgrp_modfr_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_modgrp_modfr_invisible",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "item_modifier_group_modifier_mapping"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimLocationCatalogAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "id",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
                         "name": "locationid",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "transactionheaderid",
+                        "name": "locationname",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "ordersessionid",
+                        "name": "catalogid",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "orderid",
+                        "name": "timezone",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "orderitemid",
+                        "name": "menuid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "locationcatalog"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimMenuItemTestAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "id",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
@@ -213,92 +831,318 @@
                         "scale": 0
                     },
                     {
-                        "name": "modifiergroupid",
+                        "name": "menuitemname",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
+                        "name": "guest",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "effective_date",
+                        "type": "date",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "issuedsurveycount",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "receivedsurveycount",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "totalratingvalue",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "menuitem_test"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimModifierAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
                         "name": "modifierid",
-                        "type": "text",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogid",
+                        "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
                         "name": "modifiername",
-                        "type": "text",
+                        "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "parent_modifier_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "nesting_depth",
+                        "name": "min_quantity",
                         "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "modifierquantity",
+                        "name": "max_quantity",
                         "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "modifierprice",
+                        "name": "allow_quantity_increment",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "increment_step",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "calories",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "calories_text",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_modifier_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_modifier_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifier_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifier_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_modifier_default",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifier_default_quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_invisible",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "classification",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "price",
                         "type": "numeric",
                         "precision": 12,
                         "scale": 3
                     },
                     {
-                        "name": "freequantity",
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "price_changed_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "modifier"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dimModifierGroupAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "modifiergroupid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifiergroupname",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "max_selection",
                         "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "selection_type",
-                        "type": "text",
+                        "name": "min_selection",
+                        "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "action",
-                        "type": "text",
+                        "name": "free_count",
+                        "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "session_recorded_at",
-                        "type": "text",
+                        "name": "pos_linked_entity_id",
+                        "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "businessdate",
-                        "type": "date",
+                        "name": "is_active",
+                        "type": "boolean",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "orderdatelocal",
+                        "name": "is_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_on",
                         "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "frequentcustomerid",
-                        "type": "text",
+                        "name": "modified_on",
+                        "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "syscosmosts",
-                        "type": "bigint",
+                        "name": "negative_modifier_behavior",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "max_aggregate_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "min_aggregate_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "increment_step",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "slider_mode",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "slider_mode_modifier",
+                        "type": "boolean",
                         "precision": 0,
                         "scale": 0
                     },
@@ -316,14 +1160,14 @@
                     }
                 ],
                 "typeProperties": {
-                    "schema": "fact",
-                    "table": "modifier_interactions"
+                    "schema": "dim",
+                    "table": "modifier_group"
                 }
             },
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/factModifierRecommendationsAnalyticsDb')]",
+            "name": "[concat(parameters('factoryName'), '/dimModifierMappingAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -335,68 +1179,98 @@
                 "type": "AzurePostgreSqlTable",
                 "schema": [
                     {
-                        "name": "locationid",
-                        "type": "text",
+                        "name": "modifier_mapping_id",
+                        "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "transactionheaderid",
-                        "type": "text",
+                        "name": "modifierid",
+                        "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "ordersessionid",
-                        "type": "text",
+                        "name": "modifiergroupid",
+                        "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "orderid",
-                        "type": "text",
+                        "name": "catalogid",
+                        "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "modifier_impressions",
-                        "type": "text",
+                        "name": "is_mapping_active",
+                        "type": "boolean",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "modifier_interactions",
-                        "type": "text",
+                        "name": "is_mapping_deleted",
+                        "type": "boolean",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "businessdate",
-                        "type": "date",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdateutc",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdatelocal",
+                        "name": "mapping_created_on",
                         "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "frequentcustomerid",
+                        "name": "mapping_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_default",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "default_quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "allow_quantity_increment",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "increment_step",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "min_quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "max_quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "calories_text",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "syscosmosts",
-                        "type": "bigint",
+                        "name": "is_invisible",
+                        "type": "boolean",
                         "precision": 0,
                         "scale": 0
                     },
@@ -414,14 +1288,14 @@
                     }
                 ],
                 "typeProperties": {
-                    "schema": "fact",
-                    "table": "modifier_recommendations"
+                    "schema": "dim",
+                    "table": "modifier_group_mapping"
                 }
             },
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/factOccasionSurveyAnalyticsDb')]",
+            "name": "[concat(parameters('factoryName'), '/dimOccasionSurveyAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -432,21 +1306,15 @@
                 "annotations": [],
                 "type": "AzurePostgreSqlTable",
                 "schema": [
+                    {
+                        "name": "surveykey",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
                     {
                         "name": "organizationid",
                         "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "dateid",
-                        "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
@@ -457,43 +1325,49 @@
                         "scale": 0
                     },
                     {
-                        "name": "surveytransid",
+                        "name": "surveyname",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "orderid",
-                        "type": "text",
+                        "name": "surveytype",
+                        "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "surveyrating",
-                        "type": "text",
+                        "name": "question_type",
+                        "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "surveytransstatus",
-                        "type": "text",
+                        "name": "selection_type",
+                        "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "surveyissuedtimestamp",
-                        "type": "text",
+                        "name": "survey_status",
+                        "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "surveycompletedtimestamp",
-                        "type": "text",
+                        "name": "is_deleted",
+                        "type": "boolean",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "surveylocaltimestamp",
+                        "name": "created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_on",
                         "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
@@ -505,39 +1379,21 @@
                         "scale": 0
                     },
                     {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sourceid",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveytype",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
                     }
                 ],
                 "typeProperties": {
-                    "schema": "fact",
-                    "table": "occasionsurveydetail"
+                    "schema": "dim",
+                    "table": "occasionsurvey"
                 }
             },
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/factPeripheralAnalyticsDB')]",
+            "name": "[concat(parameters('factoryName'), '/dimPeripheralAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -545,14 +1401,17 @@
                     "referenceName": "OrdersPGNew",
                     "type": "LinkedServiceReference"
                 },
-                "folder": {
-                    "name": "Service-GSH/AnalyticsDb"
-                },
                 "annotations": [],
                 "type": "AzurePostgreSqlTable",
                 "schema": [
                     {
-                        "name": "healthdataid",
+                        "name": "id",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "deviceid",
                         "type": "bigint",
                         "precision": 0,
                         "scale": 0
@@ -570,27 +1429,57 @@
                         "scale": 0
                     },
                     {
-                        "name": "status",
+                        "name": "state",
                         "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "statusmessage",
+                        "name": "previousstate",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "statechangedate",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "description",
                         "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "model",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "serial",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ipaddress",
+                        "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     }
                 ],
                 "typeProperties": {
-                    "schema": "fact",
-                    "table": "peripheralhealth"
+                    "schema": "dim",
+                    "table": "peripheral"
                 }
             },
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/factRecommendationsAnalyticsDb')]",
+            "name": "[concat(parameters('factoryName'), '/dimUpsellGroupLookupAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -602,57 +1491,45 @@
                 "type": "AzurePostgreSqlTable",
                 "schema": [
                     {
-                        "name": "transactionheaderid",
+                        "name": "upsellgroupid",
                         "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "recommendationid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "offereditems",
-                        "type": "jsonb",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "selecteditems",
-                        "type": "jsonb",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "isconverted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "prompttimestamp",
+                        "name": "upsellgroupname",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "sysinserttime",
+                        "name": "isactive",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "createdon",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modifiedon",
                         "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
                     }
                 ],
                 "typeProperties": {
-                    "schema": "fact",
-                    "table": "recommendations"
+                    "schema": "dim",
+                    "table": "upsellgrouplookup"
                 }
             },
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/factSentSurveysAnalyticsDb')]",
+            "name": "[concat(parameters('factoryName'), '/dimWeatherAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -676,50 +1553,26 @@
                         "scale": 0
                     },
                     {
-                        "name": "ordersessionid",
+                        "name": "city",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "orderid",
+                        "name": "timezone",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "gem_event_category",
-                        "type": "text",
+                        "name": "businessdate",
+                        "type": "date",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "gem_event_type",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "survey_metadata",
+                        "name": "weatherinfo",
                         "type": "jsonb",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_responded",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_event_instant",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_syscosmosts",
-                        "type": "bigint",
                         "precision": 0,
                         "scale": 0
                     },
@@ -737,14 +1590,14 @@
                     }
                 ],
                 "typeProperties": {
-                    "schema": "fact",
-                    "table": "sent_surveys"
+                    "schema": "dim",
+                    "table": "weather"
                 }
             },
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/factTransactionRefundsAnalyticsDb')]",
+            "name": "[concat(parameters('factoryName'), '/dim_vw_grubbrrinstallbase_AnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -754,15 +1607,37 @@
                 },
                 "annotations": [],
                 "type": "AzurePostgreSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "vw_grubbrrinstallbase"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dim_vw_organizationlocation')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Dimensions-GAS/AnalyticsDbDim"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
                 "schema": [
                     {
-                        "name": "transactionheaderid",
+                        "name": "organizationid",
                         "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "orderid",
+                        "name": "organizationname",
                         "type": "character varying",
                         "precision": 0,
                         "scale": 0
@@ -774,31 +1649,123 @@
                         "scale": 0
                     },
                     {
-                        "name": "refundtransactionid",
+                        "name": "locationname",
                         "type": "character varying",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "paymentid",
-                        "type": "character varying",
+                        "name": "organizationtype",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "organizationlocation"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/etlBronzePartitionRegistryAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "dateid",
+                        "type": "integer",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "refundamount",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "refundtype",
-                        "type": "character varying",
+                        "name": "layer",
+                        "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "orderdateutc",
+                        "name": "entity",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "partition_path",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "partition_date",
+                        "type": "date",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "partition_year",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "partition_month",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "partition_day",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "partition_hour",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "status",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "file_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "started_at",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "completed_at",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "adf_pipeline_run_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "error_message",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
@@ -810,21 +1777,155 @@
                         "scale": 0
                     },
                     {
+                        "name": "sysupdatetime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "etl",
+                    "table": "bronze_partition_registry"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/factCEPIncidentsAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "incidentkey",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "application",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "deviceid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventmodule",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventcategory",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventtype",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventtoken",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "incidenttype",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "incidentcount",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventinstant",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "firstoccurred",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "lastoccurred",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "notificationtypeid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "incidentdata",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
                         "name": "syscosmosts",
                         "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "severity",
+                        "type": "text",
                         "precision": 0,
                         "scale": 0
                     }
                 ],
                 "typeProperties": {
                     "schema": "fact",
-                    "table": "transactionrefunds"
+                    "table": "cep_incidents"
                 }
             },
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/factwatermarktable')]",
+            "name": "[concat(parameters('factoryName'), '/factDeviceHealthAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
@@ -839,1910 +1940,75 @@
                 "type": "AzurePostgreSqlTable",
                 "schema": [
                     {
-                        "name": "watermarktablename",
+                        "name": "id",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "healthdatatype",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "watermarkcolumn",
+                        "name": "locationid",
                         "type": "text",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "watermarkvalue",
+                        "name": "companyid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "deviceid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "devicetype",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "status",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "statusmessage",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "healthdatatime",
                         "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "ticks",
-                        "type": "bigint",
+                        "name": "statuschangetime",
+                        "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
                     },
                     {
-                        "name": "ts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "source",
-                        "type": "character varying",
+                        "name": "inserttime",
+                        "type": "timestamp without time zone",
                         "precision": 0,
                         "scale": 0
                     }
                 ],
                 "typeProperties": {
                     "schema": "fact",
-                    "table": "watermarktable"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gasCosmosCompany')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersCosmosNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Dimensions-GAS/GasCosmos"
-                },
-                "annotations": [],
-                "type": "CosmosDbSqlApiCollection",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "companyName": {
-                            "type": "string"
-                        },
-                        "businessEmail": {
-                            "type": "string"
-                        },
-                        "businessPhone": {
-                            "type": "object",
-                            "properties": {
-                                "formattedNumber": {
-                                    "type": "string"
-                                },
-                                "countryCode": {
-                                    "type": "string"
-                                },
-                                "number": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "alternatePhone": {
-                            "type": "object",
-                            "properties": {
-                                "formattedNumber": {
-                                    "type": "string"
-                                },
-                                "countryCode": {
-                                    "type": "string"
-                                },
-                                "number": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "businessLogo": {
-                            "type": "object",
-                            "properties": {
-                                "url": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "isActive": {
-                            "type": "boolean"
-                        },
-                        "storageRegion": {
-                            "type": "string"
-                        },
-                        "address": {
-                            "type": "object",
-                            "properties": {
-                                "address1": {
-                                    "type": "string"
-                                },
-                                "address2": {
-                                    "type": "string"
-                                },
-                                "countryISO": {
-                                    "type": "string"
-                                },
-                                "state": {
-                                    "type": "string"
-                                },
-                                "city": {
-                                    "type": "string"
-                                },
-                                "zipCode": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "enabledPosServicePosIntegrations": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "enabledPaymentIntegrations": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "enabledLoyaltyIntegrations": {
-                            "type": "array"
-                        },
-                        "companyId": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "enabledPosIntegrations": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        },
-                        "businessType": {
-                            "type": "string"
-                        },
-                        "dateFormat": {
-                            "type": "string"
-                        },
-                        "currencyId": {
-                            "type": "null"
-                        },
-                        "countryName": {
-                            "type": "string"
-                        },
-                        "timeZoneId": {
-                            "type": "null"
-                        },
-                        "locationCoordinates": {
-                            "type": "null"
-                        }
-                    }
-                },
-                "typeProperties": {
-                    "collectionName": "company"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gasCosmosItemCategory')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersCosmosNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Dimensions-GAS/GasCosmos"
-                },
-                "annotations": [],
-                "type": "CosmosDbSqlApiCollection",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "orderDate": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "totals": {
-                            "type": "object",
-                            "properties": {
-                                "subTotal": {
-                                    "type": "number"
-                                },
-                                "tax": {
-                                    "type": "number"
-                                },
-                                "tip": {
-                                    "type": "number"
-                                },
-                                "total": {
-                                    "type": "number"
-                                }
-                            }
-                        },
-                        "items": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "orderItemId": {
-                                        "type": "string"
-                                    },
-                                    "menuItemId": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "options": {
-                                        "type": "array"
-                                    },
-                                    "unitPrice": {
-                                        "type": "number"
-                                    },
-                                    "quantity": {
-                                        "type": "integer"
-                                    }
-                                }
-                            }
-                        },
-                        "paymentDetails": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "amount": {
-                                        "type": "number"
-                                    },
-                                    "paymentIntegrationId": {
-                                        "type": "string"
-                                    },
-                                    "transactionId": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        },
-                        "orderType": {
-                            "type": "string"
-                        },
-                        "orderId": {
-                            "type": "string"
-                        },
-                        "locationId": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "typeProperties": {
-                    "collectionName": "orders"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gasCosmosLocation')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersCosmosNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Dimensions-GAS/GasCosmos"
-                },
-                "annotations": [],
-                "type": "CosmosDbSqlApiCollection",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "kiosks": {
-                            "type": "object",
-                            "properties": {
-                                "ksk-69227278": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object",
-                                            "properties": {
-                                                "payment-integration-cash": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "values": {
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "payment-integration-id-pay": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "values": {
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "payment-integration-verifone": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "values": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "deviceIpAddress": {
-                                                                    "type": "string"
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "lastSync": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "ksk-21358293": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "null"
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object",
-                                            "properties": {
-                                                "payment-integration-cash": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "values": {
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "payment-integration-verifone": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "values": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "deviceIpAddress": {
-                                                                    "type": "string"
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "lastSync": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "ksk-96764592": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object"
-                                        },
-                                        "lastSync": {
-                                            "type": "null"
-                                        }
-                                    }
-                                },
-                                "ksk-95600990": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object"
-                                        },
-                                        "lastSync": {
-                                            "type": "null"
-                                        }
-                                    }
-                                },
-                                "ksk-92352787": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object"
-                                        },
-                                        "lastSync": {
-                                            "type": "null"
-                                        }
-                                    }
-                                },
-                                "ksk-06950265": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object",
-                                            "properties": {
-                                                "payment-integration-cash": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "values": {
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "payment-integration-verifone": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "values": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "deviceIpAddress": {
-                                                                    "type": "string"
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "lastSync": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "ksk-69450032": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object",
-                                            "properties": {
-                                                "payment-integration-verifone": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "values": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "deviceIpAddress": {
-                                                                    "type": "string"
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "payment-integration-id-pay": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "values": {
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "ksk-37383559": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object"
-                                        }
-                                    }
-                                },
-                                "ksk-15623304": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object"
-                                        }
-                                    }
-                                },
-                                "ksk-80881704": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object"
-                                        }
-                                    }
-                                },
-                                "ksk-50740354": {
-                                    "type": "object",
-                                    "properties": {
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "refreshTokenCode": {
-                                            "type": "string"
-                                        },
-                                        "deviceDetails": {
-                                            "type": "object",
-                                            "properties": {
-                                                "appVersion": {
-                                                    "type": "string"
-                                                },
-                                                "deviceType": {
-                                                    "type": "string"
-                                                },
-                                                "serialNumber": {
-                                                    "type": "string"
-                                                },
-                                                "lastLoginTime": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "paymentIntegrationConfigs": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "syncVersion": {
-                            "type": "object",
-                            "properties": {
-                                "kioskSyncVersion": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "locationId": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "staff": {
-                            "type": "array"
-                        },
-                        "storageRegion": {
-                            "type": "string"
-                        },
-                        "colors": {
-                            "type": "object",
-                            "properties": {
-                                "primary": {
-                                    "type": "string"
-                                },
-                                "onPrimary": {
-                                    "type": "string"
-                                },
-                                "secondary": {
-                                    "type": "string"
-                                },
-                                "onSecondary": {
-                                    "type": "string"
-                                },
-                                "tertiary": {
-                                    "type": "string"
-                                },
-                                "onTertiary": {
-                                    "type": "string"
-                                },
-                                "surface": {
-                                    "type": "string"
-                                },
-                                "onSurface": {
-                                    "type": "string"
-                                },
-                                "background": {
-                                    "type": "string"
-                                },
-                                "onBackground": {
-                                    "type": "string"
-                                },
-                                "error": {
-                                    "type": "string"
-                                },
-                                "onError": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "template": {
-                            "type": "object",
-                            "properties": {
-                                "templateId": {
-                                    "type": "string"
-                                },
-                                "settings": {
-                                    "type": "object",
-                                    "properties": {
-                                        "options": {
-                                            "type": "object"
-                                        }
-                                    }
-                                },
-                                "screensavers": {
-                                    "type": "object",
-                                    "properties": {
-                                        "files": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string"
-                                                    },
-                                                    "storagePath": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "images": {
-                                    "type": "null"
-                                },
-                                "textOverrides": {
-                                    "type": "object",
-                                    "properties": {
-                                        "strings": {
-                                            "type": "object",
-                                            "properties": {
-                                                "en": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "category_items.header": {
-                                                            "type": "string"
-                                                        },
-                                                        "category_items.sub_header": {
-                                                            "type": "string"
-                                                        },
-                                                        "session_cancel.yes_action": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "es": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "category_items.header": {
-                                                            "type": "string"
-                                                        },
-                                                        "search_items.input_placeholder": {
-                                                            "type": "string"
-                                                        },
-                                                        "session_complete.total": {
-                                                            "type": "string"
-                                                        },
-                                                        "session_complete.print_receipt_error_header": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "receipt": {
-                            "type": "object",
-                            "properties": {
-                                "templateId": {
-                                    "type": "string"
-                                },
-                                "headerText": {
-                                    "type": "string"
-                                },
-                                "footerText": {
-                                    "type": "string"
-                                },
-                                "logoUrl": {
-                                    "type": "string"
-                                },
-                                "address": {
-                                    "type": "object",
-                                    "properties": {
-                                        "address1": {
-                                            "type": "string"
-                                        },
-                                        "address2": {
-                                            "type": "string"
-                                        },
-                                        "countryISO": {
-                                            "type": "string"
-                                        },
-                                        "state": {
-                                            "type": "string"
-                                        },
-                                        "city": {
-                                            "type": "string"
-                                        },
-                                        "zipCode": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "phone": {
-                                    "type": "object",
-                                    "properties": {
-                                        "countryCode": {
-                                            "type": "string"
-                                        },
-                                        "number": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "autoPrint": {
-                                    "type": "boolean"
-                                }
-                            }
-                        },
-                        "loyaltyIntegration": {
-                            "type": "null"
-                        },
-                        "paymentIntegrations": {
-                            "type": "object",
-                            "properties": {
-                                "config": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "tender": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "value": {
-                                                        "type": "string"
-                                                    },
-                                                    "mappings": {
-                                                        "type": "null"
-                                                    }
-                                                }
-                                            },
-                                            "config": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "values": {
-                                                        "type": "object"
-                                                    }
-                                                }
-                                            },
-                                            "binRanges": {
-                                                "type": "array"
-                                            },
-                                            "paymentIntegrationId": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                },
-                                "defaultPaymentTender": {
-                                    "type": "null"
-                                },
-                                "enableAmazonOnePay": {
-                                    "type": "boolean"
-                                }
-                            }
-                        },
-                        "orderTypes": {
-                            "type": "object",
-                            "properties": {
-                                "options": {
-                                    "type": "object",
-                                    "properties": {
-                                        "ord-type-47569756": {
-                                            "type": "object",
-                                            "properties": {
-                                                "label": {
-                                                    "type": "string"
-                                                },
-                                                "externalDeliveryMode": {
-                                                    "type": "string"
-                                                },
-                                                "orderIdentity": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "customerIdentityMode": {
-                                                            "type": "integer"
-                                                        },
-                                                        "orderIdentityMode": {
-                                                            "type": "integer"
-                                                        },
-                                                        "nameIdSettings": {
-                                                            "type": "null"
-                                                        },
-                                                        "orderIdPrefix": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "enabled": {
-                                                    "type": "boolean"
-                                                }
-                                            }
-                                        },
-                                        "ord-type-57219776": {
-                                            "type": "object",
-                                            "properties": {
-                                                "label": {
-                                                    "type": "string"
-                                                },
-                                                "externalDeliveryMode": {
-                                                    "type": "string"
-                                                },
-                                                "orderIdentity": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "customerIdentityMode": {
-                                                            "type": "integer"
-                                                        },
-                                                        "orderIdentityMode": {
-                                                            "type": "integer"
-                                                        },
-                                                        "nameIdSettings": {
-                                                            "type": "null"
-                                                        },
-                                                        "orderIdPrefix": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "enabled": {
-                                                    "type": "boolean"
-                                                }
-                                            }
-                                        },
-                                        "ord-type-23779583": {
-                                            "type": "object",
-                                            "properties": {
-                                                "label": {
-                                                    "type": "string"
-                                                },
-                                                "externalDeliveryMode": {
-                                                    "type": "string"
-                                                },
-                                                "orderIdentity": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "customerIdentityMode": {
-                                                            "type": "integer"
-                                                        },
-                                                        "orderIdentityMode": {
-                                                            "type": "integer"
-                                                        },
-                                                        "nameIdSettings": {
-                                                            "type": "null"
-                                                        },
-                                                        "orderIdPrefix": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "enabled": {
-                                                    "type": "boolean"
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "orderTokenSettings": {
-                                    "type": "object",
-                                    "properties": {
-                                        "orderNumberStart": {
-                                            "type": "integer"
-                                        },
-                                        "allotment": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "ageVerification": {
-                            "type": "object"
-                        },
-                        "timeout": {
-                            "type": "object",
-                            "properties": {
-                                "idleTimeout": {
-                                    "type": "integer"
-                                },
-                                "restartPromptTimer": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "tips": {
-                            "type": "object",
-                            "properties": {
-                                "enableTips": {
-                                    "type": "boolean"
-                                },
-                                "showCalculatedTip": {
-                                    "type": "boolean"
-                                },
-                                "customTipEnabled": {
-                                    "type": "boolean"
-                                },
-                                "tips": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "amount": {
-                                                "type": "integer"
-                                            },
-                                            "isDefault": {
-                                                "type": "boolean"
-                                            }
-                                        }
-                                    }
-                                },
-                                "tender": {
-                                    "type": "null"
-                                }
-                            }
-                        },
-                        "emailReceiptSettings": {
-                            "type": "null"
-                        },
-                        "localization": {
-                            "type": "object",
-                            "properties": {
-                                "currency": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "string"
-                                        },
-                                        "divisor": {
-                                            "type": "integer"
-                                        }
-                                    }
-                                },
-                                "defaultLanguage": {
-                                    "type": "string"
-                                },
-                                "languages": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                "locale": {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "conceptsEnabled": {
-                            "type": "boolean"
-                        },
-                        "caloriesEnabled": {
-                            "type": "boolean"
-                        },
-                        "itemSpecialRequestSettings": {
-                            "type": "null"
-                        },
-                        "businessHoursConfiguration": {
-                            "type": "null"
-                        },
-                        "concepts": {
-                            "type": "null"
-                        },
-                        "defaultMenuLayout": {
-                            "type": "string"
-                        },
-                        "config": {
-                            "type": "object",
-                            "properties": {
-                                "locationId": {
-                                    "type": "string"
-                                },
-                                "posIntegrationId": {
-                                    "type": "string"
-                                },
-                                "webhookIdField": {
-                                    "type": "null"
-                                },
-                                "fields": {
-                                    "type": "object",
-                                    "properties": {
-                                        "merchantId": {
-                                            "type": "string"
-                                        },
-                                        "accessToken": {
-                                            "type": "string"
-                                        },
-                                        "enableWebhooks": {
-                                            "type": "boolean"
-                                        },
-                                        "isCloverSandbox": {
-                                            "type": "boolean"
-                                        },
-                                        "blobSasTokenUri": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "menuSyncSchedule": {
-                            "type": "object",
-                            "properties": {
-                                "syncTimes": {
-                                    "type": "array"
-                                }
-                            }
-                        },
-                        "ownerInfo": {
-                            "type": "object",
-                            "properties": {
-                                "ownerEmail": {
-                                    "type": "string"
-                                },
-                                "ownerCompanyName": {
-                                    "type": "null"
-                                },
-                                "ownerName": {
-                                    "type": "string"
-                                },
-                                "ownerContactNo": {
-                                    "type": "object",
-                                    "properties": {
-                                        "countryCode": {
-                                            "type": "string"
-                                        },
-                                        "number": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "ownerProfilePic": {
-                                    "type": "null"
-                                }
-                            }
-                        },
-                        "contactInfo": {
-                            "type": "object",
-                            "properties": {
-                                "contactNo": {
-                                    "type": "object",
-                                    "properties": {
-                                        "countryCode": {
-                                            "type": "string"
-                                        },
-                                        "number": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "customerSupportno": {
-                                    "type": "object",
-                                    "properties": {
-                                        "countryCode": {
-                                            "type": "string"
-                                        },
-                                        "number": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "locationEmail": {
-                                    "type": "string"
-                                },
-                                "customerSupportEmail": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "storeLocation": {
-                            "type": "object",
-                            "properties": {
-                                "address": {
-                                    "type": "object",
-                                    "properties": {
-                                        "address1": {
-                                            "type": "string"
-                                        },
-                                        "address2": {
-                                            "type": "string"
-                                        },
-                                        "countryISO": {
-                                            "type": "string"
-                                        },
-                                        "state": {
-                                            "type": "string"
-                                        },
-                                        "city": {
-                                            "type": "string"
-                                        },
-                                        "zipCode": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "countryName": {
-                                    "type": "string"
-                                },
-                                "locationCoordinates": {
-                                    "type": "object",
-                                    "properties": {
-                                        "latitude": {
-                                            "type": "string"
-                                        },
-                                        "longitude": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "timeZoneId": {
-                                    "type": "null"
-                                },
-                                "region": {
-                                    "type": "null"
-                                }
-                            }
-                        },
-                        "companyId": {
-                            "type": "string"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "locationInheritance": {
-                            "type": "object",
-                            "properties": {
-                                "parentLocationId": {
-                                    "type": "null"
-                                },
-                                "inheritMenu": {
-                                    "type": "boolean"
-                                },
-                                "inheritTheme": {
-                                    "type": "boolean"
-                                },
-                                "inheritKioskSettings": {
-                                    "type": "boolean"
-                                }
-                            }
-                        },
-                        "timezone": {
-                            "type": "string"
-                        },
-                        "posConnectorConfigurationId": {
-                            "type": "string"
-                        },
-                        "menuSnapshotArtifactId": {
-                            "type": "string"
-                        },
-                        "snapshotSyncStrategy": {
-                            "type": "string"
-                        },
-                        "orderToken": {
-                            "type": "object",
-                            "properties": {
-                                "orderNumberStart": {
-                                    "type": "integer"
-                                },
-                                "allotment": {
-                                    "type": "integer"
-                                }
-                            }
-                        }
-                    }
-                },
-                "typeProperties": {
-                    "collectionName": "location"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gasCosmosOrderType')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersCosmosNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Dimensions-GAS/GasCosmos"
-                },
-                "annotations": [],
-                "type": "CosmosDbSqlApiCollection",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "orderDate": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "totals": {
-                            "type": "object",
-                            "properties": {
-                                "subTotal": {
-                                    "type": "number"
-                                },
-                                "tax": {
-                                    "type": "number"
-                                },
-                                "tip": {
-                                    "type": "number"
-                                },
-                                "total": {
-                                    "type": "number"
-                                }
-                            }
-                        },
-                        "items": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "orderItemId": {
-                                        "type": "string"
-                                    },
-                                    "menuItemId": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "options": {
-                                        "type": "array"
-                                    },
-                                    "unitPrice": {
-                                        "type": "number"
-                                    },
-                                    "quantity": {
-                                        "type": "integer"
-                                    }
-                                }
-                            }
-                        },
-                        "paymentDetails": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "amount": {
-                                        "type": "number"
-                                    },
-                                    "paymentIntegrationId": {
-                                        "type": "string"
-                                    },
-                                    "transactionId": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        },
-                        "orderType": {
-                            "type": "string"
-                        },
-                        "orderId": {
-                            "type": "string"
-                        },
-                        "locationId": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "typeProperties": {
-                    "collectionName": "orders"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gasOrdersCosmos')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersCosmosNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Orders-GAS/GasCosmos"
-                },
-                "annotations": [],
-                "type": "CosmosDbSqlApiCollection",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "orderDate": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "totals": {
-                            "type": "object",
-                            "properties": {
-                                "subTotal": {
-                                    "type": "number"
-                                },
-                                "tax": {
-                                    "type": "number"
-                                },
-                                "tip": {
-                                    "type": "number"
-                                },
-                                "total": {
-                                    "type": "number"
-                                }
-                            }
-                        },
-                        "items": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "orderItemId": {
-                                        "type": "string"
-                                    },
-                                    "menuItemId": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "options": {
-                                        "type": "array"
-                                    },
-                                    "unitPrice": {
-                                        "type": "number"
-                                    },
-                                    "quantity": {
-                                        "type": "integer"
-                                    }
-                                }
-                            }
-                        },
-                        "paymentDetails": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "amount": {
-                                        "type": "number"
-                                    },
-                                    "paymentIntegrationId": {
-                                        "type": "string"
-                                    },
-                                    "transactionId": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        },
-                        "orderType": {
-                            "type": "string"
-                        },
-                        "orderId": {
-                            "type": "string"
-                        },
-                        "locationId": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "typeProperties": {
-                    "collectionName": "orders"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gasSurveyCosmos')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersCosmosNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "CosmosDbSqlApiCollection",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "surveyId": {
-                            "type": "string"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "surveyType": {
-                            "type": "integer"
-                        },
-                        "questionText": {
-                            "type": "string"
-                        },
-                        "instruction": {
-                            "type": "string"
-                        },
-                        "questionType": {
-                            "type": "integer"
-                        },
-                        "status": {
-                            "type": "integer"
-                        },
-                        "presentAt": {
-                            "type": "integer"
-                        },
-                        "isDeleted": {
-                            "type": "boolean"
-                        },
-                        "createdOn": {
-                            "type": "string"
-                        },
-                        "createdBy": {
-                            "type": "null"
-                        },
-                        "modifiedOn": {
-                            "type": "string"
-                        },
-                        "modifiedBy": {
-                            "type": "null"
-                        },
-                        "organizationId": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "typeProperties": {
-                    "collectionName": "survey"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gasTrainingDataParquet')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "ADLSsus",
-                    "type": "LinkedServiceReference"
-                },
-                "parameters": {
-                    "p_ds_orgid": {
-                        "type": "string",
-                        "defaultValue": "org-a4b81610-f019-45d2-8522-2ccee0e85bd7"
-                    }
-                },
-                "folder": {
-                    "name": "ML"
-                },
-                "annotations": [],
-                "type": "Parquet",
-                "typeProperties": {
-                    "location": {
-                        "type": "AzureBlobFSLocation",
-                        "folderPath": {
-                            "value": "@dataset().p_ds_orgid",
-                            "type": "Expression"
-                        },
-                        "fileSystem": "ml-training-data"
-                    },
-                    "compressionCodec": "snappy"
-                },
-                "schema": []
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gemEvent')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "EventsCosmosNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Events-GEM"
-                },
-                "annotations": [],
-                "type": "CosmosDbSqlApiCollection",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "application": {
-                            "type": "string"
-                        },
-                        "company": {
-                            "type": "string"
-                        },
-                        "location": {
-                            "type": "string"
-                        },
-                        "module": {
-                            "type": "string"
-                        },
-                        "category": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "severity": {
-                            "type": "string"
-                        },
-                        "token": {
-                            "type": "string"
-                        },
-                        "instant": {
-                            "type": "string"
-                        },
-                        "username": {
-                            "type": "string"
-                        },
-                        "userid": {
-                            "type": "string"
-                        },
-                        "device": {
-                            "type": "string"
-                        },
-                        "devicename": {
-                            "type": "string"
-                        },
-                        "summary": {
-                            "type": "string"
-                        },
-                        "data": {
-                            "type": "string"
-                        },
-                        "etc": {
-                            "type": "null"
-                        },
-                        "ticks": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "typeProperties": {
-                    "collectionName": "event"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gemEventParquetsADLS')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "ADLSgas",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "Parquet",
-                "typeProperties": {
-                    "location": {
-                        "type": "AzureBlobFSLocation",
-                        "fileSystem": "gem-events"
-                    },
-                    "compressionCodec": "snappy"
-                },
-                "schema": []
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gemJobs')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "EventsCosmosNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "CosmosDbSqlApiCollection",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "application": {
-                            "type": "string"
-                        },
-                        "company": {
-                            "type": "string"
-                        },
-                        "location": {
-                            "type": "string"
-                        },
-                        "module": {
-                            "type": "string"
-                        },
-                        "category": {
-                            "type": "string"
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "device": {
-                            "type": "string"
-                        },
-                        "devicename": {
-                            "type": "string"
-                        },
-                        "etc": {
-                            "type": "string"
-                        },
-                        "count": {
-                            "type": "integer"
-                        },
-                        "first": {
-                            "type": "string"
-                        },
-                        "last": {
-                            "type": "string"
-                        },
-                        "organizationId": {
-                            "type": "string"
-                        },
-                        "locationName": {
-                            "type": "string"
-                        },
-                        "notificationTypeId": {
-                            "type": "string"
-                        },
-                        "job": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "typeProperties": {
-                    "collectionName": "job"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gemSubscription')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "EventsCosmosNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "CosmosDbSqlApiCollection",
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "jobs": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "typeProperties": {
-                    "collectionName": "subscription"
+                    "table": "devicehealth"
                 }
             },
             "dependsOn": []

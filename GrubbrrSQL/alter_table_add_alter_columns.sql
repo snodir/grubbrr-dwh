@@ -1288,12 +1288,13 @@ ALTER TABLE dim.vw_weatherhourlydata
 
 -- CALL dim.usp_master_keys_for_duplicate_items();
 
-CREATE OR REPLACE PROCEDURE dim.usp_master_keys_for_duplicate_items(
-	)
+CREATE OR REPLACE PROCEDURE dim.usp_master_keys_for_duplicate_items()
 LANGUAGE plpgsql
 AS $BODY$
 
 BEGIN
+
+TRUNCATE TABLE dim.duplicate_items_master;
 
 WITH duplicate_items AS (
     SELECT *, 
@@ -1322,13 +1323,11 @@ SELECT organizationid,
        now()::TIMESTAMP
 FROM duplicate_items di
 WHERE dupl > 1
-  AND NOT EXISTS (
-        SELECT 1 
-        FROM dim.duplicate_items_master as dim
-        WHERE dim.locationid = di.locationid
-          AND dim.categoryid = di.categoryid
-          AND dim.menuitemid = di.menuitemid
-  );
+  /*AND NOT EXISTS (SELECT 1 FROM dim.duplicate_items_master as dim
+                  WHERE dim.locationid = di.locationid
+                    AND dim.categoryid = di.categoryid
+                    AND dim.menuitemid = di.menuitemid)*/
+  ;
 
 WITH item_counts AS (
     SELECT locationid, dimmenuitemid, count(*) AS instance_count
