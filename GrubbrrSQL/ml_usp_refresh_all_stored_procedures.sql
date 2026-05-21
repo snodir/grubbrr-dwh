@@ -1,4 +1,34 @@
 -- ============================================================
+-- 0. SCHEMA
+-- ============================================================
+CREATE SCHEMA IF NOT EXISTS ml;
+/*
+CALL ml.usp_refresh_weather(p_refresh_mode => 0);
+CALL ml.usp_refresh_menu_entities();
+CALL ml.usp_refresh_transactions(p_refresh_mode => 0);
+CALL ml.usp_refresh_upsell_analysis(p_refresh_mode => 0);
+CALL ml.usp_refresh_modifier_interactions(p_refresh_mode => 0);
+CALL ml.usp_refresh_modifier_impressions(p_refresh_mode => 0);
+*/
+
+ALTER TABLE ml.menu_entities
+ALTER COLUMN itemunitprice TYPE NUMERIC(12,3);
+
+ALTER TABLE ml.transactions
+ALTER COLUMN itemunitprice TYPE NUMERIC(12,3);
+
+ALTER TABLE ml.upsell_analysis
+ALTER COLUMN itemunitprice TYPE NUMERIC(12,3);
+
+ALTER TABLE ml.modifier_interactions
+ALTER COLUMN itemunitprice TYPE NUMERIC(12,3),
+ALTER COLUMN modifierprice TYPE NUMERIC(12,3);
+
+ALTER TABLE ml.modifier_impressions
+--ALTER COLUMN itemunitprice TYPE NUMERIC(12,3),
+ALTER COLUMN modifierprice TYPE NUMERIC(12,3);
+
+-- ============================================================
 -- STORED PROCEDURE 1: ml.usp_refresh_weather
 -- Refresh type : DAILY DELETE + INSERT (idempotent) / FULL TRUNCATE + INSERT
 -- Parameters   : p_refresh_mode INT   (default: 1)
@@ -199,7 +229,7 @@ ALTER PROCEDURE ml.usp_refresh_weather(INT) OWNER TO citus;
 --                Metrics and trends computed at extraction time.
 -- ============================================================
 
-
+DROP TABLE IF EXISTS ml.menu_entities;
 CREATE TABLE IF NOT EXISTS ml.menu_entities (
     organizationid     TEXT COLLATE pg_catalog."default",
     organizationname   TEXT COLLATE pg_catalog."default",
@@ -210,7 +240,7 @@ CREATE TABLE IF NOT EXISTS ml.menu_entities (
     menuitemid         TEXT COLLATE pg_catalog."default",
     menuitemname       TEXT COLLATE pg_catalog."default",
     catalogid          TEXT COLLATE pg_catalog."default",
-    itemunitprice      NUMERIC(12,4),
+    itemunitprice      NUMERIC(12,3),
     price_changed_on   TIMESTAMP,
     item_class_type    INTEGER,
     entitytype         TEXT COLLATE pg_catalog."default",
@@ -333,7 +363,7 @@ CREATE TABLE IF NOT EXISTS ml.item_modifiergroup_modifier_mapping (
     modifier_default_quantity INTEGER,
     is_modifier_invisible     BOOLEAN,
     calories                  TEXT COLLATE pg_catalog."default",
-    price                     NUMERIC(12,4),
+    price                     NUMERIC(12,3),
     is_modifier_active        BOOLEAN,
     is_modifier_deleted       BOOLEAN,
     modifier_created_on       TIMESTAMP,
@@ -491,7 +521,7 @@ ALTER PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(TEXT) OWNER T
 --
 -- OWNER: citus
 -- ============================================================
-
+-- DROP TABLE IF EXISTS ml.transactions
 CREATE TABLE IF NOT EXISTS ml.transactions (
     frequentcustomerid   TEXT COLLATE pg_catalog."default",
     organizationid       TEXT COLLATE pg_catalog."default",
@@ -510,7 +540,7 @@ CREATE TABLE IF NOT EXISTS ml.transactions (
     itemquantity         INTEGER,
     categoryid           TEXT COLLATE pg_catalog."default",
     categoryname         TEXT COLLATE pg_catalog."default",
-    itemunitprice        NUMERIC(12,4),
+    itemunitprice        NUMERIC(12,3),
     paymentstatus        TEXT COLLATE pg_catalog."default",
     numberofitems        INTEGER,
     numberofpayments     INTEGER,
@@ -875,7 +905,7 @@ CREATE TABLE IF NOT EXISTS ml.modifier_interactions (
     menuitemid                TEXT COLLATE pg_catalog."default",
     menuitemname              TEXT COLLATE pg_catalog."default",
     itemquantity              INTEGER,
-    itemunitprice             NUMERIC(12,4),
+    itemunitprice             NUMERIC(12,3),
     item_class_type           INTEGER,
     modifiergroupid           TEXT COLLATE pg_catalog."default",
     modifiergroupname         TEXT COLLATE pg_catalog."default",
@@ -884,7 +914,7 @@ CREATE TABLE IF NOT EXISTS ml.modifier_interactions (
     parent_modifier_id        TEXT COLLATE pg_catalog."default",
     nesting_depth             INTEGER,
     modifierquantity          INTEGER,
-    modifierprice             NUMERIC(12,4),
+    modifierprice             NUMERIC(12,3),
     freequantity              INTEGER,
     is_modifier_default       BOOLEAN,
     min_quantity              INTEGER,
@@ -1131,7 +1161,7 @@ CREATE TABLE IF NOT EXISTS ml.modifier_impressions (
     modifier_class_type INTEGER,
     parent_modifier_id  TEXT COLLATE pg_catalog."default",
     nesting_depth       INTEGER,
-    modifierprice       NUMERIC(12,4),
+    modifierprice       NUMERIC(12,3),
     selection_type      TEXT COLLATE pg_catalog."default",
     position            INTEGER,
     score               NUMERIC(10,4),

@@ -12,6 +12,8 @@ SELECT citus_is_coordinator();
 SELECT nodeid, nodename, nodeport, isactive, noderole
 FROM pg_dist_node;
 
+--1	private-c-cospos-gas-test-eastus.ya7ggajhjyxy57.postgres.cosmos.azure.com	5432	True	primary
+
 SELECT * FROM citus_tables
 WHERE table_name = 'fact.transactionheader'::regclass;
 
