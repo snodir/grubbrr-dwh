@@ -13,6 +13,76 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/gemJobs')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "EventsCosmosNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "CosmosDbSqlApiCollection",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "application": {
+                            "type": "string"
+                        },
+                        "company": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "module": {
+                            "type": "string"
+                        },
+                        "category": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "device": {
+                            "type": "string"
+                        },
+                        "devicename": {
+                            "type": "string"
+                        },
+                        "etc": {
+                            "type": "string"
+                        },
+                        "count": {
+                            "type": "integer"
+                        },
+                        "first": {
+                            "type": "string"
+                        },
+                        "last": {
+                            "type": "string"
+                        },
+                        "organizationId": {
+                            "type": "string"
+                        },
+                        "locationName": {
+                            "type": "string"
+                        },
+                        "notificationTypeId": {
+                            "type": "string"
+                        },
+                        "job": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "collectionName": "job"
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/gemSubscription')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -2290,332 +2360,6 @@
                 "typeProperties": {
                     "schema": "stg",
                     "table": "silver_modifier_recommendations"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgSilverTransactionComboItemsAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "transactionheaderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdateutc",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "businessdate",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kioskid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kiosk_name",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kiosk_mode",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_test_order",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_pos_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_name",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_order_item_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_item_session_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_concept_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_concept_name",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "cents_combo_unit_price",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "cents_combo_total_price",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "combo_quantity",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_special_request",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_upsell_source",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combo_reward_source",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_pos_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_name",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_order_item_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_menu_item_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_name",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_menu_item_pos_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_session_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_concept_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_concept_name",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_quantity",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_price",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "component_item_unit_price",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "component_item_cents_unit_price",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_total_price",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "component_item_cents_total_price",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_special_request",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_upsell_source",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_reward_source",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_discount_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_component_item_discount_hidden_on_receipt",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_item_discounts",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "component_selections_items",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "order_completion_status",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "bronze_filepath",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "silver_transform_time",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "silver_folderpath",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "silver_transaction_combo_items"
                 }
             },
             "dependsOn": []

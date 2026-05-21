@@ -492,6 +492,247 @@
             "dependsOn": []
         },
         {
+            "name": "[concat(parameters('factoryName'), '/SilverTrxnRefundsParquet')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_date": {
+                        "type": "string",
+                        "defaultValue": "2026-05-19"
+                    },
+                    "p_ds_hour": {
+                        "type": "string",
+                        "defaultValue": "16"
+                    }
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@concat('orders/transactionrefunds/date=', dataset().p_ds_date, '/hour=', dataset().p_ds_hour)",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "silver"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": [
+                    {
+                        "name": "syscosmosts",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "businessdate",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "ordersessionid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "kioskid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "kiosk_name",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "kiosk_mode",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "is_test_order",
+                        "type": "BOOLEAN"
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "category_pos_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "menu_item_pos_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemsessionid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifiergroupid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifiergroupname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifiergroup_pos_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifierid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifier_pos_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifiername",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifierquantity",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "options_modifierunitprice",
+                        "type": "DOUBLE"
+                    },
+                    {
+                        "name": "options_total_modifierprice",
+                        "type": "DOUBLE"
+                    },
+                    {
+                        "name": "is_modifier_invisible",
+                        "type": "BOOLEAN"
+                    },
+                    {
+                        "name": "is_modifier_default",
+                        "type": "BOOLEAN"
+                    },
+                    {
+                        "name": "modifier_freequantity",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "options_modifier_code",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "usd_total_item_price",
+                        "type": "DOUBLE"
+                    },
+                    {
+                        "name": "usd_itemunitprice",
+                        "type": "DOUBLE"
+                    },
+                    {
+                        "name": "cents_itemunitprice",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "cents_total_item_price",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "itemquantity",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "items_special_request",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_upsell_source",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_reward_source",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_discounts",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_discount_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "is_items_discount_hidden_on_receipt",
+                        "type": "BOOLEAN"
+                    },
+                    {
+                        "name": "items_concept_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_concept_name",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderdateutc",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "order_completion_status",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "bronze_filepath",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "silver_transform_time",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "silver_folderpath",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "date",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "hour",
+                        "type": "UTF8"
+                    }
+                ]
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/SilverUpsellRecommendationsJson')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -1618,36 +1859,6 @@
                     "schema": "fact",
                     "table": "usercheckedin"
                 }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/adlsAllFrequentCustomersCsvForML')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "ADLSsus",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "ML"
-                },
-                "annotations": [],
-                "type": "DelimitedText",
-                "typeProperties": {
-                    "location": {
-                        "type": "AzureBlobFSLocation",
-                        "fileName": "AllFrequentCustomers.csv",
-                        "folderPath": "sample-data",
-                        "fileSystem": "ml-training-data"
-                    },
-                    "columnDelimiter": ",",
-                    "escapeChar": "\\",
-                    "firstRowAsHeader": true,
-                    "quoteChar": "\""
-                },
-                "schema": []
             },
             "dependsOn": []
         }

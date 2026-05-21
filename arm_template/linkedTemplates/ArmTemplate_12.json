@@ -13,6 +13,576 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/gshDeviceTelemetryToAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Service-GSH"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DeviceTelemetryFromGsh",
+                                "type": "DatasetReference"
+                            },
+                            "name": "CPUgshDeviceTelemetry"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "DeviceTelemetryFromGsh",
+                                "type": "DatasetReference"
+                            },
+                            "name": "MemorygshDeviceTelemetry"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "factwatermarktable",
+                                "type": "DatasetReference"
+                            },
+                            "name": "factwatermarktable"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "factDeviceTelemtryAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "sourcedevicetelemetry"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbKiosk",
+                                "type": "DatasetReference"
+                            },
+                            "name": "LocactionDeviceStatus"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "AnalyticsDbDimOrganization",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimOrganization"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "factDeviceTelemtryAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "DeviceTelemetryToAnalyticsDb"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "factwatermarktable",
+                                "type": "DatasetReference"
+                            },
+                            "name": "UpdateWatermark"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "Upsert"
+                        },
+                        {
+                            "name": "derivedColumn"
+                        },
+                        {
+                            "name": "joinCPUandMemory"
+                        },
+                        {
+                            "name": "selectOnlyNeeded"
+                        },
+                        {
+                            "name": "selectFinalFields"
+                        },
+                        {
+                            "name": "NewMemoryRows"
+                        },
+                        {
+                            "name": "NewCPURows"
+                        },
+                        {
+                            "name": "LatestRows"
+                        },
+                        {
+                            "name": "LatestRecords"
+                        },
+                        {
+                            "name": "CPUOnlyNeededFields"
+                        },
+                        {
+                            "name": "MemoryOnlyNeededFields"
+                        },
+                        {
+                            "name": "derivedFields"
+                        },
+                        {
+                            "name": "alterRow1"
+                        },
+                        {
+                            "name": "LiveDevicesOnly1"
+                        },
+                        {
+                            "name": "ExistingLocations"
+                        },
+                        {
+                            "name": "CastFields"
+                        },
+                        {
+                            "name": "LiveDevicesOnly2"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          deviceid as string,",
+                        "          locationid as string,",
+                        "          cpuvalue as string,",
+                        "          cputimestamp as timestamp,",
+                        "          dateid as string,",
+                        "          rownum as long,",
+                        "          tablename as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select T2.* \\nfrom (\\n    select T.deviceid,\\n        T.locationid,\\n        T.telemetryvalue as cpuvalue,\\n        T.telemetrytime as cputimestamp,\\n        T.dateid,\\n        row_number() over(partition by T.deviceid, T.locationid, T.dateid order by T.telemetryvalue desc, T.telemetrytime desc) as rownum,\\n        \\'fact.devicetelemetry\\' as tablename\\n    from (\\n        select deviceid,\\n            locationid,\\n            telemetryvalue,\\n            telemetrytime,\\n            to_char(telemetrytime, \\'YYYYMMDDHH24\\') as dateid\\n        from gsh.devicetelemetry \\n        where 1=1\\n        and telemetryname = \\'cpu\\'\\n        and deviceid != \\'no-serial\\'\\n        and telemetryvalue not like \\'%null%\\'\\n        and telemetrytime < now()\\n        ) as T\\n) as T2\\nwhere T2.rownum = 1',",
+                        "     format: 'query') ~> CPUgshDeviceTelemetry",
+                        "source(output(",
+                        "          deviceid as string,",
+                        "          locationid as string,",
+                        "          memoryvalue as string,",
+                        "          memorytimestamp as timestamp,",
+                        "          dateid as string,",
+                        "          rownum as long,",
+                        "          tablename as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select T2.* \\r\\nfrom (\\r\\n    select T.deviceid,\\r\\n        T.locationid,\\r\\n        T.telemetryvalue as memoryvalue,\\r\\n        T.telemetrytime as memorytimestamp,\\r\\n        T.dateid,\\r\\n        row_number() over(partition by T.deviceid, T.locationid, T.dateid order by T.telemetryvalue desc, T.telemetrytime desc) as rownum,\\r\\n        \\'fact.devicetelemetry\\' as tablename\\r\\n    from (\\r\\n        select deviceid,\\r\\n            locationid,\\r\\n            telemetryvalue,\\r\\n            telemetrytime,\\r\\n            to_char(telemetrytime, \\'YYYYMMDDHH24\\') as dateid\\r\\n        from gsh.devicetelemetry \\r\\n        where 1=1\\r\\n        and telemetryname = \\'memory\\' --4,470\\r\\n        and deviceid != \\'no-serial\\'\\r\\n        and telemetryvalue not like \\'%null%\\'\\r\\n        and telemetrytime < now()\\r\\n        ) as T\\r\\n) as T2\\r\\nwhere T2.rownum = 1',",
+                        "     format: 'query') ~> MemorygshDeviceTelemetry",
+                        "source(output(",
+                        "          watermarktablename as string,",
+                        "          watermarkcolumn as string,",
+                        "          watermarkvalue as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> factwatermarktable",
+                        "source(output(",
+                        "          telemetrytime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select case when max(cputimestamp) > max(memorytimestamp) \\n            then max(memorytimestamp) else max(cputimestamp) end telemetrytime  \\nfrom fact.devicetelemetry',",
+                        "     format: 'query') ~> sourcedevicetelemetry",
+                        "source(output(",
+                        "          id as string,",
+                        "          name as string,",
+                        "          kioskid as string,",
+                        "          kioskname as string,",
+                        "          organizationtype as short,",
+                        "          status as short,",
+                        "          location_status as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'SELECT DISTINCT o.id, o.name, k.kioskid, k.kioskname, o.organizationtype, o.status,\\r\\n       CASE o.status \\r\\n       WHEN 0 THEN \\'Draft\\' \\r\\n       WHEN 1 THEN \\'Onboarding\\' \\r\\n       WHEN 2 THEN \\'Live\\' \\r\\n       WHEN 3 THEN \\'Cancelled\\' END as location_status\\r\\nFROM dim.organization as o\\r\\nINNER JOIN dim.kiosk as k \\r\\n        ON o.id = k.locationid\\r\\nWHERE o.active = True \\r\\n  AND o.status = 2\\r\\n  AND k.istestkiosk = False',",
+                        "     format: 'query') ~> LocactionDeviceStatus",
+                        "source(output(",
+                        "          id as string,",
+                        "          name as string,",
+                        "          address1 as string,",
+                        "          address2 as string,",
+                        "          city as string,",
+                        "          state as string,",
+                        "          zipcode as string,",
+                        "          country as string,",
+                        "          organizationtype as short,",
+                        "          status as short,",
+                        "          phonenumber as string,",
+                        "          email as string,",
+                        "          isdeleted as boolean,",
+                        "          createdon as timestamp,",
+                        "          createdby as string,",
+                        "          modifiedon as timestamp,",
+                        "          modifiedby as string,",
+                        "          active as boolean,",
+                        "          timezone as string,",
+                        "          coordinates as string,",
+                        "          dayofweek as integer,",
+                        "          hour as integer,",
+                        "          minutes as integer,",
+                        "          roundupforcharity as boolean,",
+                        "          is_ecm_enabled as boolean,",
+                        "          is_cep_enabled as boolean,",
+                        "          is_concessionaire_enabled as boolean,",
+                        "          is_smart_upsells_enabled as boolean,",
+                        "          is_feedback_survey_enabled as boolean,",
+                        "          is_digital_menu_board_enabled as boolean,",
+                        "          is_digital_menu_default_format_enabled as boolean,",
+                        "          cep_subscriptions as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> dimOrganization",
+                        "CastFields alterRow(upsertIf(true())) ~> Upsert",
+                        "selectOnlyNeeded derive(cpuvalue = replace(cpuvalue,'%',''),",
+                        "          memoryvalue = replace(memoryvalue,'%',''),",
+                        "          tablename = 'devicetelemetry',",
+                        "          deviceid = coalesce(cpudeviceid, memdeviceid),",
+                        "          locationid = coalesce(cpulocationid, memlocationid),",
+                        "          dateid = coalesce(cpudateid, memdateid)) ~> derivedColumn",
+                        "CPUOnlyNeededFields, MemoryOnlyNeededFields join(CPUOnlyNeededFields@deviceid == MemoryOnlyNeededFields@deviceid",
+                        "     && CPUOnlyNeededFields@locationid == MemoryOnlyNeededFields@locationid",
+                        "     && CPUOnlyNeededFields@dateid == MemoryOnlyNeededFields@dateid,",
+                        "     joinType:'outer',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> joinCPUandMemory",
+                        "joinCPUandMemory select(mapColumn(",
+                        "          cpudeviceid = CPUOnlyNeededFields@deviceid,",
+                        "          cpulocationid = CPUOnlyNeededFields@locationid,",
+                        "          cpuvalue,",
+                        "          cputimestamp,",
+                        "          cpudateid = CPUOnlyNeededFields@dateid,",
+                        "          memdeviceid = MemoryOnlyNeededFields@deviceid,",
+                        "          memlocationid = MemoryOnlyNeededFields@locationid,",
+                        "          memoryvalue,",
+                        "          memorytimestamp,",
+                        "          memdateid = MemoryOnlyNeededFields@dateid",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> selectOnlyNeeded",
+                        "ExistingLocations select(mapColumn(",
+                        "          cpuvalue,",
+                        "          cputimestamp,",
+                        "          memoryvalue,",
+                        "          memorytimestamp,",
+                        "          deviceid,",
+                        "          locationid,",
+                        "          dateid",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> selectFinalFields",
+                        "MemorygshDeviceTelemetry, factwatermarktable join(tablename == watermarktablename,",
+                        "     joinType:'left',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> NewMemoryRows",
+                        "CPUgshDeviceTelemetry, factwatermarktable join(tablename == watermarktablename,",
+                        "     joinType:'left',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> NewCPURows",
+                        "NewCPURows filter(cputimestamp >= watermarkvalue) ~> LatestRows",
+                        "NewMemoryRows filter(memorytimestamp >= watermarkvalue) ~> LatestRecords",
+                        "LiveDevicesOnly1 select(mapColumn(",
+                        "          deviceid,",
+                        "          locationid,",
+                        "          cpuvalue,",
+                        "          cputimestamp,",
+                        "          dateid",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> CPUOnlyNeededFields",
+                        "LiveDevicesOnly2 select(mapColumn(",
+                        "          deviceid,",
+                        "          locationid,",
+                        "          memoryvalue,",
+                        "          memorytimestamp,",
+                        "          dateid",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> MemoryOnlyNeededFields",
+                        "sourcedevicetelemetry derive(watermarktablename = 'fact.devicetelemetry',",
+                        "          watermarkcolumn = 'telemetrytime') ~> derivedFields",
+                        "derivedFields alterRow(updateIf(true())) ~> alterRow1",
+                        "LatestRows, LocactionDeviceStatus exists(locationid == id",
+                        "     && deviceid == kioskid,",
+                        "     negate:false,",
+                        "     broadcast: 'auto')~> LiveDevicesOnly1",
+                        "derivedColumn, dimOrganization exists(locationid == id,",
+                        "     negate:false,",
+                        "     broadcast: 'auto')~> ExistingLocations",
+                        "selectFinalFields derive(cpuvalue = case(like(deviceid, 'ksk-%') && toDecimal(cpuvalue, 10, 5) <= 1, toDecimal(cpuvalue, 10, 5),\r",
+                        "case(toDecimal(cpuvalue, 10, 5) > 1, toDecimal(cpuvalue, 10, 5) / 100)),",
+                        "          memoryvalue = case(like(deviceid, 'ksk-%') && toDecimal(memoryvalue, 10, 5) <= 1, toDecimal(memoryvalue, 10, 5),\r",
+                        "case(toDecimal(memoryvalue, 10, 5) > 1, toDecimal(memoryvalue, 10, 5) / 100)),",
+                        "          dateid = toInteger(dateid),",
+                        "          sysinserttime = currentTimestamp()) ~> CastFields",
+                        "LatestRecords, LocactionDeviceStatus exists(locationid == id",
+                        "     && deviceid == kioskid,",
+                        "     negate:false,",
+                        "     broadcast: 'auto')~> LiveDevicesOnly2",
+                        "Upsert sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          deviceid as string,",
+                        "          locationid as string,",
+                        "          dateid as integer,",
+                        "          cpuvalue as decimal(10,5),",
+                        "          memoryvalue as decimal(10,5),",
+                        "          cputimestamp as timestamp,",
+                        "          memorytimestamp as timestamp,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:false,",
+                        "     upsertable:true,",
+                        "     keys:['deviceid','locationid','dateid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 1,",
+                        "     mapColumn(",
+                        "          deviceid,",
+                        "          locationid,",
+                        "          dateid,",
+                        "          cpuvalue,",
+                        "          memoryvalue,",
+                        "          cputimestamp,",
+                        "          memorytimestamp,",
+                        "          sysinserttime",
+                        "     )) ~> DeviceTelemetryToAnalyticsDb",
+                        "alterRow1 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          watermarktablename as string,",
+                        "          watermarkcolumn as string,",
+                        "          watermarkvalue as timestamp,",
+                        "          ticks as long,",
+                        "          ts as long,",
+                        "          source as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['watermarktablename','watermarkcolumn'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 2,",
+                        "     mapColumn(",
+                        "          watermarktablename,",
+                        "          watermarkcolumn,",
+                        "          watermarkvalue = telemetrytime",
+                        "     )) ~> UpdateWatermark"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/gshDeviceTelemetryToAnalyticsDbOld')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Service-GSH"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DeviceTelemetryFromGsh",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gshDeviceTelemetry"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "factwatermarktable",
+                                "type": "DatasetReference"
+                            },
+                            "name": "factwatermarktable"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "factDeviceTelemtryAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "sourcedevicetelemetry"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "factDeviceTelemtryAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "DeviceTelemetryToAnalyticsDb"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "factwatermarktable",
+                                "type": "DatasetReference"
+                            },
+                            "name": "UpdateWatermark"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "AlterRow"
+                        },
+                        {
+                            "name": "pivot"
+                        },
+                        {
+                            "name": "derivedColumn"
+                        },
+                        {
+                            "name": "MapDrifted",
+                            "description": "Creates an explicit mapping for each drifted column"
+                        },
+                        {
+                            "name": "cast"
+                        },
+                        {
+                            "name": "joinToWatermarkTable"
+                        },
+                        {
+                            "name": "filter"
+                        },
+                        {
+                            "name": "derivedCol"
+                        },
+                        {
+                            "name": "alterRowUpdate"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          deviceid as string,",
+                        "          locationid as string,",
+                        "          telemetryname as string,",
+                        "          telemetryvalue as string,",
+                        "          telemetrytime as timestamp,",
+                        "          dateid as string,",
+                        "          rownum as long",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select T2.* \\nfrom (\\n    select T.deviceid,\\n        T.locationid,\\n        T.telemetryname,\\n        T.telemetryvalue,\\n        T.telemetrytime,\\n        T.dateid,\\n        row_number() over(partition by T.deviceid, T.locationid, T.telemetryname, T.dateid order by T.telemetryvalue desc, T.telemetrytime desc) as rownum\\n    from (\\n        select deviceid,\\n            locationid,\\n            telemetryname,\\n            telemetryvalue,\\n            telemetrytime,\\n            to_char(telemetrytime, \\'YYYYMMDDHH24\\') as dateid\\n        from gsh.devicetelemetry \\n        where 1=1\\n        and telemetryname IN (\\'cpu\\',\\'memory\\') \\n        and deviceid != \\'no-serial\\'\\n        and telemetryvalue not like \\'%null%\\'\\n        ) as T\\n) as T2\\nwhere T2.rownum = 1',",
+                        "     format: 'query') ~> gshDeviceTelemetry",
+                        "source(output(",
+                        "          watermarktablename as string,",
+                        "          watermarkcolumn as string,",
+                        "          watermarkvalue as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> factwatermarktable",
+                        "source(output(",
+                        "          telemetrytime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select case when max(cputimestamp) > max(memorytimestamp) \\r\\n            then max(memorytimestamp) else max(cputimestamp) end telemetrytime  \\r\\nfrom fact.devicetelemetry\\r\\n',",
+                        "     format: 'query') ~> sourcedevicetelemetry",
+                        "pivot alterRow(upsertIf(true())) ~> AlterRow",
+                        "filter pivot(groupBy(deviceid,",
+                        "          locationid,",
+                        "          dateid,",
+                        "          telemetrytime,",
+                        "          telemetrytimemodified),",
+                        "     pivotBy(telemetryname),",
+                        "     value = first(telemetryvalue),",
+                        "     columnNaming: '$V$N',",
+                        "     lateral: false) ~> pivot",
+                        "gshDeviceTelemetry derive(telemetryvalue = replace(telemetryvalue,'%',''),",
+                        "          telemetrytimemodified = toTimestamp(toString(telemetrytime),'yyyy-MM-dd HH:mm','UTC'),",
+                        "          tablename = 'devicetelemetry') ~> derivedColumn",
+                        "AlterRow derive(cpuvalue = toInteger(byName('cpuvalue')),",
+                        "          memoryvalue = toInteger(byName('memoryvalue'))) ~> MapDrifted",
+                        "MapDrifted cast(output(",
+                        "          dateid as integer",
+                        "     ),",
+                        "     errors: true) ~> cast",
+                        "derivedColumn, factwatermarktable join(tablename == watermarktablename,",
+                        "     joinType:'left',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> joinToWatermarkTable",
+                        "joinToWatermarkTable filter(telemetrytime > watermarkvalue) ~> filter",
+                        "sourcedevicetelemetry derive(watermarktablename = 'devicetelemetry',",
+                        "          watermarkcolumn = 'telemetrytime') ~> derivedCol",
+                        "derivedCol alterRow(updateIf(true())) ~> alterRowUpdate",
+                        "cast sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          deviceid as string,",
+                        "          locationid as string,",
+                        "          dateid as integer,",
+                        "          cpuvalue as decimal(10,5),",
+                        "          memoryvalue as decimal(10,5),",
+                        "          cputimestamp as timestamp,",
+                        "          memorytimestamp as timestamp,",
+                        "          sysinserttime as timestamp,",
+                        "          sysupdatetime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:false,",
+                        "     upsertable:true,",
+                        "     keys:['telemetrytime','deviceid','locationid','dateid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 1,",
+                        "     mapColumn(",
+                        "          deviceid,",
+                        "          locationid,",
+                        "          dateid,",
+                        "          cpuvalue,",
+                        "          memoryvalue,",
+                        "          telemetrytimemodified,",
+                        "          telemetrytime",
+                        "     )) ~> DeviceTelemetryToAnalyticsDb",
+                        "alterRowUpdate sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          watermarktablename as string,",
+                        "          watermarkcolumn as string,",
+                        "          watermarkvalue as timestamp,",
+                        "          ticks as long,",
+                        "          ts as long,",
+                        "          source as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:true,",
+                        "     upsertable:false,",
+                        "     keys:['watermarktablename','watermarkcolumn'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 2,",
+                        "     mapColumn(",
+                        "          watermarktablename,",
+                        "          watermarkcolumn,",
+                        "          watermarkvalue = telemetrytime",
+                        "     )) ~> UpdateWatermark"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/gshDeviceToDimKiosk')]",
             "type": "Microsoft.DataFactory/factories/dataflows",
             "apiVersion": "2018-06-01",
@@ -3187,8 +3757,6 @@
                     {
                         "name": "LoopThroughHourPartitions",
                         "type": "ForEach",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
                         "dependsOn": [
                             {
                                 "activity": "PendingPartitions",
@@ -3544,7 +4112,7 @@
                         "typeProperties": {
                             "source": {
                                 "type": "AzurePostgreSqlSource",
-                                "query": "SELECT \r\n    dateid, \r\n    layer, \r\n    entity, \r\n    partition_path,\r\n    SUBSTRING(partition_path, 1, 21) as partition_date_path,\r\n    partition_date :: TEXT AS partition_date,\r\n    partition_year, \r\n    partition_month, \r\n    partition_day, \r\n    partition_hour,\r\n    SUBSTRING(partition_path, 23, 2) as partition_hh\r\nFROM etl.bronze_partition_registry\r\nWHERE entity = 'orders'\r\n  AND partition_date IN ('2026-05-18' :: DATE, '2026-05-19' :: DATE)\r\n  --AND partition_hour IN (6, 7, 8, 9, 10, 11, 12, 16)\r\n  --AND dateid >= TO_CHAR(NOW() - INTERVAL '54 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'\r\n  --AND dateid <= TO_CHAR(NOW() - INTERVAL '46 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files\r\n  AND status = 'pending'\r\nORDER BY dateid;",
+                                "query": "SELECT \r\n    dateid, \r\n    layer, \r\n    entity, \r\n    partition_path,\r\n    SUBSTRING(partition_path, 1, 21) as partition_date_path,\r\n    partition_date :: TEXT AS partition_date,\r\n    partition_year, \r\n    partition_month, \r\n    partition_day, \r\n    partition_hour,\r\n    SUBSTRING(partition_path, 23, 2) as partition_hh\r\nFROM etl.bronze_partition_registry\r\nWHERE entity = 'orders'\r\n  AND partition_date IN ('2026-05-18' :: DATE, '2026-05-19' :: DATE)\r\n  --AND partition_hour IN (6, 7, 8, 9, 10, 11, 12, 16)\r\n  --AND dateid >= TO_CHAR(NOW() - INTERVAL '54 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'\r\n  --AND dateid <= TO_CHAR(NOW() - INTERVAL '46 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files\r\n  --AND status = 'pending'\r\nORDER BY dateid;",
                                 "partitionOption": "None",
                                 "queryTimeout": "02:00:00"
                             },
@@ -3770,6 +4338,16 @@
                                                                 }
                                                             },
                                                             "SilverModifierImpressionsParquet": {
+                                                                "p_ds_date": {
+                                                                    "value": "@item().partition_date",
+                                                                    "type": "Expression"
+                                                                },
+                                                                "p_ds_hour": {
+                                                                    "value": "@item().partition_hh",
+                                                                    "type": "Expression"
+                                                                }
+                                                            },
+                                                            "SilverTrxnRefunds": {
                                                                 "p_ds_date": {
                                                                     "value": "@item().partition_date",
                                                                     "type": "Expression"
@@ -4130,7 +4708,7 @@
                             "source": {
                                 "type": "AzurePostgreSqlSource",
                                 "query": {
-                                    "value": "SELECT DISTINCT dt.yearval, dt.weekval\nFROM dim.datedim as dt\nWHERE 1=1\nAND dt.dayval >= '@{pipeline().parameters.p_startdate}' :: date AND dt.dayval <= '@{pipeline().parameters.p_enddate}' :: date\nORDER BY yearval, weekval;",
+                                    "value": "SELECT DISTINCT dt.yearval, dt.weekval\nFROM dim.datedim as dt\nWHERE 1=1\nAND dt.dayval >= '@{pipeline().parameters.p_startdate}' :: date AND dt.dayval <= '@{pipeline().parameters.p_enddate}' :: date\nORDER BY yearval DESC, weekval DESC;",
                                     "type": "Expression"
                                 },
                                 "partitionOption": "None",
@@ -10667,171 +11245,6 @@
             "dependsOn": [
                 "[concat(variables('factoryId'), '/dataflows/gshDevicesAndPeripheralsToAnalyticsDb')]"
             ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/DimensionABTests')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "dimABTests",
-                        "type": "ExecuteDataFlow",
-                        "dependsOn": [],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "dataflow": {
-                                "referenceName": "dimABTests",
-                                "type": "DataFlowReference",
-                                "parameters": {},
-                                "datasetParameters": {
-                                    "gemABTests": {},
-                                    "CheckDimABTests": {},
-                                    "maxID": {},
-                                    "DimABTests": {}
-                                }
-                            },
-                            "staging": {},
-                            "compute": {
-                                "coreCount": 8,
-                                "computeType": "General"
-                            },
-                            "traceLevel": "Fine"
-                        }
-                    },
-                    {
-                        "name": "Update factTransHeader",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "dimABTests",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "update fact.transactionheader\r\nset ABTestID = ABTests.ABTestID\r\nfrom dim.ABTests\r\nwhere ABTests.OrderSessionID = transactionheader.ordersessionid\r\nand transactionheader.ABTestID is null;\r\n\r\nselect 1 as rn;",
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "dimABTestsAnalyticsDB",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "folder": {
-                    "name": "Dimensions"
-                },
-                "annotations": [],
-                "lastPublishTime": "2025-02-21T17:44:14Z"
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/DimensionFrequentCustomer')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "DimFrequentCustomer",
-                        "type": "ExecuteDataFlow",
-                        "dependsOn": [],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "dataflow": {
-                                "referenceName": "DimFrequentCustomer",
-                                "type": "DataFlowReference",
-                                "parameters": {},
-                                "datasetParameters": {
-                                    "ngeFrequentCustomer": {},
-                                    "CheckDimFreqCustomer": {},
-                                    "maxIdDimFreqCust": {},
-                                    "dimFreqCustomer": {},
-                                    "updateDimFrequentCustomer": {}
-                                }
-                            },
-                            "staging": {},
-                            "compute": {
-                                "coreCount": 8,
-                                "computeType": "General"
-                            },
-                            "traceLevel": "Fine"
-                        }
-                    },
-                    {
-                        "name": "Update OrderCount and AmtSpent",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "DimFrequentCustomer",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "update dim.frequentcustomer\nset ordercount = coalesce(th.ordercount, 0),\n    amountspent = coalesce(th.amountspent, 0),\n    sysupdatetime = now()\nfrom (\n    select frequentcustomerid, count(*) as ordercount, sum(ordertotal) as amountspent\n    from fact.transactionheader \n    where orderstatus = 'order-placed' and frequentcustomerid is not null\n    group by frequentcustomerid) as th \nwhere th.frequentcustomerid = frequentcustomer.frequentcustomerid;\n\nselect 1 as rn;",
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "dimFrequentCustomerAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "folder": {
-                    "name": "Dimensions"
-                },
-                "annotations": [],
-                "lastPublishTime": "2025-02-21T17:44:14Z"
-            },
-            "dependsOn": []
         }
     ]
 }

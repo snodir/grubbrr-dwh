@@ -1485,8 +1485,6 @@
                     {
                         "name": "LoopThroughHourPartitions",
                         "type": "ForEach",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
                         "dependsOn": [
                             {
                                 "activity": "PendingPartitions",
@@ -1848,7 +1846,7 @@
                         "typeProperties": {
                             "source": {
                                 "type": "AzurePostgreSqlSource",
-                                "query": "SELECT \r\n    dateid, \r\n    layer, \r\n    entity, \r\n    partition_path,\r\n    SUBSTRING(partition_path, 1, 21) as partition_date_path,\r\n    partition_date :: TEXT AS partition_date,\r\n    partition_year, \r\n    partition_month, \r\n    partition_day, \r\n    partition_hour,\r\n    SUBSTRING(partition_path, 23, 2) as partition_hh\r\nFROM etl.bronze_partition_registry\r\nWHERE entity = 'orders'\r\n  AND partition_date IN ('2026-05-18' :: DATE, '2026-05-19' :: DATE)\r\n  --AND partition_hour IN (6, 7, 8, 9, 10, 11, 12, 16)\r\n  --AND dateid >= TO_CHAR(NOW() - INTERVAL '54 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'\r\n  --AND dateid <= TO_CHAR(NOW() - INTERVAL '46 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files\r\n  AND status = 'pending'\r\nORDER BY dateid;",
+                                "query": "SELECT \r\n    dateid, \r\n    layer, \r\n    entity, \r\n    partition_path,\r\n    SUBSTRING(partition_path, 1, 21) as partition_date_path,\r\n    partition_date :: TEXT AS partition_date,\r\n    partition_year, \r\n    partition_month, \r\n    partition_day, \r\n    partition_hour,\r\n    SUBSTRING(partition_path, 23, 2) as partition_hh\r\nFROM etl.bronze_partition_registry\r\nWHERE entity = 'orders'\r\n  AND partition_date IN ('2026-05-18' :: DATE, '2026-05-19' :: DATE)\r\n  --AND partition_hour IN (6, 7, 8, 9, 10, 11, 12, 16)\r\n  --AND dateid >= TO_CHAR(NOW() - INTERVAL '54 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'\r\n  --AND dateid <= TO_CHAR(NOW() - INTERVAL '46 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files\r\n  --AND status = 'pending'\r\nORDER BY dateid;",
                                 "partitionOption": "None",
                                 "queryTimeout": "02:00:00"
                             },
@@ -2074,6 +2072,16 @@
                                                                 }
                                                             },
                                                             "SilverModifierImpressionsParquet": {
+                                                                "p_ds_date": {
+                                                                    "value": "@item().partition_date",
+                                                                    "type": "Expression"
+                                                                },
+                                                                "p_ds_hour": {
+                                                                    "value": "@item().partition_hh",
+                                                                    "type": "Expression"
+                                                                }
+                                                            },
+                                                            "SilverTrxnRefunds": {
                                                                 "p_ds_date": {
                                                                     "value": "@item().partition_date",
                                                                     "type": "Expression"
@@ -2442,7 +2450,7 @@
                             "source": {
                                 "type": "AzurePostgreSqlSource",
                                 "query": {
-                                    "value": "SELECT DISTINCT dt.yearval, dt.weekval\nFROM dim.datedim as dt\nWHERE 1=1\nAND dt.dayval >= '@{pipeline().parameters.p_startdate}' :: date AND dt.dayval <= '@{pipeline().parameters.p_enddate}' :: date\nORDER BY yearval, weekval;",
+                                    "value": "SELECT DISTINCT dt.yearval, dt.weekval\nFROM dim.datedim as dt\nWHERE 1=1\nAND dt.dayval >= '@{pipeline().parameters.p_startdate}' :: date AND dt.dayval <= '@{pipeline().parameters.p_enddate}' :: date\nORDER BY yearval DESC, weekval DESC;",
                                     "type": "Expression"
                                 },
                                 "partitionOption": "None",
@@ -18945,7 +18953,7 @@
                                     },
                                     "inputs": [
                                         {
-                                            "referenceName": "SilverTrxnHeaderParquet",
+                                            "referenceName": "SilverModifierRecommendationsParquet",
                                             "type": "DatasetReference",
                                             "parameters": {
                                                 "p_ds_date": {
@@ -19035,17 +19043,313 @@
                                     },
                                     "inputs": [
                                         {
-                                            "referenceName": "SilverTrxnHeaderParquet",
+                                            "referenceName": "SilverUpsellRecommendationsParquet",
                                             "type": "DatasetReference",
                                             "parameters": {
-                                                "p_ds_date": "2026-05-15",
-                                                "p_ds_hour": "12"
+                                                "p_ds_date": {
+                                                    "value": "@pipeline().parameters.p_partition_date",
+                                                    "type": "Expression"
+                                                },
+                                                "p_ds_hour": {
+                                                    "value": "@pipeline().parameters.p_partition_hour",
+                                                    "type": "Expression"
+                                                }
                                             }
                                         }
                                     ],
                                     "outputs": [
                                         {
                                             "referenceName": "stgSilverUpsellRecommendationsAnalyticsDb",
+                                            "type": "DatasetReference",
+                                            "parameters": {}
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "CheckTrxnRefunds",
+                        "type": "GetMetadata",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataset": {
+                                "referenceName": "SilverTrxnRefundsParquet",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "p_ds_date": {
+                                        "value": "@pipeline().parameters.p_partition_date",
+                                        "type": "Expression"
+                                    },
+                                    "p_ds_hour": {
+                                        "value": "@pipeline().parameters.p_partition_hour",
+                                        "type": "Expression"
+                                    }
+                                }
+                            },
+                            "fieldList": [
+                                "exists",
+                                "itemName",
+                                "itemType"
+                            ],
+                            "storeSettings": {
+                                "type": "AzureBlobFSReadSettings",
+                                "recursive": true,
+                                "enablePartitionDiscovery": false
+                            },
+                            "formatSettings": {
+                                "type": "ParquetReadSettings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "IfTrxnRefundsExists",
+                        "type": "IfCondition",
+                        "dependsOn": [
+                            {
+                                "activity": "CheckTrxnRefunds",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "expression": {
+                                "value": "@activity('CheckTrxnRefunds').output.exists",
+                                "type": "Expression"
+                            },
+                            "ifTrueActivities": [
+                                {
+                                    "name": "TrxnRefunds",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "ParquetSource",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSReadSettings",
+                                                "recursive": true,
+                                                "wildcardFolderPath": {
+                                                    "value": "@concat('orders/transactionrefunds/date=', pipeline().parameters.p_partition_date, '/hour=', pipeline().parameters.p_partition_hour)",
+                                                    "type": "Expression"
+                                                },
+                                                "wildcardFileName": "*.parquet",
+                                                "enablePartitionDiscovery": false
+                                            },
+                                            "formatSettings": {
+                                                "type": "ParquetReadSettings"
+                                            }
+                                        },
+                                        "sink": {
+                                            "type": "AzurePostgreSqlSink",
+                                            "writeBatchSize": 1000000,
+                                            "writeBatchTimeout": "00:30:00",
+                                            "writeMethod": "CopyCommand"
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "mappings": [
+                                                {
+                                                    "source": {
+                                                        "name": "locationid",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "locationid",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "transactionheaderid",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "transactionheaderid",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "orderid",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "orderid",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "original_transaction_id",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "original_transaction_id",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "refund_transaction_id",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "refund_transaction_id",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "refund_type",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "refund_type",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "refunded_amount",
+                                                        "type": "Double",
+                                                        "physicalType": "DOUBLE"
+                                                    },
+                                                    "sink": {
+                                                        "name": "refunded_amount",
+                                                        "type": "Decimal",
+                                                        "physicalType": "numeric"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "order_completion_status",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "order_completion_status",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "orderdateutc",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "orderdateutc",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "syscosmosts",
+                                                        "type": "Int32",
+                                                        "physicalType": "INT32"
+                                                    },
+                                                    "sink": {
+                                                        "name": "syscosmosts",
+                                                        "type": "Int64",
+                                                        "physicalType": "bigint"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "bronze_filepath",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "bronze_filepath",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "silver_transform_time",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "silver_transform_time",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "silver_folderpath",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "silver_folderpath",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                }
+                                            ],
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "SilverTrxnRefundsParquet",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "p_ds_date": {
+                                                    "value": "@pipeline().parameters.p_partition_date",
+                                                    "type": "Expression"
+                                                },
+                                                "p_ds_hour": {
+                                                    "value": "@pipeline().parameters.p_partition_hour",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "stgSilverTransactionRefundsAnalyticsDb",
                                             "type": "DatasetReference",
                                             "parameters": {}
                                         }
@@ -19084,6 +19388,7 @@
                 "[concat(variables('factoryId'), '/datasets/SilverModifierImpressionsParquet')]",
                 "[concat(variables('factoryId'), '/datasets/SilverModifierRecommendationsParquet')]",
                 "[concat(variables('factoryId'), '/datasets/SilverUpsellRecommendationsParquet')]",
+                "[concat(variables('factoryId'), '/datasets/SilverTrxnRefundsParquet')]",
                 "[concat(variables('factoryId'), '/datasets/stgSilverTransactionHeaderAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/stgSilverTransactionComboItemsAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/stgSilverTransactionItemAnalyticsDb')]",
@@ -19092,7 +19397,8 @@
                 "[concat(variables('factoryId'), '/datasets/stgSilverModifierInteractionsAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/stgSilverModifierImpressionsAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/stgSilverModifierRecommendationsAnalyticsDb')]",
-                "[concat(variables('factoryId'), '/datasets/stgSilverUpsellRecommendationsAnalyticsDb')]"
+                "[concat(variables('factoryId'), '/datasets/stgSilverUpsellRecommendationsAnalyticsDb')]",
+                "[concat(variables('factoryId'), '/datasets/stgSilverTransactionRefundsAnalyticsDb')]"
             ]
         },
         {
@@ -29918,6 +30224,249 @@
                     "compressionCodec": "snappy"
                 },
                 "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/ADLSgas')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SilverTrxnRefundsParquet')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_date": {
+                        "type": "string",
+                        "defaultValue": "2026-05-19"
+                    },
+                    "p_ds_hour": {
+                        "type": "string",
+                        "defaultValue": "16"
+                    }
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@concat('orders/transactionrefunds/date=', dataset().p_ds_date, '/hour=', dataset().p_ds_hour)",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "silver"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": [
+                    {
+                        "name": "syscosmosts",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "businessdate",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "ordersessionid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "kioskid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "kiosk_name",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "kiosk_mode",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "is_test_order",
+                        "type": "BOOLEAN"
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "category_pos_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "menu_item_pos_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "itemsessionid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderitemid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifiergroupid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifiergroupname",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifiergroup_pos_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifierid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifier_pos_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifiername",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "options_modifierquantity",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "options_modifierunitprice",
+                        "type": "DOUBLE"
+                    },
+                    {
+                        "name": "options_total_modifierprice",
+                        "type": "DOUBLE"
+                    },
+                    {
+                        "name": "is_modifier_invisible",
+                        "type": "BOOLEAN"
+                    },
+                    {
+                        "name": "is_modifier_default",
+                        "type": "BOOLEAN"
+                    },
+                    {
+                        "name": "modifier_freequantity",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "options_modifier_code",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "usd_total_item_price",
+                        "type": "DOUBLE"
+                    },
+                    {
+                        "name": "usd_itemunitprice",
+                        "type": "DOUBLE"
+                    },
+                    {
+                        "name": "cents_itemunitprice",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "cents_total_item_price",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "itemquantity",
+                        "type": "INT32"
+                    },
+                    {
+                        "name": "items_special_request",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_upsell_source",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_reward_source",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_discounts",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_discount_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "is_items_discount_hidden_on_receipt",
+                        "type": "BOOLEAN"
+                    },
+                    {
+                        "name": "items_concept_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "items_concept_name",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "orderdateutc",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "order_completion_status",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "bronze_filepath",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "silver_transform_time",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "silver_folderpath",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "date",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "hour",
+                        "type": "UTF8"
+                    }
+                ]
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/ADLSgas')]"
@@ -42050,6 +42599,106 @@
             ]
         },
         {
+            "name": "[concat(parameters('factoryName'), '/stgSilverTransactionRefundsAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "original_transaction_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "refund_transaction_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "refund_type",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "refunded_amount",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "order_completion_status",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderdateutc",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "bronze_filepath",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "silver_transform_time",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "silver_folderpath",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "silver_transaction_refunds"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OrdersPGNew')]"
+            ]
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/stgSilverUpsellRecommendationsAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -44207,6 +44856,13 @@
                                 "type": "DatasetReference"
                             },
                             "name": "SilverModifierImpressionsParquet"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "SilverTrxnRefundsParquet",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SilverTrxnRefunds"
                         }
                     ],
                     "transformations": [
@@ -44281,6 +44937,33 @@
                         },
                         {
                             "name": "SilverTransformTime9"
+                        },
+                        {
+                            "name": "PlacedOrders6"
+                        },
+                        {
+                            "name": "PlacedOrders1"
+                        },
+                        {
+                            "name": "PlacedOrders2"
+                        },
+                        {
+                            "name": "PlacedOrders3"
+                        },
+                        {
+                            "name": "PlacedOrders5"
+                        },
+                        {
+                            "name": "PlacedOrders4"
+                        },
+                        {
+                            "name": "RefundedTransactions"
+                        },
+                        {
+                            "name": "RefundAttributes"
+                        },
+                        {
+                            "name": "SilverTransformTime10"
                         }
                     ],
                     "scriptLines": [
@@ -44322,11 +45005,15 @@
                         "          orderReceiptUrl as string,",
                         "          orderType as string,",
                         "          orderTypeLabel as string,",
+                        "          originalTransactionId as string,",
                         "          paymentDetails as (amount as double, captureDetails as string, isAmazonOnePayment as boolean, paymentCardName as string, paymentCardNumber as string, paymentIntegrationId as string, paymentIntegrationLabel as string, paymentMethod as string, settlementDetails as string, status as string, tenderId as string, tenderInfo as (cardInfo as (cardType as string, lastFour as string, zipCode as string, processorAuthCode as string, expirationMonth as string, expirationYear as string, maskedCardNumber as string, availableBalance as double), storedValueInfo as string), transactionId as string)[],",
                         "          posSubmissionStatus as integer,",
                         "          receiptDetails as (feedBackUrl as string, genesisFiscalFields as string, guestCheckCode as string, guestCheckCodePrefaceText as string, items as string[], loyaltyEarnedPoints as string, loyaltyFooter as string, loyaltyHeader as string, orderLanguage as string, receiptPrintingType as string),",
                         "          receiptImage as string,",
                         "          redeemedRewards as string[],",
+                        "          refundedAmount as double,",
+                        "          refundTransactionId as string,",
+                        "          refundType as string,",
                         "          totals as (charityAmount as double, discount as double, fees as string[], reward as double, serviceCharge as double, subTotal as double, tax as double, taxes as string[], tip as double, total as double),",
                         "          totalsCents as (charityAmount as integer, discount as integer, fees as string[], reward as integer, serviceCharge as integer, subTotal as integer, tax as integer, taxes as string[], tip as integer, total as integer),",
                         "          type as string,",
@@ -44338,7 +45025,7 @@
                         "     rowUrlColumn: 'bronze_filepath',",
                         "     documentForm: 'singleDocument',",
                         "     wildcardPaths:[(concat($p_df_partition_path, '/*.json'))]) ~> BronzeOrdersJson",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders1 select(mapColumn(",
                         "          businessdate = businessDate,",
                         "          syscosmosts = {_ts},",
                         "          channel,",
@@ -44406,7 +45093,7 @@
                         "          payments_array = toString(payments_array),",
                         "          numberofitems = size(items_array),",
                         "          numberofpayments = size(payments_array)) ~> SilverTransformTime",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders2 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -44523,7 +45210,7 @@
                         "FlattenModifiers derive(silver_transform_time = toString(currentTimestamp()),",
                         "          silver_folderpath = concat('/orders/itemmodifiers/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
                         "          items_discounts = toString(items_discounts)) ~> SilverTransformTime3",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders4 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -44581,7 +45268,7 @@
                         "     skipDuplicateMapOutputs: true) ~> flattenPayments",
                         "flattenPayments derive(silver_transform_time = toString(currentTimestamp()),",
                         "          silver_folderpath = concat('/orders/transactionpayment/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/')) ~> SilverTransformTime4",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders3 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -44692,7 +45379,7 @@
                         "          silver_folderpath = concat('/orders/transactioncomboitems/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
                         "          component_selections_items = toString(component_selections_items),",
                         "          component_item_discounts = toString(component_item_discounts)) ~> SilverTransformTime5",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders5 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -44737,7 +45424,7 @@
                         "          silver_folderpath = concat('/orders/upsellrecommendations/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
                         "          offered_items = toString(offered_items),",
                         "          selected_items = toString(selected_items)) ~> SilverTransformTime6",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders6 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -44846,6 +45533,30 @@
                         "     skipDuplicateMapOutputs: true) ~> ImpressionRecommendations",
                         "ImpressionRecommendations derive(silver_transform_time = toString(currentTimestamp()),",
                         "          silver_folderpath = concat('/orders/modifierimpressions/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/')) ~> SilverTransformTime9",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders6",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders1",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders2",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders3",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders5",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders4",
+                        "BronzeOrdersJson filter(type == 'order-refund-amount' || type == 'order-refund-transaction') ~> RefundedTransactions",
+                        "RefundedTransactions select(mapColumn(",
+                        "          syscosmosts = {_ts},",
+                        "          transactionheaderid = id,",
+                        "          locationid = locationId,",
+                        "          orderdateutc = orderDate,",
+                        "          orderid = orderId,",
+                        "          original_transaction_id = originalTransactionId,",
+                        "          refund_transaction_id = refundTransactionId,",
+                        "          refund_type = refundType,",
+                        "          refunded_amount = refundedAmount,",
+                        "          order_completion_status = type,",
+                        "          bronze_filepath",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> RefundAttributes",
+                        "RefundAttributes derive(silver_transform_time = toString(currentTimestamp()),",
+                        "          silver_folderpath = concat('/orders/transactionrefunds/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/')) ~> SilverTransformTime10",
                         "SilverTransformTime sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     format: 'parquet',",
@@ -45018,7 +45729,69 @@
                         "     skipDuplicateMapInputs: true,",
                         "     skipDuplicateMapOutputs: true,",
                         "     saveOrder: 8,",
-                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverModifierImpressionsParquet"
+                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverModifierImpressionsParquet",
+                        "SilverTransformTime10 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          syscosmosts as integer,",
+                        "          businessdate as string,",
+                        "          transactionheaderid as string,",
+                        "          orderid as string,",
+                        "          ordersessionid as string,",
+                        "          locationid as string,",
+                        "          kioskid as string,",
+                        "          kiosk_name as string,",
+                        "          kiosk_mode as integer,",
+                        "          is_test_order as boolean,",
+                        "          categoryid as string,",
+                        "          categoryname as string,",
+                        "          menuitemid as string,",
+                        "          itemname as string,",
+                        "          category_pos_id as string,",
+                        "          menu_item_pos_id as string,",
+                        "          itemsessionid as string,",
+                        "          orderitemid as string,",
+                        "          options_modifiergroupid as string,",
+                        "          options_modifiergroupname as string,",
+                        "          options_modifiergroup_pos_id as string,",
+                        "          options_modifierid as string,",
+                        "          options_modifier_pos_id as string,",
+                        "          options_modifiername as string,",
+                        "          options_modifierquantity as integer,",
+                        "          options_modifierunitprice as double,",
+                        "          options_total_modifierprice as double,",
+                        "          is_modifier_invisible as boolean,",
+                        "          is_modifier_default as boolean,",
+                        "          modifier_freequantity as integer,",
+                        "          options_modifier_code as string,",
+                        "          usd_total_item_price as double,",
+                        "          usd_itemunitprice as double,",
+                        "          cents_itemunitprice as integer,",
+                        "          cents_total_item_price as integer,",
+                        "          itemquantity as integer,",
+                        "          items_special_request as string,",
+                        "          items_upsell_source as string,",
+                        "          items_reward_source as string,",
+                        "          items_discounts as string,",
+                        "          items_discount_id as string,",
+                        "          is_items_discount_hidden_on_receipt as boolean,",
+                        "          items_concept_id as string,",
+                        "          items_concept_name as string,",
+                        "          orderdateutc as string,",
+                        "          order_completion_status as string,",
+                        "          bronze_filepath as string,",
+                        "          silver_transform_time as string,",
+                        "          silver_folderpath as string,",
+                        "          date as string,",
+                        "          hour as string",
+                        "     ),",
+                        "     format: 'parquet',",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverTrxnRefunds"
                     ]
                 }
             },
@@ -45032,7 +45805,8 @@
                 "[concat(variables('factoryId'), '/datasets/SilverUpsellRecommendationsParquet')]",
                 "[concat(variables('factoryId'), '/datasets/SilverModifierRecommendationsParquet')]",
                 "[concat(variables('factoryId'), '/datasets/SilverModifierInteractionsParquet')]",
-                "[concat(variables('factoryId'), '/datasets/SilverModifierImpressionsParquet')]"
+                "[concat(variables('factoryId'), '/datasets/SilverModifierImpressionsParquet')]",
+                "[concat(variables('factoryId'), '/datasets/SilverTrxnRefundsParquet')]"
             ]
         },
         {

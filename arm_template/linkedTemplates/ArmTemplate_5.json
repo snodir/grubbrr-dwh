@@ -13,6 +13,98 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/dimABTestsAnalyticsDB')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "abtestid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "experimentid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "experimentname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "variantid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "variantname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordersessionid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "deviceid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "devicename",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dim",
+                    "table": "abtests"
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/dimCatalog')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -1920,95 +2012,6 @@
                 "typeProperties": {
                     "schema": "fact",
                     "table": "cep_incidents"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/factDeviceHealthAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Service-GSH/AnalyticsDb"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "id",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "healthdatatype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "companyid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "deviceid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "devicetype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "status",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "statusmessage",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "healthdatatime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "statuschangetime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "inserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "fact",
-                    "table": "devicehealth"
                 }
             },
             "dependsOn": []

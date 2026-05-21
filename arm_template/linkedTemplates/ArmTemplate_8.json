@@ -13,6 +13,332 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/stgSilverTransactionComboItemsAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "transactionheaderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordersessionid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderdateutc",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "businessdate",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kioskid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kiosk_name",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kiosk_mode",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_test_order",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_pos_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_name",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_order_item_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_item_session_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_concept_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_concept_name",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "cents_combo_unit_price",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "cents_combo_total_price",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "combo_quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_special_request",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_upsell_source",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combo_reward_source",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_pos_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_name",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_order_item_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_menu_item_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_name",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_menu_item_pos_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_session_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_concept_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_concept_name",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_quantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_price",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "component_item_unit_price",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "component_item_cents_unit_price",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_total_price",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "component_item_cents_total_price",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_special_request",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_upsell_source",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_reward_source",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_discount_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_component_item_discount_hidden_on_receipt",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_item_discounts",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "component_selections_items",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "order_completion_status",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "bronze_filepath",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "silver_transform_time",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "silver_folderpath",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "silver_transaction_combo_items"
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/stgSilverTransactionHeaderAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -848,6 +1174,104 @@
                 "typeProperties": {
                     "schema": "stg",
                     "table": "silver_transaction_payment"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgSilverTransactionRefundsAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "original_transaction_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "refund_transaction_id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "refund_type",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "refunded_amount",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "order_completion_status",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderdateutc",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "bronze_filepath",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "silver_transform_time",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "silver_folderpath",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "silver_transaction_refunds"
                 }
             },
             "dependsOn": []
@@ -6224,7 +6648,7 @@
                                     },
                                     "inputs": [
                                         {
-                                            "referenceName": "SilverTrxnHeaderParquet",
+                                            "referenceName": "SilverModifierRecommendationsParquet",
                                             "type": "DatasetReference",
                                             "parameters": {
                                                 "p_ds_date": {
@@ -6314,17 +6738,313 @@
                                     },
                                     "inputs": [
                                         {
-                                            "referenceName": "SilverTrxnHeaderParquet",
+                                            "referenceName": "SilverUpsellRecommendationsParquet",
                                             "type": "DatasetReference",
                                             "parameters": {
-                                                "p_ds_date": "2026-05-15",
-                                                "p_ds_hour": "12"
+                                                "p_ds_date": {
+                                                    "value": "@pipeline().parameters.p_partition_date",
+                                                    "type": "Expression"
+                                                },
+                                                "p_ds_hour": {
+                                                    "value": "@pipeline().parameters.p_partition_hour",
+                                                    "type": "Expression"
+                                                }
                                             }
                                         }
                                     ],
                                     "outputs": [
                                         {
                                             "referenceName": "stgSilverUpsellRecommendationsAnalyticsDb",
+                                            "type": "DatasetReference",
+                                            "parameters": {}
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "CheckTrxnRefunds",
+                        "type": "GetMetadata",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataset": {
+                                "referenceName": "SilverTrxnRefundsParquet",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "p_ds_date": {
+                                        "value": "@pipeline().parameters.p_partition_date",
+                                        "type": "Expression"
+                                    },
+                                    "p_ds_hour": {
+                                        "value": "@pipeline().parameters.p_partition_hour",
+                                        "type": "Expression"
+                                    }
+                                }
+                            },
+                            "fieldList": [
+                                "exists",
+                                "itemName",
+                                "itemType"
+                            ],
+                            "storeSettings": {
+                                "type": "AzureBlobFSReadSettings",
+                                "recursive": true,
+                                "enablePartitionDiscovery": false
+                            },
+                            "formatSettings": {
+                                "type": "ParquetReadSettings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "IfTrxnRefundsExists",
+                        "type": "IfCondition",
+                        "dependsOn": [
+                            {
+                                "activity": "CheckTrxnRefunds",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "expression": {
+                                "value": "@activity('CheckTrxnRefunds').output.exists",
+                                "type": "Expression"
+                            },
+                            "ifTrueActivities": [
+                                {
+                                    "name": "TrxnRefunds",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "ParquetSource",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSReadSettings",
+                                                "recursive": true,
+                                                "wildcardFolderPath": {
+                                                    "value": "@concat('orders/transactionrefunds/date=', pipeline().parameters.p_partition_date, '/hour=', pipeline().parameters.p_partition_hour)",
+                                                    "type": "Expression"
+                                                },
+                                                "wildcardFileName": "*.parquet",
+                                                "enablePartitionDiscovery": false
+                                            },
+                                            "formatSettings": {
+                                                "type": "ParquetReadSettings"
+                                            }
+                                        },
+                                        "sink": {
+                                            "type": "AzurePostgreSqlSink",
+                                            "writeBatchSize": 1000000,
+                                            "writeBatchTimeout": "00:30:00",
+                                            "writeMethod": "CopyCommand"
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "mappings": [
+                                                {
+                                                    "source": {
+                                                        "name": "locationid",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "locationid",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "transactionheaderid",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "transactionheaderid",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "orderid",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "orderid",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "original_transaction_id",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "original_transaction_id",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "refund_transaction_id",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "refund_transaction_id",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "refund_type",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "refund_type",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "refunded_amount",
+                                                        "type": "Double",
+                                                        "physicalType": "DOUBLE"
+                                                    },
+                                                    "sink": {
+                                                        "name": "refunded_amount",
+                                                        "type": "Decimal",
+                                                        "physicalType": "numeric"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "order_completion_status",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "order_completion_status",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "orderdateutc",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "orderdateutc",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "syscosmosts",
+                                                        "type": "Int32",
+                                                        "physicalType": "INT32"
+                                                    },
+                                                    "sink": {
+                                                        "name": "syscosmosts",
+                                                        "type": "Int64",
+                                                        "physicalType": "bigint"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "bronze_filepath",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "bronze_filepath",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "silver_transform_time",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "silver_transform_time",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "silver_folderpath",
+                                                        "type": "String",
+                                                        "physicalType": "UTF8"
+                                                    },
+                                                    "sink": {
+                                                        "name": "silver_folderpath",
+                                                        "type": "String",
+                                                        "physicalType": "text"
+                                                    }
+                                                }
+                                            ],
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "SilverTrxnRefundsParquet",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "p_ds_date": {
+                                                    "value": "@pipeline().parameters.p_partition_date",
+                                                    "type": "Expression"
+                                                },
+                                                "p_ds_hour": {
+                                                    "value": "@pipeline().parameters.p_partition_hour",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "stgSilverTransactionRefundsAnalyticsDb",
                                             "type": "DatasetReference",
                                             "parameters": {}
                                         }
@@ -6355,9 +7075,11 @@
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/stgSilverTransactionHeaderAnalyticsDb')]",
+                "[concat(variables('factoryId'), '/datasets/stgSilverTransactionComboItemsAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/stgSilverTransactionItemAnalyticsDb')]",
                 "[concat(variables('factoryId'), '/datasets/stgSilverTransactionPaymentAnalyticsDb')]",
-                "[concat(variables('factoryId'), '/datasets/stgSilverUpsellRecommendationsAnalyticsDb')]"
+                "[concat(variables('factoryId'), '/datasets/stgSilverUpsellRecommendationsAnalyticsDb')]",
+                "[concat(variables('factoryId'), '/datasets/stgSilverTransactionRefundsAnalyticsDb')]"
             ]
         },
         {
@@ -8543,6 +9265,13 @@
                                 "type": "DatasetReference"
                             },
                             "name": "SilverModifierImpressionsParquet"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "SilverTrxnRefundsParquet",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SilverTrxnRefunds"
                         }
                     ],
                     "transformations": [
@@ -8617,6 +9346,33 @@
                         },
                         {
                             "name": "SilverTransformTime9"
+                        },
+                        {
+                            "name": "PlacedOrders6"
+                        },
+                        {
+                            "name": "PlacedOrders1"
+                        },
+                        {
+                            "name": "PlacedOrders2"
+                        },
+                        {
+                            "name": "PlacedOrders3"
+                        },
+                        {
+                            "name": "PlacedOrders5"
+                        },
+                        {
+                            "name": "PlacedOrders4"
+                        },
+                        {
+                            "name": "RefundedTransactions"
+                        },
+                        {
+                            "name": "RefundAttributes"
+                        },
+                        {
+                            "name": "SilverTransformTime10"
                         }
                     ],
                     "scriptLines": [
@@ -8658,11 +9414,15 @@
                         "          orderReceiptUrl as string,",
                         "          orderType as string,",
                         "          orderTypeLabel as string,",
+                        "          originalTransactionId as string,",
                         "          paymentDetails as (amount as double, captureDetails as string, isAmazonOnePayment as boolean, paymentCardName as string, paymentCardNumber as string, paymentIntegrationId as string, paymentIntegrationLabel as string, paymentMethod as string, settlementDetails as string, status as string, tenderId as string, tenderInfo as (cardInfo as (cardType as string, lastFour as string, zipCode as string, processorAuthCode as string, expirationMonth as string, expirationYear as string, maskedCardNumber as string, availableBalance as double), storedValueInfo as string), transactionId as string)[],",
                         "          posSubmissionStatus as integer,",
                         "          receiptDetails as (feedBackUrl as string, genesisFiscalFields as string, guestCheckCode as string, guestCheckCodePrefaceText as string, items as string[], loyaltyEarnedPoints as string, loyaltyFooter as string, loyaltyHeader as string, orderLanguage as string, receiptPrintingType as string),",
                         "          receiptImage as string,",
                         "          redeemedRewards as string[],",
+                        "          refundedAmount as double,",
+                        "          refundTransactionId as string,",
+                        "          refundType as string,",
                         "          totals as (charityAmount as double, discount as double, fees as string[], reward as double, serviceCharge as double, subTotal as double, tax as double, taxes as string[], tip as double, total as double),",
                         "          totalsCents as (charityAmount as integer, discount as integer, fees as string[], reward as integer, serviceCharge as integer, subTotal as integer, tax as integer, taxes as string[], tip as integer, total as integer),",
                         "          type as string,",
@@ -8674,7 +9434,7 @@
                         "     rowUrlColumn: 'bronze_filepath',",
                         "     documentForm: 'singleDocument',",
                         "     wildcardPaths:[(concat($p_df_partition_path, '/*.json'))]) ~> BronzeOrdersJson",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders1 select(mapColumn(",
                         "          businessdate = businessDate,",
                         "          syscosmosts = {_ts},",
                         "          channel,",
@@ -8742,7 +9502,7 @@
                         "          payments_array = toString(payments_array),",
                         "          numberofitems = size(items_array),",
                         "          numberofpayments = size(payments_array)) ~> SilverTransformTime",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders2 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -8859,7 +9619,7 @@
                         "FlattenModifiers derive(silver_transform_time = toString(currentTimestamp()),",
                         "          silver_folderpath = concat('/orders/itemmodifiers/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
                         "          items_discounts = toString(items_discounts)) ~> SilverTransformTime3",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders4 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -8917,7 +9677,7 @@
                         "     skipDuplicateMapOutputs: true) ~> flattenPayments",
                         "flattenPayments derive(silver_transform_time = toString(currentTimestamp()),",
                         "          silver_folderpath = concat('/orders/transactionpayment/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/')) ~> SilverTransformTime4",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders3 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -9028,7 +9788,7 @@
                         "          silver_folderpath = concat('/orders/transactioncomboitems/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
                         "          component_selections_items = toString(component_selections_items),",
                         "          component_item_discounts = toString(component_item_discounts)) ~> SilverTransformTime5",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders5 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -9073,7 +9833,7 @@
                         "          silver_folderpath = concat('/orders/upsellrecommendations/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
                         "          offered_items = toString(offered_items),",
                         "          selected_items = toString(selected_items)) ~> SilverTransformTime6",
-                        "BronzeOrdersJson select(mapColumn(",
+                        "PlacedOrders6 select(mapColumn(",
                         "          syscosmosts = {_ts},",
                         "          businessdate = businessDate,",
                         "          transactionheaderid = id,",
@@ -9182,6 +9942,30 @@
                         "     skipDuplicateMapOutputs: true) ~> ImpressionRecommendations",
                         "ImpressionRecommendations derive(silver_transform_time = toString(currentTimestamp()),",
                         "          silver_folderpath = concat('/orders/modifierimpressions/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/')) ~> SilverTransformTime9",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders6",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders1",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders2",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders3",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders5",
+                        "BronzeOrdersJson filter(type == 'order-placed') ~> PlacedOrders4",
+                        "BronzeOrdersJson filter(type == 'order-refund-amount' || type == 'order-refund-transaction') ~> RefundedTransactions",
+                        "RefundedTransactions select(mapColumn(",
+                        "          syscosmosts = {_ts},",
+                        "          transactionheaderid = id,",
+                        "          locationid = locationId,",
+                        "          orderdateutc = orderDate,",
+                        "          orderid = orderId,",
+                        "          original_transaction_id = originalTransactionId,",
+                        "          refund_transaction_id = refundTransactionId,",
+                        "          refund_type = refundType,",
+                        "          refunded_amount = refundedAmount,",
+                        "          order_completion_status = type,",
+                        "          bronze_filepath",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> RefundAttributes",
+                        "RefundAttributes derive(silver_transform_time = toString(currentTimestamp()),",
+                        "          silver_folderpath = concat('/orders/transactionrefunds/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/')) ~> SilverTransformTime10",
                         "SilverTransformTime sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     format: 'parquet',",
@@ -9354,7 +10138,69 @@
                         "     skipDuplicateMapInputs: true,",
                         "     skipDuplicateMapOutputs: true,",
                         "     saveOrder: 8,",
-                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverModifierImpressionsParquet"
+                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverModifierImpressionsParquet",
+                        "SilverTransformTime10 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          syscosmosts as integer,",
+                        "          businessdate as string,",
+                        "          transactionheaderid as string,",
+                        "          orderid as string,",
+                        "          ordersessionid as string,",
+                        "          locationid as string,",
+                        "          kioskid as string,",
+                        "          kiosk_name as string,",
+                        "          kiosk_mode as integer,",
+                        "          is_test_order as boolean,",
+                        "          categoryid as string,",
+                        "          categoryname as string,",
+                        "          menuitemid as string,",
+                        "          itemname as string,",
+                        "          category_pos_id as string,",
+                        "          menu_item_pos_id as string,",
+                        "          itemsessionid as string,",
+                        "          orderitemid as string,",
+                        "          options_modifiergroupid as string,",
+                        "          options_modifiergroupname as string,",
+                        "          options_modifiergroup_pos_id as string,",
+                        "          options_modifierid as string,",
+                        "          options_modifier_pos_id as string,",
+                        "          options_modifiername as string,",
+                        "          options_modifierquantity as integer,",
+                        "          options_modifierunitprice as double,",
+                        "          options_total_modifierprice as double,",
+                        "          is_modifier_invisible as boolean,",
+                        "          is_modifier_default as boolean,",
+                        "          modifier_freequantity as integer,",
+                        "          options_modifier_code as string,",
+                        "          usd_total_item_price as double,",
+                        "          usd_itemunitprice as double,",
+                        "          cents_itemunitprice as integer,",
+                        "          cents_total_item_price as integer,",
+                        "          itemquantity as integer,",
+                        "          items_special_request as string,",
+                        "          items_upsell_source as string,",
+                        "          items_reward_source as string,",
+                        "          items_discounts as string,",
+                        "          items_discount_id as string,",
+                        "          is_items_discount_hidden_on_receipt as boolean,",
+                        "          items_concept_id as string,",
+                        "          items_concept_name as string,",
+                        "          orderdateutc as string,",
+                        "          order_completion_status as string,",
+                        "          bronze_filepath as string,",
+                        "          silver_transform_time as string,",
+                        "          silver_folderpath as string,",
+                        "          date as string,",
+                        "          hour as string",
+                        "     ),",
+                        "     format: 'parquet',",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverTrxnRefunds"
                     ]
                 }
             },
@@ -9484,385 +10330,6 @@
                         "          ww,",
                         "          yyww",
                         "     )) ~> ToADLS"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/CopyGOUViewToGASold')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "public_vw_organizationlocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "publicVwOrganizationlocation"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrganizationLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "WriteToDimOrganizationLocation"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "AlterRow"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          organizationtype as short,",
-                        "          locationid as string,",
-                        "          locationname as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> publicVwOrganizationlocation",
-                        "publicVwOrganizationlocation alterRow(upsertIf(true())) ~> AlterRow",
-                        "AlterRow sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          locationid as string,",
-                        "          locationname as string,",
-                        "          organizationtype as short",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['locationid','organizationid'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     mapColumn(",
-                        "          organizationid,",
-                        "          organizationname,",
-                        "          locationid,",
-                        "          locationname,",
-                        "          organizationtype",
-                        "     )) ~> WriteToDimOrganizationLocation"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/CopyGOUViewsToGAS')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "public_vw_organizationlocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "publicviewdimorganizationlocation"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "GOU_vw_userlocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "GOUViewUserLocation"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "GOUpublicOrganization",
-                                "type": "DatasetReference"
-                            },
-                            "name": "GOUOrg"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "gasCosmosLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "ngeLocation"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "gemSubscription",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gemSubscription"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbOrganizationLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "WriteToDimOrganizationLocationPG"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbDimUserLocation",
-                                "type": "DatasetReference"
-                            },
-                            "name": "WriteToDimUserLocation"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbDimOrganization",
-                                "type": "DatasetReference"
-                            },
-                            "name": "DimOrg"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "RN"
-                        },
-                        {
-                            "name": "Latest"
-                        },
-                        {
-                            "name": "GetRoundUpForCharity"
-                        },
-                        {
-                            "name": "Upsert1"
-                        },
-                        {
-                            "name": "Upsert2"
-                        },
-                        {
-                            "name": "getCEPSubscription"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          organizationtype as short,",
-                        "          locationid as string,",
-                        "          locationname as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> publicviewdimorganizationlocation",
-                        "source(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select distinct userid, locationid from public.vw_userlocation',",
-                        "     format: 'query') ~> GOUViewUserLocation",
-                        "source(output(",
-                        "          id as string,",
-                        "          name as string,",
-                        "          address1 as string,",
-                        "          address2 as string,",
-                        "          city as string,",
-                        "          state as string,",
-                        "          zipcode as string,",
-                        "          country as string,",
-                        "          organizationtype as short,",
-                        "          status as short,",
-                        "          createdon as timestamp,",
-                        "          createdby as string,",
-                        "          modifiedon as timestamp,",
-                        "          modifiedby as string,",
-                        "          active as boolean,",
-                        "          phonenumber as string,",
-                        "          email as string,",
-                        "          isdeleted as boolean,",
-                        "          timezone as string,",
-                        "          coordinates as string,",
-                        "          dayofweek as integer,",
-                        "          minutes as integer,",
-                        "          hour as integer,",
-                        "          is_ecm_enabled as boolean,",
-                        "          is_cep_enabled as boolean,",
-                        "          is_concessionaire_enabled as boolean,",
-                        "          is_smart_upsells_enabled as boolean,",
-                        "          is_feedback_survey_enabled as boolean,",
-                        "          is_digital_menu_board_enabled as boolean,",
-                        "          is_digital_menu_default_format_enabled as boolean",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'SELECT o.*,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-E64430FF-9D39-4BB6-9D7E-FC9BAF46B23B\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_ecm_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-1625cffe-edf0-4cdf-b6e5-c48e56e2448d\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_cep_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-52B64A51-872A-4E2D-BF7A-2AD757B7E874\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_concessionaire_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-C9C2213A-2E85-440C-8662-7B5C7C1571EA\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_smart_upsells_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-8A3DE810-3321-479D-9347-AFFBFCEC9B06\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_feedback_survey_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-0657BAE7-EECF-4825-9FE6-5CCE6D18910D\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_digital_menu_board_enabled,\\r\\n       case when exists (select 1 from public.organizationsetting as os \\r\\n                         where os.organizationid = o.id \\r\\n                           and os.settingid = \\'ost-109E8023-CEF5-4FBD-B28D-466758DAA1D4\\' \\r\\n                           and os.booleanvalue = True) then True else False end as is_digital_menu_default_format_enabled\\r\\nFROM public.organization as o',",
-                        "     format: 'query') ~> GOUOrg",
-                        "source(output(",
-                        "          locationid as string,",
-                        "          roundupforcharity as boolean,",
-                        "          syscosmosts as integer",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT DISTINCT\\r\\n  c.locationId ?? null as locationid, \\r\\n  c.roundUpForCharity ?? null as roundupforcharity,\\r\\n  c._ts as syscosmosts\\r\\nFROM c\\r\\nWHERE 1=1\\r\\nand lower(c.id) = \\'kiosk-config\\'',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> ngeLocation",
-                        "source(output(",
-                        "          id as string,",
-                        "          cep_subscriptions as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT c.id ?? null as id,\\r\\ntoString(c.jobs) ?? null as cep_subscriptions\\r\\nFROM c',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> gemSubscription",
-                        "ngeLocation window(over(locationid,",
-                        "          roundupforcharity),",
-                        "     desc(syscosmosts, true),",
-                        "     rn = rowNumber()) ~> RN",
-                        "RN filter(rn == 1) ~> Latest",
-                        "GOUOrg, Latest join(id == locationid,",
-                        "     joinType:'left',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> GetRoundUpForCharity",
-                        "publicviewdimorganizationlocation alterRow(upsertIf(true())) ~> Upsert1",
-                        "getCEPSubscription alterRow(upsertIf(true())) ~> Upsert2",
-                        "GetRoundUpForCharity, gemSubscription join(GOUOrg@id == gemSubscription@id,",
-                        "     joinType:'left',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> getCEPSubscription",
-                        "Upsert1 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          organizationid as string,",
-                        "          organizationname as string,",
-                        "          locationid as string,",
-                        "          locationname as string,",
-                        "          organizationtype as short",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:false,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['organizationid','locationid'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 2,",
-                        "     mapColumn(",
-                        "          organizationid,",
-                        "          organizationname,",
-                        "          locationid,",
-                        "          locationname,",
-                        "          organizationtype",
-                        "     )) ~> WriteToDimOrganizationLocationPG",
-                        "GOUViewUserLocation sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          userid as string,",
-                        "          locationid as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     truncate:true,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 3) ~> WriteToDimUserLocation",
-                        "Upsert2 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          id as string,",
-                        "          name as string,",
-                        "          address1 as string,",
-                        "          address2 as string,",
-                        "          city as string,",
-                        "          state as string,",
-                        "          zipcode as string,",
-                        "          country as string,",
-                        "          organizationtype as short,",
-                        "          status as short,",
-                        "          phonenumber as string,",
-                        "          email as string,",
-                        "          isdeleted as boolean,",
-                        "          createdon as timestamp,",
-                        "          createdby as string,",
-                        "          modifiedon as timestamp,",
-                        "          modifiedby as string,",
-                        "          active as boolean,",
-                        "          timezone as string,",
-                        "          coordinates as string,",
-                        "          dayofweek as integer,",
-                        "          hour as integer,",
-                        "          minutes as integer,",
-                        "          roundupforcharity as boolean,",
-                        "          is_ecm_enabled as boolean,",
-                        "          is_cep_enabled as boolean,",
-                        "          is_concessionaire_enabled as boolean,",
-                        "          is_smart_upsells_enabled as boolean,",
-                        "          is_feedback_survey_enabled as boolean,",
-                        "          is_digital_menu_board_enabled as boolean,",
-                        "          is_digital_menu_default_format_enabled as boolean,",
-                        "          cep_subscriptions as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:false,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['id'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 1,",
-                        "     mapColumn(",
-                        "          id = GOUOrg@id,",
-                        "          name,",
-                        "          address1,",
-                        "          address2,",
-                        "          city,",
-                        "          state,",
-                        "          zipcode,",
-                        "          country,",
-                        "          organizationtype,",
-                        "          status,",
-                        "          phonenumber,",
-                        "          email,",
-                        "          isdeleted,",
-                        "          createdon,",
-                        "          createdby,",
-                        "          modifiedon,",
-                        "          modifiedby,",
-                        "          active,",
-                        "          timezone,",
-                        "          coordinates,",
-                        "          dayofweek,",
-                        "          hour,",
-                        "          minutes,",
-                        "          roundupforcharity,",
-                        "          is_ecm_enabled,",
-                        "          is_cep_enabled,",
-                        "          is_concessionaire_enabled,",
-                        "          is_smart_upsells_enabled,",
-                        "          is_feedback_survey_enabled,",
-                        "          is_digital_menu_board_enabled,",
-                        "          is_digital_menu_default_format_enabled,",
-                        "          cep_subscriptions",
-                        "     )) ~> DimOrg"
                     ]
                 }
             },

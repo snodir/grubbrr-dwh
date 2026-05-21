@@ -7,7 +7,12 @@ SELECT * FROM stg.silver_transaction_header WHERE ordersessionid = '79EGW2F5UYYT
 CREATE OR REPLACE PROCEDURE fact.usp_silver_to_fact_transaction_header()
 LANGUAGE plpgsql
 AS $BODY$
+
+DECLARE v_max_id INTEGER;
+
 BEGIN
+
+SELECT MAX(id) INTO v_max_id FROM fact.transactionheader;
 
 WITH delta_transactions AS (
 SELECT
@@ -57,7 +62,8 @@ AND NOT EXISTS (SELECT 1 FROM fact.transactionheader as th
                 WHERE dt.locationid = th.locationid
                   AND dt.transactionheaderid = th.transactionheaderid)
 )
-SELECT ROW_NUMBER() OVER(ORDER BY syscosmosts) + (SELECT max(id) FROM fact.transactionheader) AS id,
+INSERT INTO fact.transactionheader
+SELECT ROW_NUMBER() OVER(ORDER BY syscosmosts) + v_max_id AS id,
     transactionheaderid,
     orderid,
     locationid,
@@ -87,6 +93,13 @@ SELECT ROW_NUMBER() OVER(ORDER BY syscosmosts) + (SELECT max(id) FROM fact.trans
     frequentcustomerid,
     customername,
 FROM qualified_trxns  
+
+
+
+
+
+
+
 
 SELECT ke.companyid,
     th.locationid,
