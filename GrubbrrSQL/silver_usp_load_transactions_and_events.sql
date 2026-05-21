@@ -7,7 +7,7 @@ SELECT * FROM stg.silver_kiosk_events WHERE token = '79EGW2F5UYYT7TBS';
 
 --SELECT '2026-05-15T06:59:57.746922+00:00' :: TIMESTAMP
 
-CREATE OR REPLACE PROCEDURE fact.usp_silver_to_fact_transaction_header()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_header_to_fact()
 LANGUAGE plpgsql
 AS $BODY$
 
@@ -105,8 +105,8 @@ WHERE dt.row_num = 1
   AND NOT EXISTS (
         SELECT 1
         FROM fact.transactionheader AS th
-        WHERE dt.locationid        = th.locationid
-          AND dt.transactionheaderid = th.transactionheaderid
+        WHERE th.locationid        = dt.locationid
+          AND th.transactionheaderid = dt.transactionheaderid
       )
 )
 INSERT INTO temp_silver_transaction_header   -- ③ explicit column list added
@@ -290,6 +290,9 @@ FROM orders_enriched_with_ordertiming_fields;
 
 END;
 $BODY$;  
+
+ALTER PROCEDURE fact.usp_silver_transaction_header_to_fact()
+    OWNER TO citus;
 
 
 
