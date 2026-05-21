@@ -14,6 +14,46 @@ BEGIN
 
 SELECT MAX(id) INTO v_max_id FROM fact.transactionheader;
 
+DROP TABLE IF EXISTS temp_silver_transaction_header;
+
+-- Step 1: define structure explicitly
+CREATE TEMP TABLE IF NOT EXISTS temp_silver_transaction_header (
+    id                      INTEGER,
+    transactionheaderid     TEXT COLLATE pg_catalog."default",
+    orderid                 TEXT COLLATE pg_catalog."default",
+    locationid              TEXT COLLATE pg_catalog."default",
+    kioskid                 TEXT COLLATE pg_catalog."default",
+    ordersessionid          TEXT COLLATE pg_catalog."default",
+    dateid                  INTEGER,
+    orderdateutc            TEXT COLLATE pg_catalog."default",
+    orderdatelocal          TIMESTAMP,
+    orderstatus             TEXT COLLATE pg_catalog."default",
+    ordertype               INTEGER,
+    numberofitems           SMALLINT,
+    numberofpayments        SMALLINT,
+    ordersredeemedrewards   NUMERIC(12,3),
+    ordersubtotal           NUMERIC(12,3),
+    ordertotal              NUMERIC(12,3),
+    ordertax                NUMERIC(12,3),
+    ordertip                NUMERIC(12,3),
+    orderdiscount           NUMERIC(12,3),
+    orderbalance            NUMERIC(12,3),
+    paymentstatus           TEXT COLLATE pg_catalog."default",
+    sourcefile              TEXT COLLATE pg_catalog."default",
+    createddate             TIMESTAMP,
+    charityamount           NUMERIC(12,3),
+    orderservicecharge      NUMERIC(12,3),
+    businessdate            DATE,
+    syscosmosts             BIGINT,
+    channel                 TEXT COLLATE pg_catalog."default",
+    guestcount              INTEGER,
+    frequentcustomerid      TEXT COLLATE pg_catalog."default",
+    customername            TEXT COLLATE pg_catalog."default"
+);
+
+
+-- Step 2: populate
+
 WITH delta_transactions AS (
 SELECT
     transactionheaderid,
@@ -29,47 +69,52 @@ SELECT
     ordertype as ordertypeid,
     numberofitems,
     numberofpayments,
-    --ordertypelabel,
-    usd_reward :: NUMERIC(12,3) AS ordersredeemedrewards,
-    usd_subtotal :: NUMERIC(12,3) AS ordersubtotal,
-    usd_amount :: NUMERIC(12,3) AS ordertotal,
-    usd_tax :: NUMERIC(12,3) AS ordertax,
-    usd_tip :: NUMERIC(12,3) AS ordertip,
-    usd_discount :: NUMERIC(12,3) AS orderdiscount,
-    usd_charity_amount :: NUMERIC(12,3) as charityamount,
-    usd_service_charge :: NUMERIC(12,3) as orderservicecharge,
-    substring(businessdate, 1, 10) :: TEXT as businessdate,
+    usd_reward      :: NUMERIC(12,3) AS ordersredeemedrewards,
+    usd_subtotal    :: NUMERIC(12,3) AS ordersubtotal,
+    usd_amount      :: NUMERIC(12,3) AS ordertotal,
+    usd_tax         :: NUMERIC(12,3) AS ordertax,
+    usd_tip         :: NUMERIC(12,3) AS ordertip,           -- ① preserved here
+    usd_discount    :: NUMERIC(12,3) AS orderdiscount,
+    usd_charity_amount   :: NUMERIC(12,3) AS charityamount,
+    usd_service_charge   :: NUMERIC(12,3) AS orderservicecharge,
+    substring(businessdate, 1, 10) :: TEXT AS businessdate,
     CASE channel WHEN 0 THEN 'Kiosk' WHEN 1 THEN 'OnlineOrdering' ELSE 'External' END AS channel,
-    guest_count as guestcount,
+    guest_count AS guestcount,
     frequentcustomerid,
     customername,
-    ROW_NUMBER() OVER(PARTITION BY locationid, transactionheaderid ORDER BY orderdateutc DESC) as row_num
+    syscosmosts,                                            -- ② must be carried through for the ORDER BY below
+    ROW_NUMBER() OVER(PARTITION BY locationid, transactionheaderid ORDER BY orderdateutc DESC) AS row_num
 FROM stg.silver_transaction_header
 WHERE is_test_order = False OR is_test_order IS NULL
 ), qualified_trxns AS (
-SELECT dt.*, 
-    ot.id as ordertype,
+SELECT
+    dt.*,
+    ot.id AS ordertype,
     dt.orderdateutc :: TIMESTAMPTZ AT TIME ZONE l.timezone AS orderdatelocal
-FROM delta_transactions as dt
-LEFT JOIN dim.ordertype as ot 
-    ON dt.locationid = ot.locationid
-    AND dt.kioskid = ot.kioskid
+FROM delta_transactions AS dt
+LEFT JOIN dim.ordertype AS ot
+    ON  dt.locationid  = ot.locationid
+    AND dt.kioskid     = ot.kioskid
     AND dt.ordertypeid = ot.ordertypeid
-LEFT JOIN dim.location as l 
+LEFT JOIN dim.location AS l
     ON dt.locationid = l.locationid
-WHERE row_num = 1
-AND NOT EXISTS (SELECT 1 FROM fact.transactionheader as th
-                WHERE dt.locationid = th.locationid
-                  AND dt.transactionheaderid = th.transactionheaderid)
+WHERE dt.row_num = 1
+  AND NOT EXISTS (
+        SELECT 1
+        FROM fact.transactionheader AS th
+        WHERE dt.locationid        = th.locationid
+          AND dt.transactionheaderid = th.transactionheaderid
+      )
 )
-INSERT INTO fact.transactionheader
-SELECT ROW_NUMBER() OVER(ORDER BY syscosmosts) + v_max_id AS id,
+INSERT INTO temp_silver_transaction_header   -- ③ explicit column list added
+SELECT
+    ROW_NUMBER() OVER (ORDER BY syscosmosts) + v_max_id AS id,
     transactionheaderid,
     orderid,
     locationid,
     kioskid,
     ordersessionid,
-    CAST(TO_CHAR(orderdatelocal, 'YYYYMMDDHH24') as INTEGER) AS dateid,
+    CAST(TO_CHAR(orderdatelocal, 'YYYYMMDDHH24') AS INTEGER) AS dateid,
     orderdateutc,
     orderdatelocal,
     orderstatus,
@@ -80,19 +125,26 @@ SELECT ROW_NUMBER() OVER(ORDER BY syscosmosts) + v_max_id AS id,
     ordersubtotal,
     ordertotal,
     ordertax,
+    ordertip,                          -- ① projected in SELECT
     orderdiscount,
-    0.0 :: NUMERIC(12,3) AS orderbalance,
+    0.0 :: NUMERIC(12,3)               AS orderbalance,
     CASE WHEN numberofpayments > 0 THEN 'paid' END AS payment_status,
-    'NGE' as sourcefile,
-    now() :: TIMESTAMP AS createddate,
+    'NGE'                              AS sourcefile,
+    now() :: TIMESTAMP                 AS createddate,
     charityamount,
     orderservicecharge,
-    businessdate,
+    businessdate :: DATE AS businessdate,
+    syscosmosts,
     channel,
     guestcount,
     frequentcustomerid,
-    customername,
-FROM qualified_trxns  
+    customername                       -- ④ trailing comma removed
+FROM qualified_trxns;
+
+END;
+$BODY$;  
+
+
 
 
 
