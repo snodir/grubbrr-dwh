@@ -20,6 +20,8 @@ ORDER BY ordercounts DESC-- first_order_time ASC--, ordercounts DESC--,
 
 --SELECT max(orderdatelocal) FROM fact.transactionheader
 
+SELECT * FROM fact.transactionheader WHERE locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992'
+
 SELECT th.businessdate, 
 	   count(DISTINCT th.locationid) as locations,
 	   count(*) as order_count

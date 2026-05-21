@@ -9,7 +9,7 @@ CALL ml.usp_refresh_transactions(p_refresh_mode => 0);
 CALL ml.usp_refresh_upsell_analysis(p_refresh_mode => 0);
 CALL ml.usp_refresh_modifier_interactions(p_refresh_mode => 0);
 CALL ml.usp_refresh_modifier_impressions(p_refresh_mode => 0);
-*/
+
 
 ALTER TABLE ml.menu_entities
 ALTER COLUMN itemunitprice TYPE NUMERIC(12,3);
@@ -17,17 +17,13 @@ ALTER COLUMN itemunitprice TYPE NUMERIC(12,3);
 ALTER TABLE ml.transactions
 ALTER COLUMN itemunitprice TYPE NUMERIC(12,3);
 
-ALTER TABLE ml.upsell_analysis
-ALTER COLUMN itemunitprice TYPE NUMERIC(12,3);
-
 ALTER TABLE ml.modifier_interactions
 ALTER COLUMN itemunitprice TYPE NUMERIC(12,3),
 ALTER COLUMN modifierprice TYPE NUMERIC(12,3);
 
 ALTER TABLE ml.modifier_impressions
---ALTER COLUMN itemunitprice TYPE NUMERIC(12,3),
 ALTER COLUMN modifierprice TYPE NUMERIC(12,3);
-
+*/
 -- ============================================================
 -- STORED PROCEDURE 1: ml.usp_refresh_weather
 -- Refresh type : DAILY DELETE + INSERT (idempotent) / FULL TRUNCATE + INSERT
