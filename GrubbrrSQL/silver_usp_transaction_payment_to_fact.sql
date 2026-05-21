@@ -1,4 +1,4 @@
-SELECT * FROM stg.silver_transaction_payment;
+--SELECT * FROM stg.silver_transaction_payment;
 
 CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_payment_to_fact()
 LANGUAGE plpgsql
@@ -25,7 +25,7 @@ SELECT
     transactionheaderid,
     payment_integration_id AS paymentintegrationid,
     payment_transactionid AS paymentid,
-    payment_amount as paymentamt,
+    payment_amount :: NUMERIC(12,3) AS paymentamt,
     orderid,
     locationid,
     kioskid,
