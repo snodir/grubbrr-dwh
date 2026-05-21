@@ -3,6 +3,9 @@
 -- ========
 
 SELECT * FROM stg.silver_transaction_header WHERE ordersessionid = '79EGW2F5UYYT7TBS';
+SELECT * FROM stg.silver_kiosk_events WHERE token = '79EGW2F5UYYT7TBS';
+
+--SELECT '2026-05-15T06:59:57.746922+00:00' :: TIMESTAMP
 
 CREATE OR REPLACE PROCEDURE fact.usp_silver_to_fact_transaction_header()
 LANGUAGE plpgsql
@@ -141,17 +144,156 @@ SELECT
     customername                       -- ④ trailing comma removed
 FROM qualified_trxns;
 
+
+-- Order Timing Fields 
+
+WITH aggregated_kiosk_events AS (
+
+SELECT ke.locationid, ke.token,
+    min(CASE WHEN lower(ke.eventcategory) = 'session' AND lower (ke.eventtype) = 'started' THEN eventinstant END) AS orderstarttime,
+    min(CASE WHEN lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'revieworderclicked' THEN eventinstant END) AS reviewordertime,
+    min(CASE WHEN lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'checkoutclicked' THEN eventinstant END) AS checkouttime,
+    min(CASE WHEN lower(ke.eventcategory) = 'payment' AND lower (ke.eventtype) = 'create' THEN eventinstant END) AS paymentstarttime,
+    max(CASE WHEN lower(ke.eventcategory) IN ('session','order') AND lower(ke.eventtype) = 'closed' THEN eventinstant END) AS sessionendtime
+FROM stg.silver_kiosk_events as ke 
+WHERE((lower(ke.eventcategory) = 'session' AND lower (ke.eventtype) = 'started') OR 
+     (lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'revieworderclicked') OR 
+     (lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'checkoutclicked') OR 
+     (lower(ke.eventcategory) = 'payment' AND lower (ke.eventtype) = 'create') OR  
+     (lower(ke.eventcategory) IN ('session','order') AND lower(ke.eventtype) = 'closed'))
+  AND lower(ke.severity) = 'information'
+GROUP BY ke.locationid, ke.token
+
+), orders_enriched_with_ordertiming_fields AS (
+SELECT th.*,
+    (CASE WHEN substring(ke.orderstarttime, 20, 1) = '.' 
+         THEN replace(replace(substring(ke.orderstarttime, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(ke.orderstarttime, 1, 19), 'T', ' ') 
+    END) :: TIMESTAMP as orderstarttime,
+    (CASE WHEN substring(ke.reviewordertime, 20, 1) = '.' 
+         THEN replace(replace(substring(ke.reviewordertime, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(ke.reviewordertime, 1, 19), 'T', ' ') 
+    END) :: TIMESTAMP as reviewordertime,
+    (CASE WHEN substring(ke.checkouttime, 20, 1) = '.' 
+         THEN replace(replace(substring(ke.checkouttime, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(ke.checkouttime, 1, 19), 'T', ' ') 
+    END) :: TIMESTAMP as checkouttime,
+    (CASE WHEN substring(ke.paymentstarttime, 20, 1) = '.' 
+         THEN replace(replace(substring(ke.paymentstarttime, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(ke.paymentstarttime, 1, 19), 'T', ' ') 
+    END) :: TIMESTAMP as paystarttime,
+    (CASE WHEN substring(ke.sessionendtime, 20, 1) = '.' 
+         THEN replace(replace(substring(ke.sessionendtime, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(ke.sessionendtime, 1, 19), 'T', ' ') 
+    END) :: TIMESTAMP as sessionendtime
+
+FROM temp_silver_transaction_header as th 
+LEFT JOIN aggregated_kiosk_events as ke 
+    ON ke.locationid = th.locationid
+    AND ke.token = th.ordersessionid
+
+)
+INSERT INTO fact.transactionheader(
+    id,
+    transactionheaderid,
+    orderid,
+    locationid,
+    kioskid,
+    ordersessionid,
+    dateid,
+    orderdateutc,
+    orderdatelocal,
+    orderstatus,
+    ordertype,
+    numberofitems,
+    numberofpayments,
+    ordersredeemedrewards,
+    ordersubtotal,
+    ordertotal,
+    ordertax,
+    ordertip,
+    orderdiscount,
+    orderbalance,
+    paymentstatus,
+    sourcefile,
+    createddate,
+    updateddate,
+    orderstarttime,
+    reviewordertime,
+    checkouttime,
+    paystarttime,
+    sessionendtime,
+    precheckouttime,
+    postcheckouttime,
+    menupagetime,
+    reviewpagetime,
+    paymentpagetime,
+    totalordertime,
+    businessdate,
+    frequentcustomerid,
+    abtestid,
+    channel,
+    guestcount,
+    charityamount,
+    syscosmosts,
+    sourceid,
+    orderservicecharge,
+    customername
+)
+SELECT 
+    id,
+    transactionheaderid,
+    orderid,
+    locationid,
+    kioskid,
+    ordersessionid,
+    dateid,
+    orderdateutc,
+    orderdatelocal,
+    orderstatus,
+    ordertype,
+    numberofitems,
+    numberofpayments,
+    ordersredeemedrewards,
+    ordersubtotal,
+    ordertotal,
+    ordertax,
+    ordertip,
+    orderdiscount,
+    orderbalance,
+    payment_status,
+    sourcefile,
+    createddate,
+    NULL :: TIMESTAMP AS updateddate,
+    orderstarttime,
+    reviewordertime,
+    checkouttime,
+    paystarttime,
+    sessionendtime,
+    EXTRACT(EPOCH FROM (checkouttime - orderstarttime)) AS precheckouttime,
+    EXTRACT(EPOCH FROM (sessionendtime - checkouttime)) AS postcheckouttime,
+    EXTRACT(EPOCH FROM (reviewordertime - orderstarttime)) AS menupagetime,
+    EXTRACT(EPOCH FROM (checkouttime - reviewordertime)) AS reviewpagetime,
+    EXTRACT(EPOCH FROM (sessionendtime - paystarttime)) AS paymentpagetime,
+    EXTRACT(EPOCH FROM (sessionendtime - orderstarttime)) AS totalordertime,
+    businessdate,
+    frequentcustomerid,
+    NULL :: BIGINT AS abtestid,
+    channel,
+    guestcount,
+    charityamount,
+    syscosmosts,
+    1 :: INTEGER AS sourceid,
+    orderservicecharge,
+    customername
+FROM orders_enriched_with_ordertiming_fields;
+
 END;
 $BODY$;  
 
 
 
-
-
-
-
-
-
+SELECT * FROM dim.grubbrr_source_lookup
 
 SELECT ke.companyid,
     th.locationid,

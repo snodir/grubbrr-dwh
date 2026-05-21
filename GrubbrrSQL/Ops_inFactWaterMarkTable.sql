@@ -4,7 +4,24 @@ FROM fact.watermarktable as wt;
 --CALL fact.usp_update_datetime_fields();
 
 SELECT * FROM fact.pipelinerunstatus;
-SELECT to_timestamp(1775002010), to_timestamp(1600000300);
+--1753100010 = 2025-07-21 12:13:30+00
+-- Result: 724.0  ✓ (847ms - 123ms = 724ms)
+SELECT EXTRACT(EPOCH FROM ('2024-01-01 10:00:00.847' :: TIMESTAMP - '2024-01-01 10:00:00.123' :: TIMESTAMP)) AS diff_ms,
+       CURRENT_TIMESTAMP, to_timestamp(1763675405) as sample_ts,
+       now(), 
+       to_timestamp(1708637922) as first_order_ts,
+       to_timestamp(1769669258) as now2207, 
+       to_timestamp(1753300000) as nge1,
+       to_timestamp(1750000010) as nge2,
+       to_timestamp(1500000010) as nge3,
+       1753063217 - 1752837578 as diff,
+       '2025-07-10T09:49:50.168+00:00' as ts_string,
+       CASE WHEN substring('2025-07-10T09:49:50.168+00:00', 20, 1) = '.' 
+            THEN replace(replace(substring('2025-07-10T09:49:50.168+00:00',1,23),'T',' '), '+', '0') 
+            ELSE replace(substring('2025-07-10T09:49:50.168+00:00',1,19),'T',' ') 
+       END as ts_datetime,
+       CASE WHEN '2025-07-21 10:05:54.018869' > '2025-07-21 10:05:54.018868' then 'datetime_is_ok' end is_ts_good,
+       EXTRACT(EPOCH FROM TIMESTAMP '2024-05-01 00:00:00')::BIGINT;
 --1775825597 fact.itemmodifier
 /*
 1769755658
@@ -58,22 +75,6 @@ SET source = CASE WHEN watermarktablename in ('fact.transactionrefunds','fact.tr
                   WHEN watermarktablename in ('dim.abtests','fact.deviceevent','fact.userbehaviour') THEN 'gem'
                   WHEN watermarktablename in ('fact.devicetelemetry','fact.devicestate') THEN 'gsh' END
 
---1753100010 = 2025-07-21 12:13:30+00
-SELECT CURRENT_TIMESTAMP, to_timestamp(1763675405) as sample_ts,
-       now(), 
-       to_timestamp(1708637922) as first_order_ts,
-       to_timestamp(1769669258) as now2207, 
-       to_timestamp(1753300000) as nge1,
-       to_timestamp(1750000010) as nge2,
-       to_timestamp(1500000010) as nge3,
-       1753063217 - 1752837578 as diff,
-       '2025-07-10T09:49:50.168+00:00' as ts_string,
-       CASE WHEN substring('2025-07-10T09:49:50.168+00:00', 20, 1) = '.' 
-            THEN replace(replace(substring('2025-07-10T09:49:50.168+00:00',1,23),'T',' '), '+', '0') 
-            ELSE replace(substring('2025-07-10T09:49:50.168+00:00',1,19),'T',' ') 
-       END as ts_datetime,
-       CASE WHEN '2025-07-21 10:05:54.018869' > '2025-07-21 10:05:54.018868' then 'datetime_is_ok' end is_ts_good,
-       EXTRACT(EPOCH FROM TIMESTAMP '2024-05-01 00:00:00')::BIGINT;
 
 --de-1753912232
 --ub-1753924223
