@@ -142,7 +142,9 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS fact.sent_surveys
     OWNER to citus;
 
-SELECT * FROM fact.occasionsurveydetail;
+SELECT * FROM dim.occasionsurvey
+SELECT * FROM fact.occasionsurveydetail ORDER BY sysinserttime DESC --LIMIT 100
+WHERE organizationid = 'org-a4f5fe04-50ec-48dc-8afe-294f3f8ade4a';
 SELECT * FROM fact.itemssurvey;
 SELECT * FROM stg.sent_surveys;
 SELECT * FROM fact.sent_surveys;

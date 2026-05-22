@@ -53,15 +53,15 @@ SELECT * FROM dim.kioskdetails;
 SELECT * FROM dim.kiosk;
 
 SELECT count(*) as total_count, count(DISTINCT locationid) as loc_count, count(DISTINCT companyid) as org_count 
-FROM dim.location; --3,662***3,662***566
+FROM dim.location; --3,662***3,662***566===P--1,290***1,290***159
 
 SELECT count(*) as total_count, count(DISTINCT locationid) as loc_count, count(DISTINCT organizationid) as org_count 
-FROM dim.organizationlocation; --11,787***3,692***4,179
+FROM dim.organizationlocation; --11,787***3,692***4,179===P--5,009***1,288***1664
 
 SELECT count(*) as total_count, 
   sum(CASE WHEN id LIKE 'loc-%' THEN 1 ELSE 0 END) as loc_count, 
   sum(CASE WHEN id NOT LIKE 'loc-%' THEN 1 ELSE 0 END) as org_count 
-FROM dim.organization --5,458***3,691***1,767
+FROM dim.organization --5,458***3,691***1,767===P--1,689***1,288***401
 
 SELECT * FROM dim.organization --5,458
 WHERE 1=1 
