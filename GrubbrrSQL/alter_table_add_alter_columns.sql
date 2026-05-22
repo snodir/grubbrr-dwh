@@ -1161,7 +1161,7 @@ AS $BODY$
 BEGIN
 
 UPDATE fact.transactionheader 
-   SET orderdatelocal = ((transactionheader.orderdateutc)::timestamp with time zone AT TIME ZONE l.timezone)
+   SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone)
 FROM ( SELECT DISTINCT location.locationid,
                  CASE
                      WHEN ((location.timezone IS NULL) OR (location.timezone = ''::text)) THEN 'America/New_York'::text
@@ -1171,7 +1171,7 @@ FROM ( SELECT DISTINCT location.locationid,
 WHERE (l.locationid = transactionheader.locationid) AND (transactionheader.orderdatelocal IS NULL);
 
 UPDATE fact.transactionheader 
-   SET orderdatelocal = ((transactionheader.orderdateutc)::timestamp with time zone AT TIME ZONE 'America/New_York'::text)
+   SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text)
 WHERE (transactionheader.orderdatelocal IS NULL);
 
 UPDATE fact.transactionheader 
@@ -1190,7 +1190,7 @@ WHERE (abtests.ordersessionid = transactionheader.ordersessionid) AND (transacti
 
 
 UPDATE fact.transactionitem 
-   SET orderdatelocal = ((transactionitem.orderdateutc)::timestamp with time zone AT TIME ZONE l.timezone)
+   SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone)
 FROM ( SELECT DISTINCT location.locationid,
                  CASE
                      WHEN ((location.timezone IS NULL) OR (location.timezone = ''::text)) THEN 'America/New_York'::text
@@ -1200,7 +1200,7 @@ FROM ( SELECT DISTINCT location.locationid,
 WHERE (l.locationid = transactionitem.locationid) AND (transactionitem.orderdatelocal IS NULL);
 
 UPDATE fact.transactionitem
-   SET orderdatelocal = ((transactionitem.orderdateutc)::timestamp with time zone AT TIME ZONE 'America/New_York'::text)
+   SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text)
 WHERE (transactionitem.orderdatelocal IS NULL);
 
 UPDATE fact.transactionitem 
@@ -1220,6 +1220,7 @@ $BODY$;
 
 ALTER PROCEDURE fact.usp_update_datetime_fields()
     OWNER TO citus;
+
 
 CREATE OR REPLACE VIEW dim.vw_weatherhourlydata
  AS

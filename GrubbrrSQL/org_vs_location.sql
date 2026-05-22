@@ -13,9 +13,6 @@ WHERE 1=1
   AND active = False
 ORDER by createdon desc;
 
-SELECT * FROM dim.kioskdetails;
-
-SELECT * FROM dim.kiosk;
 
 SELECT DISTINCT o.id, o.name, k.kioskid, k.kioskname, o.organizationtype, o.status,
        CASE o.status 
@@ -30,26 +27,7 @@ WHERE o.active = True
   AND o.status = 2
   AND k.istestkiosk = False;
 
-SELECT * FROM dim.kiosk;
 
---/TRUNCATE TABLE dim.locationcatalog;
-/*
-CASE dd.kiosk_mode 
-WHEN 1 THEN 'Live' 
-WHEN 2 THEN 'Demo' 
-WHEN 3 THEN 'Test' 
-END as kiosk_mode,
-*/
-SELECT * FROM dim.organization
-WHERE 1=1 
-  AND is_smart_upsells_enabled = True
-  AND id = 'loc-4d9abab8-1ac9-4486-90f8-fcfb26d830fc'-- 'loc-96abd656-679f-41dc-a5ef-7bca8ffc5333'-- 'loc-66d85cfc-62f3-40eb-96c3-39afb144b4e3'
-  AND organizationtype = 0
-
-SELECT * FROM dim.organizationlocation
-WHERE 1=1
-  AND locationid in ('loc-9dd1eaea-e264-4d51-bffb-1abdc65e3fff')--, 'loc-61493b82-41d7-4b02-b788-de845b480d17')-- 'loc-66d85cfc-62f3-40eb-96c3-39afb144b4e3'
-  
 SELECT o.organizationid, o.organizationname,
        o.locationid, o.locationname,
        loc.createdon, loc.modifiedon, loc.active as is_loc_active,
@@ -60,6 +38,41 @@ INNER JOIN (SELECT * FROM dim.organization WHERE status <> 2) as loc
 WHERE 1=1
   AND active = False
 ORDER by createdon desc;
+
+/*
+CASE dd.kiosk_mode 
+WHEN 1 THEN 'Live' 
+WHEN 2 THEN 'Demo' 
+WHEN 3 THEN 'Test' 
+END as kiosk_mode,
+*/
+
+
+SELECT * FROM dim.kioskdetails;
+
+SELECT * FROM dim.kiosk;
+
+SELECT count(*) as total_count, count(DISTINCT locationid) as loc_count, count(DISTINCT companyid) as org_count 
+FROM dim.location; --3,662***3,662***566
+
+SELECT count(*) as total_count, count(DISTINCT locationid) as loc_count, count(DISTINCT organizationid) as org_count 
+FROM dim.organizationlocation; --11,787***3,692***4,179
+
+SELECT count(*) as total_count, 
+  sum(CASE WHEN id LIKE 'loc-%' THEN 1 ELSE 0 END) as loc_count, 
+  sum(CASE WHEN id NOT LIKE 'loc-%' THEN 1 ELSE 0 END) as org_count 
+FROM dim.organization --5,458***3,691***1,767
+
+SELECT * FROM dim.organization --5,458
+WHERE 1=1 
+  AND is_smart_upsells_enabled = True
+  AND id = 'loc-4d9abab8-1ac9-4486-90f8-fcfb26d830fc'-- 'loc-96abd656-679f-41dc-a5ef-7bca8ffc5333'-- 'loc-66d85cfc-62f3-40eb-96c3-39afb144b4e3'
+  AND organizationtype = 0
+
+SELECT * FROM dim.organizationlocation
+WHERE 1=1
+  AND locationid in ('loc-9dd1eaea-e264-4d51-bffb-1abdc65e3fff')--, 'loc-61493b82-41d7-4b02-b788-de845b480d17')-- 'loc-66d85cfc-62f3-40eb-96c3-39afb144b4e3'
+  
 
 SELECT '''nodir''' as one_single_quote
 
