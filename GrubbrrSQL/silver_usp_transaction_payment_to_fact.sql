@@ -31,10 +31,7 @@ SELECT
     kioskid,
     payment_method AS paymentmethod,
     payment_integration_label AS paymentintegrationlabel,
-    CASE WHEN substring(orderdateutc, 20, 1) = '.' 
-         THEN replace(replace(substring(orderdateutc, 1, 23), 'T', ' '), '+', '0') 
-         ELSE replace(substring(orderdateutc, 1, 19), 'T', ' ') 
-    END as orderdateutc,
+    fact.parse_iso_timestamp(orderdateutc) as orderdateutc,
     now() :: TIMESTAMP AS sysinserttime,
     payment_card_name AS paymentcardtype,
     NULL :: TIMESTAMP AS sysupdatetime

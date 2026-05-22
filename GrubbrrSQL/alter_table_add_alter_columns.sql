@@ -766,23 +766,34 @@ ADD COLUMN IF NOT EXISTS cep_subscriptions jsonb,
 ADD COLUMN IF NOT EXISTS perform_pos_status_check BOOLEAN;
 
 CREATE OR REPLACE FUNCTION dim.is_valid_jsonb(input TEXT)
-RETURNS BOOLEAN AS $$
+RETURNS BOOLEAN
+LANGUAGE plpgsql IMMUTABLE STRICT
+AS $BODY$
 BEGIN
-  PERFORM input::jsonb;
-  RETURN TRUE;
+    PERFORM input::jsonb;
+    RETURN TRUE;
 EXCEPTION WHEN others THEN
-  RETURN FALSE;
+    RETURN FALSE;
 END;
-$$ LANGUAGE plpgsql IMMUTABLE;
+$BODY$;
+
 
 CREATE OR REPLACE FUNCTION dim.array_to_text(a jsonb)
-RETURNS text
-LANGUAGE plpgsql 
-as $body$
-BEGIN
-        RETURN initcap(replace(replace(replace((a :: text), '[', ''), ']', ''), '"', ''));
-END;
-$body$;
+RETURNS TEXT
+LANGUAGE sql IMMUTABLE STRICT
+AS $BODY$
+    SELECT initcap(replace(replace(replace(a::text, '[', ''), ']', ''), '"', ''));
+$BODY$;
+
+CREATE OR REPLACE FUNCTION fact.parse_iso_timestamp(ts_string TEXT)
+RETURNS TEXT
+LANGUAGE sql IMMUTABLE STRICT
+AS $BODY$
+    SELECT CASE WHEN substring(ts_string, 20, 1) = '.'
+                THEN replace(replace(substring(ts_string, 1, 23), 'T', ' '), '+', '0')
+                ELSE replace(substring(ts_string, 1, 19), 'T', ' ')
+           END;
+$BODY$;
 
 --CALL dim.usp_grubbrr_install_base();
 CREATE OR REPLACE PROCEDURE dim.usp_grubbrr_install_base()
