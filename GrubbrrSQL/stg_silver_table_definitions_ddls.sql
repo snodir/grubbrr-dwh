@@ -465,6 +465,9 @@ CREATE TABLE IF NOT EXISTS stg.silver_upsell_recommendations (
     kiosk_mode                  INTEGER,
     is_test_order               BOOLEAN,
 
+    -- Customer / identity
+    frequentcustomerid              TEXT COLLATE pg_catalog."default",
+
     -- Upsell prompt
     recommendationid            TEXT COLLATE pg_catalog."default",
     prompttimestamp             TEXT COLLATE pg_catalog."default",
@@ -510,6 +513,9 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_recommendations (
     kiosk_mode                  INTEGER,
     is_test_order               BOOLEAN,
 
+    -- Customer / identity
+    frequentcustomerid              TEXT COLLATE pg_catalog."default",
+
     -- Raw nested arrays (not further unrolled in this sink)
     modifier_interactions       TEXT COLLATE pg_catalog."default",
     modifier_impressions        TEXT COLLATE pg_catalog."default",
@@ -548,6 +554,9 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_interactions (
     kiosk_name                              TEXT COLLATE pg_catalog."default",
     kiosk_mode                              INTEGER,
     is_test_order                           BOOLEAN,
+
+    -- Customer / identity
+    frequentcustomerid              TEXT COLLATE pg_catalog."default",
 
     -- Interaction detail
     menuitemid                              TEXT COLLATE pg_catalog."default",
@@ -593,6 +602,9 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_impressions (
     kiosk_name                              TEXT COLLATE pg_catalog."default",
     kiosk_mode                              INTEGER,
     is_test_order                           BOOLEAN,
+
+    -- Customer / identity
+    frequentcustomerid              TEXT COLLATE pg_catalog."default",
 
     -- Impression context
     menuitemid                              TEXT COLLATE pg_catalog."default",
