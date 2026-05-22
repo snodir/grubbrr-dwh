@@ -1,9 +1,9 @@
-SELECT count(*)
+SELECT *--count(*)
 FROM fact.transactionheader as th 
-WHERE 1=1-- th.locationid = 'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
-AND th.transactionheaderid LIKE 'abort-%'
---AND th.orderstatus = 'order-placed'
-AND th.businessdate = '2026-05-12'
+WHERE 1=1 AND th.locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+--AND th.transactionheaderid LIKE 'ordevt-%'
+AND th.orderstatus = 'order-placed'
+AND th.businessdate = '2026-05-21'
 ORDER BY th.orderdatelocal DESC
 LIMIT 100;
 

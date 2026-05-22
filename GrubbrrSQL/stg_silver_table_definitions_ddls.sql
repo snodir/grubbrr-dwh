@@ -158,6 +158,9 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_item (
     kiosk_mode                      INTEGER,
     is_test_order                   BOOLEAN,
 
+    -- Customer / identity
+    frequentcustomerid              TEXT COLLATE pg_catalog."default",
+
     -- Item identity
     orderitemid                     TEXT COLLATE pg_catalog."default",
     itemsessionid                   TEXT COLLATE pg_catalog."default",
@@ -225,6 +228,9 @@ CREATE TABLE IF NOT EXISTS stg.silver_item_modifiers (
     kiosk_name                          TEXT COLLATE pg_catalog."default",
     kiosk_mode                          INTEGER,
     is_test_order                       BOOLEAN,
+
+    -- Customer / identity
+    frequentcustomerid                  TEXT COLLATE pg_catalog."default",
 
     -- Parent item identity
     orderitemid                         TEXT COLLATE pg_catalog."default",
@@ -368,6 +374,9 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_combo_items (
     kiosk_name                              TEXT COLLATE pg_catalog."default",
     kiosk_mode                              INTEGER,
     is_test_order                           BOOLEAN,
+
+    -- Customer / identity
+    frequentcustomerid                      TEXT COLLATE pg_catalog."default",
 
     -- Combo identity
     combo_id                                TEXT COLLATE pg_catalog."default",

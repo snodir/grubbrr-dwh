@@ -1,5 +1,7 @@
 --SELECT * FROM stg.silver_transaction_payment;
 
+--CALL fact.usp_silver_transaction_payment_to_fact();
+
 CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_payment_to_fact()
 LANGUAGE plpgsql
 AS $BODY$
