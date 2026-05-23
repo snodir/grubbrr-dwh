@@ -46,7 +46,53 @@ SELECT th.day_parts,
 	   sum(th.ordertotal) as total_amount_spent
 FROM trxn_by_day_parts as th 
 --WHERE th.businessdate >= CAST('2026-04-01' AS DATE)
-GROUP BY th.day_parts;
+GROUP BY th.day_parts
+ORDER BY total_orders DESC;
+
+WITH trxn_by_day_parts AS (
+	SELECT *, 
+		CASE WHEN EXTRACT(HOUR FROM th.orderdateutc :: TIMESTAMP) BETWEEN 0 AND 5 THEN 'Overnight_0_5'
+			 WHEN EXTRACT(HOUR FROM th.orderdateutc :: TIMESTAMP) BETWEEN 6 AND 9 THEN 'Breakfast_6_9'
+			 WHEN EXTRACT(HOUR FROM th.orderdateutc :: TIMESTAMP) BETWEEN 10 AND 13 THEN 'Lunch_10_13'
+			 WHEN EXTRACT(HOUR FROM th.orderdateutc :: TIMESTAMP) BETWEEN 14 AND 15 THEN 'Afternoon_Snack_14_15'
+			 WHEN EXTRACT(HOUR FROM th.orderdateutc :: TIMESTAMP) BETWEEN 16 AND 21 THEN 'Dinner_16_21'
+			 WHEN EXTRACT(HOUR FROM th.orderdateutc :: TIMESTAMP) BETWEEN 22 AND 23 THEN 'Late_Night_22_23'
+		END AS day_parts
+	FROM fact.transactionheader as th
+)
+SELECT th.day_parts, 
+	   count(*) as total_orders,
+	   sum(th.ordertotal) as total_amount_spent
+FROM trxn_by_day_parts as th 
+--WHERE th.businessdate >= CAST('2026-04-01' AS DATE)
+GROUP BY th.day_parts
+ORDER BY total_orders DESC;
+
+
+-- A temp table column containing 24 hour integers
+DROP TABLE IF EXISTS table_hours;
+CREATE TEMPORARY TABLE table_hours AS
+SELECT generate_series(0, 23) AS hour;
+--SELECT * FROM table_hours;
+
+WITH trxn_by_day_parts AS (
+	SELECT *, EXTRACT(HOUR FROM th.orderdatelocal) AS hours_24
+	FROM fact.transactionheader as th
+), aggr_trxns_by_hour AS (
+SELECT th.hours_24, 
+	   count(*) as total_orders,
+	   sum(th.ordertotal) as total_amount_spent
+FROM trxn_by_day_parts as th 
+--WHERE th.businessdate >= CAST('2026-04-01' AS DATE)
+GROUP BY th.hours_24
+--ORDER BY total_orders DESC;
+)
+SELECT th.hour, 
+	coalesce(agg.total_orders, 0) as total_orders, 
+	coalesce(agg.total_amount_spent, 0) as total_amount_spent 
+FROM table_hours as th 
+LEFT JOIN aggr_trxns_by_hour as agg
+	ON th.hour = agg.hours_24
 ORDER BY total_orders DESC;
 
 SELECT count(*) FROM fact.transactionheader; --P=2,900,940
