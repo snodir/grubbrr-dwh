@@ -1,3 +1,420 @@
+-- The 8 tables below are fact transaction tables 
+-- representing different aspects/entities of orders placed by customers at restaurants.
+-- After these eight tables, there come 9 tables residing in "stg.silver_" schema and prefix, 
+-- That one additional table is transaction_combo_items which represent combos 
+-- that are also stored in fact.transactionitem table along with item-level data
+-- Table: fact.transactionheader
+
+-- DROP TABLE IF EXISTS fact.transactionheader;
+
+CREATE TABLE IF NOT EXISTS fact.transactionheader
+(
+    id bigint NOT NULL,
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    orderid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    kioskid text COLLATE pg_catalog."default",
+    ordersessionid text COLLATE pg_catalog."default",
+    dateid integer,
+    orderdateutc text COLLATE pg_catalog."default",
+    orderdatelocal timestamp without time zone,
+    orderstatus text COLLATE pg_catalog."default",
+    ordertype integer,
+    numberofitems smallint,
+    numberofpayments smallint,
+    ordersredeemedrewards numeric(12,3),
+    ordersubtotal numeric(12,3),
+    ordertotal numeric(12,3),
+    ordertax numeric(12,3),
+    ordertip numeric(12,3),
+    orderdiscount numeric(12,3),
+    orderbalance numeric(12,3),
+    paymentstatus text COLLATE pg_catalog."default",
+    sourcefile text COLLATE pg_catalog."default" NOT NULL DEFAULT 'NGE'::text,
+    createddate timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updateddate timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    orderstarttime timestamp without time zone,
+    reviewordertime timestamp without time zone,
+    checkouttime timestamp without time zone,
+    paystarttime timestamp without time zone,
+    sessionendtime timestamp without time zone,
+    precheckouttime numeric(7,3),
+    postcheckouttime numeric(7,3),
+    menupagetime numeric(7,3),
+    reviewpagetime numeric(7,3),
+    paymentpagetime numeric(7,3),
+    totalordertime numeric(7,3),
+    businessdate date,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    abtestid bigint,
+    channel text COLLATE pg_catalog."default",
+    guestcount integer,
+    charityamount numeric(12,3),
+    syscosmosts bigint,
+    sourceid integer,
+    orderservicecharge numeric(12,3) DEFAULT 0.000,
+    customername character varying(100) COLLATE pg_catalog."default",
+    CONSTRAINT transactionheader_pkey PRIMARY KEY (locationid, transactionheaderid),
+    CONSTRAINT locationid_fk FOREIGN KEY (locationid)
+        REFERENCES dim.organization (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT ordertype_fk FOREIGN KEY (ordertype)
+        REFERENCES dim.ordertype (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT sourceid_fk FOREIGN KEY (sourceid)
+        REFERENCES dim.grubbrr_source_lookup (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.transactionheader
+    OWNER to citus;
+
+REVOKE ALL ON TABLE fact.transactionheader FROM dhanraj;
+REVOKE ALL ON TABLE fact.transactionheader FROM varshil;
+
+GRANT ALL ON TABLE fact.transactionheader TO citus;
+
+GRANT SELECT ON TABLE fact.transactionheader TO dhanraj;
+
+GRANT SELECT ON TABLE fact.transactionheader TO varshil;
+-- Index: transactionheader_locationid_dateid_idx
+
+-- DROP INDEX IF EXISTS fact.transactionheader_locationid_dateid_idx;
+
+CREATE INDEX IF NOT EXISTS transactionheader_locationid_dateid_idx
+    ON fact.transactionheader USING btree
+    (locationid COLLATE pg_catalog."default" ASC NULLS LAST, dateid ASC NULLS LAST)
+    INCLUDE(orderstatus, ordertype, businessdate)
+    TABLESPACE pg_default;
+
+
+-- Table: fact.transactionitem
+
+-- DROP TABLE IF EXISTS fact.transactionitem;
+
+CREATE TABLE IF NOT EXISTS fact.transactionitem
+(
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    categoryid bigint,
+    menuitemid bigint,
+    itemid text COLLATE pg_catalog."default" NOT NULL,
+    comboid text COLLATE pg_catalog."default",
+    ordersessionid text COLLATE pg_catalog."default" NOT NULL,
+    itemsessionid text COLLATE pg_catalog."default",
+    itemname text COLLATE pg_catalog."default" NOT NULL,
+    itemquantity smallint DEFAULT 1,
+    itemunitprice numeric(12,3),
+    upselllevel text COLLATE pg_catalog."default",
+    upsellpromptitemid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default" NOT NULL,
+    itemtype text COLLATE pg_catalog."default",
+    customize boolean,
+    upgrade boolean,
+    asis boolean,
+    itemselectedtime timestamp without time zone,
+    addtocarttime timestamp without time zone,
+    totaltime numeric(7,3),
+    orderdateutc text COLLATE pg_catalog."default",
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    dimmenuitemid character varying(50) COLLATE pg_catalog."default",
+    locationid character varying(50) COLLATE pg_catalog."default",
+    orderdatelocal timestamp without time zone,
+    businessdate date,
+    syscosmosts bigint,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    CONSTRAINT transactionitem_pkey PRIMARY KEY (transactionheaderid, itemid, itemname),
+    CONSTRAINT categoryid_fk FOREIGN KEY (categoryid)
+        REFERENCES dim.itemcategory (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT locationid_fk FOREIGN KEY (locationid)
+        REFERENCES dim.organization (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT locationid_transactionheaderid_fk FOREIGN KEY (locationid, transactionheaderid)
+        REFERENCES fact.transactionheader (locationid, transactionheaderid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT menuitemid_fk FOREIGN KEY (menuitemid)
+        REFERENCES dim.menuitem (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.transactionitem
+    OWNER to citus;
+
+REVOKE ALL ON TABLE fact.transactionitem FROM dhanraj;
+REVOKE ALL ON TABLE fact.transactionitem FROM varshil;
+
+GRANT ALL ON TABLE fact.transactionitem TO citus;
+
+GRANT SELECT ON TABLE fact.transactionitem TO dhanraj;
+
+GRANT SELECT ON TABLE fact.transactionitem TO varshil;
+-- Index: idx_transactionitem_headerid
+
+-- DROP INDEX IF EXISTS fact.idx_transactionitem_headerid;
+
+CREATE INDEX IF NOT EXISTS idx_transactionitem_headerid
+    ON fact.transactionitem USING btree
+    (transactionheaderid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: idx_transactionitemtest_headerid
+
+-- DROP INDEX IF EXISTS fact.idx_transactionitemtest_headerid;
+
+CREATE INDEX IF NOT EXISTS idx_transactionitemtest_headerid
+    ON fact.transactionitem USING btree
+    (transactionheaderid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+
+
+-- Table: fact.transactionpayment
+
+-- DROP TABLE IF EXISTS fact.transactionpayment;
+
+CREATE TABLE IF NOT EXISTS fact.transactionpayment
+(
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    paymentintegrationid text COLLATE pg_catalog."default" NOT NULL,
+    paymentid text COLLATE pg_catalog."default",
+    paymentamt numeric(12,3),
+    orderid text COLLATE pg_catalog."default" NOT NULL,
+    locationid character varying(50) COLLATE pg_catalog."default",
+    kioskid character varying(50) COLLATE pg_catalog."default",
+    paymentmethod character varying(50) COLLATE pg_catalog."default",
+    paymentintegrationlabel text COLLATE pg_catalog."default",
+    orderdateutc text COLLATE pg_catalog."default",
+    sysinserttime timestamp without time zone,
+    paymentcardtype character varying(50) COLLATE pg_catalog."default",
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT locationid_transactionheaderid_fk FOREIGN KEY (locationid, transactionheaderid)
+        REFERENCES fact.transactionheader (locationid, transactionheaderid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.transactionpayment
+    OWNER to citus;
+
+REVOKE ALL ON TABLE fact.transactionpayment FROM dhanraj;
+REVOKE ALL ON TABLE fact.transactionpayment FROM varshil;
+
+GRANT ALL ON TABLE fact.transactionpayment TO citus;
+
+GRANT SELECT ON TABLE fact.transactionpayment TO dhanraj;
+
+GRANT SELECT ON TABLE fact.transactionpayment TO varshil;
+-- Index: transactionpayment_orderid_idx
+
+-- DROP INDEX IF EXISTS fact.transactionpayment_orderid_idx;
+
+CREATE INDEX IF NOT EXISTS transactionpayment_orderid_idx
+    ON fact.transactionpayment USING btree
+    (orderid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: transactionpaymentuidx
+
+-- DROP INDEX IF EXISTS fact.transactionpaymentuidx;
+
+CREATE INDEX IF NOT EXISTS transactionpaymentuidx
+    ON fact.transactionpayment USING btree
+    (transactionheaderid COLLATE pg_catalog."default" ASC NULLS LAST, paymentintegrationid COLLATE pg_catalog."default" ASC NULLS LAST, paymentid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+
+-- Table: fact.transactionrefunds
+
+-- DROP TABLE IF EXISTS fact.transactionrefunds;
+
+CREATE TABLE IF NOT EXISTS fact.transactionrefunds
+(
+    transactionheaderid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    orderid character varying(50) COLLATE pg_catalog."default",
+    locationid character varying(50) COLLATE pg_catalog."default",
+    refundtransactionid character varying(50) COLLATE pg_catalog."default",
+    paymentid character varying(50) COLLATE pg_catalog."default",
+    refundamount numeric(7,3),
+    refundtype character varying(50) COLLATE pg_catalog."default",
+    orderdateutc text COLLATE pg_catalog."default",
+    sysinserttime timestamp without time zone,
+    syscosmosts bigint
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.transactionrefunds
+    OWNER to citus;
+
+REVOKE ALL ON TABLE fact.transactionrefunds FROM varshil;
+
+GRANT ALL ON TABLE fact.transactionrefunds TO citus;
+
+GRANT SELECT ON TABLE fact.transactionrefunds TO varshil;
+-- Index: idx_transactionrefunds_headerid
+
+-- DROP INDEX IF EXISTS fact.idx_transactionrefunds_headerid;
+
+CREATE INDEX IF NOT EXISTS idx_transactionrefunds_headerid
+    ON fact.transactionrefunds USING btree
+    (transactionheaderid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+
+-- Table: fact.recommendations
+
+-- DROP TABLE IF EXISTS fact.recommendations;
+
+CREATE TABLE IF NOT EXISTS fact.recommendations
+(
+    transactionheaderid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    locationid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    recommendationid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    offereditems jsonb,
+    selecteditems jsonb,
+    isconverted boolean,
+    prompttimestamp text COLLATE pg_catalog."default",
+    sysinserttime timestamp without time zone,
+    syscosmosts bigint,
+    CONSTRAINT locationid_trxnid_recommendationid_pk PRIMARY KEY (locationid, transactionheaderid, recommendationid),
+    CONSTRAINT transactionheaderid_recommendationid_uidx UNIQUE (transactionheaderid, recommendationid),
+    CONSTRAINT location_transactionheaderid_fk FOREIGN KEY (locationid, transactionheaderid)
+        REFERENCES fact.transactionheader (locationid, transactionheaderid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.recommendations
+    OWNER to citus;
+
+REVOKE ALL ON TABLE fact.recommendations FROM varshil;
+
+GRANT ALL ON TABLE fact.recommendations TO citus;
+
+GRANT SELECT ON TABLE fact.recommendations TO varshil;
+
+
+-- Table: fact.modifier_recommendations
+
+-- DROP TABLE IF EXISTS fact.modifier_recommendations;
+
+
+
+CREATE TABLE IF NOT EXISTS fact.modifier_recommendations
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    modifier_impressions jsonb,
+    modifier_interactions jsonb,
+    businessdate date,
+    orderdateutc text COLLATE pg_catalog."default",
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.modifier_recommendations
+    OWNER to citus;
+
+-- Table: fact.modifier_impressions
+
+-- DROP TABLE IF EXISTS fact.modifier_impressions;
+
+CREATE TABLE IF NOT EXISTS fact.modifier_impressions
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    menuitemid text COLLATE pg_catalog."default",
+    modifierid text COLLATE pg_catalog."default" NOT NULL,
+    parent_modifier_id text COLLATE pg_catalog."default",
+    selection_type text COLLATE pg_catalog."default",
+    nesting_depth integer,
+    "position" integer,
+    score numeric(5,3),
+    strategy text COLLATE pg_catalog."default",
+    context text COLLATE pg_catalog."default",
+    selected boolean,
+    pre_deselected boolean,
+    confirmed_removed boolean,
+    pre_selected boolean,
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.modifier_impressions
+    OWNER to citus;
+
+
+
+-- Table: fact.modifier_interactions
+
+-- DROP TABLE IF EXISTS fact.modifier_interactions;
+
+CREATE TABLE IF NOT EXISTS fact.modifier_interactions
+(
+    locationid text COLLATE pg_catalog."default",
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    orderitemid text COLLATE pg_catalog."default",
+    menuitemid text COLLATE pg_catalog."default",
+    modifiergroupid text COLLATE pg_catalog."default" NOT NULL,
+    modifierid text COLLATE pg_catalog."default" NOT NULL,
+    modifiername text COLLATE pg_catalog."default",
+    parent_modifier_id text COLLATE pg_catalog."default",
+    nesting_depth integer,
+    modifierquantity integer,
+    modifierprice numeric(12,3),
+    freequantity integer,
+    selection_type text COLLATE pg_catalog."default",
+    action text COLLATE pg_catalog."default",
+    session_recorded_at text COLLATE pg_catalog."default",
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    sourceid integer
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.modifier_interactions
+    OWNER to citus;
+
+
+
+
+
 -- ============================================================
 -- Staging DDLs derived from ADF Dataflow: Orders Bronze → Silver
 -- Schema: stg
@@ -359,7 +776,7 @@ ALTER TABLE IF EXISTS stg.silver_transaction_payment
 --    Branch: BronzeOrdersJson → TrxnComboColumns → flattenCombosArray
 --            → flattenComponentSelectionsArray → SilverTransformTime5
 -- ============================================================
---DROP TABLE stg.silver_transaction_combo_items
+--DROP TABLE IF EXISTS stg.silver_transaction_combo_items
 CREATE TABLE IF NOT EXISTS stg.silver_transaction_combo_items (
     -- Order / session identity
     transactionheaderid                     TEXT COLLATE pg_catalog."default",
@@ -389,8 +806,8 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_combo_items (
     combo_concept_name                      TEXT COLLATE pg_catalog."default",
 
     -- Combo pricing (source defines these as double despite "cents" naming)
-    cents_combo_unit_price                  NUMERIC(12,3),
-    cents_combo_total_price                 NUMERIC(12,3),
+    cents_combo_unit_price                  BIGINT, --changed from NUMERIC(12,3) to BIGINT since cents can't be double
+    cents_combo_total_price                 BIGINT, --changed from NUMERIC(12,3) to BIGINT since cents can't be double
     combo_quantity                          INTEGER,
 
     -- Combo signals
@@ -748,3 +1165,4 @@ CREATE TABLE IF NOT EXISTS stg.silver_cep_incidents (
 
 ALTER TABLE IF EXISTS stg.silver_cep_incidents
     OWNER to citus;
+

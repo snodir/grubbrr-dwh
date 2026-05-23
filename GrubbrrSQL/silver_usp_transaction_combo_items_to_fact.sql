@@ -15,7 +15,7 @@ SELECT * FROM stg.silver_transaction_combo_items;
 
 CREATE OR REPLACE PROCEDURE fact.usp_silver_to_fact_combo_items()
 LANGUAGE plpgsql
-AS $$
+AS $BODY$
 BEGIN
 
     INSERT INTO fact.transactionitem (

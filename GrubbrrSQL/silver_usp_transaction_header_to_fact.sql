@@ -2,17 +2,33 @@
 -- 1. Load fact.transactionheader
 -- ========
 
+SELECT max(orderdatelocal), max(createddate) FROM fact.transactionheader; --2026-05-21 15:00:03.193	2026-05-21 10:58:59.134653
+
+SELECT *
+FROM fact.transactionheader as th
+WHERE th.createddate > '2026-05-21 10:58:59.134653' :: TIMESTAMP;
+
 SELECT fact.parse_iso_timestamp(orderdateutc) :: TIMESTAMP as ts, 
     fact.parse_iso_timestamp(orderdateutc) AS string_ts,
     * 
-FROM stg.silver_transaction_header --WHERE ordersessionid = '79EGW2F5UYYT7TBS';
+FROM stg.silver_transaction_header as sth--
+WHERE NOT EXISTS (SELECT 1 FROM fact.transactionheader as th 
+                  WHERE th.locationid = sth.locationid 
+                    AND th.transactionheaderid = sth.transactionheaderid)
+  AND sth.is_test_order = False;
+        
+
 SELECT * FROM stg.silver_kiosk_events WHERE token = '79EGW2F5UYYT7TBS';
 
 --SELECT '2026-05-15T06:59:57.746922+00:00' :: TIMESTAMP
 
-CALL fact.usp_silver_transaction_header_to_fact();
+--CALL fact.usp_silver_transaction_header_to_fact();
 
 SELECT * FROM stg.lookup_silver_transaction_header;
+
+ALTER TABLE fact.transactionheader
+ALTER COLUMN updateddate DROP NOT NULL,
+ALTER COLUMN updateddate DROP DEFAULT;
 
 CREATE TABLE IF NOT EXISTS stg.lookup_silver_transaction_header (
     id                      INTEGER,
@@ -130,7 +146,7 @@ SELECT
     ordertip,                         
     orderdiscount,
     0.0 :: NUMERIC(12,3)               AS orderbalance,
-    CASE WHEN numberofpayments > 0 THEN 'paid' END AS payment_status,
+    CASE WHEN numberofpayments > 0 THEN 'paid' END AS paymentstatus,
     'NGE'                              AS sourcefile,
     now() :: TIMESTAMP                 AS createddate,
     charityamount,
@@ -290,7 +306,7 @@ THEN
         ordertip,
         orderdiscount,
         orderbalance,
-        payment_status,
+        paymentstatus,
         sourcefile,
         createddate,
         NULL :: TIMESTAMP AS updateddate,
