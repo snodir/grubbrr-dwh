@@ -1,4 +1,9 @@
 --CALL dim.usp_refresh_category_hierarchy();
+/*
+SELECT now() as now1
+UNION ALL
+SELECT now() as now2;
+*/
 
 -- Table: dim.category_hierarchy
 
@@ -46,7 +51,7 @@ ALTER TABLE IF EXISTS dim.category_hierarchy
 
 -- Table: dim.category_hierarchy
 
--- DROP TABLE IF EXISTS dim.category_hierarchy;
+-- DROP TABLE IF EXISTS stg.dim_category_hierarchy;
 
 CREATE TABLE IF NOT EXISTS stg.dim_category_hierarchy
 (
@@ -85,6 +90,8 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.dim_category_hierarchy
     OWNER to citus;
+
+
 
 
 CREATE OR REPLACE PROCEDURE dim.usp_refresh_category_hierarchy()
