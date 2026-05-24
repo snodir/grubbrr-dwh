@@ -42,6 +42,9 @@ ADD COLUMN IF NOT EXISTS locationid TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS businessdate DATE,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
 
+CREATE INDEX IF NOT EXISTS idx_fact_itemmodifier_locationid
+    ON fact.itemmodifier(locationid);
+
 ALTER TABLE IF EXISTS fact.transactionpayment
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
 ALTER COLUMN paymentamt TYPE NUMERIC(12,3);
