@@ -1,5 +1,12 @@
 --CALL dim.usp_refresh_modifiergroup();
 
+
+SELECT count(*)
+FROM stg.dim_modifiergroup LIMIT 100; --544,525
+
+SELECT count(*)
+FROM dim.modifier_group LIMIT 100; --544,184 --544,525
+
 -- Table: dim.modifier_group
 
 -- DROP TABLE IF EXISTS dim.modifier_group;
@@ -85,30 +92,33 @@ LANGUAGE plpgsql
 AS $BODY$
 BEGIN
 
-    WITH deduped AS (
-        SELECT DISTINCT ON (modifiergroupid)
-            modifiergroupid,
-            modifiergroupname,
-            catalogid,
-            max_selection,
-            min_selection,
-            free_count,
-            pos_linked_entity_id,
-            is_active,
-            is_deleted,
-            created_on,
-            modified_on,
-            negative_modifier_behavior,
-            created_by,
-            modified_by,
-            max_aggregate_count,
-            min_aggregate_count,
-            increment_step,
-            slider_mode,
-            slider_mode_modifier
-        FROM stg.dim_modifiergroup
-        ORDER BY modifiergroupid, modified_on DESC NULLS LAST
-    )
+    CREATE TEMP TABLE tmp_modifier_group ON COMMIT DROP AS
+    SELECT DISTINCT ON (modifiergroupid)
+        modifiergroupid,
+        modifiergroupname,
+        catalogid,
+        max_selection,
+        min_selection,
+        free_count,
+        pos_linked_entity_id,
+        is_active,
+        is_deleted,
+        created_on,
+        modified_on,
+        negative_modifier_behavior,
+        created_by,
+        modified_by,
+        max_aggregate_count,
+        min_aggregate_count,
+        increment_step,
+        slider_mode,
+        slider_mode_modifier
+    FROM stg.dim_modifiergroup
+    ORDER BY modifiergroupid, modified_on DESC NULLS LAST;
+
+    CREATE INDEX ix_tmp_modifier_group_id ON tmp_modifier_group (modifiergroupid);
+
+    -- INSERT net new
     INSERT INTO dim.modifier_group (
         modifiergroupid,
         modifiergroupname,
@@ -132,68 +142,75 @@ BEGIN
         sysinserttime
     )
     SELECT
-        d.modifiergroupid,
-        d.modifiergroupname,
-        d.catalogid,
-        d.max_selection,
-        d.min_selection,
-        d.free_count,
-        d.pos_linked_entity_id,
-        d.is_active,
-        d.is_deleted,
-        d.created_on,
-        d.modified_on,
-        d.negative_modifier_behavior,
-        d.created_by,
-        d.modified_by,
-        d.max_aggregate_count,
-        d.min_aggregate_count,
-        d.increment_step,
-        d.slider_mode,
-        d.slider_mode_modifier,
+        t.modifiergroupid,
+        t.modifiergroupname,
+        t.catalogid,
+        t.max_selection,
+        t.min_selection,
+        t.free_count,
+        t.pos_linked_entity_id,
+        t.is_active,
+        t.is_deleted,
+        t.created_on,
+        t.modified_on,
+        t.negative_modifier_behavior,
+        t.created_by,
+        t.modified_by,
+        t.max_aggregate_count,
+        t.min_aggregate_count,
+        t.increment_step,
+        t.slider_mode,
+        t.slider_mode_modifier,
         NOW()
-    FROM deduped d
+    FROM tmp_modifier_group t
+    WHERE NOT EXISTS (
+        SELECT 1 FROM dim.modifier_group d
+        WHERE d.modifiergroupid = t.modifiergroupid
+    );
 
-    ON CONFLICT (modifiergroupid) DO UPDATE SET
-        modifiergroupname          = EXCLUDED.modifiergroupname,
-        catalogid                  = EXCLUDED.catalogid,
-        max_selection              = EXCLUDED.max_selection,
-        min_selection              = EXCLUDED.min_selection,
-        free_count                 = EXCLUDED.free_count,
-        pos_linked_entity_id       = EXCLUDED.pos_linked_entity_id,
-        is_active                  = EXCLUDED.is_active,
-        is_deleted                 = EXCLUDED.is_deleted,
-        created_on                 = EXCLUDED.created_on,
-        modified_on                = EXCLUDED.modified_on,
-        negative_modifier_behavior = EXCLUDED.negative_modifier_behavior,
-        created_by                 = EXCLUDED.created_by,
-        modified_by                = EXCLUDED.modified_by,
-        max_aggregate_count        = EXCLUDED.max_aggregate_count,
-        min_aggregate_count        = EXCLUDED.min_aggregate_count,
-        increment_step             = EXCLUDED.increment_step,
-        slider_mode                = EXCLUDED.slider_mode,
-        slider_mode_modifier       = EXCLUDED.slider_mode_modifier,
+    -- UPDATE changed
+    UPDATE dim.modifier_group d
+    SET
+        modifiergroupname          = t.modifiergroupname,
+        catalogid                  = t.catalogid,
+        max_selection              = t.max_selection,
+        min_selection              = t.min_selection,
+        free_count                 = t.free_count,
+        pos_linked_entity_id       = t.pos_linked_entity_id,
+        is_active                  = t.is_active,
+        is_deleted                 = t.is_deleted,
+        created_on                 = t.created_on,
+        modified_on                = t.modified_on,
+        negative_modifier_behavior = t.negative_modifier_behavior,
+        created_by                 = t.created_by,
+        modified_by                = t.modified_by,
+        max_aggregate_count        = t.max_aggregate_count,
+        min_aggregate_count        = t.min_aggregate_count,
+        increment_step             = t.increment_step,
+        slider_mode                = t.slider_mode,
+        slider_mode_modifier       = t.slider_mode_modifier,
         sysupdatetime              = NOW()
-
-    WHERE (
-        dim.modifier_group.modifiergroupname          IS DISTINCT FROM EXCLUDED.modifiergroupname          OR
-        dim.modifier_group.catalogid                  IS DISTINCT FROM EXCLUDED.catalogid                  OR
-        dim.modifier_group.max_selection              IS DISTINCT FROM EXCLUDED.max_selection              OR
-        dim.modifier_group.min_selection              IS DISTINCT FROM EXCLUDED.min_selection              OR
-        dim.modifier_group.free_count                 IS DISTINCT FROM EXCLUDED.free_count                 OR
-        dim.modifier_group.pos_linked_entity_id       IS DISTINCT FROM EXCLUDED.pos_linked_entity_id       OR
-        dim.modifier_group.is_active                  IS DISTINCT FROM EXCLUDED.is_active                  OR
-        dim.modifier_group.is_deleted                 IS DISTINCT FROM EXCLUDED.is_deleted                 OR
-        dim.modifier_group.created_on                 IS DISTINCT FROM EXCLUDED.created_on                 OR
-        dim.modifier_group.modified_on                IS DISTINCT FROM EXCLUDED.modified_on                OR
-        dim.modifier_group.negative_modifier_behavior IS DISTINCT FROM EXCLUDED.negative_modifier_behavior OR
-        dim.modifier_group.created_by                 IS DISTINCT FROM EXCLUDED.created_by                 OR
-        dim.modifier_group.modified_by                IS DISTINCT FROM EXCLUDED.modified_by                OR
-        dim.modifier_group.max_aggregate_count        IS DISTINCT FROM EXCLUDED.max_aggregate_count        OR
-        dim.modifier_group.min_aggregate_count        IS DISTINCT FROM EXCLUDED.min_aggregate_count        OR
-        dim.modifier_group.increment_step             IS DISTINCT FROM EXCLUDED.increment_step             OR
-        dim.modifier_group.slider_mode                IS DISTINCT FROM EXCLUDED.slider_mode                OR
-        dim.modifier_group.slider_mode_modifier       IS DISTINCT FROM EXCLUDED.slider_mode_modifier
+    FROM tmp_modifier_group t
+    WHERE d.modifiergroupid = t.modifiergroupid
+    AND (
+        d.modifiergroupname          IS DISTINCT FROM t.modifiergroupname          OR
+        d.catalogid                  IS DISTINCT FROM t.catalogid                  OR
+        d.max_selection              IS DISTINCT FROM t.max_selection              OR
+        d.min_selection              IS DISTINCT FROM t.min_selection              OR
+        d.free_count                 IS DISTINCT FROM t.free_count                 OR
+        d.pos_linked_entity_id       IS DISTINCT FROM t.pos_linked_entity_id       OR
+        d.is_active                  IS DISTINCT FROM t.is_active                  OR
+        d.is_deleted                 IS DISTINCT FROM t.is_deleted                 OR
+        d.created_on                 IS DISTINCT FROM t.created_on                 OR
+        d.modified_on                IS DISTINCT FROM t.modified_on                OR
+        d.negative_modifier_behavior IS DISTINCT FROM t.negative_modifier_behavior OR
+        d.created_by                 IS DISTINCT FROM t.created_by                 OR
+        d.modified_by                IS DISTINCT FROM t.modified_by                OR
+        d.max_aggregate_count        IS DISTINCT FROM t.max_aggregate_count        OR
+        d.min_aggregate_count        IS DISTINCT FROM t.min_aggregate_count        OR
+        d.increment_step             IS DISTINCT FROM t.increment_step             OR
+        d.slider_mode                IS DISTINCT FROM t.slider_mode                OR
+        d.slider_mode_modifier       IS DISTINCT FROM t.slider_mode_modifier
     );
 
 END;

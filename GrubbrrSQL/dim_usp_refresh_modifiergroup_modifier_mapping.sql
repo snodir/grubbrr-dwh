@@ -1,4 +1,11 @@
---CALL dim.usp_refresh_modifiergroup_modifier_mapping();
+--CALL dim.usp_refresh_modifiergroup_modifier_mapping(); --1m:20s
+
+
+SELECT count(*)
+FROM stg.dim_modifiergroup_modifier_mapping LIMIT 100; --3,698,398
+
+SELECT count(*)
+FROM dim.modifier_group_mapping LIMIT 100; --3,695,532 --3,698,398
 
 -- Table: dim.modifier_group_mapping
 
@@ -72,100 +79,125 @@ LANGUAGE plpgsql
 AS $BODY$
 BEGIN
 
-    WITH deduped AS (
-        SELECT DISTINCT ON (modifier_mapping_id)
-            modifier_mapping_id,
-            modifierid,
-            modifiergroupid,
-            catalogid,
-            is_mapping_active,
-            is_mapping_deleted,
-            mapping_created_on,
-            mapping_modified_on,
-            is_default,
-            default_quantity,
-            allow_quantity_increment,
-            increment_step,
-            min_quantity,
-            max_quantity,
-            calories_text,
-            is_invisible
-        FROM stg.dim_modifiergroup_modifier_mapping
-        ORDER BY modifier_mapping_id, mapping_modified_on DESC NULLS LAST
-    )
-    INSERT INTO dim.modifier_group_mapping (
-        modifier_mapping_id,
-        modifierid,
+    CREATE TEMP TABLE tmp_modifier_group ON COMMIT DROP AS
+    SELECT DISTINCT ON (modifiergroupid)
         modifiergroupid,
+        modifiergroupname,
         catalogid,
-        is_mapping_active,
-        is_mapping_deleted,
-        mapping_created_on,
-        mapping_modified_on,
-        is_default,
-        default_quantity,
-        allow_quantity_increment,
+        max_selection,
+        min_selection,
+        free_count,
+        pos_linked_entity_id,
+        is_active,
+        is_deleted,
+        created_on,
+        modified_on,
+        negative_modifier_behavior,
+        created_by,
+        modified_by,
+        max_aggregate_count,
+        min_aggregate_count,
         increment_step,
-        min_quantity,
-        max_quantity,
-        calories_text,
-        is_invisible,
+        slider_mode,
+        slider_mode_modifier
+    FROM stg.dim_modifiergroup
+    ORDER BY modifiergroupid, modified_on DESC NULLS LAST;
+
+    CREATE INDEX ix_tmp_modifier_group_id ON tmp_modifier_group (modifiergroupid);
+
+    -- INSERT net new
+    INSERT INTO dim.modifier_group (
+        modifiergroupid,
+        modifiergroupname,
+        catalogid,
+        max_selection,
+        min_selection,
+        free_count,
+        pos_linked_entity_id,
+        is_active,
+        is_deleted,
+        created_on,
+        modified_on,
+        negative_modifier_behavior,
+        created_by,
+        modified_by,
+        max_aggregate_count,
+        min_aggregate_count,
+        increment_step,
+        slider_mode,
+        slider_mode_modifier,
         sysinserttime
     )
     SELECT
-        d.modifier_mapping_id,
-        d.modifierid,
-        d.modifiergroupid,
-        d.catalogid,
-        d.is_mapping_active,
-        d.is_mapping_deleted,
-        d.mapping_created_on,
-        d.mapping_modified_on,
-        d.is_default,
-        d.default_quantity,
-        d.allow_quantity_increment,
-        d.increment_step,
-        d.min_quantity,
-        d.max_quantity,
-        d.calories_text,
-        d.is_invisible,
+        t.modifiergroupid,
+        t.modifiergroupname,
+        t.catalogid,
+        t.max_selection,
+        t.min_selection,
+        t.free_count,
+        t.pos_linked_entity_id,
+        t.is_active,
+        t.is_deleted,
+        t.created_on,
+        t.modified_on,
+        t.negative_modifier_behavior,
+        t.created_by,
+        t.modified_by,
+        t.max_aggregate_count,
+        t.min_aggregate_count,
+        t.increment_step,
+        t.slider_mode,
+        t.slider_mode_modifier,
         NOW()
-    FROM deduped d
+    FROM tmp_modifier_group t
+    WHERE NOT EXISTS (
+        SELECT 1 FROM dim.modifier_group d
+        WHERE d.modifiergroupid = t.modifiergroupid
+    );
 
-    ON CONFLICT (modifier_mapping_id) DO UPDATE SET
-        modifierid               = EXCLUDED.modifierid,
-        modifiergroupid          = EXCLUDED.modifiergroupid,
-        catalogid                = EXCLUDED.catalogid,
-        is_mapping_active        = EXCLUDED.is_mapping_active,
-        is_mapping_deleted       = EXCLUDED.is_mapping_deleted,
-        mapping_created_on       = EXCLUDED.mapping_created_on,
-        mapping_modified_on      = EXCLUDED.mapping_modified_on,
-        is_default               = EXCLUDED.is_default,
-        default_quantity         = EXCLUDED.default_quantity,
-        allow_quantity_increment = EXCLUDED.allow_quantity_increment,
-        increment_step           = EXCLUDED.increment_step,
-        min_quantity             = EXCLUDED.min_quantity,
-        max_quantity             = EXCLUDED.max_quantity,
-        calories_text            = EXCLUDED.calories_text,
-        is_invisible             = EXCLUDED.is_invisible,
-        sysupdatetime            = NOW()
-
-    WHERE (
-        dim.modifier_group_mapping.modifierid               IS DISTINCT FROM EXCLUDED.modifierid               OR
-        dim.modifier_group_mapping.modifiergroupid          IS DISTINCT FROM EXCLUDED.modifiergroupid          OR
-        dim.modifier_group_mapping.catalogid                IS DISTINCT FROM EXCLUDED.catalogid                OR
-        dim.modifier_group_mapping.is_mapping_active        IS DISTINCT FROM EXCLUDED.is_mapping_active        OR
-        dim.modifier_group_mapping.is_mapping_deleted       IS DISTINCT FROM EXCLUDED.is_mapping_deleted       OR
-        dim.modifier_group_mapping.mapping_created_on       IS DISTINCT FROM EXCLUDED.mapping_created_on       OR
-        dim.modifier_group_mapping.mapping_modified_on      IS DISTINCT FROM EXCLUDED.mapping_modified_on      OR
-        dim.modifier_group_mapping.is_default               IS DISTINCT FROM EXCLUDED.is_default               OR
-        dim.modifier_group_mapping.default_quantity         IS DISTINCT FROM EXCLUDED.default_quantity         OR
-        dim.modifier_group_mapping.allow_quantity_increment IS DISTINCT FROM EXCLUDED.allow_quantity_increment OR
-        dim.modifier_group_mapping.increment_step           IS DISTINCT FROM EXCLUDED.increment_step           OR
-        dim.modifier_group_mapping.min_quantity             IS DISTINCT FROM EXCLUDED.min_quantity             OR
-        dim.modifier_group_mapping.max_quantity             IS DISTINCT FROM EXCLUDED.max_quantity             OR
-        dim.modifier_group_mapping.calories_text            IS DISTINCT FROM EXCLUDED.calories_text            OR
-        dim.modifier_group_mapping.is_invisible             IS DISTINCT FROM EXCLUDED.is_invisible
+    -- UPDATE changed
+    UPDATE dim.modifier_group d
+    SET
+        modifiergroupname          = t.modifiergroupname,
+        catalogid                  = t.catalogid,
+        max_selection              = t.max_selection,
+        min_selection              = t.min_selection,
+        free_count                 = t.free_count,
+        pos_linked_entity_id       = t.pos_linked_entity_id,
+        is_active                  = t.is_active,
+        is_deleted                 = t.is_deleted,
+        created_on                 = t.created_on,
+        modified_on                = t.modified_on,
+        negative_modifier_behavior = t.negative_modifier_behavior,
+        created_by                 = t.created_by,
+        modified_by                = t.modified_by,
+        max_aggregate_count        = t.max_aggregate_count,
+        min_aggregate_count        = t.min_aggregate_count,
+        increment_step             = t.increment_step,
+        slider_mode                = t.slider_mode,
+        slider_mode_modifier       = t.slider_mode_modifier,
+        sysupdatetime              = NOW()
+    FROM tmp_modifier_group t
+    WHERE d.modifiergroupid = t.modifiergroupid
+    AND (
+        d.modifiergroupname          IS DISTINCT FROM t.modifiergroupname          OR
+        d.catalogid                  IS DISTINCT FROM t.catalogid                  OR
+        d.max_selection              IS DISTINCT FROM t.max_selection              OR
+        d.min_selection              IS DISTINCT FROM t.min_selection              OR
+        d.free_count                 IS DISTINCT FROM t.free_count                 OR
+        d.pos_linked_entity_id       IS DISTINCT FROM t.pos_linked_entity_id       OR
+        d.is_active                  IS DISTINCT FROM t.is_active                  OR
+        d.is_deleted                 IS DISTINCT FROM t.is_deleted                 OR
+        d.created_on                 IS DISTINCT FROM t.created_on                 OR
+        d.modified_on                IS DISTINCT FROM t.modified_on                OR
+        d.negative_modifier_behavior IS DISTINCT FROM t.negative_modifier_behavior OR
+        d.created_by                 IS DISTINCT FROM t.created_by                 OR
+        d.modified_by                IS DISTINCT FROM t.modified_by                OR
+        d.max_aggregate_count        IS DISTINCT FROM t.max_aggregate_count        OR
+        d.min_aggregate_count        IS DISTINCT FROM t.min_aggregate_count        OR
+        d.increment_step             IS DISTINCT FROM t.increment_step             OR
+        d.slider_mode                IS DISTINCT FROM t.slider_mode                OR
+        d.slider_mode_modifier       IS DISTINCT FROM t.slider_mode_modifier
     );
 
 END;

@@ -1,5 +1,18 @@
 --CALL dim.usp_refresh_menuitem();
 
+SELECT count(*)
+FROM stg.dim_menuitem LIMIT 100; --960,688
+
+SELECT count(*)
+FROM dim.menuitem LIMIT 100;  --952,914
+
+SELECT * FROM dim.menuitem
+WHERE menuitemid NOT IN (SELECT menuitemid FROM stg.dim_menuitem)
+
+SELECT * FROM stg.dim_menuitem 
+WHERE menuitemid NOT IN (SELECT menuitemid FROM dim.menuitem)
+
+
 -- Table: dim.menuitem
 
 -- DROP TABLE IF EXISTS dim.menuitem;
@@ -87,36 +100,40 @@ ALTER TABLE dim.menuitem
 
 --CALL dim.usp_refresh_menuitem();
 
+
+
 CREATE OR REPLACE PROCEDURE dim.usp_refresh_menuitem()
 LANGUAGE plpgsql
 AS $BODY$
 BEGIN
 
-    WITH deduped AS (
-        SELECT DISTINCT ON (menuitemid)
-            menuitemid,
-            menuitemname,
-            entitytype,
-            calories,
-            protein,
-            sugar,
-            fat,
-            is_alcoholic,
-            is_vegetarian_item,
-            is_vegan_item,
-            has_allergen,
-            item_class_type,
-            is_active,
-            is_deleted,
-            gms_created_on,
-            gms_modified_on,
-            itemunitprice,
-            price_changed_on,
-            catalogid,
-            sysinserttime
-        FROM stg.dim_menuitem
-        ORDER BY menuitemid, gms_modified_on DESC NULLS LAST
-    )
+    CREATE TEMP TABLE tmp_menuitem ON COMMIT DROP AS
+    SELECT DISTINCT ON (menuitemid)
+        menuitemid,
+        menuitemname,
+        entitytype,
+        calories,
+        protein,
+        sugar,
+        fat,
+        is_alcoholic,
+        is_vegetarian_item,
+        is_vegan_item,
+        has_allergen,
+        item_class_type,
+        is_active,
+        is_deleted,
+        gms_created_on,
+        gms_modified_on,
+        itemunitprice,
+        price_changed_on,
+        catalogid
+    FROM stg.dim_menuitem
+    ORDER BY menuitemid, gms_modified_on DESC NULLS LAST;
+
+    CREATE INDEX ix_tmp_menuitem_id ON tmp_menuitem (menuitemid);
+
+    -- INSERT net new
     INSERT INTO dim.menuitem (
         id,
         menuitemid,
@@ -142,73 +159,79 @@ BEGIN
         catalogid,
         sysinserttime
     )
-
     SELECT
         nextval('dim.menuitem_id_seq'),
-        d.menuitemid,
-        d.menuitemname,
+        t.menuitemid,
+        t.menuitemname,
         1,
         NULL,
-        d.entitytype,
-        d.calories,
-        d.protein,
-        d.sugar,
-        d.fat,
-        d.is_alcoholic,
-        d.is_vegetarian_item,
-        d.is_vegan_item,
-        d.has_allergen,
-        d.item_class_type,
-        d.is_active,
-        d.is_deleted,
-        d.gms_created_on,
-        d.gms_modified_on,
-        d.itemunitprice,
-        d.price_changed_on,
-        d.catalogid,
+        t.entitytype,
+        t.calories,
+        t.protein,
+        t.sugar,
+        t.fat,
+        t.is_alcoholic,
+        t.is_vegetarian_item,
+        t.is_vegan_item,
+        t.has_allergen,
+        t.item_class_type,
+        t.is_active,
+        t.is_deleted,
+        t.gms_created_on,
+        t.gms_modified_on,
+        t.itemunitprice,
+        t.price_changed_on,
+        t.catalogid,
         NOW()
-    FROM deduped d
+    FROM tmp_menuitem t
+    WHERE NOT EXISTS (
+        SELECT 1 FROM dim.menuitem d
+        WHERE d.menuitemid = t.menuitemid
+    );
 
-    ON CONFLICT (menuitemid) DO UPDATE SET
-        menuitemname       = EXCLUDED.menuitemname,
-        entitytype         = EXCLUDED.entitytype,
-        calories           = EXCLUDED.calories,
-        protein            = EXCLUDED.protein,
-        sugar              = EXCLUDED.sugar,
-        fat                = EXCLUDED.fat,
-        is_alcoholic       = EXCLUDED.is_alcoholic,
-        is_vegetarian_item = EXCLUDED.is_vegetarian_item,
-        is_vegan_item      = EXCLUDED.is_vegan_item,
-        has_allergen       = EXCLUDED.has_allergen,
-        item_class_type    = EXCLUDED.item_class_type,
-        is_active          = EXCLUDED.is_active,
-        is_deleted         = EXCLUDED.is_deleted,
-        gms_created_on     = EXCLUDED.gms_created_on,
-        gms_modified_on    = EXCLUDED.gms_modified_on,
-        itemunitprice      = EXCLUDED.itemunitprice,
-        price_changed_on   = EXCLUDED.price_changed_on,
-        catalogid          = EXCLUDED.catalogid,
+    -- UPDATE changed
+    UPDATE dim.menuitem d
+    SET
+        menuitemname       = t.menuitemname,
+        entitytype         = t.entitytype,
+        calories           = t.calories,
+        protein            = t.protein,
+        sugar              = t.sugar,
+        fat                = t.fat,
+        is_alcoholic       = t.is_alcoholic,
+        is_vegetarian_item = t.is_vegetarian_item,
+        is_vegan_item      = t.is_vegan_item,
+        has_allergen       = t.has_allergen,
+        item_class_type    = t.item_class_type,
+        is_active          = t.is_active,
+        is_deleted         = t.is_deleted,
+        gms_created_on     = t.gms_created_on,
+        gms_modified_on    = t.gms_modified_on,
+        itemunitprice      = t.itemunitprice,
+        price_changed_on   = t.price_changed_on,
+        catalogid          = t.catalogid,
         sysupdatetime      = NOW()
-
-    WHERE (
-        dim.menuitem.menuitemname       IS DISTINCT FROM EXCLUDED.menuitemname       OR
-        dim.menuitem.entitytype         IS DISTINCT FROM EXCLUDED.entitytype         OR
-        dim.menuitem.calories           IS DISTINCT FROM EXCLUDED.calories           OR
-        dim.menuitem.protein            IS DISTINCT FROM EXCLUDED.protein            OR
-        dim.menuitem.sugar              IS DISTINCT FROM EXCLUDED.sugar              OR
-        dim.menuitem.fat                IS DISTINCT FROM EXCLUDED.fat                OR
-        dim.menuitem.is_alcoholic       IS DISTINCT FROM EXCLUDED.is_alcoholic       OR
-        dim.menuitem.is_vegetarian_item IS DISTINCT FROM EXCLUDED.is_vegetarian_item OR
-        dim.menuitem.is_vegan_item      IS DISTINCT FROM EXCLUDED.is_vegan_item      OR
-        dim.menuitem.has_allergen       IS DISTINCT FROM EXCLUDED.has_allergen       OR
-        dim.menuitem.item_class_type    IS DISTINCT FROM EXCLUDED.item_class_type    OR
-        dim.menuitem.is_active          IS DISTINCT FROM EXCLUDED.is_active          OR
-        dim.menuitem.is_deleted         IS DISTINCT FROM EXCLUDED.is_deleted         OR
-        dim.menuitem.gms_created_on     IS DISTINCT FROM EXCLUDED.gms_created_on     OR
-        dim.menuitem.gms_modified_on    IS DISTINCT FROM EXCLUDED.gms_modified_on    OR
-        dim.menuitem.itemunitprice      IS DISTINCT FROM EXCLUDED.itemunitprice      OR
-        dim.menuitem.price_changed_on   IS DISTINCT FROM EXCLUDED.price_changed_on   OR
-        dim.menuitem.catalogid          IS DISTINCT FROM EXCLUDED.catalogid
+    FROM tmp_menuitem t
+    WHERE d.menuitemid = t.menuitemid
+    AND (
+        d.menuitemname       IS DISTINCT FROM t.menuitemname       OR
+        d.entitytype         IS DISTINCT FROM t.entitytype         OR
+        d.calories           IS DISTINCT FROM t.calories           OR
+        d.protein            IS DISTINCT FROM t.protein            OR
+        d.sugar              IS DISTINCT FROM t.sugar              OR
+        d.fat                IS DISTINCT FROM t.fat                OR
+        d.is_alcoholic       IS DISTINCT FROM t.is_alcoholic       OR
+        d.is_vegetarian_item IS DISTINCT FROM t.is_vegetarian_item OR
+        d.is_vegan_item      IS DISTINCT FROM t.is_vegan_item      OR
+        d.has_allergen       IS DISTINCT FROM t.has_allergen       OR
+        d.item_class_type    IS DISTINCT FROM t.item_class_type    OR
+        d.is_active          IS DISTINCT FROM t.is_active          OR
+        d.is_deleted         IS DISTINCT FROM t.is_deleted         OR
+        d.gms_created_on     IS DISTINCT FROM t.gms_created_on     OR
+        d.gms_modified_on    IS DISTINCT FROM t.gms_modified_on    OR
+        d.itemunitprice      IS DISTINCT FROM t.itemunitprice      OR
+        d.price_changed_on   IS DISTINCT FROM t.price_changed_on   OR
+        d.catalogid          IS DISTINCT FROM t.catalogid
     );
 
 END;

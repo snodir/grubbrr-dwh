@@ -3,7 +3,13 @@
 -- DROP TABLE IF EXISTS dim.frequentcustomer;
 --CALL dim.usp_refresh_frequentcustomer();
 
-SELECT * FROM stg.dim_frequentcustomer
+
+SELECT count(*)
+FROM stg.dim_frequentcustomer LIMIT 100; --949,757
+
+SELECT count(*)
+FROM dim.frequentcustomer LIMIT 100; --944,838 --946,213
+
 
 SELECT NOW() as time_now;
 
@@ -89,11 +95,32 @@ ALTER TABLE dim.frequentcustomer
 
 --CALL dim.usp_refresh_frequentcustomer();
 
+
+
 CREATE OR REPLACE PROCEDURE dim.usp_refresh_frequentcustomer()
 LANGUAGE plpgsql
 AS $BODY$
 BEGIN
 
+    CREATE TEMP TABLE tmp_frequentcustomer ON COMMIT DROP AS
+    SELECT DISTINCT ON (frequentcustomerid)
+        frequentcustomerid,
+        firstname,
+        lastname,
+        email,
+        phone,
+        source,
+        organizationid,
+        createddate,
+        lastorderdate,
+        ordercount,
+        syscosmosts
+    FROM stg.dim_frequentcustomer
+    ORDER BY frequentcustomerid, sysinserttime DESC NULLS LAST;
+
+    CREATE INDEX ix_tmp_frequentcustomer_id ON tmp_frequentcustomer (frequentcustomerid);
+
+    -- INSERT net new
     INSERT INTO dim.frequentcustomer (
         customerkey,
         frequentcustomerid,
@@ -108,49 +135,56 @@ BEGIN
         ordercount,
         amountspent,
         syscosmosts,
-        sysinserttime    
+        sysinserttime
     )
     SELECT
         nextval('dim.frequentcustomer_customerkey_seq'),
-        s.frequentcustomerid,
-        s.firstname,
-        s.lastname,
-        s.email,
-        s.phone,
-        s.source,
-        s.organizationid,
-        s.createddate,
-        s.lastorderdate,
-        s.ordercount,
+        t.frequentcustomerid,
+        t.firstname,
+        t.lastname,
+        t.email,
+        t.phone,
+        t.source,
+        t.organizationid,
+        t.createddate,
+        t.lastorderdate,
+        t.ordercount,
         0,
-        s.syscosmosts,
+        t.syscosmosts,
         NOW()
-    FROM stg.dim_frequentcustomer s
+    FROM tmp_frequentcustomer t
+    WHERE NOT EXISTS (
+        SELECT 1 FROM dim.frequentcustomer d
+        WHERE d.frequentcustomerid = t.frequentcustomerid
+    );
 
-    ON CONFLICT (frequentcustomerid) DO UPDATE SET
-        firstname      = EXCLUDED.firstname,
-        lastname       = EXCLUDED.lastname,
-        email          = EXCLUDED.email,
-        phone          = EXCLUDED.phone,
-        source         = EXCLUDED.source,
-        organizationid = EXCLUDED.organizationid,
-        createddate    = EXCLUDED.createddate,
-        lastorderdate  = EXCLUDED.lastorderdate,
-        ordercount     = EXCLUDED.ordercount,
-        syscosmosts    = EXCLUDED.syscosmosts,
+    -- UPDATE changed
+    UPDATE dim.frequentcustomer d
+    SET
+        firstname      = t.firstname,
+        lastname       = t.lastname,
+        email          = t.email,
+        phone          = t.phone,
+        source         = t.source,
+        organizationid = t.organizationid,
+        createddate    = t.createddate,
+        lastorderdate  = t.lastorderdate,
+        ordercount     = t.ordercount,
+        syscosmosts    = t.syscosmosts,
         sysupdatetime  = NOW()
-
-    WHERE (
-        dim.frequentcustomer.firstname      IS DISTINCT FROM EXCLUDED.firstname      OR
-        dim.frequentcustomer.lastname       IS DISTINCT FROM EXCLUDED.lastname       OR
-        dim.frequentcustomer.email          IS DISTINCT FROM EXCLUDED.email          OR
-        dim.frequentcustomer.phone          IS DISTINCT FROM EXCLUDED.phone          OR
-        dim.frequentcustomer.source         IS DISTINCT FROM EXCLUDED.source         OR
-        dim.frequentcustomer.organizationid IS DISTINCT FROM EXCLUDED.organizationid OR
-        dim.frequentcustomer.createddate    IS DISTINCT FROM EXCLUDED.createddate    OR
-        dim.frequentcustomer.lastorderdate  IS DISTINCT FROM EXCLUDED.lastorderdate  OR
-        dim.frequentcustomer.ordercount     IS DISTINCT FROM EXCLUDED.ordercount     OR
-        dim.frequentcustomer.syscosmosts    IS DISTINCT FROM EXCLUDED.syscosmosts
+    FROM tmp_frequentcustomer t
+    WHERE d.frequentcustomerid = t.frequentcustomerid
+    AND (
+        d.firstname      IS DISTINCT FROM t.firstname      OR
+        d.lastname       IS DISTINCT FROM t.lastname       OR
+        d.email          IS DISTINCT FROM t.email          OR
+        d.phone          IS DISTINCT FROM t.phone          OR
+        d.source         IS DISTINCT FROM t.source         OR
+        d.organizationid IS DISTINCT FROM t.organizationid OR
+        d.createddate    IS DISTINCT FROM t.createddate    OR
+        d.lastorderdate  IS DISTINCT FROM t.lastorderdate  OR
+        d.ordercount     IS DISTINCT FROM t.ordercount     OR
+        d.syscosmosts    IS DISTINCT FROM t.syscosmosts
     );
 
 END;

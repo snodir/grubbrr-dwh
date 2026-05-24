@@ -1,4 +1,11 @@
---CALL dim.usp_refresh_modifier();
+--CALL dim.usp_refresh_modifier(); --28s
+
+SELECT count(*)
+FROM stg.dim_modifier LIMIT 100; --949,757
+
+SELECT count(*)
+FROM dim.modifier LIMIT 100; --944,838 --946,213
+
 
 -- Table: dim.modifier
 
@@ -73,36 +80,45 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS stg.dim_modifier
     OWNER to citus;
 
+
 CREATE OR REPLACE PROCEDURE dim.usp_refresh_modifier()
 LANGUAGE plpgsql
 AS $BODY$
 BEGIN
 
-    WITH deduped AS (
-        SELECT DISTINCT ON (modifierid)
-            modifierid,
-            catalogid,
-            modifiername,
-            min_quantity,
-            max_quantity,
-            allow_quantity_increment,
-            increment_step,
-            calories,
-            calories_text,
-            is_modifier_active,
-            is_modifier_deleted,
-            modifier_created_on,
-            modifier_modified_on,
-            is_modifier_default,
-            modifier_default_quantity,
-            is_invisible,
-            classification,
-            price,
-            price_changed_on,
-            sysinserttime
-        FROM stg.dim_modifier
-        ORDER BY modifierid, modifier_modified_on DESC NULLS LAST
-    )
+    -- -------------------------------------------------------
+    -- Step 1: Deduplicate stg into a temp table
+    -- -------------------------------------------------------
+    CREATE TEMP TABLE tmp_modifier ON COMMIT DROP AS
+    SELECT DISTINCT ON (modifierid)
+        modifierid,
+        catalogid,
+        modifiername,
+        min_quantity,
+        max_quantity,
+        allow_quantity_increment,
+        increment_step,
+        calories,
+        calories_text,
+        is_modifier_active,
+        is_modifier_deleted,
+        modifier_created_on,
+        modifier_modified_on,
+        is_modifier_default,
+        modifier_default_quantity,
+        is_invisible,
+        classification,
+        price,
+        price_changed_on
+    FROM stg.dim_modifier
+    ORDER BY modifierid, modifier_modified_on DESC NULLS LAST;
+
+    -- Index on temp table to speed up JOIN in steps below
+    CREATE INDEX ix_tmp_modifier_modifierid ON tmp_modifier (modifierid);
+
+    -- -------------------------------------------------------
+    -- Step 2: INSERT net new records only
+    -- -------------------------------------------------------
     INSERT INTO dim.modifier (
         modifierid,
         catalogid,
@@ -126,68 +142,77 @@ BEGIN
         sysinserttime
     )
     SELECT
-        d.modifierid,
-        d.catalogid,
-        d.modifiername,
-        d.min_quantity,
-        d.max_quantity,
-        d.allow_quantity_increment,
-        d.increment_step,
-        d.calories,
-        d.calories_text,
-        d.is_modifier_active,
-        d.is_modifier_deleted,
-        d.modifier_created_on,
-        d.modifier_modified_on,
-        d.is_modifier_default,
-        d.modifier_default_quantity,
-        d.is_invisible,
-        d.classification,
-        d.price,
-        d.price_changed_on,
+        t.modifierid,
+        t.catalogid,
+        t.modifiername,
+        t.min_quantity,
+        t.max_quantity,
+        t.allow_quantity_increment,
+        t.increment_step,
+        t.calories,
+        t.calories_text,
+        t.is_modifier_active,
+        t.is_modifier_deleted,
+        t.modifier_created_on,
+        t.modifier_modified_on,
+        t.is_modifier_default,
+        t.modifier_default_quantity,
+        t.is_invisible,
+        t.classification,
+        t.price,
+        t.price_changed_on,
         NOW()
-    FROM deduped d
+    FROM tmp_modifier t
+    WHERE NOT EXISTS (
+        SELECT 1 FROM dim.modifier d
+        WHERE d.modifierid = t.modifierid
+    );
 
-    ON CONFLICT (modifierid) DO UPDATE SET
-        catalogid                 = EXCLUDED.catalogid,
-        modifiername              = EXCLUDED.modifiername,
-        min_quantity              = EXCLUDED.min_quantity,
-        max_quantity              = EXCLUDED.max_quantity,
-        allow_quantity_increment  = EXCLUDED.allow_quantity_increment,
-        increment_step            = EXCLUDED.increment_step,
-        calories                  = EXCLUDED.calories,
-        calories_text             = EXCLUDED.calories_text,
-        is_modifier_active        = EXCLUDED.is_modifier_active,
-        is_modifier_deleted       = EXCLUDED.is_modifier_deleted,
-        modifier_created_on       = EXCLUDED.modifier_created_on,
-        modifier_modified_on      = EXCLUDED.modifier_modified_on,
-        is_modifier_default       = EXCLUDED.is_modifier_default,
-        modifier_default_quantity = EXCLUDED.modifier_default_quantity,
-        is_invisible              = EXCLUDED.is_invisible,
-        classification            = EXCLUDED.classification,
-        price                     = EXCLUDED.price,
-        price_changed_on          = EXCLUDED.price_changed_on,
-        sysupdatetime             = NOW()
-
-    WHERE (
-        dim.modifier.catalogid                IS DISTINCT FROM EXCLUDED.catalogid                OR
-        dim.modifier.modifiername             IS DISTINCT FROM EXCLUDED.modifiername             OR
-        dim.modifier.min_quantity             IS DISTINCT FROM EXCLUDED.min_quantity             OR
-        dim.modifier.max_quantity             IS DISTINCT FROM EXCLUDED.max_quantity             OR
-        dim.modifier.allow_quantity_increment IS DISTINCT FROM EXCLUDED.allow_quantity_increment OR
-        dim.modifier.increment_step           IS DISTINCT FROM EXCLUDED.increment_step           OR
-        dim.modifier.calories                 IS DISTINCT FROM EXCLUDED.calories                 OR
-        dim.modifier.calories_text            IS DISTINCT FROM EXCLUDED.calories_text            OR
-        dim.modifier.is_modifier_active       IS DISTINCT FROM EXCLUDED.is_modifier_active       OR
-        dim.modifier.is_modifier_deleted      IS DISTINCT FROM EXCLUDED.is_modifier_deleted      OR
-        dim.modifier.modifier_created_on      IS DISTINCT FROM EXCLUDED.modifier_created_on      OR
-        dim.modifier.modifier_modified_on     IS DISTINCT FROM EXCLUDED.modifier_modified_on     OR
-        dim.modifier.is_modifier_default      IS DISTINCT FROM EXCLUDED.is_modifier_default      OR
-        dim.modifier.modifier_default_quantity IS DISTINCT FROM EXCLUDED.modifier_default_quantity OR
-        dim.modifier.is_invisible             IS DISTINCT FROM EXCLUDED.is_invisible             OR
-        dim.modifier.classification           IS DISTINCT FROM EXCLUDED.classification           OR
-        dim.modifier.price                    IS DISTINCT FROM EXCLUDED.price                    OR
-        dim.modifier.price_changed_on         IS DISTINCT FROM EXCLUDED.price_changed_on
+    -- -------------------------------------------------------
+    -- Step 3: UPDATE only changed records
+    -- -------------------------------------------------------
+    UPDATE dim.modifier d
+    SET
+        catalogid                = t.catalogid,
+        modifiername             = t.modifiername,
+        min_quantity             = t.min_quantity,
+        max_quantity             = t.max_quantity,
+        allow_quantity_increment = t.allow_quantity_increment,
+        increment_step           = t.increment_step,
+        calories                 = t.calories,
+        calories_text            = t.calories_text,
+        is_modifier_active       = t.is_modifier_active,
+        is_modifier_deleted      = t.is_modifier_deleted,
+        modifier_created_on      = t.modifier_created_on,
+        modifier_modified_on     = t.modifier_modified_on,
+        is_modifier_default      = t.is_modifier_default,
+        modifier_default_quantity = t.modifier_default_quantity,
+        is_invisible             = t.is_invisible,
+        classification           = t.classification,
+        price                    = t.price,
+        price_changed_on         = t.price_changed_on,
+        sysupdatetime            = NOW()
+    FROM tmp_modifier t
+    WHERE d.modifierid = t.modifierid
+    AND (
+        d.catalogid                IS DISTINCT FROM t.catalogid                OR
+        d.modifiername             IS DISTINCT FROM t.modifiername             OR
+        d.min_quantity             IS DISTINCT FROM t.min_quantity             OR
+        d.max_quantity             IS DISTINCT FROM t.max_quantity             OR
+        d.allow_quantity_increment IS DISTINCT FROM t.allow_quantity_increment OR
+        d.increment_step           IS DISTINCT FROM t.increment_step           OR
+        d.calories                 IS DISTINCT FROM t.calories                 OR
+        d.calories_text            IS DISTINCT FROM t.calories_text            OR
+        d.is_modifier_active       IS DISTINCT FROM t.is_modifier_active       OR
+        d.is_modifier_deleted      IS DISTINCT FROM t.is_modifier_deleted      OR
+        d.modifier_created_on      IS DISTINCT FROM t.modifier_created_on      OR
+        d.modifier_modified_on     IS DISTINCT FROM t.modifier_modified_on     OR
+        d.is_modifier_default      IS DISTINCT FROM t.is_modifier_default      OR
+        d.modifier_default_quantity IS DISTINCT FROM t.modifier_default_quantity OR
+        d.is_invisible             IS DISTINCT FROM t.is_invisible             OR
+        d.classification           IS DISTINCT FROM t.classification           OR
+        d.price                    IS DISTINCT FROM t.price                    OR
+        d.price_changed_on         IS DISTINCT FROM t.price_changed_on
     );
 
 END;
