@@ -1,3 +1,4 @@
+--CALL dim.usp_refresh_modifier();
 
 -- Table: dim.modifier
 
