@@ -76,7 +76,7 @@ SELECT generate_series(0, 23) AS hour;
 --SELECT * FROM table_hours;
 
 WITH trxn_by_day_parts AS (
-	SELECT *, EXTRACT(HOUR FROM th.orderdatelocal) AS hours_24
+	SELECT *, EXTRACT(HOUR FROM th.orderdateutc :: TIMESTAMP) AS hours_24
 	FROM fact.transactionheader as th
 ), aggr_trxns_by_hour AS (
 SELECT th.hours_24, 
