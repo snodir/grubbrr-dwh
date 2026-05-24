@@ -91,7 +91,7 @@ ALTER TABLE dim.frequentcustomer
 
 CREATE OR REPLACE PROCEDURE dim.usp_refresh_frequentcustomer()
 LANGUAGE plpgsql
-AS $$
+AS $BODY$
 BEGIN
 
     INSERT INTO dim.frequentcustomer (
@@ -154,7 +154,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 ALTER PROCEDURE dim.usp_refresh_frequentcustomer()
     OWNER to citus;
