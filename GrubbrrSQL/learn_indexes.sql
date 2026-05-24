@@ -162,3 +162,17 @@ An index that doesn't include the distribution column can't be used for shard pr
 
 The golden rule in DW: **index for reads, but always measure the write cost** — especially relevant when your ADF pipelines are loading millions of rows on a schedule.
 */
+
+
+-- # BRIN Indexes on Timestamp columns
+
+SELECT schemaname, tablename, attname, inherited, null_frac, avg_width, correlation
+FROM pg_stats
+WHERE tablename = 'transactionheader'
+  AND attname = 'syscosmosts';
+
+--SELECT count(syscosmosts), count(*) FROM fact.transactionheader --2,607,836	3,244,031
+
+--transactionitem   fact	transactionitem	    syscosmosts	False	0.7107	    8	-0.59242475
+--transactionheader fact	transactionheader	syscosmosts	False	0.72356665	8	 0.38891634  fact	transactionheader	syscosmosts	False	0.19506666	8	0.595906
+--userbehaviour     fact	userbehaviour	    syscosmosts	False	0.7826667	8	-0.48464713

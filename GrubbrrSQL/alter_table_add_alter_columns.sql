@@ -1,13 +1,13 @@
 DROP VIEW IF EXISTS public.vw_transactiondetails;
 
-ALTER TABLE fact.watermarktable
+ALTER TABLE IF EXISTS fact.watermarktable
 ALTER COLUMN source TYPE CHARACTER VARYING(50);
 
-ALTER TABLE dim.grubbrr_source_lookup
+ALTER TABLE IF EXISTS dim.grubbrr_source_lookup
 ALTER COLUMN source TYPE TEXT COLLATE pg_catalog."default",
 ALTER COLUMN description TYPE TEXT COLLATE pg_catalog."default";
 
-ALTER TABLE fact.transactionheader
+ALTER TABLE IF EXISTS fact.transactionheader
 ADD COLUMN IF NOT EXISTS sourceid INTEGER,
 ADD COLUMN IF NOT EXISTS orderservicecharge NUMERIC(12, 3) DEFAULT 0.000,
 ALTER COLUMN ordersredeemedrewards TYPE NUMERIC(12, 3),
@@ -20,43 +20,46 @@ ALTER COLUMN orderbalance TYPE NUMERIC(12, 3),
 ALTER COLUMN charityamount TYPE NUMERIC(12, 3),
 ADD COLUMN IF NOT EXISTS customername CHARACTER VARYING(100) COLLATE pg_catalog."default";
 
-ALTER TABLE fact.transactionitem
+ALTER TABLE IF EXISTS fact.transactionitem
 ALTER COLUMN itemunitprice TYPE NUMERIC(12,3),
 ADD COLUMN IF NOT EXISTS orderdatelocal TIMESTAMP,
 ADD COLUMN IF NOT EXISTS businessdate DATE,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS frequentcustomerid TEXT COLLATE pg_catalog."default";
 
+CREATE INDEX IF NOT EXISTS idx_fact_transactionitem_locationid
+    ON fact.transactionitem(locationid);
 
 ALTER TABLE IF EXISTS fact.transactionpayment
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
 
+CREATE INDEX IF NOT EXISTS idx_fact_transactionpayment_locationid
+    ON fact.transactionpayment(locationid);
 
-
-ALTER TABLE fact.itemmodifier
+ALTER TABLE IF EXISTS fact.itemmodifier
 ALTER COLUMN modifierprice TYPE NUMERIC(12,3),
 ADD COLUMN IF NOT EXISTS locationid TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS businessdate DATE,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
 
-ALTER TABLE fact.transactionpayment
+ALTER TABLE IF EXISTS fact.transactionpayment
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
 ALTER COLUMN paymentamt TYPE NUMERIC(12,3);
 
-ALTER TABLE fact.ordertiming
+ALTER TABLE IF EXISTS fact.ordertiming
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
 
-ALTER TABLE fact.devicetelemetry
+ALTER TABLE IF EXISTS fact.devicetelemetry
 ALTER COLUMN cpuvalue TYPE NUMERIC(10,5),
 ALTER COLUMN memoryvalue TYPE NUMERIC(10,5),
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
-ALTER TABLE fact.userbehaviour
+ALTER TABLE IF EXISTS fact.userbehaviour
 ADD COLUMN IF NOT EXISTS eventcategory TEXT COLLATE pg_catalog."default";
 
-ALTER TABLE fact.devicestate
+ALTER TABLE IF EXISTS fact.devicestate
 ALTER COLUMN duration TYPE NUMERIC(10,3),
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
 
@@ -97,7 +100,7 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS dim.menuitem
     OWNER to citus;
 
-ALTER TABLE dim.menuitem
+ALTER TABLE IF EXISTS dim.menuitem
 ADD COLUMN IF NOT EXISTS item_class_type integer,
 ADD COLUMN IF NOT EXISTS entitytype TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS calories TEXT COLLATE pg_catalog."default",
@@ -148,7 +151,7 @@ CREATE TABLE IF NOT EXISTS dim.occasionsurvey
 
 TABLESPACE pg_default;
 
-ALTER TABLE dim.occasionsurvey
+ALTER TABLE IF EXISTS dim.occasionsurvey
     OWNER to citus;
 
 ALTER TABLE IF EXISTS dim.occasionsurvey
@@ -162,13 +165,13 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 
-ALTER TABLE fact.occasionsurveydetail
+ALTER TABLE IF EXISTS fact.occasionsurveydetail
 --ADD CONSTRAINT locationid_orderid_pk PRIMARY key (locationid, orderid),
 ALTER COLUMN surveytransid DROP NOT NULL,
 ADD COLUMN IF NOT EXISTS surveytype INTEGER,
 ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default";
 
-ALTER TABLE fact.itemssurvey
+ALTER TABLE IF EXISTS fact.itemssurvey
 ADD COLUMN IF NOT EXISTS nge_syscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS gem_event_category TEXT COLLATE pg_catalog."default",
@@ -180,7 +183,7 @@ ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sourceid INTEGER;
 
 
-ALTER TABLE dim.organization
+ALTER TABLE IF EXISTS dim.organization
 ADD COLUMN IF NOT EXISTS cep_subscriptions TEXT COLLATE pg_catalog."default";
 
 --dim.category_hierarchy;
@@ -223,7 +226,7 @@ constraint location_category_menuitem_unq UNIQUE (locationid, categoryid, menuit
 
 TABLESPACE pg_default;
 
-ALTER TABLE dim.category_hierarchy
+ALTER TABLE IF EXISTS dim.category_hierarchy
     OWNER to citus;
 
 ALTER TABLE IF EXISTS dim.category_hierarchy
@@ -249,7 +252,7 @@ constraint locationid_categoryid_menuitemid_unq UNIQUE (locationid, categoryid, 
 
 TABLESPACE pg_default;
 
-ALTER TABLE dim.duplicate_items_master
+ALTER TABLE IF EXISTS dim.duplicate_items_master
     OWNER to citus;
 
 --dim.catalog;
@@ -417,10 +420,10 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
     OWNER to citus;
 
---ALTER TABLE dim.item_modifier_group_modifier_mapping
+--ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
 --ADD CONSTRAINT item_modgrp_modfr_unq UNIQUE (menuitemid, modifiergroupid, modifierid)
 
-ALTER TABLE dim.item_modifier_group_modifier_mapping
+ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 
@@ -548,7 +551,7 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS fact.modifier_interactions
     OWNER to citus;
 
-ALTER TABLE fact.modifier_interactions
+ALTER TABLE IF EXISTS fact.modifier_interactions
 --DROP COLUMN IF EXISTS source,
 ADD COLUMN IF NOT EXISTS sourceid INTEGER;
 
@@ -589,7 +592,7 @@ CREATE TABLE IF NOT EXISTS fact.modifier_recommendations
     sysupdatetime TIMESTAMP
 );
 
-ALTER TABLE fact.modifier_recommendations
+ALTER TABLE IF EXISTS fact.modifier_recommendations
 OWNER TO citus;
 
 CREATE TABLE IF NOT EXISTS fact.location_statistics(
@@ -617,7 +620,7 @@ CREATE TABLE IF NOT EXISTS fact.location_statistics(
     sysupdatetime TIMESTAMP
 );
 
-ALTER TABLE fact.location_statistics
+ALTER TABLE IF EXISTS fact.location_statistics
 OWNER to citus;
 
 
@@ -644,15 +647,15 @@ syscosmosts BIGINT,
 sysinserttime TIMESTAMP
 );
 
-ALTER TABLE fact.cep_incidents
+ALTER TABLE IF EXISTS fact.cep_incidents
 OWNER to citus;
 
-ALTER TABLE fact.cep_incidents
+ALTER TABLE IF EXISTS fact.cep_incidents
 ADD COLUMN IF NOT EXISTS severity TEXT COLLATE pg_catalog."default";
 
 --GRANT SELECT ON TABLE fact.cep_incidents TO dhanraj;
 
-ALTER TABLE dim.kioskdetails
+ALTER TABLE IF EXISTS dim.kioskdetails
 ADD COLUMN IF NOT EXISTS item_special_request TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS legal_copy_enabled BOOLEAN,
 ADD COLUMN IF NOT EXISTS ada_configuration TEXT COLLATE pg_catalog."default",
@@ -685,7 +688,7 @@ ADD COLUMN IF NOT EXISTS menu_behavior_config TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS perform_pos_status_check BOOLEAN;
 
 
-ALTER TABLE dim.vw_grubbrrinstallbase-- kioskdetails
+ALTER TABLE IF EXISTS dim.vw_grubbrrinstallbase-- kioskdetails
 ADD COLUMN IF NOT EXISTS item_special_request jsonb,
 ADD COLUMN IF NOT EXISTS legal_copy_enabled BOOLEAN,
 ADD COLUMN IF NOT EXISTS ada_configuration jsonb,
@@ -1295,7 +1298,7 @@ CREATE OR REPLACE VIEW dim.vw_weatherhourlydata
      CROSS JOIN LATERAL jsonb_each(w.weatherinfo -> 'Hours'::text) hour_entry(hour_key, hour_data)
   WHERE w.weatherinfo::text ~~ '{"Date":%'::text;
 
-ALTER TABLE dim.vw_weatherhourlydata
+ALTER TABLE IF EXISTS dim.vw_weatherhourlydata
     OWNER TO citus;
 
 
