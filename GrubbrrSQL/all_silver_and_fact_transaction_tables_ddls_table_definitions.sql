@@ -197,6 +197,7 @@ CREATE TABLE IF NOT EXISTS fact.transactionpayment
     orderdateutc text COLLATE pg_catalog."default",
     sysinserttime timestamp without time zone,
     paymentcardtype character varying(50) COLLATE pg_catalog."default",
+    syscosmosts bigint,
     sysupdatetime timestamp without time zone,
     CONSTRAINT locationid_transactionheaderid_fk FOREIGN KEY (locationid, transactionheaderid)
         REFERENCES fact.transactionheader (locationid, transactionheaderid) MATCH SIMPLE
@@ -208,6 +209,9 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS fact.transactionpayment
     OWNER to citus;
+
+ALTER TABLE IF EXISTS fact.transactionpayment
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
 
 REVOKE ALL ON TABLE fact.transactionpayment FROM dhanraj;
 REVOKE ALL ON TABLE fact.transactionpayment FROM varshil;

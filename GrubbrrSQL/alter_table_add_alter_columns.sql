@@ -28,6 +28,11 @@ ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS frequentcustomerid TEXT COLLATE pg_catalog."default";
 
 
+ALTER TABLE IF EXISTS fact.transactionpayment
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
+
+
+
 ALTER TABLE fact.itemmodifier
 ALTER COLUMN modifierprice TYPE NUMERIC(12,3),
 ADD COLUMN IF NOT EXISTS locationid TEXT COLLATE pg_catalog."default",

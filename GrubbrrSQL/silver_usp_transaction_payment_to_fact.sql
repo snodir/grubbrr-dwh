@@ -20,8 +20,7 @@ INSERT INTO fact.transactionpayment(
     paymentintegrationlabel,
     orderdateutc,
     sysinserttime,
-    paymentcardtype,
-    sysupdatetime
+    paymentcardtype
 )
 SELECT
     transactionheaderid,
@@ -35,14 +34,13 @@ SELECT
     payment_integration_label AS paymentintegrationlabel,
     fact.parse_iso_timestamp(orderdateutc) as orderdateutc,
     now() :: TIMESTAMP AS sysinserttime,
-    payment_card_name AS paymentcardtype,
-    NULL :: TIMESTAMP AS sysupdatetime
+    payment_card_name AS paymentcardtype
 FROM stg.silver_transaction_payment AS dp
 WHERE (dp.is_test_order = False OR dp.is_test_order IS NULL)
   AND NOT EXISTS (
         SELECT 1
         FROM fact.transactionpayment AS tp
-        WHERE tp.locationid        = dp.locationid
+        WHERE tp.locationid          = dp.locationid
           AND tp.transactionheaderid = dp.transactionheaderid
       );
 
@@ -51,4 +49,3 @@ $BODY$;
 
 ALTER PROCEDURE fact.usp_silver_transaction_payment_to_fact()
     OWNER TO citus;
-
