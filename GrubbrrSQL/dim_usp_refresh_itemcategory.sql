@@ -2,26 +2,6 @@
 
 SELECT * FROM dim.itemcategory ORDER BY id ASC limit 1000;
 
-SELECT ctlg.gem_location_id as locationid,
-    c.id as categoryid,
-    c.name as categoryname,
-    c.catalog_id as catalogid,
-    c.is_active as is_category_active,
-    c.is_deleted as is_category_deleted,
-    c.created_on as category_created_on,
-    c.modified_on as category_modified_on,
-    c.is_alcoholic,
-    c.number_of_items,
-    c.number_of_sub_categories,
-    c.number_of_item_variations,
-    c.number_of_combos,
-    c.number_of_combo_families
-FROM public.category_master as c
-INNER JOIN public.catalog as ctlg 
-    ON c.catalog_id = ctlg.id
-WHERE ctlg.gem_location_id IS NOT NULL 
-  AND ctlg.gem_location_id <> ''
-LIMIT 1000;
 
 
 -- Table: dim.itemcategory
@@ -218,3 +198,27 @@ BEGIN
 
 END;
 $BODY$;
+
+
+
+SELECT ctlg.gem_location_id as locationid,
+    c.id as categoryid,
+    c.name as categoryname,
+    c.catalog_id as catalogid,
+    c.is_active as is_category_active,
+    c.is_deleted as is_category_deleted,
+    c.created_on as category_created_on,
+    c.modified_on as category_modified_on,
+    c.is_alcoholic,
+    c.number_of_items,
+    c.number_of_sub_categories,
+    c.number_of_item_variations,
+    c.number_of_combos,
+    c.number_of_combo_families,
+    NOW() :: TIMESTAMP as sysinserttime
+FROM public.category_master as c
+INNER JOIN public.catalog as ctlg 
+    ON c.catalog_id = ctlg.id
+WHERE ctlg.gem_location_id IS NOT NULL 
+  AND ctlg.gem_location_id <> ''
+LIMIT 1000;
