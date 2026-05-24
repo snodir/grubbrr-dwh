@@ -68,7 +68,8 @@ CREATE TABLE IF NOT EXISTS stg.dim_modifiergroup
     increment_step integer,
     slider_mode boolean NOT NULL DEFAULT false,
     slider_mode_modifier boolean NOT NULL DEFAULT false,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    CONSTRAINT modifier_group_master_pkey PRIMARY KEY (modifiergroupid)
 )
 
 TABLESPACE pg_default;
@@ -76,6 +77,8 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS stg.dim_modifiergroup
     OWNER to citus;
 
+--ALTER TABLE IF EXISTS stg.dim_modifiergroup
+--ADD CONSTRAINT modifier_group_master_pkey PRIMARY KEY (modifiergroupid)
 
 CREATE OR REPLACE PROCEDURE dim.usp_refresh_modifiergroup()
 LANGUAGE plpgsql
