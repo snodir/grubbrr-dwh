@@ -498,6 +498,23 @@ ALTER TABLE IF EXISTS stg.dim_frequentcustomer
     OWNER to citus;
 
 
+
+-- One-time setup
+CREATE SEQUENCE IF NOT EXISTS dim.frequentcustomer_customerkey_seq;
+
+-- Sync to current max to avoid collisions with existing data
+SELECT setval(
+    'dim.frequentcustomer_customerkey_seq',
+    COALESCE((SELECT MAX(customerkey) FROM dim.frequentcustomer), 0)
+);
+
+-- Attach to the column
+ALTER TABLE dim.frequentcustomer
+    ALTER COLUMN customerkey SET DEFAULT nextval('dim.frequentcustomer_customerkey_seq');
+
+
+
+
 CREATE TABLE IF NOT EXISTS stg.dim_menuitem
 (   menuitemid text COLLATE pg_catalog."default" NOT NULL,
     menuitemname text COLLATE pg_catalog."default" NOT NULL,
