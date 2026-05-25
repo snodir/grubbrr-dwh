@@ -1,6 +1,6 @@
 SELECT * FROM dim.element as el ORDER BY el.elementid DESC LIMIT 1000;
 
-CALL dim.usp_refresh_element();
+--CALL dim.usp_refresh_element();
 
 -- ============================================================
 -- dim.element – Sequence Setup + Refresh Procedure
