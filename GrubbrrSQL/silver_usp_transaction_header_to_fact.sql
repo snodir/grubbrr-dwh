@@ -1,6 +1,9 @@
 -- ========
 -- 1. Load fact.transactionheader
 -- ========
+SELECT * FROM stg.silver_transaction_header WHERE transactionheaderid = 'ordevt-N9LAXQ8VPIDH49PW';
+SELECT * FROM fact.transactionheader ORDER BY createddate DESC LIMIT 100
+SELECT * FROM dim.ordertype WHERE locationid = 'loc-1fb25c39-043f-4fe1-99d8-6e4086e24586'
 
 SELECT max(orderdatelocal), max(createddate) FROM fact.transactionheader; --2026-05-21 15:00:03.193	2026-05-21 10:58:59.134653
 
@@ -74,177 +77,144 @@ OWNER TO citus,
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
 
 
-CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_header_to_fact()
-LANGUAGE plpgsql
-AS $BODY$
+CREATE SEQUENCE IF NOT EXISTS fact.transactionheader_id_seq;
 
-DECLARE v_max_id INTEGER;
-
-BEGIN
-
-SELECT MAX(id) INTO v_max_id FROM fact.transactionheader;
-
-TRUNCATE TABLE stg.lookup_silver_transaction_header;
-
-
-WITH delta_transactions AS (
-SELECT
-    transactionheaderid,
-    orderid,
-    locationid,
-    kioskid,
-    ordersessionid,
-    fact.parse_iso_timestamp(orderdateutc) as orderdateutc,
-    order_completion_status AS orderstatus,
-    ordertype as ordertypeid,
-    numberofitems,
-    numberofpayments,
-    usd_reward      :: NUMERIC(12,3) AS ordersredeemedrewards,
-    usd_subtotal    :: NUMERIC(12,3) AS ordersubtotal,
-    usd_amount      :: NUMERIC(12,3) AS ordertotal,
-    usd_tax         :: NUMERIC(12,3) AS ordertax,
-    usd_tip         :: NUMERIC(12,3) AS ordertip,          
-    usd_discount    :: NUMERIC(12,3) AS orderdiscount,
-    usd_charity_amount   :: NUMERIC(12,3) AS charityamount,
-    usd_service_charge   :: NUMERIC(12,3) AS orderservicecharge,
-    businessdate    :: DATE AS businessdate,
-    CASE channel WHEN 0 THEN 'Kiosk' WHEN 1 THEN 'OnlineOrdering' ELSE 'External' END AS channel,
-    guest_count AS guestcount,
-    frequentcustomerid,
-    customername,
-    syscosmosts,                                            -- must be carried through for the ORDER BY below
-    ROW_NUMBER() OVER(PARTITION BY locationid, transactionheaderid ORDER BY orderdateutc DESC) AS row_num
-FROM stg.silver_transaction_header AS sth
-WHERE is_test_order = False OR is_test_order IS NULL
-), qualified_trxns AS (
-SELECT
-    dt.*,
-    ot.id AS ordertype,
-    dt.orderdateutc :: TIMESTAMPTZ AT TIME ZONE l.timezone AS orderdatelocal
-FROM delta_transactions AS dt
-LEFT JOIN dim.ordertype AS ot
-    ON  dt.locationid  = ot.locationid
-    AND dt.kioskid     = ot.kioskid
-    AND dt.ordertypeid = ot.ordertypeid
-LEFT JOIN dim.organization AS l  
-    ON dt.locationid = l.id
-WHERE dt.row_num = 1
-)
-INSERT INTO stg.lookup_silver_transaction_header
-SELECT
-    ROW_NUMBER() OVER (ORDER BY syscosmosts) + v_max_id AS id,
-    transactionheaderid,
-    orderid,
-    locationid,
-    kioskid,
-    ordersessionid,
-    CAST(TO_CHAR(orderdatelocal, 'YYYYMMDDHH24') AS INTEGER) AS dateid,
-    orderdateutc,
-    orderdatelocal,
-    orderstatus,
-    ordertype,
-    numberofitems,
-    numberofpayments,
-    ordersredeemedrewards,
-    ordersubtotal,
-    ordertotal,
-    ordertax,
-    ordertip,                         
-    orderdiscount,
-    0.0 :: NUMERIC(12,3)               AS orderbalance,
-    CASE WHEN numberofpayments > 0 THEN 'paid' END AS paymentstatus,
-    'NGE'                              AS sourcefile,
-    now() :: TIMESTAMP                 AS createddate,
-    charityamount,
-    orderservicecharge,
-    businessdate,
-    syscosmosts,
-    channel,
-    guestcount,
-    frequentcustomerid,
-    customername                       
-FROM qualified_trxns;
-
-
--- Order Timing Fields 
-
-DROP TABLE IF EXISTS temp_transaction_header;
-CREATE TEMPORARY TABLE IF NOT EXISTS temp_transaction_header (
-    id                      INTEGER,
-    transactionheaderid     TEXT COLLATE pg_catalog."default",
-    orderid                 TEXT COLLATE pg_catalog."default",
-    locationid              TEXT COLLATE pg_catalog."default",
-    kioskid                 TEXT COLLATE pg_catalog."default",
-    ordersessionid          TEXT COLLATE pg_catalog."default",
-    dateid                  INTEGER,
-    orderdateutc            TEXT COLLATE pg_catalog."default",
-    orderdatelocal          TIMESTAMP,
-    orderstatus             TEXT COLLATE pg_catalog."default",
-    ordertype               INTEGER,
-    numberofitems           SMALLINT,
-    numberofpayments        SMALLINT,
-    ordersredeemedrewards   NUMERIC(12,3),
-    ordersubtotal           NUMERIC(12,3),
-    ordertotal              NUMERIC(12,3),
-    ordertax                NUMERIC(12,3),
-    ordertip                NUMERIC(12,3),
-    orderdiscount           NUMERIC(12,3),
-    orderbalance            NUMERIC(12,3),
-    paymentstatus           TEXT COLLATE pg_catalog."default",
-    sourcefile              TEXT COLLATE pg_catalog."default",
-    createddate             TIMESTAMP,
-    charityamount           NUMERIC(12,3),
-    orderservicecharge      NUMERIC(12,3),
-    businessdate            DATE,
-    syscosmosts             BIGINT,
-    channel                 TEXT COLLATE pg_catalog."default",
-    guestcount              INTEGER,
-    frequentcustomerid      TEXT COLLATE pg_catalog."default",
-    customername            TEXT COLLATE pg_catalog."default"
+SELECT setval(
+    'fact.transactionheader_id_seq',
+    COALESCE((SELECT MAX(id) FROM fact.transactionheader), 0)
 );
 
-INSERT INTO temp_transaction_header
-SELECT * FROM stg.lookup_silver_transaction_header AS sth
-WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM fact.transactionheader AS th
-                    WHERE th.locationid          = sth.locationid
-                      AND th.transactionheaderid = sth.transactionheaderid
-                );
+ALTER TABLE fact.transactionheader
+    ALTER COLUMN id SET DEFAULT nextval('fact.transactionheader_id_seq');
 
-IF EXISTS (SELECT 1 FROM temp_transaction_header)
-THEN
 
-    WITH aggregated_kiosk_events AS (
+-- ============================================================
+-- SECTION 2 – REFRESH STORED PROCEDURE
+-- ============================================================
 
-    SELECT ke.locationid, ke.token,
-        min(CASE WHEN lower(ke.eventcategory) = 'session' AND lower (ke.eventtype) = 'started' THEN eventinstant END) AS orderstarttime,
-        min(CASE WHEN lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'revieworderclicked' THEN eventinstant END) AS reviewordertime,
-        min(CASE WHEN lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'checkoutclicked' THEN eventinstant END) AS checkouttime,
-        min(CASE WHEN lower(ke.eventcategory) = 'payment' AND lower (ke.eventtype) = 'create' THEN eventinstant END) AS paystarttime,
-        max(CASE WHEN lower(ke.eventcategory) IN ('session','order') AND lower(ke.eventtype) = 'closed' THEN eventinstant END) AS sessionendtime
-    FROM stg.silver_kiosk_events as ke 
-    WHERE((lower(ke.eventcategory) = 'session' AND lower (ke.eventtype) = 'started') OR 
-        (lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'revieworderclicked') OR 
-        (lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'checkoutclicked') OR 
-        (lower(ke.eventcategory) = 'payment' AND lower (ke.eventtype) = 'create') OR  
-        (lower(ke.eventcategory) IN ('session','order') AND lower(ke.eventtype) = 'closed'))
-    AND lower(ke.severity) = 'information'
-    GROUP BY ke.locationid, ke.token
+CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_header_to_fact()
+LANGUAGE plpgsql
+AS
+$BODY$
 
-    ), orders_enriched_with_ordertiming_fields AS (
-    SELECT tth.*,
-        fact.parse_iso_timestamp(orderstarttime) :: TIMESTAMP as orderstarttime,
-        fact.parse_iso_timestamp(reviewordertime) :: TIMESTAMP as reviewordertime,
-        fact.parse_iso_timestamp(checkouttime) :: TIMESTAMP as checkouttime,
-        fact.parse_iso_timestamp(paystarttime) :: TIMESTAMP as paystarttime,
-        fact.parse_iso_timestamp(sessionendtime) :: TIMESTAMP as sessionendtime
-    FROM temp_transaction_header as tth 
-    LEFT JOIN aggregated_kiosk_events as ke 
-        ON ke.locationid = tth.locationid
-        AND ke.token     = tth.ordersessionid
+DECLARE
+    v_max_syscosmosts BIGINT;
+BEGIN
+
+    -- Capture watermark once upfront
+    SELECT COALESCE(MAX(syscosmosts) - 10, 0)
+    INTO v_max_syscosmosts
+    FROM fact.transactionheader;
+
+
+
+    WITH delta_transactions AS (
+        -- DISTINCT ON replaces ROW_NUMBER() + WHERE row_num = 1
+        -- Keeps the latest version of each transaction per location
+        SELECT DISTINCT ON (locationid, transactionheaderid)
+            transactionheaderid,
+            orderid,
+            locationid,
+            kioskid,
+            ordersessionid,
+            fact.parse_iso_timestamp(orderdateutc)  AS orderdateutc,
+            order_completion_status                 AS orderstatus,
+            CASE WHEN ordertype = ''
+                   OR ordertype IS NULL THEN order_type_label
+                 ELSE ordertype
+            END                                     AS ordertypeid,
+            numberofitems,
+            numberofpayments,
+            usd_reward          :: NUMERIC(12,3)    AS ordersredeemedrewards,
+            usd_subtotal        :: NUMERIC(12,3)    AS ordersubtotal,
+            usd_amount          :: NUMERIC(12,3)    AS ordertotal,
+            usd_tax             :: NUMERIC(12,3)    AS ordertax,
+            usd_tip             :: NUMERIC(12,3)    AS ordertip,
+            usd_discount        :: NUMERIC(12,3)    AS orderdiscount,
+            usd_charity_amount  :: NUMERIC(12,3)    AS charityamount,
+            usd_service_charge  :: NUMERIC(12,3)    AS orderservicecharge,
+            businessdate        :: DATE             AS businessdate,
+            CASE channel
+                WHEN 0 THEN 'Kiosk'
+                WHEN 1 THEN 'OnlineOrdering'
+                ELSE 'External'
+            END                                     AS channel,
+            guest_count                             AS guestcount,
+            frequentcustomerid,
+            customername,
+            syscosmosts
+        FROM stg.silver_transaction_header
+        WHERE (is_test_order = False OR is_test_order IS NULL)
+          AND syscosmosts > v_max_syscosmosts
+        ORDER BY locationid, transactionheaderid, orderdateutc DESC
+
+    ), qualified_trxns AS (
+
+        SELECT
+            nextval('fact.transactionheader_id_seq')                     AS id,
+            dt.*,
+            ot.id                                                        AS ordertype,
+            dt.orderdateutc :: TIMESTAMPTZ AT TIME ZONE l.timezone       AS orderdatelocal
+        FROM delta_transactions AS dt
+        LEFT JOIN dim.ordertype AS ot
+            ON  dt.locationid  = ot.locationid
+            AND dt.kioskid     = ot.kioskid
+            AND dt.ordertypeid = ot.ordertypeid
+        LEFT JOIN dim.organization AS l
+            ON dt.locationid = l.id
+
+    ), aggregated_kiosk_events AS (
+
+        -- Pre-filtered to only the sessions present in this batch.
+        -- Avoids a full scan of silver_kiosk_events on every run.
+        SELECT
+            ke.locationid,
+            ke.token,
+            min(CASE WHEN lower(ke.eventcategory) = 'session'
+                          AND lower(ke.eventtype)  = 'started'
+                     THEN ke.eventinstant END)                           AS orderstarttime,
+            min(CASE WHEN lower(ke.eventcategory) IN ('order','insight')
+                          AND lower(ke.eventtype)  = 'revieworderclicked'
+                     THEN ke.eventinstant END)                           AS reviewordertime,
+            min(CASE WHEN lower(ke.eventcategory) IN ('order','insight')
+                          AND lower(ke.eventtype)  = 'checkoutclicked'
+                     THEN ke.eventinstant END)                           AS checkouttime,
+            min(CASE WHEN lower(ke.eventcategory) = 'payment'
+                          AND lower(ke.eventtype)  = 'create'
+                     THEN ke.eventinstant END)                           AS paystarttime,
+            max(CASE WHEN lower(ke.eventcategory) IN ('session','order')
+                          AND lower(ke.eventtype)  = 'closed'
+                     THEN ke.eventinstant END)                           AS sessionendtime
+        FROM stg.silver_kiosk_events AS ke
+        INNER JOIN qualified_trxns AS qt
+            ON  qt.locationid     = ke.locationid
+            AND qt.ordersessionid = ke.token
+        WHERE lower(ke.severity) = 'information'
+          AND (
+                (lower(ke.eventcategory) = 'session'               AND lower(ke.eventtype) = 'started')            OR
+                (lower(ke.eventcategory) IN ('order', 'insight')   AND lower(ke.eventtype) = 'revieworderclicked') OR
+                (lower(ke.eventcategory) IN ('order', 'insight')   AND lower(ke.eventtype) = 'checkoutclicked')    OR
+                (lower(ke.eventcategory) = 'payment'               AND lower(ke.eventtype) = 'create')             OR
+                (lower(ke.eventcategory) IN ('session', 'order')   AND lower(ke.eventtype) = 'closed')
+              )
+        GROUP BY ke.locationid, ke.token
+
+    ), orders_enriched AS (
+
+        SELECT
+            qt.*,
+            fact.parse_iso_timestamp(ke.orderstarttime)  :: TIMESTAMP AS orderstarttime,
+            fact.parse_iso_timestamp(ke.reviewordertime) :: TIMESTAMP AS reviewordertime,
+            fact.parse_iso_timestamp(ke.checkouttime)    :: TIMESTAMP AS checkouttime,
+            fact.parse_iso_timestamp(ke.paystarttime)    :: TIMESTAMP AS paystarttime,
+            fact.parse_iso_timestamp(ke.sessionendtime)  :: TIMESTAMP AS sessionendtime
+        FROM qualified_trxns AS qt
+        LEFT JOIN aggregated_kiosk_events AS ke
+            ON  ke.locationid = qt.locationid
+            AND ke.token      = qt.ordersessionid
+
     )
-    INSERT INTO fact.transactionheader(
+    INSERT INTO fact.transactionheader (
         id,
         transactionheaderid,
         orderid,
@@ -268,7 +238,6 @@ THEN
         paymentstatus,
         sourcefile,
         createddate,
-        updateddate,
         orderstarttime,
         reviewordertime,
         checkouttime,
@@ -282,7 +251,6 @@ THEN
         totalordertime,
         businessdate,
         frequentcustomerid,
-        abtestid,
         channel,
         guestcount,
         charityamount,
@@ -291,14 +259,14 @@ THEN
         orderservicecharge,
         customername
     )
-    SELECT 
+    SELECT
         id,
         transactionheaderid,
         orderid,
         locationid,
         kioskid,
         ordersessionid,
-        dateid,
+        CAST(TO_CHAR(orderdatelocal, 'YYYYMMDDHH24') AS INTEGER)    AS dateid,
         orderdateutc,
         orderdatelocal,
         orderstatus,
@@ -311,84 +279,136 @@ THEN
         ordertax,
         ordertip,
         orderdiscount,
-        orderbalance,
-        paymentstatus,
-        sourcefile,
-        createddate,
-        NULL :: TIMESTAMP AS updateddate,
+        0.0 :: NUMERIC(12,3)                                        AS orderbalance,
+        CASE WHEN numberofpayments > 0 THEN 'paid' END              AS paymentstatus,
+        'NGE'                                                        AS sourcefile,
+        now() :: TIMESTAMP                                           AS createddate,
         orderstarttime,
         reviewordertime,
         checkouttime,
         paystarttime,
         sessionendtime,
-        EXTRACT(EPOCH FROM (checkouttime - orderstarttime)) AS precheckouttime,
-        EXTRACT(EPOCH FROM (sessionendtime - checkouttime)) AS postcheckouttime,
-        EXTRACT(EPOCH FROM (reviewordertime - orderstarttime)) AS menupagetime,
-        EXTRACT(EPOCH FROM (checkouttime - reviewordertime)) AS reviewpagetime,
-        EXTRACT(EPOCH FROM (sessionendtime - paystarttime)) AS paymentpagetime,
-        EXTRACT(EPOCH FROM (sessionendtime - orderstarttime)) AS totalordertime,
+        EXTRACT(EPOCH FROM (checkouttime    - orderstarttime))      AS precheckouttime,
+        EXTRACT(EPOCH FROM (sessionendtime  - checkouttime))        AS postcheckouttime,
+        EXTRACT(EPOCH FROM (reviewordertime - orderstarttime))      AS menupagetime,
+        EXTRACT(EPOCH FROM (checkouttime    - reviewordertime))     AS reviewpagetime,
+        EXTRACT(EPOCH FROM (sessionendtime  - paystarttime))        AS paymentpagetime,
+        EXTRACT(EPOCH FROM (sessionendtime  - orderstarttime))      AS totalordertime,
         businessdate,
         frequentcustomerid,
-        NULL :: BIGINT AS abtestid,
         channel,
         guestcount,
         charityamount,
         syscosmosts,
-        1 :: INTEGER AS sourceid,
+        1 :: INTEGER                                                 AS sourceid,
         orderservicecharge,
         customername
-    FROM orders_enriched_with_ordertiming_fields;
+    FROM orders_enriched
 
-END IF;
-
-DROP TABLE IF EXISTS temp_transaction_header;
+    ON CONFLICT (locationid, transactionheaderid)
+    DO UPDATE SET
+        ordertype        = EXCLUDED.ordertype,
+        orderstarttime   = COALESCE(fact.transactionheader.orderstarttime,   EXCLUDED.orderstarttime),
+        reviewordertime  = COALESCE(fact.transactionheader.reviewordertime,  EXCLUDED.reviewordertime),
+        checkouttime     = COALESCE(fact.transactionheader.checkouttime,     EXCLUDED.checkouttime),
+        paystarttime     = COALESCE(fact.transactionheader.paystarttime,     EXCLUDED.paystarttime),
+        sessionendtime   = COALESCE(fact.transactionheader.sessionendtime,   EXCLUDED.sessionendtime),
+        precheckouttime  = COALESCE(
+                               fact.transactionheader.precheckouttime,
+                               EXTRACT(EPOCH FROM (EXCLUDED.checkouttime    - EXCLUDED.orderstarttime))
+                           ),
+        postcheckouttime = COALESCE(
+                               fact.transactionheader.postcheckouttime,
+                               EXTRACT(EPOCH FROM (EXCLUDED.sessionendtime  - EXCLUDED.checkouttime))
+                           ),
+        menupagetime     = COALESCE(
+                               fact.transactionheader.menupagetime,
+                               EXTRACT(EPOCH FROM (EXCLUDED.reviewordertime - EXCLUDED.orderstarttime))
+                           ),
+        reviewpagetime   = COALESCE(
+                               fact.transactionheader.reviewpagetime,
+                               EXTRACT(EPOCH FROM (EXCLUDED.checkouttime    - EXCLUDED.reviewordertime))
+                           ),
+        paymentpagetime  = COALESCE(
+                               fact.transactionheader.paymentpagetime,
+                               EXTRACT(EPOCH FROM (EXCLUDED.sessionendtime  - EXCLUDED.paystarttime))
+                           ),
+        totalordertime   = COALESCE(
+                               fact.transactionheader.totalordertime,
+                               EXTRACT(EPOCH FROM (EXCLUDED.sessionendtime  - EXCLUDED.orderstarttime))
+                           ),
+        updateddate      = now() :: TIMESTAMP
+    WHERE (
+        (fact.transactionheader.ordertype       IS NULL AND EXCLUDED.ordertype       IS NOT NULL) OR
+        (fact.transactionheader.orderstarttime  IS NULL AND EXCLUDED.orderstarttime  IS NOT NULL) OR
+        (fact.transactionheader.reviewordertime IS NULL AND EXCLUDED.reviewordertime IS NOT NULL) OR
+        (fact.transactionheader.checkouttime    IS NULL AND EXCLUDED.checkouttime    IS NOT NULL) OR
+        (fact.transactionheader.paystarttime    IS NULL AND EXCLUDED.paystarttime    IS NOT NULL) OR
+        (fact.transactionheader.sessionendtime  IS NULL AND EXCLUDED.sessionendtime  IS NOT NULL)
+    );
 
 END;
-$BODY$;  
+$BODY$;
 
 ALTER PROCEDURE fact.usp_silver_transaction_header_to_fact()
     OWNER TO citus;
 
 
+-- =============================================================================
+-- RECOMMENDED SUPPORTING INDEXES
+-- Run once after deploying the procedure.
+-- =============================================================================
 
-SELECT * FROM dim.grubbrr_source_lookup
+-- Required for ON CONFLICT target (must be UNIQUE)
+-- CREATE UNIQUE INDEX IF NOT EXISTS uix_th_location_txnid
+--     ON fact.transactionheader (locationid, transactionheaderid);
 
-SELECT ke.companyid,
-    th.locationid,
-    th.transactionheaderid,
-    th.orderid,
-    th.ordersessionid,
-    th.businessdate,
-    th.kioskid,
-    th.kiosk_mode,
-    th.is_test_order,
-    ke.application,
-    ke.eventmodule,
-    ke.eventcategory,
-    ke.eventtype,
-    ke.eventinstant,
-    th.orderdateutc
-FROM stg.silver_kiosk_events as ke 
-INNER JOIN stg.silver_transaction_header as th 
-    ON ke.locationid = th.locationid
-    AND ke.token = th.ordersessionid
-WHERE th.ordersessionid = '79EGW2F5UYYT7TBS'
-ORDER BY ke.syscosmosticks;
+-- Supports the syscosmosts watermark lookup
+-- CREATE INDEX IF NOT EXISTS idx_th_syscosmosts
+--     ON fact.transactionheader (syscosmosts DESC);
 
-SELECT ke.locationid, ke.token, --ke.eventcategory, ke.eventtype,
-    min(CASE WHEN lower(ke.eventcategory) = 'session' AND lower (ke.eventtype) = 'started' THEN eventinstant END) AS session_started,
-    min(CASE WHEN lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'revieworderclicked' THEN eventinstant END) AS review_order_clicked,
-    min(CASE WHEN lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'checkoutclicked' THEN eventinstant END) AS checkout_clicked,
-    min(CASE WHEN lower(ke.eventcategory) = 'payment' AND lower (ke.eventtype) = 'create' THEN eventinstant END) AS payment_create,
-    max(CASE WHEN lower(ke.eventcategory) IN ('session','order') AND lower(ke.eventtype) = 'closed' THEN eventinstant END) AS order_session_closed
-FROM stg.silver_kiosk_events as ke 
-WHERE 1=1
-AND ke.token = '79EGW2F5UYYT7TBS'
-AND ((lower(ke.eventcategory) = 'session' AND lower (ke.eventtype) = 'started') OR 
-     (lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'revieworderclicked') OR 
-     (lower(ke.eventcategory) IN ('order','insight') AND lower(ke.eventtype) = 'checkoutclicked') OR 
-     (lower(ke.eventcategory) = 'payment' AND lower (ke.eventtype) = 'create') OR  
-     (lower(ke.eventcategory) IN ('session','order') AND lower(ke.eventtype) = 'closed'))
-AND lower(ke.severity) = 'information'
-GROUP BY ke.locationid, ke.token--, ke.eventcategory, ke.eventtype
-ORDER BY session_started;
+-- Supports the incremental filter on silver table
+-- CREATE INDEX IF NOT EXISTS idx_silver_th_syscosmosts
+--     ON stg.silver_transaction_header (syscosmosts)
+--     WHERE (is_test_order = False OR is_test_order IS NULL);
+
+-- Supports the kiosk events pre-filter join
+-- CREATE INDEX IF NOT EXISTS idx_ke_location_token
+--     ON stg.silver_kiosk_events (locationid, token)
+--     WHERE lower(severity) = 'information';
+
+-- Optional: functional indexes to avoid lower() scan penalty on event filters
+-- CREATE INDEX IF NOT EXISTS idx_ke_eventcategory_lower
+--     ON stg.silver_kiosk_events (lower(eventcategory), lower(eventtype));
+
+
+
+
+
+
+-- =============================================================================
+-- PROCEDURE: fact.usp_silver_transaction_header_to_fact
+-- 
+-- CHANGES FROM ORIGINAL:
+--   1. Incremental load via syscosmosts watermark (no longer full-scans silver)
+--   2. Removed stg.lookup_silver_transaction_header intermediate materialization
+--   3. Removed temp_transaction_header table entirely
+--   4. Replaced ROW_NUMBER() deduplication with DISTINCT ON
+--   5. Pre-filtered stg.silver_kiosk_events to relevant sessions only
+--   6. Replaced NOT EXISTS anti-pattern with INSERT ... ON CONFLICT
+--   7. ON CONFLICT DO UPDATE fills NULL timing fields with late-arriving data
+--   8. COALESCE guards ensure existing timing values are never overwritten
+--   9. WHERE clause on DO UPDATE prevents unnecessary writes when nothing changes
+--  10. Derived timing fields recomputed from base timestamps for consistency
+--
+-- NOTE ON LATE-ARRIVING KIOSK EVENTS:
+--   Timing fields (orderstarttime, sessionendtime, etc.) come from
+--   stg.silver_kiosk_events, which may arrive after the transaction header.
+--   The ON CONFLICT DO UPDATE handles this: if a transaction was inserted
+--   with NULL timing fields, any subsequent run that finds matching kiosk
+--   events will fill them in — as long as the transaction reappears in the
+--   silver layer (syscosmosts > watermark). If kiosk events are the ONLY
+--   thing that changes (transaction header itself is not re-emitted), consider
+--   a separate backfill procedure that targets fact.transactionheader WHERE
+--   orderstarttime IS NULL and joins directly to silver_kiosk_events.
+-- =============================================================================

@@ -1,3 +1,7 @@
+--CALL dim.usp_refresh_ordertype();
+
+SELECT * FROM dim.ordertype ORDER BY id DESC;
+
 -- Table: dim.ordertype
 
 -- DROP TABLE IF EXISTS dim.ordertype;
