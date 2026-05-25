@@ -1039,3 +1039,89 @@ $BODY$;
 
 ALTER PROCEDURE dim.usp_refresh_modifiergroup_modifier_mapping()
     OWNER TO citus;
+
+
+
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_kiosk()
+LANGUAGE plpgsql
+AS $BODY$
+BEGIN
+
+    -- ── Step 1: deduplicate staging ───────────────────────────
+    CREATE TEMP TABLE tmp_kiosk ON COMMIT DROP AS
+    SELECT DISTINCT ON (locationid, kioskid)
+        locationid,
+        kioskid,
+        kioskname,
+        appversion,
+        istestkiosk,
+        COALESCE(devicetype, 'kiosk') AS devicetype,
+        devicecreatedon,
+        devicedeletedon
+    FROM stg.dim_kiosk
+    ORDER BY locationid, kioskid, devicecreatedon DESC NULLS LAST;
+
+    CREATE INDEX ix_tmp_kiosk ON tmp_kiosk (locationid, kioskid);
+    ANALYZE tmp_kiosk;
+
+    -- ── Step 2: INSERT net-new devices ────────────────────────
+    -- serialnumber: no source mapping in this pipeline, left NULL
+    INSERT INTO dim.kiosk (
+        id,
+        locationid,
+        kioskid,
+        kioskname,
+        appversion,
+        istestkiosk,
+        devicetype,
+        devicecreatedon,
+        devicedeletedon,
+        sysinserttime
+    )
+    SELECT
+        nextval('dim.kiosk_id_seq'),
+        t.locationid,
+        t.kioskid,
+        t.kioskname,
+        t.appversion,
+        t.istestkiosk,
+        t.devicetype,
+        t.devicecreatedon,
+        t.devicedeletedon,
+        NOW()
+    FROM tmp_kiosk t
+    WHERE NOT EXISTS (
+        SELECT 1 FROM dim.kiosk d
+        WHERE d.locationid = t.locationid
+          AND d.kioskid    = t.kioskid
+    );
+
+    -- ── Step 3: UPDATE changed attributes ────────────────────
+    -- serialnumber intentionally excluded – no source value.
+    -- Only fires when at least one mutable column has changed.
+    UPDATE dim.kiosk d
+    SET
+        kioskname       = t.kioskname,
+        appversion      = t.appversion,
+        istestkiosk     = t.istestkiosk,
+        devicetype      = t.devicetype,
+        devicecreatedon = t.devicecreatedon,
+        devicedeletedon = t.devicedeletedon,
+        sysupdatetime   = NOW()
+    FROM tmp_kiosk t
+    WHERE d.locationid = t.locationid
+      AND d.kioskid    = t.kioskid
+      AND (
+          d.kioskname       IS DISTINCT FROM t.kioskname       OR
+          d.appversion      IS DISTINCT FROM t.appversion      OR
+          d.istestkiosk     IS DISTINCT FROM t.istestkiosk     OR
+          d.devicetype      IS DISTINCT FROM t.devicetype      OR
+          d.devicecreatedon IS DISTINCT FROM t.devicecreatedon OR
+          d.devicedeletedon IS DISTINCT FROM t.devicedeletedon
+      );
+
+END;
+$BODY$;
+
+ALTER PROCEDURE dim.usp_refresh_kiosk()
+    OWNER TO citus;
