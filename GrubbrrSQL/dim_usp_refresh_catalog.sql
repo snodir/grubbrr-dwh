@@ -1,3 +1,6 @@
+--CALL dim.usp_refresh_catalog();
+
+SELECT * FROM dim.catalog;
 
 
 SELECT c.id as catalogid,

@@ -126,9 +126,6 @@ ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS catalogid TEXT COLLATE pg_catalog."default";
 
 
-ALTER TABLE IF EXISTS dim.itemcategory
-ADD COLUMN IF NOT EXISTS catalogid TEXT COLLATE pg_catalog."default";
-
 
 CREATE INDEX IF NOT EXISTS ix_dim_menuitem_catalogid
     ON dim.menuitem(catalogid);
@@ -451,6 +448,281 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.sent_surveys
     OWNER to citus;
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_catalog
+(
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    catalogname character varying(255) COLLATE pg_catalog."default",
+    organizationid character varying(40) COLLATE pg_catalog."default",
+    is_catalog_deleted boolean,
+    catalog_created_on timestamp without time zone,
+    catalog_modified_on timestamp without time zone,
+    gem_company_id character varying(255) COLLATE pg_catalog."default",
+    gem_location_id character varying(255) COLLATE pg_catalog."default",
+    is_sync_in_progress boolean,
+    is_standalone boolean,
+    is_master boolean,
+    is_ecm_enabled boolean,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT catalog_pkey PRIMARY KEY (catalogid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_catalog
+    OWNER to citus;
+
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_frequentcustomer
+(
+    frequentcustomerid text COLLATE pg_catalog."default" NOT NULL,
+    firstname text COLLATE pg_catalog."default",
+    lastname text COLLATE pg_catalog."default",
+    email text COLLATE pg_catalog."default",
+    phone text COLLATE pg_catalog."default",
+    source text COLLATE pg_catalog."default",
+    organizationid text COLLATE pg_catalog."default",
+    createddate text COLLATE pg_catalog."default",
+    lastorderdate text COLLATE pg_catalog."default",
+    ordercount integer NOT NULL DEFAULT 0,
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT frequent_customer_pk PRIMARY KEY (frequentcustomerid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_frequentcustomer
+    OWNER to citus;
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_menuitem
+(   menuitemid text COLLATE pg_catalog."default" NOT NULL,
+    menuitemname text COLLATE pg_catalog."default" NOT NULL,
+    entitytype text COLLATE pg_catalog."default",
+    calories text COLLATE pg_catalog."default",
+    protein numeric,
+    sugar numeric,
+    fat numeric,
+    is_alcoholic boolean,
+    is_vegetarian_item boolean,
+    is_vegan_item boolean,
+    has_allergen boolean,
+    item_class_type integer,
+    is_active boolean,
+    is_deleted boolean,
+    gms_created_on timestamp without time zone,
+    gms_modified_on timestamp without time zone,
+    itemunitprice numeric(12,3),
+    price_changed_on timestamp without time zone,
+    catalogid text COLLATE pg_catalog."default",
+    sysinserttime TIMESTAMP
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_menuitem
+    OWNER to citus;
+
+
+-- One-time sequence setup
+CREATE SEQUENCE IF NOT EXISTS dim.menuitem_id_seq;
+
+SELECT setval(
+    'dim.menuitem_id_seq',
+    COALESCE((SELECT MAX(id) FROM dim.menuitem), 0)
+);
+
+ALTER TABLE dim.menuitem
+    ALTER COLUMN id SET DEFAULT nextval('dim.menuitem_id_seq');
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_itemcategory
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    categoryid text COLLATE pg_catalog."default" NOT NULL,
+    categoryname text COLLATE pg_catalog."default" NOT NULL,
+    catalogid text COLLATE pg_catalog."default",
+    is_category_active boolean,
+    is_category_deleted BOOLEAN,
+    category_created_on TIMESTAMP,
+    category_modified_on TIMESTAMP,
+    is_alcoholic BOOLEAN,
+    number_of_items SMALLINT,
+    number_of_sub_categories SMALLINT,
+    number_of_item_variations SMALLINT,
+    number_of_combos SMALLINT,
+    number_of_combo_families SMALLINT,
+    sysinserttime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.itemcategory
+    OWNER to citus;
+
+
+ALTER TABLE IF EXISTS dim.itemcategory
+ALTER COLUMN isactive DROP NOT NULL,
+ALTER COLUMN isactive DROP DEFAULT,
+ADD COLUMN IF NOT EXISTS catalogid TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE,
+ADD COLUMN IF NOT EXISTS is_category_deleted BOOLEAN,
+ADD COLUMN IF NOT EXISTS category_created_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS category_modified_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS is_alcoholic BOOLEAN,
+ADD COLUMN IF NOT EXISTS number_of_items SMALLINT,
+ADD COLUMN IF NOT EXISTS number_of_sub_categories SMALLINT,
+ADD COLUMN IF NOT EXISTS number_of_item_variations SMALLINT,
+ADD COLUMN IF NOT EXISTS number_of_combos SMALLINT,
+ADD COLUMN IF NOT EXISTS number_of_combo_families SMALLINT;
+
+-- One-time sequence setup
+CREATE SEQUENCE IF NOT EXISTS dim.itemcategory_id_seq;
+
+SELECT setval(
+    'dim.itemcategory_id_seq',
+    COALESCE((SELECT MAX(id) FROM dim.itemcategory), 0)
+);
+
+ALTER TABLE dim.itemcategory
+    ALTER COLUMN id SET DEFAULT nextval('dim.itemcategory_id_seq');
+
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_category_hierarchy
+(
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    mapping_created_on timestamp without time zone,
+    mapping_modified_on timestamp without time zone,
+    is_mapping_active boolean,
+    is_mapping_deleted boolean,
+    catalogid text COLLATE pg_catalog."default",
+    catalogname text COLLATE pg_catalog."default",
+    catalog_created_on timestamp without time zone,
+    catalog_modified_on timestamp without time zone,
+    is_catalog_active boolean,
+    is_catalog_deleted boolean,
+    categoryid text COLLATE pg_catalog."default" NOT NULL,
+    categoryname text COLLATE pg_catalog."default",
+    category_created_on timestamp without time zone,
+    category_modified_on timestamp without time zone,
+    is_category_active boolean,
+    is_category_deleted boolean,
+    menuitemid text COLLATE pg_catalog."default",
+    entitytype text COLLATE pg_catalog."default",
+    item_class_type integer,
+    menuitemname text COLLATE pg_catalog."default",
+    item_created_on timestamp without time zone,
+    item_modified_on timestamp without time zone,
+    is_item_active boolean,
+    is_item_deleted boolean,
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT location_category_menuitem_unq UNIQUE (locationid, categoryid, menuitemid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_category_hierarchy
+    OWNER to citus;
+
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_modifier
+(
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default",
+    modifiername character varying(255) COLLATE pg_catalog."default",
+    min_quantity integer,
+    max_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    calories text COLLATE pg_catalog."default" NOT NULL,
+    calories_text text COLLATE pg_catalog."default",
+    is_modifier_active boolean NOT NULL,
+    is_modifier_deleted boolean NOT NULL,
+    modifier_created_on timestamp without time zone,
+    modifier_modified_on timestamp without time zone,
+    is_modifier_default boolean,
+    modifier_default_quantity integer,
+    is_invisible boolean,
+    classification integer,
+    price numeric(12,3),
+    price_changed_on timestamp without time zone,
+    sysinserttime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_modifier
+    OWNER to citus;
+
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_modifiergroup
+(
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupname character varying(510) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    max_selection integer,
+    min_selection integer,
+    free_count integer,
+    pos_linked_entity_id character varying(50) COLLATE pg_catalog."default",
+    is_active boolean NOT NULL,
+    is_deleted boolean NOT NULL,
+    created_on timestamp without time zone,
+    modified_on timestamp without time zone,
+    negative_modifier_behavior integer,
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    max_aggregate_count integer,
+    min_aggregate_count integer,
+    increment_step integer,
+    slider_mode boolean NOT NULL DEFAULT false,
+    slider_mode_modifier boolean NOT NULL DEFAULT false,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT modifier_group_master_pkey PRIMARY KEY (modifiergroupid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_modifiergroup
+    OWNER to citus;
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_modifiergroup_modifier_mapping
+(
+    modifier_mapping_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default",
+    is_mapping_active boolean,
+    is_mapping_deleted boolean,
+    mapping_created_on timestamp without time zone,
+    mapping_modified_on timestamp without time zone,
+    is_default boolean,
+    default_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    min_quantity integer,
+    max_quantity integer,
+    calories_text text COLLATE pg_catalog."default",
+    is_invisible boolean,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT modifier_group_modifier_glue_pkey PRIMARY KEY (modifier_mapping_id),
+    CONSTRAINT modfrgrp_modfr_unq UNIQUE (modifiergroupid, modifierid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_modifiergroup_modifier_mapping
+    OWNER to citus;
+
 
 
 
