@@ -4,7 +4,16 @@
 --VACUUM ANALYZE fact.transactionitem;
 --VACUUM ANALYZE fact.itemmodifier;
 
-
+update dim.frequentcustomer
+set ordercount = coalesce(th.ordercount, 0),
+    amountspent = coalesce(th.amountspent, 0),
+    sysupdatetime = now()
+from (
+    select frequentcustomerid, count(*) as ordercount, sum(ordertotal) as amountspent
+    from fact.transactionheader 
+    where orderstatus = 'order-placed' and frequentcustomerid is not null
+    group by frequentcustomerid) as th 
+where th.frequentcustomerid = frequentcustomer.frequentcustomerid;
 
 UPDATE fact.transactionitem
 SET orderdatelocal = th.orderdatelocal,
