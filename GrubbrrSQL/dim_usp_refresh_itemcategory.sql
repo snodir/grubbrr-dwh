@@ -195,8 +195,10 @@ BEGIN
 END;
 $BODY$;
 
+ALTER PROCEDURE dim.usp_refresh_itemcategory()
+    OWNER to citus;
 
-
+--Source GMS Query
 SELECT ctlg.gem_location_id as locationid,
     c.id as categoryid,
     c.name as categoryname,
