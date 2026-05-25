@@ -2,6 +2,10 @@
 
 --CALL fact.usp_silver_transaction_payment_to_fact();
 
+ALTER TABLE IF EXISTS stg.silver_transaction_payment
+OWNER TO citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_payment_to_fact()
 LANGUAGE plpgsql
 AS $BODY$

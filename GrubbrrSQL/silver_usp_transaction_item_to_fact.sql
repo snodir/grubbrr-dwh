@@ -1,6 +1,10 @@
 SELECT * FROM stg.silver_transaction_item;
 SELECT * FROM stg.silver_transaction_combo_items;
 
+ALTER TABLE IF EXISTS stg.silver_transaction_item
+OWNER TO citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_item_to_fact()
 LANGUAGE plpgsql
 AS $BODY$

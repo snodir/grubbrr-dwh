@@ -132,11 +132,14 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_header (
     -- Lineage
     bronze_filepath             TEXT COLLATE pg_catalog."default",
     silver_transform_time       TEXT COLLATE pg_catalog."default",
-    silver_folderpath           TEXT COLLATE pg_catalog."default"
+    silver_folderpath           TEXT COLLATE pg_catalog."default",
+    sysinserttime               TIMESTAMP
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_transaction_header
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 -- ============================================================
 -- 2. stg.silver_transaction_item
@@ -202,11 +205,14 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_item (
     -- Lineage
     bronze_filepath                 TEXT COLLATE pg_catalog."default",
     silver_transform_time           TEXT COLLATE pg_catalog."default",
-    silver_folderpath               TEXT COLLATE pg_catalog."default"
+    silver_folderpath               TEXT COLLATE pg_catalog."default",
+    sysinserttime                   TIMESTAMP
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_transaction_item
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 -- ============================================================
 -- 3. stg.silver_item_modifiers
@@ -287,11 +293,14 @@ CREATE TABLE IF NOT EXISTS stg.silver_item_modifiers (
     -- Lineage
     bronze_filepath                     TEXT COLLATE pg_catalog."default",
     silver_transform_time               TEXT COLLATE pg_catalog."default",
-    silver_folderpath                   TEXT COLLATE pg_catalog."default"
+    silver_folderpath                   TEXT COLLATE pg_catalog."default",
+    sysinserttime                       TIMESTAMP
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_item_modifiers
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 -- ============================================================
 -- 4. stg.silver_transaction_payment
@@ -347,11 +356,14 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_payment (
     -- Lineage
     bronze_filepath                 TEXT COLLATE pg_catalog."default",
     silver_transform_time           TEXT COLLATE pg_catalog."default",
-    silver_folderpath               TEXT COLLATE pg_catalog."default"
+    silver_folderpath               TEXT COLLATE pg_catalog."default",
+    sysinserttime                   TIMESTAMP    
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_transaction_payment
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 -- ============================================================
 -- 5. stg.silver_transaction_combo_item
@@ -436,12 +448,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_combo_items (
     -- Lineage
     bronze_filepath                         TEXT COLLATE pg_catalog."default",
     silver_transform_time                   TEXT COLLATE pg_catalog."default",
-    silver_folderpath                       TEXT COLLATE pg_catalog."default"
+    silver_folderpath                       TEXT COLLATE pg_catalog."default",
+    sysinserttime                           TIMESTAMP
 ) TABLESPACE pg_default;
 
 
 ALTER TABLE IF EXISTS stg.silver_transaction_combo_items
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 -- ============================================================
 -- 6. stg.silver_upsell_recommendations
@@ -483,11 +498,14 @@ CREATE TABLE IF NOT EXISTS stg.silver_upsell_recommendations (
     -- Lineage
     bronze_filepath             TEXT COLLATE pg_catalog."default",
     silver_transform_time       TEXT COLLATE pg_catalog."default",
-    silver_folderpath           TEXT COLLATE pg_catalog."default"
+    silver_folderpath           TEXT COLLATE pg_catalog."default",
+    sysinserttime               TIMESTAMP
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_upsell_recommendations
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 -- ============================================================
 -- 7. stg.silver_modifier_recommendation
@@ -526,12 +544,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_recommendations (
     -- Lineage
     bronze_filepath             TEXT COLLATE pg_catalog."default",
     silver_transform_time       TEXT COLLATE pg_catalog."default",
-    silver_folderpath           TEXT COLLATE pg_catalog."default"
+    silver_folderpath           TEXT COLLATE pg_catalog."default",
+    sysinserttime               TIMESTAMP
 ) TABLESPACE pg_default;
 
 
 ALTER TABLE IF EXISTS stg.silver_modifier_recommendations
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 -- ============================================================
 -- 8. stg.silver_modifier_interaction
@@ -574,11 +595,14 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_interactions (
     -- Lineage
     bronze_filepath                         TEXT COLLATE pg_catalog."default",
     silver_transform_time                   TEXT COLLATE pg_catalog."default",
-    silver_folderpath                       TEXT COLLATE pg_catalog."default"
+    silver_folderpath                       TEXT COLLATE pg_catalog."default",
+    sysinserttime                           TIMESTAMP
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_modifier_interactions
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 -- ============================================================
 -- 9. stg.silver_modifier_impression
@@ -629,11 +653,14 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_impressions (
     -- Lineage
     bronze_filepath                         TEXT COLLATE pg_catalog."default",
     silver_transform_time                   TEXT COLLATE pg_catalog."default",
-    silver_folderpath                       TEXT COLLATE pg_catalog."default"
+    silver_folderpath                       TEXT COLLATE pg_catalog."default",
+    sysinserttime                           TIMESTAMP
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_modifier_impressions
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 
 -- Table: fact.transactionrefunds
@@ -654,13 +681,16 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_refunds
     syscosmosts             BIGINT,
     bronze_filepath         TEXT COLLATE pg_catalog."default",
     silver_transform_time   TEXT COLLATE pg_catalog."default",
-    silver_folderpath       TEXT COLLATE pg_catalog."default"
+    silver_folderpath       TEXT COLLATE pg_catalog."default",
+    sysinserttime           TIMESTAMP
 )
 
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_transaction_refunds
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 
 -- ============================================================
@@ -699,11 +729,14 @@ CREATE TABLE IF NOT EXISTS stg.silver_kiosk_events (
 
     -- Silver layer metadata
     silver_transform_time   TEXT COLLATE pg_catalog."default",
-    silver_folderpath       TEXT COLLATE pg_catalog."default"
+    silver_folderpath       TEXT COLLATE pg_catalog."default",
+    sysinserttime           TIMESTAMP
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_kiosk_events
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 
 -- ============================================================
@@ -743,8 +776,11 @@ CREATE TABLE IF NOT EXISTS stg.silver_cep_incidents (
 
     -- Silver layer metadata
     silver_transform_time   TEXT COLLATE pg_catalog."default",
-    silver_folderpath       TEXT COLLATE pg_catalog."default"
+    silver_folderpath       TEXT COLLATE pg_catalog."default",
+    sysinserttime           TIMESTAMP
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_cep_incidents
-    OWNER to citus;
+    OWNER to citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+

@@ -16,7 +16,11 @@ WHERE NOT EXISTS (SELECT 1 FROM fact.transactionheader as th
                   WHERE th.locationid = sth.locationid 
                     AND th.transactionheaderid = sth.transactionheaderid)
   AND sth.is_test_order = False;
-        
+
+ALTER TABLE IF EXISTS stg.silver_transaction_header
+OWNER TO citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 SELECT * FROM stg.silver_kiosk_events WHERE token = '79EGW2F5UYYT7TBS';
 
@@ -61,11 +65,13 @@ CREATE TABLE IF NOT EXISTS stg.lookup_silver_transaction_header (
     channel                 TEXT COLLATE pg_catalog."default",
     guestcount              INTEGER,
     frequentcustomerid      TEXT COLLATE pg_catalog."default",
-    customername            TEXT COLLATE pg_catalog."default"
+    customername            TEXT COLLATE pg_catalog."default",
+    sysinserttime           TIMESTAMP,
 ) TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.lookup_silver_transaction_header
-    OWNER TO citus;
+OWNER TO citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
 
 
 CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_header_to_fact()

@@ -1,5 +1,9 @@
 SELECT * FROM stg.silver_transaction_combo_items;
 
+ALTER TABLE IF EXISTS stg.silver_transaction_combo_items
+OWNER TO citus,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 -- =============================================================================
 -- 4. fact.usp_silver_to_fact_combo_items
 --    Source : stg.silver_transaction_combo_items
