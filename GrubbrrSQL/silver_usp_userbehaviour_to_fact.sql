@@ -58,7 +58,7 @@ ALTER TABLE fact.userbehaviour
 
 
 
-CREATE OR REPLACE PROCEDURE fact.usp_silver_userbehaviour_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour()
 LANGUAGE plpgsql
 AS $BODY$
 DECLARE
@@ -206,5 +206,5 @@ BEGIN
 END;
 $BODY$;
 
-ALTER PROCEDURE fact.usp_silver_userbehaviour_to_fact()
+ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour()
     OWNER TO citus;
