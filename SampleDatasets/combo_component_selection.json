@@ -1,0 +1,433 @@
+{
+        "kioskSessionId": "N918O66SU4KBKT1I",
+        "totals": {
+            "subTotal": 9.7,
+            "tax": 0,
+            "tip": 0,
+            "total": 9.7,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "totalsCents": {
+            "subTotal": 970,
+            "tax": 0,
+            "tip": 0,
+            "total": 970,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "localCurrencyDetails": {
+            "totals": 0,
+            "totalsCents": 0,
+            "currencyCode": "",
+            "additionalInfo": null
+        },
+        "items": [],
+        "combos": [
+            {
+                "orderItemId": "orditm-Xqgn67YVqF",
+                "categoryId": null,
+                "categoryName": null,
+                "categoryPosId": null,
+                "comboId": "cmbmstr-3603d2b7-8181-4177-9784-108daad67f82",
+                "name": "12th May deal 1.1",
+                "comboPosId": "deal_40223007",
+                "localizedName": {
+                    "translations": {}
+                },
+                "componentSelections": [
+                    {
+                        "componentId": "cmbc-d25e741e-5bcf-4fff-a791-59bff6b226de",
+                        "name": "Classico Chicken & Pesto - Italianos Range - Small 9.5\"",
+                        "componentPosId": null,
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "item": {
+                            "orderItemId": "orditm-WWqamAMG23",
+                            "categoryId": "",
+                            "categoryName": "",
+                            "categoryPosId": null,
+                            "menuItemId": "itm-6682c97e-a55c-49c0-a827-feea6580dfb0",
+                            "name": "Classico Chicken & Pesto - Italianos Range - Small 9.5\"",
+                            "menuItemPosId": "item-cci-2849",
+                            "localizedName": {
+                                "translations": {}
+                            },
+                            "options": [
+                                {
+                                    "modifierGroupId": "modgrp-8935f01e-3aff-40c1-81a0-64c8bf2aa095",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-450d1354-27b2-4a74-b5a4-e2073dab7569",
+                                    "modifierPosId": null,
+                                    "name": "Chicken Breast Strips",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 0,
+                                    "totalPrice": 0,
+                                    "unitPriceCents": 0,
+                                    "totalPriceCents": 0,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": true,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                },
+                                {
+                                    "modifierGroupId": "modgrp-8935f01e-3aff-40c1-81a0-64c8bf2aa095",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-8b2708af-0b4c-4eab-bcf0-5d46fd9fc16a",
+                                    "modifierPosId": null,
+                                    "name": "Onions",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 0,
+                                    "totalPrice": 0,
+                                    "unitPriceCents": 0,
+                                    "totalPriceCents": 0,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": true,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                },
+                                {
+                                    "modifierGroupId": "modgrp-8935f01e-3aff-40c1-81a0-64c8bf2aa095",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-64b94df4-5989-4957-94bf-b286fdcc1aa8",
+                                    "modifierPosId": null,
+                                    "name": "Green and Red Peppers",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 0,
+                                    "totalPrice": 0,
+                                    "unitPriceCents": 0,
+                                    "totalPriceCents": 0,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": true,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                },
+                                {
+                                    "modifierGroupId": "modgrp-8935f01e-3aff-40c1-81a0-64c8bf2aa095",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-8ac53d8b-4e6c-44b7-b742-d4435078cb8b",
+                                    "modifierPosId": null,
+                                    "name": "Tomatoes",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 0,
+                                    "totalPrice": 0,
+                                    "unitPriceCents": 0,
+                                    "totalPriceCents": 0,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": true,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                },
+                                {
+                                    "modifierGroupId": "modgrp-8935f01e-3aff-40c1-81a0-64c8bf2aa095",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-ea7f30d3-b045-4228-84db-a36445748a56",
+                                    "modifierPosId": null,
+                                    "name": "Basil Pesto Drizzle",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 0,
+                                    "totalPrice": 0,
+                                    "unitPriceCents": 0,
+                                    "totalPriceCents": 0,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": true,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                },
+                                {
+                                    "modifierGroupId": "modgrp-8935f01e-3aff-40c1-81a0-64c8bf2aa095",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-b72f5f32-d47c-415c-b9e6-d156b357a576",
+                                    "modifierPosId": null,
+                                    "name": "Goat's Cheese",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 1.69,
+                                    "totalPrice": 1.69,
+                                    "unitPriceCents": 169,
+                                    "totalPriceCents": 169,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": false,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                },
+                                {
+                                    "modifierGroupId": "modgrp-8935f01e-3aff-40c1-81a0-64c8bf2aa095",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-a86dc217-c6b5-4737-923d-26620a75ebcb",
+                                    "modifierPosId": null,
+                                    "name": "Ham",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 1.69,
+                                    "totalPrice": 1.69,
+                                    "unitPriceCents": 169,
+                                    "totalPriceCents": 169,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": false,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                },
+                                {
+                                    "modifierGroupId": "modgrp-c04faa74-57de-49c2-97f6-b18edf65c9c5",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-14b11641-862a-4599-8781-0dfe4a669746",
+                                    "modifierPosId": null,
+                                    "name": "Domino's Own Tomato Sauce",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 0,
+                                    "totalPrice": 0,
+                                    "unitPriceCents": 0,
+                                    "totalPriceCents": 0,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": true,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                },
+                                {
+                                    "modifierGroupId": "modgrp-997190d3-c48f-4684-827e-86dc6365a680",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-41b61d96-3735-4f1b-a2e4-be950d7c7315",
+                                    "modifierPosId": null,
+                                    "name": "Mozzarella Cheese",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 0,
+                                    "totalPrice": 0,
+                                    "unitPriceCents": 0,
+                                    "totalPriceCents": 0,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": true,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                },
+                                {
+                                    "modifierGroupId": "modgrp-921e61a5-c427-44f3-a087-dccc5482052b",
+                                    "modifierGroupPosId": null,
+                                    "modifierId": "modfr-72243b3c-38ad-4802-8851-bff776ae2e73",
+                                    "modifierPosId": null,
+                                    "name": "Italian Style",
+                                    "localizedName": {
+                                        "translations": {}
+                                    },
+                                    "quantity": 1,
+                                    "price": 0,
+                                    "totalPrice": 0,
+                                    "unitPriceCents": 0,
+                                    "totalPriceCents": 0,
+                                    "options": [],
+                                    "isInvisible": false,
+                                    "isDefault": true,
+                                    "freeQuantity": 0,
+                                    "modifierCode": null,
+                                    "modifierGroupName": "",
+                                    "localizedModifierGroupName": {
+                                        "translations": {}
+                                    },
+                                    "isScanned": false
+                                }
+                            ],
+                            "itemPrice": 0,
+                            "unitPrice": 0,
+                            "totalPrice": 0,
+                            "unitPriceCents": 0,
+                            "totalPriceCents": 0,
+                            "quantity": 1,
+                            "specialRequest": "",
+                            "upsellSource": null,
+                            "rewardSource": null,
+                            "itemSessionId": "Z8-fR_UgBbs2q4nGHYqQP",
+                            "discounts": [],
+                            "discountSource": {
+                                "discountId": "",
+                                "isHiddenOnReceipt": false
+                            },
+                            "conceptId": "",
+                            "conceptName": "",
+                            "isScanned": false
+                        },
+                        "items": []
+                    }
+                ],
+                "unitPriceCents": 7,
+                "totalPriceCents": 10.38,
+                "quantity": 1,
+                "specialRequest": null,
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "o34jjQeAjLsdbGoEvxxP9",
+                "conceptId": "",
+                "conceptName": "",
+                "isScanned": null
+            }
+        ],
+        "paymentDetails": [
+            {
+                "amount": 9.7,
+                "paymentIntegrationId": "payment-integration-cash",
+                "transactionId": "",
+                "paymentIntegrationLabel": "Pay with Cash",
+                "tenderId": "",
+                "paymentCardName": "",
+                "paymentCardNumber": "",
+                "isAmazonOnePayment": false,
+                "paymentMethod": "Cash",
+                "tenderInfo": null,
+                "status": null,
+                "captureDetails": null,
+                "settlementDetails": null
+            }
+        ],
+        "orderType": "",
+        "orderTypeLabel": "Dine In",
+        "orderIdentity": {
+            "orderToken": "10038",
+            "name": "Test",
+            "phone": "",
+            "phoneCountryCode": null,
+            "email": "",
+            "tableTent": "0",
+            "posOrderToken": "",
+            "guestOptInToSmsMarketing": false,
+            "randomlyGeneratedFields": [],
+            "deviceImei": null
+        },
+        "redeemedRewards": [],
+        "receiptImage": "https://test.console.grubbrr.com/order-receipt/Em4Qa2ctjAvuWOTgdWvzSq2OMx7IRra1m0Dv7RewDgvD8Hfsjnq35Qpi4vwxdhRgx_ykU2sJmRxFeTtUyeJQTg",
+        "gusetCheckImageLink": null,
+        "kioskSource": {
+            "kioskId": "ksk-47278436",
+            "name": "RR Kiosk",
+            "kioskMode": 3
+        },
+        "discounts": [],
+        "isFailedToSendToPos": false,
+        "posSubmissionStatus": 1,
+        "channel": 0,
+        "clientIpAddress": "150.129.104.58",
+        "isTestOrder": true,
+        "businessDate": "2026-05-13T00:00:00",
+        "loyaltyUser": null,
+        "guestCount": 1,
+        "upsellInformation": {
+            "upsellPrompt": [],
+            "modifierImpressions": [],
+            "modifierInteractions": []
+        },
+        "orderReceiptUrl": "https://test.console.grubbrr.com/order-receipt/Em4Qa2ctjAvuWOTgdWvzSq2OMx7IRra1m0Dv7RewDgvD8Hfsjnq35Qpi4vwxdhRgx_ykU2sJmRxFeTtUyeJQTg",
+        "loyaltyProviderTransactionId": "",
+        "loyaltyProviderPaymentTransactionId": "",
+        "orderReceiptPdfUrl": "",
+        "receiptDetails": {
+            "orderLanguage": "en",
+            "guestCheckCode": null,
+            "guestCheckCodePrefaceText": "",
+            "genesisFiscalFields": null,
+            "feedBackUrl": null,
+            "loyaltyEarnedPoints": "",
+            "loyaltyHeader": "",
+            "loyaltyFooter": "",
+            "receiptPrintingType": "Barcode",
+            "items": []
+        },
+        "concepts": [],
+        "conceptName": "",
+        "conceptId": "",
+        "orderId": "ord-1001706586",
+        "orderDate": "2026-05-13T06:13:49.5971777Z",
+        "locationId": "loc-3ced777b-aa5d-44b9-a384-ddbec5af961f",
+        "id": "ordevt-N918O66SU4KBKT1I",
+        "type": "order-placed",
+        "_rid": "6ZocAK1z8AdHVRQAAAAAAA==",
+        "_self": "dbs/6ZocAA==/colls/6ZocAK1z8Ac=/docs/6ZocAK1z8AdHVRQAAAAAAA==/",
+        "_etag": "\"330098c1-0000-0100-0000-6a0416a10000\"",
+        "_attachments": "attachments/",
+        "_ts": 1778652833
+    }

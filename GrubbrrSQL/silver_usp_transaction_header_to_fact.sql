@@ -1,6 +1,10 @@
 -- ========
 -- 1. Load fact.transactionheader
 -- ========
+
+--CALL fact.usp_silver_transaction_header_to_fact();
+
+
 SELECT * FROM stg.silver_transaction_header WHERE transactionheaderid = 'ordevt-N9LAXQ8VPIDH49PW';
 SELECT * FROM fact.transactionheader ORDER BY createddate DESC LIMIT 100
 SELECT * FROM dim.ordertype WHERE locationid = 'loc-1fb25c39-043f-4fe1-99d8-6e4086e24586'
@@ -151,7 +155,6 @@ BEGIN
     ), qualified_trxns AS (
 
         SELECT
-            nextval('fact.transactionheader_id_seq')                     AS id,
             dt.*,
             ot.id                                                        AS ordertype,
             dt.orderdateutc :: TIMESTAMPTZ AT TIME ZONE l.timezone       AS orderdatelocal
@@ -260,7 +263,7 @@ BEGIN
         customername
     )
     SELECT
-        id,
+        nextval('fact.transactionheader_id_seq')                    AS id,
         transactionheaderid,
         orderid,
         locationid,
