@@ -1,5 +1,15 @@
-SELECT * FROM dim.organizationlocation;
-SELECT * FROM stg.dim_organizationlocation;
+SELECT * FROM dim.organizationlocation LIMIT 1000;
+SELECT * FROM stg.dim_organizationlocation LIMIT 1000;
+SELECT * FROM dim.userlocation LIMIT 1000;
+
+
+ALTER TABLE dim.organizationlocation
+    ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+    ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
+
+ALTER TABLE dim.userlocation
+    ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE;
+
 
 --CALL dim.usp_refresh_organizationlocation();
 
@@ -31,7 +41,6 @@ CREATE TABLE IF NOT EXISTS stg.dim_organizationlocation
     locationid character varying(40) COLLATE pg_catalog."default" NOT NULL,
     locationname character varying(255) COLLATE pg_catalog."default" NOT NULL,
     organizationtype smallint,
-    roundupforcharity boolean,
     sysinserttime TIMESTAMP,
     CONSTRAINT organizationid_locationid_pk PRIMARY KEY (organizationid, locationid)
 )
