@@ -12,7 +12,7 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
 
 CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_payment_to_fact(
 	)
-LANGUAGE 'plpgsql'
+LANGUAGE plpgsql
 AS $BODY$
 
 
