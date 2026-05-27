@@ -114,7 +114,7 @@ DECLARE
     v_max_gem_syscosmosts BIGINT;
 BEGIN
 
-    SELECT COALESCE(ts, 1775002010)
+    SELECT COALESCE(ts, 1775002010) - 10
     INTO v_max_gem_syscosmosts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.sent_surveys'
@@ -208,7 +208,7 @@ DECLARE
     v_max_gem_syscosmosts BIGINT;
 BEGIN
 
-    SELECT COALESCE(ts, 1775002010)
+    SELECT COALESCE(ts, 1775002010) - 10
     INTO v_max_gem_syscosmosts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.itemssurvey'
@@ -378,7 +378,7 @@ BEGIN
     );
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(gem_syscosmosts), 1775002010) - 10 FROM fact.itemssurvey)
+    SET ts = (SELECT COALESCE(MAX(gem_syscosmosts), 1775002010) FROM fact.itemssurvey)
     WHERE watermarktablename = 'fact.itemssurvey'
       AND source             = 'gem';
 
@@ -386,4 +386,91 @@ END;
 $BODY$;
 
 ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
+    OWNER TO citus;
+
+
+
+-- PROCEDURE: fact.usp_nge_itemssurvey_update()
+--
+-- Updates fact.itemssurvey with NGE item-level survey responses
+-- from stg.fact_itemssurvey.
+-- Update key : (locationid, orderid, surveyid, itemid)
+-- Guard      : sysupdatetime IS NULL — only rows not yet responded to
+-- Lookups    : dim.organizationlocation INNER JOIN
+--              dim.occasionsurvey INNER JOIN — survey must exist in dim
+-- is_responded = true when surveytransstatus = '2'
+
+-- DROP PROCEDURE IF EXISTS fact.usp_nge_itemssurvey_update();
+
+--SELECT * FROM fact.watermarktable;
+
+CREATE OR REPLACE PROCEDURE fact.usp_nge_update_itemssurvey()
+LANGUAGE 'plpgsql'
+AS $BODY$
+
+DECLARE
+    v_max_nge_syscosmosts BIGINT;
+BEGIN
+
+    SELECT COALESCE(ts, 1775002010) - 10
+    INTO v_max_nge_syscosmosts
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.itemssurvey'
+      AND source             = 'nge';
+
+
+    WITH delta_responses AS (
+
+        SELECT DISTINCT ON (locationid, orderid, surveyid, itemid)
+            locationid,
+            orderid,
+            surveyid,
+            surveytransid,
+            itemid,
+            itemrating,
+            surveytransstatus,
+            surveycompletedtimestamp,
+            nge_syscosmosts
+        FROM stg.fact_itemssurvey
+        WHERE nge_syscosmosts > v_max_nge_syscosmosts
+        ORDER BY locationid, orderid, surveyid, itemid, nge_syscosmosts DESC
+
+    )
+    UPDATE fact.itemssurvey AS f
+    SET
+        organizationid              = COALESCE(os.organizationid, ol.organizationid),
+        surveytransid               = dr.surveytransid,
+        itemrating                  = dr.itemrating,
+        surveytransstatus           = dr.surveytransstatus,
+        surveycompletedtimestamp    = dr.surveycompletedtimestamp,
+        nge_syscosmosts             = dr.nge_syscosmosts,
+        is_responded                = CASE WHEN dr.surveytransstatus = '2'
+                                          THEN true ELSE false END,
+        sysupdatetime               = now() :: TIMESTAMP
+    FROM delta_responses AS dr
+    INNER JOIN fact.transactionheader AS th
+        ON  th.locationid          = dr.locationid
+        AND th.transactionheaderid = dr.orderid
+        AND th.orderstatus         = 'order-placed'
+    INNER JOIN dim.organizationlocation AS ol
+        ON  ol.locationid       = dr.locationid
+        AND ol.organizationtype = 0
+    INNER JOIN dim.occasionsurvey AS os
+        ON  os.organizationid = ol.organizationid
+        AND os.surveyid       = dr.surveyid
+    WHERE f.locationid    = dr.locationid
+      AND f.orderid       = dr.orderid
+      AND f.surveyid      = dr.surveyid
+      AND f.itemid        = dr.itemid
+      AND f.sysupdatetime IS NULL;
+
+    UPDATE fact.watermarktable
+    SET ts = (SELECT COALESCE(MAX(nge_syscosmosts), 1775002010) FROM fact.itemssurvey)
+    WHERE watermarktablename = 'fact.itemssurvey'
+      AND source             = 'nge';
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_nge_update_itemssurvey()
     OWNER TO citus;

@@ -1,3 +1,7 @@
+--CALL fact.usp_stg_occasionsurveydetail_to_fact();
+SELECT * FROM fact.occasionsurveydetail;
+SELECT * FROM stg.fact_occasionsurveydetail;
+
 -- Table: fact.occasionsurveydetail
 
 -- DROP TABLE IF EXISTS fact.occasionsurveydetail;
@@ -94,6 +98,7 @@ ALTER TABLE IF EXISTS stg.fact_occasionsurveydetail
 -- dedup gate; there is no ON CONFLICT safety net.
 
 -- DROP PROCEDURE IF EXISTS fact.usp_stg_occasionsurveydetail_to_fact();
+--CALL fact.usp_stg_occasionsurveydetail_to_fact();
 
 CREATE OR REPLACE PROCEDURE fact.usp_stg_occasionsurveydetail_to_fact()
 LANGUAGE 'plpgsql'
@@ -105,15 +110,17 @@ DECLARE
 BEGIN
 
     -- Separate watermarks to avoid one source suppressing the other
-    SELECT COALESCE(MAX(syscosmosts) - 10, 0)
+    SELECT COALESCE(ts, 1775002010) - 10
     INTO v_max_syscosmosts_nge
-    FROM fact.occasionsurveydetail
-    WHERE sourceid = 1;
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.occasionsurveydetail'
+      AND source             = 'nge';
 
-    SELECT COALESCE(MAX(syscosmosts) - 10, 0)
+    SELECT COALESCE(ts, 1775002010) - 10
     INTO v_max_syscosmosts_gem
-    FROM fact.occasionsurveydetail
-    WHERE sourceid = 2;
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.occasionsurveydetail'
+      AND source             = 'gem';
 
 
     -- ================================================================
@@ -206,8 +213,9 @@ BEGIN
             syscosmosts
         FROM stg.silver_kiosk_events
         WHERE eventmodule               = 'kiosk'
-          AND LOWER(eventcategory)      = 'survey'
-          AND LOWER(eventtype)          = 'skipped'
+          AND eventcategory             = 'Survey'
+          AND eventtype                 = 'SurveySkipped'
+          AND token                     > ''
           AND syscosmosts               > v_max_syscosmosts_gem
         ORDER BY locationid, token, syscosmosts DESC
 
@@ -247,6 +255,19 @@ BEGIN
           AND f.ordersessionid = ds.ordersessionid
           AND f.sourceid      = 2
     );
+
+    UPDATE fact.watermarktable
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.occasionsurveydetail WHERE sourceid = 1)
+    WHERE watermarktablename = 'fact.occasionsurveydetail'
+      AND source             = 'nge';
+
+
+    UPDATE fact.watermarktable
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.occasionsurveydetail WHERE sourceid = 2)
+    WHERE watermarktablename = 'fact.occasionsurveydetail'
+      AND source             = 'gem';
+
+
 
 END;
 $BODY$;
