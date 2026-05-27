@@ -4,6 +4,9 @@
 
 --CALL fact.usp_silver_transaction_header_to_fact();
 
+CREATE INDEX IF NOT EXISTS ix_transactionheader_syscosmosts_brin
+    ON fact.transactionheader USING brin (syscosmosts)
+    WITH (pages_per_range = 128);
 
 SELECT * FROM stg.silver_transaction_header WHERE transactionheaderid = 'ordevt-N9LAXQ8VPIDH49PW';
 SELECT * FROM fact.transactionheader ORDER BY createddate DESC LIMIT 100
@@ -106,10 +109,11 @@ DECLARE
 BEGIN
 
     -- Capture watermark once upfront
-    SELECT COALESCE(MAX(syscosmosts) - 10, 0)
+    SELECT COALESCE(ts, 1775002010) - 10
     INTO v_max_syscosmosts
-    FROM fact.transactionheader;
-
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.transactionheader'
+      AND source             = 'nge';
 
 
     WITH delta_transactions AS (
@@ -350,8 +354,15 @@ BEGIN
         (fact.transactionheader.sessionendtime  IS NULL AND EXCLUDED.sessionendtime  IS NOT NULL)
     );
 
+    UPDATE fact.watermarktable
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionheader WHERE sourceid = 1)
+    WHERE watermarktablename = 'fact.transactionheader'
+      AND source             = 'nge';
+
 END;
 $BODY$;
+
+
 
 ALTER PROCEDURE fact.usp_silver_transaction_header_to_fact()
     OWNER TO citus;

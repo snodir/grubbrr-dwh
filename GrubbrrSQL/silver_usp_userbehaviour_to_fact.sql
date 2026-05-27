@@ -5,6 +5,10 @@ ALTER TABLE fact.userbehaviour
 
 --CALL fact.usp_silver_userbehaviour_to_fact();
 
+CREATE INDEX IF NOT EXISTS ix_userbehaviour_syscosmosts_brin
+    ON fact.userbehaviour USING brin (syscosmosts)
+    WITH (pages_per_range = 128);
+
 -- Table: fact.userbehaviour
 
 -- DROP TABLE IF EXISTS fact.userbehaviour;

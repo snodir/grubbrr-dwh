@@ -13,6 +13,9 @@ ALTER TABLE IF EXISTS stg.silver_transaction_item
 OWNER TO citus,
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
 
+ALTER TABLE IF EXISTS fact.transactionitem
+OWNER TO citus;
+
 -- PROCEDURE: fact.usp_silver_transaction_item_to_fact()
 --
 -- Consolidates all three item streams into fact.transactionitem:
@@ -35,9 +38,11 @@ DECLARE
     v_max_syscosmosts BIGINT;
 BEGIN
 
-    SELECT COALESCE(MAX(syscosmosts) - 10, 0)
+    SELECT COALESCE(ts, 1775002010) - 10
     INTO v_max_syscosmosts
-    FROM fact.transactionitem;
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.transactionitem'
+      AND source             = 'nge';
 
     WITH delta_items AS (
 
@@ -329,6 +334,12 @@ BEGIN
     WHERE
         fact.transactionitem.itemselectedtime IS NULL
         OR fact.transactionitem.addtocarttime IS NULL;
+
+    UPDATE fact.watermarktable
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionitem WHERE sourceid = 1)
+    WHERE watermarktablename = 'fact.transactionitem'
+      AND source             = 'nge';
+
 END;
 $BODY$;
 
