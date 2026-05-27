@@ -80,6 +80,21 @@ ALTER TABLE IF EXISTS stg.fact_occasionsurveydetail
 
 -- DROP PROCEDURE IF EXISTS fact.usp_stg_occasionsurveydetail_to_fact();
 
+-- PROCEDURE: fact.usp_stg_occasionsurveydetail_to_fact()
+--
+-- Two separate insert streams into fact.occasionsurveydetail:
+--   sourceid = 1 → NGE survey feedbacks   (stg.fact_occasionsurveydetail WHERE sourceid = 1)
+--   sourceid = 2 → GEM skipped surveys    (stg.silver_kiosk_events WHERE eventmodule = 'kiosk'
+--                                          AND eventcategory = 'survey' AND eventtype = 'skipped')
+--
+-- Separate watermarks per sourceid because the two streams originate from
+-- different Cosmos containers with independent _ts progressions.
+--
+-- No unique constraint on fact.occasionsurveydetail → NOT EXISTS is the sole
+-- dedup gate; there is no ON CONFLICT safety net.
+
+-- DROP PROCEDURE IF EXISTS fact.usp_stg_occasionsurveydetail_to_fact();
+
 CREATE OR REPLACE PROCEDURE fact.usp_stg_occasionsurveydetail_to_fact()
 LANGUAGE 'plpgsql'
 AS $BODY$
@@ -102,7 +117,7 @@ BEGIN
 
 
     -- ================================================================
-    -- Stream 1: NGE Survey Feedbacks (sourceid = 1)
+    -- Stream 1: NGE Survey Feedbacks (sourceid = 1)     [UNCHANGED]
     --
     -- Dedup key  : (locationid, surveytransid, orderid)
     -- Lookups    : dim.organizationlocation → organizationid
@@ -128,8 +143,8 @@ BEGIN
         sourceid
     )
     SELECT
-        ol.organizationid,                                                  -- COALESCE(os.organizationid, ol.organizationid) in ADF
-        stg.locationid,                                                     -- they are equal after INNER JOIN on os.organizationid = ol.organizationid
+        ol.organizationid,
+        stg.locationid,
         stg.dateid,
         stg.surveyid,
         stg.surveytransid,
@@ -139,8 +154,6 @@ BEGIN
         stg.surveytransstatus,
         stg.surveycompletedtimestamp,
         stg.surveylocaltimestamp,
-        -- surveytype: 1 = numeric rating, 2 = text rating
-        -- mirrors ADF: case(isInteger(surveyrating), 1, 2)
         COALESCE(
             stg.surveytype,
             CASE WHEN stg.surveyrating ~ '^\d+$' THEN 1 ELSE 2 END
@@ -149,16 +162,13 @@ BEGIN
         stg.syscosmosts,
         1                                                                   AS sourceid
     FROM stg.fact_occasionsurveydetail AS stg
-    -- Order must exist and be placed
     INNER JOIN fact.transactionheader AS th
         ON  th.locationid          = stg.locationid
         AND th.transactionheaderid = stg.orderid
         AND th.orderstatus         = 'order-placed'
-    -- Resolve organizationid; mirrors ADF: organisationtype = 0 filter
     LEFT JOIN dim.organizationlocation AS ol
         ON  ol.locationid       = stg.locationid
         AND ol.organizationtype = 0
-    -- Survey must exist in dim — mirrors ADF INNER JOIN on (organizationid, surveyid)
     INNER JOIN dim.occasionsurvey AS os
         ON  os.organizationid = ol.organizationid
         AND os.surveyid       = stg.surveyid
@@ -174,14 +184,34 @@ BEGIN
 
 
     -- ================================================================
-    -- Stream 2: GEM Skipped Surveys (sourceid = 2)
+    -- Stream 2: GEM Skipped Surveys (sourceid = 2)      [MODIFIED]
     --
+    -- Source     : stg.silver_kiosk_events (replaces stg.fact_occasionsurveydetail)
     -- Dedup key  : (locationid, ordersessionid) WHERE sourceid = 2
     -- Lookups    : dim.organizationlocation → organizationid
-    -- Gate       : fact.transactionheader INNER JOIN (orderstatus = 'order-placed')
-    -- orderid in stg = transactionheaderid (resolved during staging process)
+    -- Gate       : fact.transactionheader INNER JOIN on ordersessionid
+    --              → resolves orderid = transactionheaderid
+    --              → validates orderstatus = 'order-placed'
     -- Sparse insert: no surveyid, surveyrating, surveytransstatus, surveytype
     -- ================================================================
+    WITH delta_skipped AS (
+
+        -- Deduplicate within the incoming batch.
+        -- A session could theoretically produce multiple 'skipped' events;
+        -- keep the latest one by syscosmosts.
+        SELECT DISTINCT ON (locationid, token)
+            locationid,
+            token           AS ordersessionid,
+            eventinstant    AS surveycompletedtimestamp,
+            syscosmosts
+        FROM stg.silver_kiosk_events
+        WHERE eventmodule               = 'kiosk'
+          AND LOWER(eventcategory)      = 'survey'
+          AND LOWER(eventtype)          = 'skipped'
+          AND syscosmosts               > v_max_syscosmosts_gem
+        ORDER BY locationid, token, syscosmosts DESC
+
+    )
     INSERT INTO fact.occasionsurveydetail (
         organizationid,
         locationid,
@@ -194,32 +224,29 @@ BEGIN
     )
     SELECT
         ol.organizationid,
-        stg.locationid,
-        stg.orderid,
-        stg.ordersessionid,
-        stg.surveycompletedtimestamp,
-        now() :: TIMESTAMP      AS sysinserttime,
-        stg.syscosmosts,
-        2                       AS sourceid
-    FROM stg.fact_occasionsurveydetail AS stg
-    -- Order must exist and be placed
+        ds.locationid,
+        th.transactionheaderid          AS orderid,
+        ds.ordersessionid,
+        ds.surveycompletedtimestamp,
+        now() :: TIMESTAMP              AS sysinserttime,
+        ds.syscosmosts,
+        2                               AS sourceid
+    FROM delta_skipped AS ds
+    -- Resolves orderid and validates the order exists and was placed
     INNER JOIN fact.transactionheader AS th
-        ON  th.locationid          = stg.locationid
-        AND th.transactionheaderid = stg.orderid
-        AND th.orderstatus         = 'order-placed'
-    -- Resolve organizationid
+        ON  th.locationid     = ds.locationid
+        AND th.ordersessionid = ds.ordersessionid
+        AND th.orderstatus    = 'order-placed'
     LEFT JOIN dim.organizationlocation AS ol
-        ON  ol.locationid       = stg.locationid
+        ON  ol.locationid       = ds.locationid
         AND ol.organizationtype = 0
-    WHERE stg.sourceid      = 2
-      AND stg.syscosmosts   > v_max_syscosmosts_gem
-      AND NOT EXISTS (
-          SELECT 1
-          FROM fact.occasionsurveydetail AS f
-          WHERE f.locationid    = stg.locationid
-            AND f.ordersessionid = stg.ordersessionid
-            AND f.sourceid      = 2
-      );
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM fact.occasionsurveydetail AS f
+        WHERE f.locationid    = ds.locationid
+          AND f.ordersessionid = ds.ordersessionid
+          AND f.sourceid      = 2
+    );
 
 END;
 $BODY$;
