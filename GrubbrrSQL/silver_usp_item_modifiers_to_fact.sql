@@ -1,3 +1,126 @@
+CALL fact.usp_silver_item_modifiers_to_fact();
+
+SELECT * FROM stg.silver_item_modifiers
+
+SELECT * FROM fact.itemmodifier as im
+WHERE im.sysinserttime IS NOT NULL
+ORDER BY im.sysinserttime DESC
+LIMIT 100
+
+-- Table: fact.itemmodifier
+
+-- DROP TABLE IF EXISTS fact.itemmodifier;
+
+CREATE TABLE IF NOT EXISTS fact.itemmodifier
+(
+    transactionheaderid text COLLATE pg_catalog."default" NOT NULL,
+    orderid text COLLATE pg_catalog."default" NOT NULL,
+    itemid text COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid text COLLATE pg_catalog."default" NOT NULL,
+    modifierid text COLLATE pg_catalog."default" NOT NULL,
+    modifiername text COLLATE pg_catalog."default",
+    modifierquantity smallint NOT NULL DEFAULT 1,
+    modifierprice numeric(12,3),
+    freequantity integer,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    locationid text COLLATE pg_catalog."default",
+    businessdate date,
+    syscosmosts bigint,
+    CONSTRAINT trxnid_itemid_mdfrgrpid_mdfrid_pk PRIMARY KEY (transactionheaderid, itemid, modifiergroupid, modifierid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.itemmodifier
+    OWNER to citus;
+
+-- Index: idx_fact_itemmodifier_locationid
+
+-- DROP INDEX IF EXISTS fact.idx_fact_itemmodifier_locationid;
+
+CREATE INDEX IF NOT EXISTS idx_fact_itemmodifier_locationid
+    ON fact.itemmodifier USING btree
+    (locationid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: itemmodifieridx
+
+-- DROP INDEX IF EXISTS fact.itemmodifieridx;
+
+CREATE INDEX IF NOT EXISTS itemmodifieridx
+    ON fact.itemmodifier USING btree
+    (itemid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: transactionheaderid_idx
+
+-- DROP INDEX IF EXISTS fact.transactionheaderid_idx;
+
+CREATE INDEX IF NOT EXISTS transactionheaderid_idx
+    ON fact.itemmodifier USING btree
+    (transactionheaderid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+
+CREATE TABLE IF NOT EXISTS stg.silver_item_modifiers
+(
+    transactionheaderid text COLLATE pg_catalog."default",
+    orderid text COLLATE pg_catalog."default",
+    ordersessionid text COLLATE pg_catalog."default",
+    orderdateutc text COLLATE pg_catalog."default",
+    businessdate text COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    locationid text COLLATE pg_catalog."default",
+    kioskid text COLLATE pg_catalog."default",
+    kiosk_name text COLLATE pg_catalog."default",
+    kiosk_mode integer,
+    is_test_order boolean,
+    frequentcustomerid text COLLATE pg_catalog."default",
+    orderitemid text COLLATE pg_catalog."default",
+    itemsessionid text COLLATE pg_catalog."default",
+    menuitemid text COLLATE pg_catalog."default",
+    menu_item_pos_id text COLLATE pg_catalog."default",
+    itemname text COLLATE pg_catalog."default",
+    categoryid text COLLATE pg_catalog."default",
+    categoryname text COLLATE pg_catalog."default",
+    category_pos_id text COLLATE pg_catalog."default",
+    itemquantity integer,
+    usd_itemunitprice numeric(12,3),
+    usd_total_item_price numeric(12,3),
+    cents_itemunitprice bigint,
+    cents_total_item_price bigint,
+    items_discount_id text COLLATE pg_catalog."default",
+    is_items_discount_hidden_on_receipt boolean,
+    items_discounts text COLLATE pg_catalog."default",
+    items_upsell_source text COLLATE pg_catalog."default",
+    items_reward_source text COLLATE pg_catalog."default",
+    items_special_request text COLLATE pg_catalog."default",
+    items_concept_id text COLLATE pg_catalog."default",
+    items_concept_name text COLLATE pg_catalog."default",
+    options_modifierid text COLLATE pg_catalog."default",
+    options_modifier_pos_id text COLLATE pg_catalog."default",
+    options_modifiername text COLLATE pg_catalog."default",
+    options_modifier_code text COLLATE pg_catalog."default",
+    options_modifiergroupid text COLLATE pg_catalog."default",
+    options_modifiergroupname text COLLATE pg_catalog."default",
+    options_modifiergroup_pos_id text COLLATE pg_catalog."default",
+    options_modifierquantity integer,
+    options_modifierunitprice numeric(12,3),
+    options_total_modifierprice numeric(12,3),
+    modifier_freequantity integer,
+    is_modifier_invisible boolean,
+    is_modifier_default boolean,
+    order_completion_status text COLLATE pg_catalog."default",
+    bronze_filepath text COLLATE pg_catalog."default",
+    silver_transform_time text COLLATE pg_catalog."default",
+    silver_folderpath text COLLATE pg_catalog."default",
+    sysinserttime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.silver_item_modifiers
+    OWNER to citus;
+
 -- ============================================================
 -- Stored Procedures: Modifier Fact Tables
 -- Schema  : fact
@@ -118,64 +241,6 @@ ALTER PROCEDURE fact.usp_silver_item_modifiers_to_fact()
 
 
 
--- ============================================================
--- 2. fact.usp_load_modifier_recommendations
---
---    Source  : stg.silver_modifier_recommendations
---    PK      : none declared — logical key (locationid, transactionheaderid)
---    Strategy: NOT EXISTS guard + DISTINCT ON dedup in source CTE.
---              modifier_impressions / modifier_interactions arrive as
---              TEXT from ADF toString(); cast to JSONB here.
--- ============================================================
-CREATE OR REPLACE PROCEDURE fact.usp_load_modifier_recommendations()
-LANGUAGE plpgsql
-AS $$
-BEGIN
-
-    INSERT INTO fact.modifier_recommendations (
-        locationid,
-        transactionheaderid,
-        ordersessionid,
-        orderid,
-        modifier_impressions,
-        modifier_interactions,
-        businessdate,
-        orderdateutc,
-        frequentcustomerid,
-        syscosmosts,
-        sysinserttime
-    )
-    SELECT
-        src.locationid,
-        src.transactionheaderid,
-        src.ordersessionid,
-        src.orderid,
-        src.modifier_impressions::jsonb,
-        src.modifier_interactions::jsonb,
-        src.businessdate::date,
-        src.orderdateutc,
-        src.frequentcustomerid,
-        src.syscosmosts,
-        NOW()
-    FROM (
-        SELECT DISTINCT ON (locationid, transactionheaderid)
-            *
-        FROM stg.silver_modifier_recommendations
-        WHERE COALESCE(is_test_order, FALSE) IS NOT TRUE
-          -- guard against rows where ADF wrote NULL / empty strings before stringify
-          AND modifier_impressions  IS NOT NULL
-          AND modifier_interactions IS NOT NULL
-        ORDER BY locationid, transactionheaderid, syscosmosts DESC
-    ) src
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM fact.modifier_recommendations tgt
-        WHERE tgt.locationid          = src.locationid
-          AND tgt.transactionheaderid = src.transactionheaderid
-    );
-
-END;
-$$;
 
 
 -- ============================================================
