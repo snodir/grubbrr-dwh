@@ -102,13 +102,31 @@ CREATE OR REPLACE PROCEDURE fact.usp_silver_modifier_interactions_to_fact()
 LANGUAGE plpgsql
 AS $BODY$
 
+DECLARE
+    v_watermark_interactions    BIGINT;
+    v_watermark_options         BIGINT;
+
 BEGIN
+
+    -- ----------------------------------------------------------
+    -- Capture both watermarks upfront before any DML
+    -- ----------------------------------------------------------
+    SELECT COALESCE(ts, 1775002010) - 10
+    INTO v_watermark_interactions
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.modifier_interactions'
+      AND source             = 'nge-Interactions';
+
+    SELECT COALESCE(ts, 1775002010) - 10
+    INTO v_watermark_options
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.modifier_interactions'
+      AND source             = 'nge-Options';
 
     -- ==============================================================
     -- Part 1: Behavioral interaction events
     --         Source  : stg.silver_modifier_interactions
-    --                   (pre-flattened from upsellInformation.modifierInteractions,
-    --                    replaces JSONB unnesting from fact.modifier_recommendations)
+    --                   (pre-flattened from upsellInformation.modifierInteractions)
     --         sourceid: 5
     -- ==============================================================
     WITH delta_interactions AS (
@@ -138,12 +156,7 @@ BEGIN
             sysinserttime
         FROM stg.silver_modifier_interactions
         WHERE (is_test_order = FALSE OR is_test_order IS NULL)
-          AND syscosmosts > (
-                SELECT COALESCE(ts, 1775002010) - 10
-                FROM fact.watermarktable
-                WHERE watermarktablename = 'fact.modifier_interactions'
-                  AND source             = 'nge-Interactions'
-          )
+          AND syscosmosts > v_watermark_interactions
         ORDER BY
             transactionheaderid,
             modifiergroupid,
@@ -158,7 +171,7 @@ BEGIN
             di.transactionheaderid,
             di.ordersessionid,
             di.orderid,
-            imd.itemid                              AS orderitemid,     -- resolved via transactionitem
+            imd.itemid                              AS orderitemid,
             di.menuitemid,
             di.modifiergroupid,
             di.modifierid,
@@ -172,7 +185,7 @@ BEGIN
             di.action,
             di.session_recorded_at,
             di.businessdate,
-            NULL :: TIMESTAMP                       AS orderdatelocal,  -- no tz mapping in silver layer
+            ti.orderdatelocal,                       
             di.frequentcustomerid,
             di.syscosmosts,
             di.sysinserttime
@@ -186,7 +199,6 @@ BEGIN
               AND imd.itemid             = ti.itemid
               AND imd.modifiergroupid    = di.modifiergroupid
               AND imd.modifierid         = di.modifierid
-        -- interaction-level dedup: source is now per-event, not per-order
         WHERE NOT EXISTS (
             SELECT 1
             FROM fact.modifier_interactions mint
@@ -204,7 +216,7 @@ BEGIN
     FROM trxn_enrichment;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 5)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_interactions WHERE sourceid = 5)
     WHERE watermarktablename = 'fact.modifier_interactions'
       AND source             = 'nge-Interactions';
 
@@ -219,15 +231,7 @@ BEGIN
         SELECT *
         FROM fact.itemmodifier im
         WHERE locationid LIKE 'loc-%'
-          AND (
-                syscosmosts > (
-                    SELECT ts
-                    FROM fact.watermarktable
-                    WHERE watermarktablename = 'fact.modifier_interactions'
-                      AND source             = 'nge-Options'
-                )
-                OR syscosmosts IS NULL
-          )
+          AND (syscosmosts > v_watermark_options OR syscosmosts IS NULL)
           AND NOT EXISTS (
                 SELECT 1
                 FROM fact.modifier_interactions mint
@@ -283,12 +287,11 @@ BEGIN
     FROM modfr_enrichment;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 6)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_interactions WHERE sourceid = 6)
     WHERE watermarktablename = 'fact.modifier_interactions'
       AND source             = 'nge-Options';
 
 END;
 $BODY$;
-
 ALTER PROCEDURE fact.usp_silver_modifier_interactions_to_fact()
     OWNER TO citus;

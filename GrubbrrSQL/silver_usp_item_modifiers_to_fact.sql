@@ -140,226 +140,200 @@ ALTER TABLE IF EXISTS stg.silver_item_modifiers
 --              advance syscosmosts only when the incoming snapshot
 --              is newer than what is already stored.
 -- ============================================================
-CREATE OR REPLACE PROCEDURE fact.usp_silver_item_modifiers_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_modifier_interactions_to_fact()
 LANGUAGE plpgsql
 AS $BODY$
 
 DECLARE
-    v_max_syscosmosts BIGINT;
+    v_watermark_interactions    BIGINT;
+    v_watermark_options         BIGINT;
 
 BEGIN
 
-    -- Capture watermark once upfront; subtract 10s as a safety overlap buffer
+    -- ----------------------------------------------------------
+    -- Capture both watermarks upfront before any DML
+    -- ----------------------------------------------------------
     SELECT COALESCE(ts, 1775002010) - 10
-    INTO v_max_syscosmosts
+    INTO v_watermark_interactions
     FROM fact.watermarktable
-    WHERE watermarktablename = 'fact.itemmodifier'
-      AND source             = 'nge';
+    WHERE watermarktablename = 'fact.modifier_interactions'
+      AND source             = 'nge-Interactions';
 
-    WITH delta AS (
-        -- Deduplicate: keep latest Cosmos snapshot per (header, item, group, modifier)
+    SELECT COALESCE(ts, 1775002010) - 10
+    INTO v_watermark_options
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.modifier_interactions'
+      AND source             = 'nge-Options';
+
+    -- ==============================================================
+    -- Part 1: Behavioral interaction events
+    --         Source  : stg.silver_modifier_interactions
+    --                   (pre-flattened from upsellInformation.modifierInteractions)
+    --         sourceid: 5
+    -- ==============================================================
+    WITH delta_interactions AS (
         SELECT DISTINCT ON (
             transactionheaderid,
-            orderitemid,
-            options_modifiergroupid,
-            options_modifierid
+            modifiergroupid,
+            modifierid,
+            modifier_interactions_action,
+            modifier_interactions_recorded_at
         )
-            transactionheaderid,
-            orderid,
-            orderitemid                             AS itemid,
-            options_modifiergroupid                 AS modifiergroupid,
-            options_modifierid                      AS modifierid,
-            options_modifiername                    AS modifiername,
-            COALESCE(options_modifierquantity, 1)   AS modifierquantity,
-            options_modifierunitprice               AS modifierprice,
-            modifier_freequantity                   AS freequantity,
             locationid,
+            transactionheaderid,
+            ordersessionid,
+            orderid,
+            menuitemid,
+            modifierid,
+            modifiergroupid,
+            parent_modifier_id,
+            selection_type,
+            modifier_interactions_action            AS action,
+            modifier_interactions_recorded_at       AS session_recorded_at,
+            modifier_interactions_nesting_depth     AS nesting_depth,
             businessdate :: DATE                    AS businessdate,
-            syscosmosts
-        FROM stg.silver_item_modifiers
+            orderdateutc,
+            frequentcustomerid,
+            syscosmosts,
+            sysinserttime
+        FROM stg.silver_modifier_interactions
         WHERE (is_test_order = FALSE OR is_test_order IS NULL)
-          AND options_modifierid      IS NOT NULL
-          AND options_modifiergroupid IS NOT NULL
-          AND orderitemid             IS NOT NULL
-          AND syscosmosts > v_max_syscosmosts
+          AND syscosmosts > v_watermark_interactions
         ORDER BY
             transactionheaderid,
-            orderitemid,
-            options_modifiergroupid,
-            options_modifierid,
+            modifiergroupid,
+            modifierid,
+            modifier_interactions_action,
+            modifier_interactions_recorded_at,
             syscosmosts DESC
+    ),
+    trxn_enrichment AS (
+        SELECT
+            di.locationid,
+            di.transactionheaderid,
+            di.ordersessionid,
+            di.orderid,
+            imd.itemid                              AS orderitemid,
+            di.menuitemid,
+            di.modifiergroupid,
+            di.modifierid,
+            imd.modifiername,
+            di.parent_modifier_id,
+            di.nesting_depth,
+            imd.modifierquantity,
+            imd.modifierprice,
+            imd.freequantity,
+            di.selection_type,
+            di.action,
+            di.session_recorded_at,
+            di.businessdate,
+            NULL :: TIMESTAMP                       AS orderdatelocal,
+            di.frequentcustomerid,
+            di.syscosmosts,
+            di.sysinserttime
+        FROM delta_interactions di
+        LEFT JOIN fact.transactionitem ti
+               ON ti.locationid          = di.locationid
+              AND ti.transactionheaderid = di.transactionheaderid
+              AND ti.dimmenuitemid       = di.menuitemid
+        LEFT JOIN fact.itemmodifier imd
+               ON imd.transactionheaderid = di.transactionheaderid
+              AND imd.itemid             = ti.itemid
+              AND imd.modifiergroupid    = di.modifiergroupid
+              AND imd.modifierid         = di.modifierid
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM fact.modifier_interactions mint
+            WHERE mint.transactionheaderid  = di.transactionheaderid
+              AND mint.modifiergroupid      = di.modifiergroupid
+              AND mint.modifierid           = di.modifierid
+              AND mint.action               = di.action
+              AND mint.session_recorded_at  = di.session_recorded_at
+        )
     )
-    INSERT INTO fact.itemmodifier (
-        transactionheaderid,
-        orderid,
-        itemid,
-        modifiergroupid,
-        modifierid,
-        modifiername,
-        modifierquantity,
-        modifierprice,
-        freequantity,
-        sysinserttime,
-        locationid,
-        businessdate,
-        syscosmosts
-    )
-    SELECT
-        transactionheaderid,
-        orderid,
-        itemid,
-        modifiergroupid,
-        modifierid,
-        modifiername,
-        modifierquantity,
-        modifierprice,
-        freequantity,
-        NOW() :: TIMESTAMP  AS sysinserttime,
-        locationid,
-        businessdate,
-        syscosmosts
-    FROM delta
-    ON CONFLICT (transactionheaderid, itemid, modifiergroupid, modifierid)
-    DO UPDATE SET
-        modifiername     = EXCLUDED.modifiername,
-        modifierquantity = EXCLUDED.modifierquantity,
-        modifierprice    = EXCLUDED.modifierprice,
-        freequantity     = EXCLUDED.freequantity,
-        sysupdatetime    = NOW() :: TIMESTAMP,
-        -- only advance if incoming snapshot is genuinely newer
-        syscosmosts      = GREATEST(EXCLUDED.syscosmosts, fact.itemmodifier.syscosmosts);
+    INSERT INTO fact.modifier_interactions
+    SELECT *,
+           NULL :: TIMESTAMP  AS sysupdatetime,
+           5                  AS sourceid
+    FROM trxn_enrichment;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.itemmodifier)
-    WHERE watermarktablename = 'fact.itemmodifier'
-      AND source             = 'nge';
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_interactions WHERE sourceid = 5)
+    WHERE watermarktablename = 'fact.modifier_interactions'
+      AND source             = 'nge-Interactions';
+
+
+    -- ==============================================================
+    -- Part 2: Options-derived interactions (inferred action/selection_type
+    --         from ordered modifiers in fact.itemmodifier + dim lookups)
+    --         Source  : fact.itemmodifier (unchanged)
+    --         sourceid: 6
+    -- ==============================================================
+    WITH delta_modifier_trxns AS (
+        SELECT *
+        FROM fact.itemmodifier im
+        WHERE locationid LIKE 'loc-%'
+          AND (syscosmosts > v_watermark_options OR syscosmosts IS NULL)
+          AND NOT EXISTS (
+                SELECT 1
+                FROM fact.modifier_interactions mint
+                WHERE mint.locationid          = im.locationid
+                  AND mint.transactionheaderid = im.transactionheaderid
+          )
+    ),
+    modfr_enrichment AS (
+        SELECT
+            mt.locationid,
+            mt.transactionheaderid,
+            ti.ordersessionid,
+            ti.orderid,
+            ti.itemid                               AS orderitemid,
+            ti.dimmenuitemid                        AS menuitemid,
+            mt.modifiergroupid,
+            mt.modifierid,
+            mt.modifiername,
+            NULL :: TEXT                            AS parent_modifier_id,
+            NULL :: INTEGER                         AS nesting_depth,
+            mt.modifierquantity,
+            mt.modifierprice,
+            mt.freequantity,
+            CASE WHEN mgm.is_default = FALSE AND mg.min_selection = 0  AND mg.max_selection >= 0 THEN 'optional'
+                 WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 THEN 'required'
+                 WHEN mgm.is_default = TRUE                                                      THEN 'default'
+            END                                     AS selection_type,
+            CASE WHEN mgm.is_default = FALSE AND mg.min_selection = 0  AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added'
+                 WHEN mgm.is_default = FALSE AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected'
+                 WHEN mgm.is_default = TRUE  AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept'
+                 WHEN mgm.is_default = TRUE  AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0  THEN 'removed'
+            END                                     AS action,
+            NULL :: TEXT                            AS session_recorded_at,
+            mt.businessdate,
+            ti.orderdatelocal,
+            ti.frequentcustomerid,
+            mt.syscosmosts,
+            mt.sysinserttime
+        FROM delta_modifier_trxns mt
+        LEFT JOIN dim.modifier_group_mapping mgm
+               ON mgm.modifiergroupid = mt.modifiergroupid
+              AND mgm.modifierid      = mt.modifierid
+        LEFT JOIN dim.modifier_group mg
+               ON mg.modifiergroupid  = mt.modifiergroupid
+        LEFT JOIN fact.transactionitem ti
+               ON ti.transactionheaderid = mt.transactionheaderid
+              AND ti.itemid              = mt.itemid
+    )
+    INSERT INTO fact.modifier_interactions
+    SELECT *,
+           NULL :: TIMESTAMP  AS sysupdatetime,
+           6                  AS sourceid
+    FROM modfr_enrichment;
+
+    UPDATE fact.watermarktable
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_interactions WHERE sourceid = 6)
+    WHERE watermarktablename = 'fact.modifier_interactions'
+      AND source             = 'nge-Options';
 
 END;
 $BODY$;
-ALTER PROCEDURE fact.usp_silver_item_modifiers_to_fact()
+ALTER PROCEDURE fact.usp_silver_modifier_interactions_to_fact()
     OWNER TO citus;
-
-
-
-
-
-
-
-
--- ============================================================
--- 4. fact.usp_load_modifier_impressions
---
---    Source  : stg.silver_modifier_impressions
---    PK      : none declared — logical dedup key:
---              (locationid, transactionheaderid, menuitemid, modifierid, position)
---    Strategy: NOT EXISTS guard + DISTINCT ON dedup in source CTE.
---    Note    : score is stored as integer in staging (raw recommendation
---              score from the ML model) and cast to numeric(5,3) in the
---              fact table.  Verify the score scale (e.g. 0–100 vs 0–1)
---              with the DS team and add a divisor here if needed.
---              orderdatelocal has no timezone mapping, left NULL.
--- ============================================================
-CREATE OR REPLACE PROCEDURE fact.usp_load_modifier_impressions()
-LANGUAGE plpgsql
-AS $$
-BEGIN
-
-    INSERT INTO fact.modifier_impressions (
-        locationid,
-        transactionheaderid,
-        ordersessionid,
-        orderid,
-        menuitemid,
-        modifierid,
-        parent_modifier_id,
-        selection_type,
-        nesting_depth,
-        position,
-        score,
-        strategy,
-        context,
-        selected,
-        pre_deselected,
-        confirmed_removed,
-        pre_selected,
-        businessdate,
-        frequentcustomerid,
-        syscosmosts,
-        sysinserttime
-        -- orderdatelocal : no timezone mapping in silver layer, left NULL
-    )
-    SELECT
-        src.locationid,
-        src.transactionheaderid,
-        src.ordersessionid,
-        src.orderid,
-        src.menuitemid,
-        src.modifierid,
-        src.parentmodifierid                        AS parent_modifier_id,
-        src.selection_type,
-        src.modifier_impressions_nesting_depth      AS nesting_depth,
-        src.position,
-        src.score::numeric(5,3),                    -- see scale note above
-        src.strategy,
-        src.modifier_impressions_context            AS context,
-        src.selected,
-        src.pre_deselected,
-        src.confirmed_removed,
-        src.pre_selected,
-        src.businessdate::date                      AS businessdate,
-        src.frequentcustomerid,
-        src.syscosmosts,
-        NOW()
-    FROM (
-        SELECT DISTINCT ON (
-            locationid,
-            transactionheaderid,
-            menuitemid,
-            modifierid,
-            position
-        )
-            *
-        FROM stg.silver_modifier_impressions
-        WHERE COALESCE(is_test_order, FALSE) IS NOT TRUE
-          AND modifierid IS NOT NULL
-        ORDER BY
-            locationid,
-            transactionheaderid,
-            menuitemid,
-            modifierid,
-            position,
-            syscosmosts DESC
-    ) src
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM fact.modifier_impressions tgt
-        WHERE tgt.locationid          = src.locationid
-          AND tgt.transactionheaderid = src.transactionheaderid
-          AND tgt.menuitemid          = src.menuitemid
-          AND tgt.modifierid          = src.modifierid
-          AND tgt.position            = src.position
-    );
-
-END;
-$$;
-
-
--- ============================================================
--- 5. fact.usp_load_all_modifier_facts   (orchestrator)
---
---    Call order matters:
---      itemmodifier first — modifier_interactions LATERAL join
---      depends on silver_item_modifiers being consistent but the
---      enrichment join is against the staging table, not the fact,
---      so ordering here is for logical clarity only.
--- ============================================================
-CREATE OR REPLACE PROCEDURE fact.usp_load_all_modifier_facts()
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    CALL fact.usp_load_itemmodifier();
-    CALL fact.usp_load_modifier_recommendations();
-    CALL fact.usp_load_modifier_interactions();
-    CALL fact.usp_load_modifier_impressions();
-END;
-$$;
