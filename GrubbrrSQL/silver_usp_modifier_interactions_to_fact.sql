@@ -1,3 +1,8 @@
+--CALL fact.usp_silver_modifier_interactions_to_fact();
+
+SELECT * FROM stg.silver_modifier_interactions;
+SELECT * FROM fact.modifier_interactions;
+
 -- Table: fact.modifier_interactions
 
 -- DROP TABLE IF EXISTS fact.modifier_interactions;

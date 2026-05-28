@@ -85,9 +85,12 @@ DECLARE
     v_max_syscosmosts BIGINT;
 BEGIN
 
-    SELECT COALESCE(MAX(syscosmosts) - 10, 0)
+    SELECT COALESCE(ts, 1775002010) - 10
     INTO v_max_syscosmosts
-    FROM fact.recommendations;
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.recommendations'
+      AND source             = 'nge';
+
 
     WITH delta AS (
 

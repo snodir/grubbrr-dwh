@@ -1,3 +1,8 @@
+CALL fact.usp_silver_modifier_impressions_to_fact();
+
+SELECT * FROM stg.silver_modifier_impressions;
+SELECT * FROM fact.modifier_impressions;
+
 -- Table: fact.modifier_impressions
 
 -- DROP TABLE IF EXISTS fact.modifier_impressions;
@@ -186,9 +191,8 @@ BEGIN
         d.syscosmosts,
         NOW() :: TIMESTAMP                                                               AS sysinserttime
     FROM delta_impressions d
-    LEFT JOIN dim.organizationlocation AS ol
-           ON ol.locationid       = d.locationid
-          AND ol.organizationtype = 0
+    LEFT JOIN dim.organization AS ol
+           ON ol.id       = d.locationid
     WHERE NOT EXISTS (
         SELECT 1
         FROM fact.modifier_impressions mi
@@ -208,3 +212,5 @@ END;
 $BODY$;
 ALTER PROCEDURE fact.usp_silver_modifier_impressions_to_fact()
     OWNER TO citus;
+
+
