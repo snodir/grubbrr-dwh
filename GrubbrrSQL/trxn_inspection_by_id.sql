@@ -12,6 +12,9 @@ WHERE 1=1 AND locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad
 ORDER BY syscosmosts DESC
 LIMIT 100;
 
+
+SELECT DISTINCT orderstatus FROM fact.transactionheader
+
 SELECT *
 FROM fact.itemmodifier as im 
 WHERE 1=1 

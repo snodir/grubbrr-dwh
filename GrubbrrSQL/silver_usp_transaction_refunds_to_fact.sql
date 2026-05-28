@@ -1,3 +1,6 @@
+--CALL fact.usp_silver_transaction_refunds_to_fact();
+
+SELECT * FROM stg.silver_transaction_refunds
 SELECT * FROM fact.transactionrefunds
 SELECT * FROM fact.watermarktable
 -- Table: fact.transactionrefunds
@@ -71,10 +74,11 @@ DECLARE
 BEGIN
 
     -- No source filter on this watermark row
-    SELECT COALESCE(ts, 1500000010) - 10
+    SELECT COALESCE(ts, 1775002010) - 10
     INTO v_watermark
     FROM fact.watermarktable
-    WHERE watermarktablename = 'fact.transactionrefunds';
+    WHERE watermarktablename = 'fact.transactionrefunds'
+      AND source = 'nge';
 
     WITH delta AS (
         -- Deduplicate: keep latest refund snapshot per (locationid, transactionheaderid)
@@ -94,9 +98,8 @@ BEGIN
           AND order_completion_status IN ('order-refund-amount', 'order-refund-transaction')
           -- mirror CosmosDB refundTransactionId <> '' filter
           AND refund_transaction_id IS NOT NULL
-          AND refund_transaction_id != ''
+          AND refund_transaction_id <> ''
           -- mirror CosmosDB orderDate >= '2024-06-23' hard cutoff
-          AND orderdateutc >= '2024-06-23'
         ORDER BY locationid, transactionheaderid, syscosmosts DESC
     )
     INSERT INTO fact.transactionrefunds (
@@ -148,7 +151,7 @@ BEGIN
                    ORDER BY orderdateutc DESC
                ) AS rn
         FROM fact.transactionrefunds
-        WHERE COALESCE(syscosmosts, 1500000010) > v_watermark
+        WHERE COALESCE(syscosmosts, 1775002010) > v_watermark
     )
     UPDATE fact.transactionheader
     SET paymentstatus = CASE LOWER(r.refundtype)
@@ -161,7 +164,7 @@ BEGIN
       AND r.rn = 1;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1500000010) FROM fact.transactionrefunds)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionrefunds)
     WHERE watermarktablename = 'fact.transactionrefunds';
 
 END;
