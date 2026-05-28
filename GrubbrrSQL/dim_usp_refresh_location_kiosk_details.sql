@@ -1,8 +1,19 @@
+CALL dim.usp_refresh_dim_location_kiosk_details();
+
 -- Table: dim.kioskdetails
 
 -- DROP TABLE IF EXISTS dim.kioskdetails;
 
 --SELECT * FROM dim.kioskdetails LIMIT 100;
+
+SELECT * FROM dim.kioskdetails LIMIT 100;
+SELECT * FROM stg.dim_location_kiosks LIMIT 100;
+SELECT * FROM stg.dim_pos_provider LIMIT 100;
+SELECT * FROM stg.dim_loyalty_configuration LIMIT 100;
+SELECT * FROM stg.dim_payment_provider LIMIT 100;
+SELECT * FROM stg.dim_kiosk_config LIMIT 100;
+SELECT * FROM stg.dim_kiosk_appearance LIMIT 100;
+SELECT NOW()
 
 ALTER TABLE IF EXISTS dim.kioskdetails
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
@@ -166,7 +177,7 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
 
 
 
-CREATE OR REPLACE PROCEDURE dim.usp_refresh_dim_location_kiosk_details()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_location_kiosk_details()
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -375,4 +386,4 @@ BEGIN
 END;
 $$;
 
-ALTER PROCEDURE dim.usp_refresh_dim_location_kiosk_details() OWNER TO citus;
+ALTER PROCEDURE dim.usp_refresh_location_kiosk_details() OWNER TO citus;
