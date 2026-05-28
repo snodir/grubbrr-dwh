@@ -21,9 +21,13 @@ DECLARE
 
 BEGIN
 
-    SELECT COALESCE(MAX(syscosmosts)-10, 0)
+    -- Capture watermark once upfront
+    SELECT COALESCE(ts, 1775002010) - 10
     INTO v_max_syscosmosts
-    FROM fact.transactionpayment;
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.transactionpayment'
+      AND source             = 'nge';
+
 
     WITH delta AS (
         -- Deduplicate: keep latest row per (location, header, payment)
@@ -78,6 +82,11 @@ BEGIN
 
     ON CONFLICT (locationid, transactionheaderid, paymentintegrationid, paymentid)
     DO NOTHING;  -- payments are immutable once recorded
+
+    UPDATE fact.watermarktable
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionpayment)
+    WHERE watermarktablename = 'fact.transactionpayment'
+      AND source             = 'nge';
 
 END;
 $BODY$;

@@ -1487,7 +1487,8 @@ AS $BODY$
 BEGIN
 
 UPDATE fact.transactionheader 
-   SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone)
+   SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone),
+       updateddate    = NOW()
 FROM ( SELECT DISTINCT location.locationid,
                  CASE
                      WHEN ((location.timezone IS NULL) OR (location.timezone = ''::text)) THEN 'America/New_York'::text
@@ -1497,15 +1498,18 @@ FROM ( SELECT DISTINCT location.locationid,
 WHERE (l.locationid = transactionheader.locationid) AND (transactionheader.orderdatelocal IS NULL);
 
 UPDATE fact.transactionheader 
-   SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text)
+   SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text),
+       updateddate    = NOW()
 WHERE (transactionheader.orderdatelocal IS NULL);
 
 UPDATE fact.transactionheader 
-   SET dateid = (to_char(transactionheader.orderdatelocal, 'YYYYMMDDHH24'::text))::integer
+   SET dateid      = (to_char(transactionheader.orderdatelocal, 'YYYYMMDDHH24'::text))::integer,
+       updateddate = NOW()
 WHERE (transactionheader.dateid IS NULL);
 
 UPDATE fact.transactionheader 
-   SET businessdate = (transactionheader.orderdatelocal)::date
+   SET businessdate = (transactionheader.orderdatelocal)::date,
+       updateddate = NOW()
 WHERE (transactionheader.businessdate IS NULL);
 
 UPDATE fact.transactionheader 
@@ -1516,7 +1520,8 @@ WHERE (abtests.ordersessionid = transactionheader.ordersessionid) AND (transacti
 
 
 UPDATE fact.transactionitem 
-   SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone)
+   SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone),
+       sysupdatetime  = NOW()
 FROM ( SELECT DISTINCT location.locationid,
                  CASE
                      WHEN ((location.timezone IS NULL) OR (location.timezone = ''::text)) THEN 'America/New_York'::text
@@ -1526,11 +1531,13 @@ FROM ( SELECT DISTINCT location.locationid,
 WHERE (l.locationid = transactionitem.locationid) AND (transactionitem.orderdatelocal IS NULL);
 
 UPDATE fact.transactionitem
-   SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text)
+   SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text),
+       sysupdatetime  = NOW()
 WHERE (transactionitem.orderdatelocal IS NULL);
 
 UPDATE fact.transactionitem 
-   SET businessdate = (transactionitem.orderdatelocal)::date
+   SET businessdate  = (transactionitem.orderdatelocal)::date,
+       sysupdatetime = NOW()
 WHERE (transactionitem.businessdate IS NULL);
 
 

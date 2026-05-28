@@ -1,7 +1,28 @@
+CALL fact.usp_silver_aborted_orders_and_items_to_fact();
+CALL fact.usp_update_datetime_fields();
+
+--DELETE FROM fact.transactionheader WHERE createddate = (SELECT max(createddate) FROM fact.transactionheader WHERE sourceid = 2) AND sourceid = 2
+--DELETE FROM fact.transactionitem WHERE sysinserttime = (SELECT max(sysinserttime) FROM fact.transactionitem WHERE transactionheaderid LIKE 'abort-%') AND transactionheaderid LIKE 'abort-%'
+--SELECT * FROM fact.watermarktable
+
+SELECT * 
+FROM fact.transactionheader as th
+WHERE th.createddate IS NOT NULL
+ORDER BY createddate DESC 
+LIMIT 1000;
+
+SELECT * 
+FROM fact.transactionitem as th
+WHERE th.transactionheaderid LIKE 'abort-%'
+AND th.sysinserttime IS NOT NULL
+ORDER BY sysinserttime DESC 
+LIMIT 1000;
+
 SELECT * FROM stg.silver_kiosk_events as ke
 WHERE ke.eventcategory IN ('Order', 'insight')
   AND ke.eventtype     IN ('Cancelled', 'OrderCancelled', 'Abandoned', 'Exception')
 
+--SELECT TO_CHAR('2026-05-27 22:22:22.111' :: TIMESTAMP, 'YYYYMMDDHH24')
 
 -- PROCEDURE: fact.usp_gem_aborted_orders_to_fact()
 --
@@ -135,7 +156,7 @@ BEGIN
                 (LOWER(ke.eventcategory) IN ('session', 'order') AND LOWER(ke.eventtype) = 'closed')
               )
         GROUP BY ke.locationid, ke.token
-
+        
     )
     INSERT INTO fact.transactionheader (
         id,
@@ -183,11 +204,11 @@ BEGIN
         ad.kioskid,
         ad.ordersessionid,
         CAST(TO_CHAR(
-            (ad.orderdateutc :: TIMESTAMPTZ AT TIME ZONE org.timezone) :: TIMESTAMP,
+            (ad.orderdateutc :: TIMESTAMPTZ AT TIME ZONE loc.timezone) :: TIMESTAMP,
             'YYYYMMDDHH24'
         ) AS INTEGER)                                                                   AS dateid,
         ad.orderdateutc,
-        (ad.orderdateutc :: TIMESTAMPTZ AT TIME ZONE org.timezone) :: TIMESTAMP        AS orderdatelocal,
+        (ad.orderdateutc :: TIMESTAMPTZ AT TIME ZONE loc.timezone) :: TIMESTAMP        AS orderdatelocal,
         ad.orderstatus,
         0 :: SMALLINT                                                                   AS numberofitems,
         0 :: SMALLINT                                                                   AS numberofpayments,
@@ -231,8 +252,8 @@ BEGIN
     LEFT JOIN session_timing AS st
         ON  st.locationid = ad.locationid
         AND st.token      = ad.ordersessionid
-    LEFT JOIN dim.organization AS org
-        ON  org.id = ad.locationid
+    LEFT JOIN dim.organization AS loc
+        ON  loc.id = ad.locationid
     ON CONFLICT (locationid, transactionheaderid)
     DO NOTHING;
 
@@ -290,3 +311,4 @@ $BODY$;
 
 ALTER PROCEDURE fact.usp_silver_aborted_orders_and_items_to_fact()
     OWNER TO citus;
+
