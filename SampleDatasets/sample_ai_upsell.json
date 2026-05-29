@@ -1,0 +1,356 @@
+[
+    {
+        "kioskSessionId": "1YEPZM4KNIECW982",
+        "totals": {
+            "subTotal": 21.93,
+            "tax": 1.78,
+            "tip": 1.09,
+            "total": 24.8,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "totalsCents": {
+            "subTotal": 2193,
+            "tax": 178,
+            "tip": 109,
+            "total": 2480,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "localCurrencyDetails": null,
+        "items": [
+            {
+                "orderItemId": "orditm-4C7EbqsEBT",
+                "categoryId": "cat-52de5818-42dd-4d20-b632-7dbe85fd690f",
+                "categoryName": "Sandwich and Tenders",
+                "categoryPosId": "",
+                "menuItemId": "itm-170b2289-abe6-47c0-be6d-e2444f3db111",
+                "name": "Cheesy Hot Chicken Sandwich",
+                "menuItemPosId": "",
+                "localizedName": {
+                    "translations": {
+                        "en": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-9440db79-6d1b-4a05-9553-cf35788dd6db",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-91d508af-2ade-499b-ba43-af6f0b882c83",
+                        "modifierPosId": null,
+                        "name": "Spicy - Habanero (Sandwich)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Sandwich Spice Level",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-afb8866a-b015-43fb-934c-1648d6428db4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-bfb46e43-bc64-4977-8713-94a830735f94",
+                        "modifierPosId": null,
+                        "name": "Regular Fountain Drink",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 2.99,
+                        "totalPrice": 2.99,
+                        "unitPriceCents": 299,
+                        "totalPriceCents": 299,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-6807f797-877e-4313-a6a4-34c679c188b2",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-41b4cce2-2e84-43db-b9c3-bdde8a5f8578",
+                                "modifierPosId": null,
+                                "name": "*Self Serve",
+                                "localizedName": {
+                                    "translations": {}
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Drink Flavor",
+                                "localizedModifierGroupName": {
+                                    "translations": {}
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Drink Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-c3db7ee0-4ac3-4227-90e8-55c28a8096fd",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-e43da1e1-ea84-4482-bf1f-74679911a7d5",
+                        "modifierPosId": null,
+                        "name": "Mac & Cheese",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 1,
+                        "totalPrice": 1,
+                        "unitPriceCents": 100,
+                        "totalPriceCents": 100,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Side Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-58609882-d63b-4bf3-a6c9-eeb2c47619a1",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-1ba39fec-47e4-4ec9-bb2e-fef3fc38ec31",
+                        "modifierPosId": null,
+                        "name": "Ranch (2 oz)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Dipping Sauce Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    }
+                ],
+                "itemPrice": 13.99,
+                "unitPrice": 17.98,
+                "totalPrice": 17.98,
+                "unitPriceCents": 1798,
+                "totalPriceCents": 1798,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "tSL22ozapqqEpJrMO9abr",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            },
+            {
+                "orderItemId": "orditm-775UsLuzbA",
+                "categoryId": "cat-de82da88-b37b-492e-a337-c58965e97eda",
+                "categoryName": "Cookies",
+                "categoryPosId": "",
+                "menuItemId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
+                "name": "Chocolate Chip Wheely",
+                "menuItemPosId": "",
+                "localizedName": {
+                    "translations": {}
+                },
+                "options": [],
+                "itemPrice": 3.95,
+                "unitPrice": 3.95,
+                "totalPrice": 3.95,
+                "unitPriceCents": 395,
+                "totalPriceCents": 395,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": {
+                    "upsellId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
+                    "upsellLevelType": "Order",
+                    "upsellPromptItemId": ""
+                },
+                "rewardSource": null,
+                "itemSessionId": "WjE4DtzbrBPEbPCiwdPxb",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            }
+        ],
+        "combos": [],
+        "paymentDetails": [
+            {
+                "amount": 24.8,
+                "paymentIntegrationId": "payment-integration-verifone",
+                "transactionId": "3364",
+                "paymentIntegrationLabel": "Credit",
+                "tenderId": "e8037155-eddc-439c-89f0-7a0ea12a28af",
+                "paymentCardName": "MASTERCARD",
+                "paymentCardNumber": "************4560",
+                "isAmazonOnePayment": false,
+                "paymentMethod": "Card",
+                "tenderInfo": {
+                    "cardInfo": {
+                        "cardType": "Mastercard",
+                        "lastFour": "4560",
+                        "zipCode": "00000",
+                        "processorAuthCode": "030965",
+                        "expirationMonth": "07",
+                        "expirationYear": "29",
+                        "maskedCardNumber": "542543******4560",
+                        "availableBalance": 0
+                    },
+                    "storedValueInfo": null
+                },
+                "status": null,
+                "captureDetails": null,
+                "settlementDetails": null
+            }
+        ],
+        "orderType": "e3a3164a-648b-42a7-9bea-5dba2f93ce6a",
+        "orderTypeLabel": "Take Out",
+        "orderIdentity": {
+            "orderToken": "90028",
+            "name": "Frank",
+            "phone": "+16027625010",
+            "phoneCountryCode": "1",
+            "email": "",
+            "tableTent": "33",
+            "posOrderToken": "257",
+            "randomlyGeneratedFields": [],
+            "deviceImei": ""
+        },
+        "redeemedRewards": [],
+        "receiptImage": "https://console.grubbrr.com/order-receipt/Ojf0nIHrakrIjAbCs3GdNudbiuP-6OQjPcmGM5CVsQCLElulGY9OkM3hfPlyJlRlYgjMcB4SbnsYR2bTyHaWubaNhLA08n5UpMzvaSUmbSeTa2Il150BHNeUikym-lKl",
+        "gusetCheckImageLink": null,
+        "kioskSource": {
+            "kioskId": "ksk-78763799",
+            "name": "Kiosk 2 ",
+            "kioskMode": 1
+        },
+        "discounts": [],
+        "isFailedToSendToPos": false,
+        "posSubmissionStatus": 1,
+        "channel": 0,
+        "clientIpAddress": "70.166.97.78",
+        "isTestOrder": false,
+        "businessDate": "2026-05-28T00:00:00",
+        "loyaltyUser": null,
+        "guestCount": 1,
+        "upsellInformation": {
+            "upsellPrompt": [
+                {
+                    "promptId": "8a7e246f-7e73-4232-be83-266defaa23b9",
+                    "offeredItems": [
+                        {
+                            "itemId": "itm-185e8a5b-61f3-459a-9905-dd9ebbb827dc",
+                            "upsellGroupId": "",
+                            "upsellLevel": "AI",
+                            "promptItemId": ""
+                        },
+                        {
+                            "itemId": "itm-1b44e9cc-c651-45e1-8b77-c0d97bda672b",
+                            "upsellGroupId": "",
+                            "upsellLevel": "AI",
+                            "promptItemId": ""
+                        },
+                        {
+                            "itemId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
+                            "upsellGroupId": "",
+                            "upsellLevel": "AI",
+                            "promptItemId": ""
+                        },
+                        {
+                            "itemId": "itm-c7a051df-d97e-4fed-a3b7-273c756b13bf",
+                            "upsellGroupId": "",
+                            "upsellLevel": "AI",
+                            "promptItemId": ""
+                        }
+                    ],
+                    "selectedItems": [
+                        {
+                            "itemId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
+                            "upsellGroupId": "upslg-f2846026-f2cc-4cff-9e02-87cd5c155dcc",
+                            "upsellLevel": "Order",
+                            "promptItemId": "",
+                            "quantity": 1,
+                            "modifiers": []
+                        }
+                    ],
+                    "promptTime": "2026-05-29T02:59:39Z",
+                    "modalVersion": ""
+                }
+            ],
+            "modifierImpressions": [],
+            "modifierInteractions": []
+        },
+        "orderReceiptUrl": "https://console.grubbrr.com/order-receipt/Ojf0nIHrakrIjAbCs3GdNudbiuP-6OQjPcmGM5CVsQCLElulGY9OkM3hfPlyJlRlYgjMcB4SbnsYR2bTyHaWubaNhLA08n5UpMzvaSUmbSeTa2Il150BHNeUikym-lKl",
+        "loyaltyProviderTransactionId": "",
+        "loyaltyProviderPaymentTransactionId": "",
+        "orderReceiptPdfUrl": "/location/org-490e23ce-6f23-4d3d-8544-8728f0965cfc/loc-bc017a27-667a-4bcd-b10c-a0e21794d992/92078c6d-a522-4e54-9dad-6b34a72c3d6e/e05a6c04ecee6369beba26657957f8ab9d3c34cc0aa81bab431e68046d676329.pdf",
+        "receiptDetails": {
+            "orderLanguage": "en",
+            "guestCheckCode": null,
+            "guestCheckCodePrefaceText": "",
+            "genesisFiscalFields": null,
+            "feedBackUrl": null,
+            "loyaltyEarnedPoints": "",
+            "loyaltyHeader": "",
+            "loyaltyFooter": "",
+            "receiptPrintingType": "Barcode",
+            "items": []
+        },
+        "concepts": [],
+        "conceptName": "",
+        "conceptId": "",
+        "orderId": "ord-92078c6d-a522-4e54-9dad-6b34a72c3d6e",
+        "orderDate": "2026-05-29T03:00:19.3263333Z",
+        "locationId": "loc-bc017a27-667a-4bcd-b10c-a0e21794d992",
+        "id": "ordevt-1YEPZM4KNIECW982",
+        "type": "order-placed",
+        "_rid": "QJwqAI81fP4bLBIAAAAABg==",
+        "_self": "dbs/QJwqAA==/colls/QJwqAI81fP4=/docs/QJwqAI81fP4bLBIAAAAABg==/",
+        "_etag": "\"05017f2c-0000-0100-0000-6a1901460000\"",
+        "_attachments": "attachments/",
+        "_ts": 1780023622
+    }
+]

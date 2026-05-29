@@ -116,7 +116,7 @@ BEGIN
     -- ----------------------------------------------------------
     -- Step 2 — Upsert into fact.usercheckedin
     --
-    -- data JSON path (from sample):
+    -- data JSON path (FROM sample):
     --   "with request"    : data.request.OrderId
     --                       data.request.Order.OrderIdentity.{Name,Phone}
     --                       data.request.Payments[0].{TotalPaid, PreTipTotal,
@@ -290,6 +290,15 @@ BEGIN
         paymentmethod   = COALESCE(EXCLUDED.paymentmethod,   fact.usercheckedin.paymentmethod),
         paymentcardtype = COALESCE(EXCLUDED.paymentcardtype, fact.usercheckedin.paymentcardtype);
 
+    UPDATE fact.usercheckedin
+    SET orderdatelocal = ordertimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone
+    FROM dim.organization as l
+    WHERE l.id = usercheckedin.locationid 
+    and usercheckedin.orderdatelocal IS NULL;
+
+    UPDATE fact.usercheckedin
+    SET dateid = cast(to_char(orderdatelocal, 'YYYYMMDDHH24') as integer)
+    WHERE dateid IS NULL;
     -- ----------------------------------------------------------
     -- Step 3 — Advance the watermark
     -- ----------------------------------------------------------

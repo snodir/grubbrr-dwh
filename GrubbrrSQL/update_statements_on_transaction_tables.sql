@@ -4,16 +4,36 @@
 --VACUUM ANALYZE fact.transactionitem;
 --VACUUM ANALYZE fact.itemmodifier;
 
-update dim.frequentcustomer
-set ordercount = coalesce(th.ordercount, 0),
+UPDATE fact.vw_offer_analysis
+SET upselltype = 'AI-Order'
+WHERE locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992'
+AND upselltype = 'Smart Upsells'
+
+
+
+
+UPDATE fact.transactionitem
+SET upselllevel = 'AI-Order'
+WHERE locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992'
+AND upselllevel = 'Order'
+AND transactionheaderid in(
+    'ordevt-CNPOGTSBP47OVWI5',
+    'ordevt-S84VP26L0YQVO83Q',
+    'ordevt-L3P6U07LKMNZ6NC0',
+    'ordevt-60T2WJ12YLEXKV4A',
+    'ordevt-1YEPZM4KNIECW982'
+)
+
+UPDATE dim.frequentcustomer
+SET ordercount = coalesce(th.ordercount, 0),
     amountspent = coalesce(th.amountspent, 0),
     sysupdatetime = now()
-from (
-    select frequentcustomerid, count(*) as ordercount, sum(ordertotal) as amountspent
-    from fact.transactionheader 
-    where orderstatus = 'order-placed' and frequentcustomerid is not null
-    group by frequentcustomerid) as th 
-where th.frequentcustomerid = frequentcustomer.frequentcustomerid;
+FROM (
+    SELECT frequentcustomerid, count(*) as ordercount, sum(ordertotal) as amountspent
+    FROM fact.transactionheader 
+    WHERE orderstatus = 'order-placed' and frequentcustomerid is not null
+    GROUP BY frequentcustomerid) as th 
+WHERE th.frequentcustomerid = frequentcustomer.frequentcustomerid;
 
 UPDATE fact.transactionitem
 SET orderdatelocal = th.orderdatelocal,
