@@ -26,7 +26,7 @@ SET row_security = off;
 -- Dependencies: 399
 -- Data for Name: watermarktable; Type: TABLE DATA; Schema: fact; Owner: citus
 --
-
+INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.usercheckedin', 'syscosmosts', NULL, NULL, 1775002010, 'gem');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.userbehaviour', 'busdate', '2026-04-02 09:18:34.656', NULL, 1775121514, 'gem');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.deviceevent', 'syscosmosts', '2026-05-21 09:13:32.997', 639149516162368326, 1779354816, 'gem');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.devicestate', 'lasteventtime', '2026-05-21 09:22:16.038379', NULL, 1720000300, 'gsh');

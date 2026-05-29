@@ -16,7 +16,11 @@ alter table stg.recommendations
 add syscosmosts BIGINT
 
 SELECT * FROM stg.recommendations ORDER by sysinserttime DESC
-SELECT * FROM fact.recommendations ORDER by sysinserttime DESC
+
+SELECT * 
+FROM fact.vw_offer_analysis 
+WHERE upselltype IS NULL
+ORDER by sysinserttime DESC LIMIT 100
 
 ALTER TABLE stg.recommendations
 OWNER to citus;

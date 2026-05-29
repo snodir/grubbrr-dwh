@@ -1,3 +1,27 @@
+/*  Modifier Classification
+    public enum ModifierClassificationType
+{
+    Undefined = 0,
+    Protein = 1,
+    Side = 2,
+    Cheese = 3,
+    Topping = 4,
+    Sauce = 5,
+    Size = 6,
+    Prep = 7,
+    Other = 8
+}
+        
+    Menu Item Classification
+
+    0=Undefined
+    1=Main
+    2=Side
+    3=Drink
+    4=Dessert
+    5=Meal
+    6=Other
+*/
 -- ============================================================
 -- TABLE 7: ml.menu_entities
 -- Granularity : one row per (location, category, menu-item)

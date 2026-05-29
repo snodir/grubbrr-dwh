@@ -1,0 +1,81 @@
+   {
+        "id": "639146632438154970",
+        "application": "nge",
+        "company": "org-21b9c258-ad27-4aab-8663-4d480c235950",
+        "location": "loc-3967cbff-06ed-4dab-81c9-05125fe88c26",
+        "module": "connector",
+        "category": "Order",
+        "type": "UserCheckedIn",
+        "severity": "Information",
+        "token": "",
+        "instant": "2026-05-18T01:07:23.800244+00:00",
+        "username": null,
+        "userid": null,
+        "device": null,
+        "devicename": null,
+        "summary": "PizzaHutSus - User Checked In Success",
+        "data": {
+            "request": {
+                "OrderId": "03A2CB78CFB64151AA02579ACDA46993",
+                "Order": {
+                    "ExternalOrderTypeId": "",
+                    "Items": [],
+                    "OrderIdentity": {
+                        "Name": "Kuppu Nagabooshanam",
+                        "Email": "",
+                        "Phone": "4694863127",
+                        "OrderToken": "",
+                        "TableTent": "",
+                        "OrderIdPrefix": "",
+                        "OrderDueTimeOffsetMinutes": "",
+                        "CardPaymentUsed": false
+                    },
+                    "SessionId": "",
+                    "ExternalOrderTypeLabel": "",
+                    "Rewards": [],
+                    "DefaultPaymentTender": "",
+                    "Combos": []
+                },
+                "Payments": [{
+                        "PaymentIntegrationId": "payment-integration-verifone",
+                        "TotalPaid": 1191,
+                        "TransactionId": "101119",
+                        "PaymentIntegrationLabel": "Pay with Card",
+                        "TenderId": "",
+                        "TenderInfo": {
+                            "Null": 0,
+                            "CardInfo": {
+                                "CardType": 4,
+                                "LastFour": "4238",
+                                "ZipCode": "00000",
+                                "ProcessorAuthCode": "01775R",
+                                "ExpirationMonth": "08",
+                                "ExpirationYear": "27",
+                                "MaskedCardNumber": "601101******4238",
+                                "AvailableBalance": null
+                            },
+                            "StoredValueInfo": null,
+                            "KindCase": 2
+                        },
+                        "PreTipTotal": 1191,
+                        "PaymentTransactionTime": {
+                            "Seconds": 1779064473,
+                            "Nanos": 781000000
+                        },
+                        "TipAmount": 0
+                    }
+                ]
+            },
+            "response": {
+                "OrderId": "03A2CB78CFB64151AA02579ACDA46993",
+                "Totals": null
+            }
+        },
+        "etc": null,
+        "ticks": "639146632438154970",
+        "_rid": "7YZCAJcWuh4mXWgIAACACw==",
+        "_self": "dbs/7YZCAA==/colls/7YZCAJcWuh4=/docs/7YZCAJcWuh4mXWgIAACACw==/",
+        "_etag": ""4a044ca7-0000-0100-0000-6a0a664c0000"",
+        "_attachments": "attachments/",
+        "_ts": 1779066444
+    }

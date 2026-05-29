@@ -1,3 +1,9 @@
+CALL fact.usp_gsh_devicetelemetry_to_fact_devicetelemetry();
+
+
+ALTER TABLE fact.devicetelemetry
+ADD CONSTRAINT devicetelemetry_pkey PRIMARY KEY (locationid, deviceid, dateid);
+
 -- Table: gsh.devicetelemetry
 
 -- DROP TABLE IF EXISTS gsh.devicetelemetry;
@@ -112,8 +118,13 @@ ON  cpu.deviceid   = mem.deviceid
 AND cpu.locationid = mem.locationid
 AND cpu.dateid     = mem.dateid
 
+SELECT locationid, deviceid, dateid,
+    count(*) as dupl
+FROM fact.devicetelemetry
+GROUP BY locationid, deviceid, dateid
+HAVING count(*) > 1
 
-
+-- If distributed on locationid (most likely given your schema patterns)
 
 
 CREATE OR REPLACE PROCEDURE fact.usp_gsh_devicetelemetry_to_fact_devicetelemetry()

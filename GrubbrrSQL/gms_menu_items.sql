@@ -1,3 +1,28 @@
+/*  Modifier Classification
+    public enum ModifierClassificationType
+{
+    Undefined = 0,
+    Protein = 1,
+    Side = 2,
+    Cheese = 3,
+    Topping = 4,
+    Sauce = 5,
+    Size = 6,
+    Prep = 7,
+    Other = 8
+}
+        
+    Menu Item Classification
+
+    0=Undefined
+    1=Main
+    2=Side
+    3=Drink
+    4=Dessert
+    5=Meal
+    6=Other
+*/
+
 SELECT id, category_master_id,item_master_id,item_variation_id
 ,pre_selected_combo_id,sub_category_id,combo_id,display_order
 ,is_active,is_deleted,created_on,modified_on,combo_family_id
