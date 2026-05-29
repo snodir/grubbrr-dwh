@@ -115,7 +115,7 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
 
 CREATE OR REPLACE PROCEDURE dim.usp_refresh_organization()
 LANGUAGE plpgsql
-AS $$
+AS $BODY$
 BEGIN
 
     INSERT INTO dim.organization (
@@ -225,6 +225,6 @@ BEGIN
         sysupdatetime                          = NOW();
 
 END;
-$$;
+$BODY$;
 
 ALTER PROCEDURE dim.usp_refresh_organization() OWNER TO citus;
