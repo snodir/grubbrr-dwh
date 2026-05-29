@@ -1,22 +1,39 @@
+--CALL fact.usp_gsh_devicestate_to_fact_devicestate();
+
+
+SELECT * 
+FROM fact.devicestate
+ORDER BY id DESC 
+LIMIT 100;
+
 -- ============================================================
 -- stg.fact_devicestate  — Staging table
 -- ============================================================
 --SELECT 'infinity'::timestamp
 
 SELECT
+    dh.id,
+    dh.healthdatatype,
     dh.locationid,
     dh.companyid,
     dh.deviceid,
+    dh.devicetype,
     dh.status,
-    dh.healthdatatime    AS lasteventtime,
-    dh.statuschangetime
+    dh.statusmessage,
+    dh.healthdatatime,
+    dh.statuschangetime,
+    dh.inserttime,
+    dh.version,
+    dh.devicedatatime,
+    NOW()::timestamp AS sysinserttime
 FROM gsh.devicehealth AS dh
 INNER JOIN gsh.device AS d
         ON d.deviceid = dh.deviceid
        AND d.state NOT IN ('New', 'Deleted')
-WHERE dh.healthdatatime  > '{$pdf_instant}'::timestamp
+WHERE dh.healthdatatime > '@{activity('LookupMaxValues').output.firstRow.maxinstant}' :: TIMESTAMP
   AND dh.deviceid       <> 'no-serial'
-  AND dh.healthdatatime <> '-infinity'::timestamp
+  AND dh.healthdatatime <> '-infinity' :: TIMESTAMP
+
 
 
 SELECT
@@ -125,52 +142,6 @@ ALTER TABLE IF EXISTS gsh.devicehealth
 
 -- DROP INDEX IF EXISTS gsh.devicehealth_idx;
 
-CREATE INDEX IF NOT EXISTS devicehealth_idx
-    ON gsh.devicehealth USING btree
-    (deviceid COLLATE pg_catalog."default" ASC NULLS LAST, locationid COLLATE pg_catalog."default" ASC NULLS LAST, companyid COLLATE pg_catalog."default" ASC NULLS LAST)
-    INCLUDE(devicetype, status, healthdatatype, healthdatatime, statuschangetime)
-    TABLESPACE pg_default;
--- Index: deviceid_idx
-
--- DROP INDEX IF EXISTS gsh.deviceid_idx;
-
-CREATE INDEX IF NOT EXISTS deviceid_idx
-    ON gsh.devicehealth USING btree
-    (deviceid COLLATE pg_catalog."default" ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: idx_devicehealth_composite_latest
-
--- DROP INDEX IF EXISTS gsh.idx_devicehealth_composite_latest;
-
-CREATE INDEX IF NOT EXISTS idx_devicehealth_composite_latest
-    ON gsh.devicehealth USING btree
-    (deviceid COLLATE pg_catalog."default" ASC NULLS LAST, locationid COLLATE pg_catalog."default" ASC NULLS LAST, healthdatatime DESC NULLS FIRST)
-    TABLESPACE pg_default;
--- Index: idx_devicehealth_deviceid
-
--- DROP INDEX IF EXISTS gsh.idx_devicehealth_deviceid;
-
-CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid
-    ON gsh.devicehealth USING btree
-    (deviceid COLLATE pg_catalog."default" ASC NULLS LAST)
-    TABLESPACE pg_default;
--- Index: idx_devicehealth_deviceid_status_time
-
--- DROP INDEX IF EXISTS gsh.idx_devicehealth_deviceid_status_time;
-
-CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid_status_time
-    ON gsh.devicehealth USING btree
-    (deviceid COLLATE pg_catalog."default" ASC NULLS LAST, status COLLATE pg_catalog."default" ASC NULLS LAST, healthdatatime DESC NULLS FIRST)
-    TABLESPACE pg_default;
--- Index: idx_devicehealth_locationid
-
--- DROP INDEX IF EXISTS gsh.idx_devicehealth_locationid;
-
-CREATE INDEX IF NOT EXISTS idx_devicehealth_locationid
-    ON gsh.devicehealth USING btree
-    (locationid COLLATE pg_catalog."default" ASC NULLS LAST)
-    TABLESPACE pg_default;
-
 
 CREATE SEQUENCE IF NOT EXISTS fact.devicestate_id_seq;
 
@@ -191,14 +162,12 @@ ALTER TABLE fact.devicestate
 --            Tracks MAX(id) from gsh.devicehealth — bigint, monotonic
 -- ============================================================
 
-CREATE OR REPLACE PROCEDURE fact.usp_stg_devicestate_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_gsh_devicestate_to_fact_devicestate()
 LANGUAGE plpgsql
 AS $BODY$
 
 DECLARE
     v_watermark     TIMESTAMP;
-    v_new_watermark TIMESTAMP;
-    v_rows_inserted BIGINT;
 
 BEGIN
 
@@ -305,5 +274,5 @@ BEGIN
 END;
 $BODY$;
 
-ALTER PROCEDURE fact.usp_stg_devicestate_to_fact() OWNER TO citus;
+ALTER PROCEDURE fact.usp_gsh_devicestate_to_fact_devicestate() OWNER TO citus;
 
