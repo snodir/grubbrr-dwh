@@ -1,0 +1,2595 @@
+
+
+
+DROP VIEW IF EXISTS public.vw_transactiondetails;
+
+ALTER TABLE IF EXISTS fact.watermarktable
+ALTER COLUMN source TYPE CHARACTER VARYING(50);
+
+ALTER TABLE IF EXISTS dim.grubbrr_source_lookup
+ALTER COLUMN source TYPE TEXT COLLATE pg_catalog."default",
+ALTER COLUMN description TYPE TEXT COLLATE pg_catalog."default";
+
+ALTER TABLE IF EXISTS fact.transactionheader
+ADD COLUMN IF NOT EXISTS sourceid INTEGER,
+ADD COLUMN IF NOT EXISTS orderservicecharge NUMERIC(12, 3) DEFAULT 0.000,
+ALTER COLUMN ordersredeemedrewards TYPE NUMERIC(12, 3),
+ALTER COLUMN ordersubtotal TYPE NUMERIC(12, 3),
+ALTER COLUMN ordertotal TYPE NUMERIC(12, 3),
+ALTER COLUMN ordertax TYPE NUMERIC(12, 3),
+ALTER COLUMN ordertip TYPE NUMERIC(12, 3),
+ALTER COLUMN orderdiscount TYPE NUMERIC(12, 3),
+ALTER COLUMN orderbalance TYPE NUMERIC(12, 3),
+ALTER COLUMN charityamount TYPE NUMERIC(12, 3),
+ADD COLUMN IF NOT EXISTS customername CHARACTER VARYING(100) COLLATE pg_catalog."default",
+ALTER COLUMN updateddate DROP NOT NULL,
+ALTER COLUMN updateddate DROP DEFAULT;
+
+
+ALTER TABLE IF EXISTS fact.transactionitem
+ALTER COLUMN itemunitprice TYPE NUMERIC(12,3),
+ADD COLUMN IF NOT EXISTS orderdatelocal TIMESTAMP,
+ADD COLUMN IF NOT EXISTS businessdate DATE,
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS frequentcustomerid TEXT COLLATE pg_catalog."default";
+
+CREATE INDEX IF NOT EXISTS idx_fact_transactionitem_locationid
+    ON fact.transactionitem(locationid);
+
+ALTER TABLE IF EXISTS fact.transactionpayment
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
+
+CREATE INDEX IF NOT EXISTS idx_fact_transactionpayment_locationid
+    ON fact.transactionpayment(locationid);
+
+ALTER TABLE IF EXISTS fact.itemmodifier
+ALTER COLUMN modifierprice TYPE NUMERIC(12,3),
+ADD COLUMN IF NOT EXISTS locationid TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS businessdate DATE,
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
+
+CREATE INDEX IF NOT EXISTS idx_fact_itemmodifier_locationid
+    ON fact.itemmodifier(locationid);
+
+ALTER TABLE IF EXISTS fact.transactionpayment
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
+ALTER COLUMN paymentamt TYPE NUMERIC(12,3);
+
+ALTER TABLE IF EXISTS fact.ordertiming
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
+
+ALTER TABLE IF EXISTS fact.devicetelemetry
+ALTER COLUMN cpuvalue TYPE NUMERIC(10,5),
+ALTER COLUMN memoryvalue TYPE NUMERIC(10,5),
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
+ALTER TABLE IF EXISTS fact.userbehaviour
+ADD COLUMN IF NOT EXISTS eventcategory TEXT COLLATE pg_catalog."default";
+
+ALTER TABLE IF EXISTS fact.devicestate
+ALTER COLUMN duration TYPE NUMERIC(10,3),
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
+-- Table: dim.menuitem
+
+CREATE OR REPLACE FUNCTION dim.is_valid_jsonb(input TEXT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql IMMUTABLE STRICT
+AS $BODY$
+BEGIN
+    PERFORM input::jsonb;
+    RETURN TRUE;
+EXCEPTION WHEN others THEN
+    RETURN FALSE;
+END;
+$BODY$;
+
+
+CREATE OR REPLACE FUNCTION dim.array_to_text(a jsonb)
+RETURNS TEXT
+LANGUAGE sql IMMUTABLE STRICT
+AS $BODY$
+    SELECT initcap(replace(replace(replace(a::text, '[', ''), ']', ''), '"', ''));
+$BODY$;
+
+CREATE OR REPLACE FUNCTION fact.parse_iso_timestamp(ts_string TEXT)
+RETURNS TEXT
+LANGUAGE sql IMMUTABLE STRICT
+AS $BODY$
+    SELECT CASE WHEN substring(ts_string, 20, 1) = '.'
+                THEN replace(replace(substring(ts_string, 1, 23), 'T', ' '), '+', '0')
+                ELSE replace(substring(ts_string, 1, 19), 'T', ' ')
+           END;
+$BODY$;
+
+
+
+CREATE TABLE IF NOT EXISTS dim.menuitem
+(
+    id bigint NOT NULL,
+    menuitemid TEXT COLLATE pg_catalog."default" NOT NULL,
+    menuitemname TEXT COLLATE pg_catalog."default" NOT NULL,
+    guest integer NOT NULL DEFAULT 1,
+    effective_date date,
+    item_class_type integer,
+    entitytype TEXT COLLATE pg_catalog."default",
+    calories TEXT COLLATE pg_catalog."default",
+    protein numeric,
+    sugar numeric,
+    fat numeric,
+    is_alcoholic boolean,
+    is_vegetarian_item boolean,
+    is_vegan_item boolean,
+    has_allergen boolean,
+    is_active boolean,
+    is_deleted boolean,
+    gms_created_on timestamp without time zone,
+    gms_modified_on timestamp without time zone,
+    itemunitprice numeric(12,3),
+    price_changed_on timestamp without time zone,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    catalogid TEXT COLLATE pg_catalog."default",
+    CONSTRAINT menuitem_pk PRIMARY KEY (id),
+    CONSTRAINT menuitemid_unq UNIQUE (menuitemid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.menuitem
+    OWNER to citus;
+
+ALTER TABLE IF EXISTS dim.menuitem
+ADD COLUMN IF NOT EXISTS item_class_type integer,
+ADD COLUMN IF NOT EXISTS entitytype TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS calories TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS protein numeric,
+ADD COLUMN IF NOT EXISTS sugar numeric,
+ADD COLUMN IF NOT EXISTS fat numeric,
+ADD COLUMN IF NOT EXISTS is_alcoholic BOOLEAN,
+ADD COLUMN IF NOT EXISTS is_vegetarian_item BOOLEAN,
+ADD COLUMN IF NOT EXISTS is_vegan_item BOOLEAN,
+ADD COLUMN IF NOT EXISTS has_allergen BOOLEAN,
+ADD COLUMN IF NOT EXISTS is_active BOOLEAN,
+ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN,
+ADD COLUMN IF NOT EXISTS gms_created_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS gms_modified_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS itemunitprice NUMERIC(12, 3),
+--ALTER COLUMN itemunitprice TYPE NUMERIC(12, 3),
+ADD COLUMN IF NOT EXISTS price_changed_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS catalogid TEXT COLLATE pg_catalog."default";
+
+
+
+CREATE INDEX IF NOT EXISTS ix_dim_menuitem_catalogid
+    ON dim.menuitem(catalogid);
+
+
+CREATE TABLE IF NOT EXISTS dim.occasionsurvey
+(
+    surveykey bigint NOT NULL GENERATED BY DEFAULT AS IDENTITY ( INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
+    organizationid TEXT COLLATE pg_catalog."default" NOT NULL,
+    surveyid TEXT COLLATE pg_catalog."default" NOT NULL,
+    surveyname TEXT COLLATE pg_catalog."default",
+    surveytype INTEGER,
+    question_type INTEGER,
+    selection_type INTEGER,
+    survey_status INTEGER, 
+    is_deleted BOOLEAN, 
+    created_on TIMESTAMP, 
+    modified_on TIMESTAMP, 
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP,
+    CONSTRAINT survey_pkey PRIMARY KEY (surveykey)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.occasionsurvey
+    OWNER to citus;
+
+ALTER TABLE IF EXISTS dim.occasionsurvey
+ADD COLUMN IF NOT EXISTS question_type INTEGER,
+ADD COLUMN IF NOT EXISTS selection_type INTEGER,
+ADD COLUMN IF NOT EXISTS survey_status INTEGER, 
+ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN, 
+ADD COLUMN IF NOT EXISTS created_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS modified_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
+
+ALTER TABLE IF EXISTS fact.occasionsurveydetail
+--ADD CONSTRAINT locationid_orderid_pk PRIMARY key (locationid, orderid),
+ALTER COLUMN surveytransid DROP NOT NULL,
+ADD COLUMN IF NOT EXISTS surveytype INTEGER,
+ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default";
+
+ALTER TABLE IF EXISTS fact.itemssurvey
+ADD COLUMN IF NOT EXISTS nge_syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS gem_event_category TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS gem_event_type TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS is_responded BOOLEAN,
+ADD COLUMN IF NOT EXISTS gem_syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS gem_event_instant TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sourceid INTEGER;
+
+
+ALTER TABLE IF EXISTS dim.organization
+ADD COLUMN IF NOT EXISTS cep_subscriptions TEXT COLLATE pg_catalog."default";
+
+--dim.category_hierarchy;
+--DROP TABLE IF EXISTS dim.category_hierarchy;
+CREATE TABLE IF NOT EXISTS dim.category_hierarchy
+(
+--id BIGINT,
+organizationid TEXT COLLATE pg_catalog."default",
+locationid TEXT COLLATE pg_catalog."default" NOT NULL,
+mapping_created_on TIMESTAMP, 
+mapping_modified_on TIMESTAMP,
+is_mapping_active BOOLEAN, 
+is_mapping_deleted BOOLEAN, 
+catalogid TEXT COLLATE pg_catalog."default",
+catalogname TEXT COLLATE pg_catalog."default",
+catalog_created_on TIMESTAMP,
+catalog_modified_on TIMESTAMP,
+is_catalog_active BOOLEAN,
+is_catalog_deleted BOOLEAN,
+categoryid TEXT COLLATE pg_catalog."default" NOT NULL,
+categoryname TEXT COLLATE pg_catalog."default",
+category_created_on TIMESTAMP,
+category_modified_on TIMESTAMP,
+is_category_active BOOLEAN,
+is_category_deleted BOOLEAN,
+menuitemid TEXT COLLATE pg_catalog."default",
+entitytype TEXT COLLATE pg_catalog."default",
+item_class_type INTEGER,
+menuitemname TEXT COLLATE pg_catalog."default",
+item_created_on TIMESTAMP,
+item_modified_on TIMESTAMP,
+is_item_active BOOLEAN,
+is_item_deleted BOOLEAN,
+syscosmosts BIGINT,
+sysinserttime TIMESTAMP,
+sysupdatetime TIMESTAMP,
+--constraint category_hierarchy_pkey PRIMARY KEY (id),
+constraint location_category_menuitem_unq UNIQUE (locationid, categoryid, menuitemid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.category_hierarchy
+    OWNER to citus;
+
+ALTER TABLE IF EXISTS dim.category_hierarchy
+DROP COLUMN IF EXISTS id;
+
+
+CREATE TABLE IF NOT EXISTS dim.duplicate_items_master
+(
+organizationid TEXT COLLATE pg_catalog."default",
+locationid TEXT COLLATE pg_catalog."default" NOT NULL,
+categoryid TEXT COLLATE pg_catalog."default" NOT NULL,
+categoryname TEXT COLLATE pg_catalog."default",
+menuitemid TEXT COLLATE pg_catalog."default",
+entitytype TEXT COLLATE pg_catalog."default",
+item_class_type INTEGER,
+menuitemname TEXT COLLATE pg_catalog."default",
+instance_count INTEGER,
+masteritemid TEXT COLLATE pg_catalog."default",
+sysinserttime TIMESTAMP,
+sysupdatetime TIMESTAMP,
+constraint locationid_categoryid_menuitemid_unq UNIQUE (locationid, categoryid, menuitemid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.duplicate_items_master
+    OWNER to citus;
+
+--dim.catalog;
+CREATE TABLE IF NOT EXISTS dim.catalog
+(
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    catalogname character varying(255) COLLATE pg_catalog."default",
+    organizationid character varying(40) COLLATE pg_catalog."default",
+    is_catalog_deleted boolean,
+    catalog_created_on timestamp without time zone,
+    catalog_modified_on timestamp without time zone,
+    gem_company_id character varying(255) COLLATE pg_catalog."default",
+    gem_location_id character varying(255) COLLATE pg_catalog."default",
+    is_sync_in_progress boolean,
+    is_standalone boolean,
+    is_master boolean,
+    is_ecm_enabled boolean,
+    CONSTRAINT catalog_pkey PRIMARY KEY (catalogid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.catalog
+    OWNER to citus;
+
+ALTER TABLE IF EXISTS dim.catalog
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
+ALTER TABLE dim.organizationlocation
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
+
+ALTER TABLE dim.userlocation
+    ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE;
+
+
+
+CREATE TABLE IF NOT EXISTS dim.modifier
+(
+    --modifierkey BIGINT,
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default",
+    modifiername character varying(255) COLLATE pg_catalog."default",
+    min_quantity integer,
+    max_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    calories TEXT COLLATE pg_catalog."default" NOT NULL,
+    calories_text TEXT COLLATE pg_catalog."default",
+    is_modifier_active boolean NOT NULL,
+    is_modifier_deleted boolean NOT NULL,
+    modifier_created_on timestamp without time zone,
+    modifier_modified_on timestamp without time zone,
+    is_modifier_default boolean,
+    modifier_default_quantity integer,
+    is_invisible boolean,
+    classification integer,
+    price NUMERIC(12,3),
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT modifier_master_pkey PRIMARY KEY (modifierid)
+)
+
+TABLESPACE pg_default;
+
+
+ALTER TABLE IF EXISTS dim.modifier
+    OWNER to citus;
+
+ALTER TABLE IF EXISTS dim.modifier
+DROP COLUMN IF EXISTS modifierkey,
+ADD COLUMN IF NOT EXISTS price_changed_on TIMESTAMP;
+
+CREATE INDEX IF NOT EXISTS ix_dim_modifier_catalogid
+    ON dim.modifier(catalogid);
+
+CREATE TABLE IF NOT EXISTS dim.modifier_group --gms.public.modifier_group_master
+(
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupname character varying(510) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    max_selection integer,
+    min_selection integer,
+    free_count integer,
+    pos_linked_entity_id character varying(50) COLLATE pg_catalog."default",
+    is_active boolean NOT NULL,
+    is_deleted boolean NOT NULL,
+    created_on timestamp without time zone, -- NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_on timestamp without time zone, -- NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    negative_modifier_behavior integer,
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    max_aggregate_count integer,
+    min_aggregate_count integer,
+    increment_step integer,
+    slider_mode boolean NOT NULL DEFAULT false,
+    slider_mode_modifier boolean NOT NULL DEFAULT false,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP,
+    CONSTRAINT modifier_group_master_pkey PRIMARY KEY (modifiergroupid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.modifier_group
+    OWNER to citus;
+
+CREATE INDEX IF NOT EXISTS ix_dim_modifiergroup_catalogid
+    ON dim.modifier_group(catalogid);
+
+CREATE TABLE IF NOT EXISTS dim.modifier_group_mapping
+(
+    modifier_mapping_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default",
+    is_mapping_active boolean,
+    is_mapping_deleted boolean,
+    mapping_created_on timestamp without time zone,
+    mapping_modified_on timestamp without time zone,
+    is_default boolean,
+    default_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    min_quantity integer,
+    max_quantity integer,
+    calories_text TEXT COLLATE pg_catalog."default",
+    is_invisible boolean,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT modifier_group_modifier_glue_pkey PRIMARY KEY (modifier_mapping_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.modifier_group_mapping
+    OWNER to citus;
+
+
+-- Table: dim.item_modifier_group_modifier_mapping
+
+-- DROP TABLE IF EXISTS dim.item_modifier_group_modifier_mapping;
+
+CREATE TABLE IF NOT EXISTS dim.item_modifier_group_modifier_mapping
+(
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    menuitemid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    itm_modgrp_min_selection integer,
+    itm_modgrp_max_selection integer,
+    itm_modgrp_free_count integer,
+    is_itm_modgrp_active boolean,
+    is_itm_modgrp_deleted boolean,
+    itm_modgrp_created_on timestamp without time zone,
+    itm_modgrp_modified_on timestamp without time zone,
+    is_itm_modgrp_invisible boolean,
+    is_default boolean,
+    min_quantity integer,
+    max_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    default_quantity integer,
+    is_modgrp_modfr_active boolean NOT NULL,
+    is_modgrp_modfr_deleted boolean NOT NULL,
+    modgrp_modfr_created_on timestamp without time zone,
+    modgrp_modfr_modified_on timestamp without time zone,
+    is_modgrp_modfr_invisible boolean,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT item_modgrp_modfr_unq UNIQUE (menuitemid, modifiergroupid, modifierid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
+    OWNER to citus;
+
+--ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
+--ADD CONSTRAINT item_modgrp_modfr_unq UNIQUE (menuitemid, modifiergroupid, modifierid)
+
+ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
+
+-- Table: dim.abtests
+
+-- DROP TABLE IF EXISTS dim.abtests;
+
+CREATE TABLE IF NOT EXISTS dim.abtests
+(
+    abtestid bigint NOT NULL,
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default",
+    experimentid text COLLATE pg_catalog."default",
+    experimentname text COLLATE pg_catalog."default",
+    variantid text COLLATE pg_catalog."default",
+    variantname text COLLATE pg_catalog."default",
+    ordersessionid text COLLATE pg_catalog."default",
+    deviceid text COLLATE pg_catalog."default",
+    devicename text COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.abtests
+    OWNER to citus;
+
+
+CREATE TABLE IF NOT EXISTS stg.sent_surveys
+(
+    organizationid TEXT COLLATE pg_catalog."default",
+    locationid TEXT COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid TEXT COLLATE pg_catalog."default" NOT NULL,
+    orderid TEXT COLLATE pg_catalog."default",
+    gem_event_category TEXT COLLATE pg_catalog."default",
+    gem_event_type TEXT COLLATE pg_catalog."default",
+    survey_metadata TEXT COLLATE pg_catalog."default",
+    is_responded boolean,
+    gem_event_instant TEXT COLLATE pg_catalog."default",
+    gem_syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.sent_surveys
+    OWNER to citus;
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_catalog
+(
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    catalogname character varying(255) COLLATE pg_catalog."default",
+    organizationid character varying(40) COLLATE pg_catalog."default",
+    is_catalog_deleted boolean,
+    catalog_created_on timestamp without time zone,
+    catalog_modified_on timestamp without time zone,
+    gem_company_id character varying(255) COLLATE pg_catalog."default",
+    gem_location_id character varying(255) COLLATE pg_catalog."default",
+    is_sync_in_progress boolean,
+    is_standalone boolean,
+    is_master boolean,
+    is_ecm_enabled boolean,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT catalog_pkey PRIMARY KEY (catalogid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_catalog
+    OWNER to citus;
+
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_frequentcustomer
+(
+    frequentcustomerid text COLLATE pg_catalog."default" NOT NULL,
+    firstname text COLLATE pg_catalog."default",
+    lastname text COLLATE pg_catalog."default",
+    email text COLLATE pg_catalog."default",
+    phone text COLLATE pg_catalog."default",
+    source text COLLATE pg_catalog."default",
+    organizationid text COLLATE pg_catalog."default",
+    createddate text COLLATE pg_catalog."default",
+    lastorderdate text COLLATE pg_catalog."default",
+    ordercount integer NOT NULL DEFAULT 0,
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT frequent_customer_pk PRIMARY KEY (frequentcustomerid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_frequentcustomer
+    OWNER to citus;
+
+
+
+-- One-time setup
+CREATE SEQUENCE IF NOT EXISTS dim.frequentcustomer_customerkey_seq;
+
+-- Sync to current max to avoid collisions with existing data
+SELECT setval(
+    'dim.frequentcustomer_customerkey_seq',
+    COALESCE((SELECT MAX(customerkey) FROM dim.frequentcustomer), 0)
+);
+
+-- Attach to the column
+ALTER TABLE dim.frequentcustomer
+    ALTER COLUMN customerkey SET DEFAULT nextval('dim.frequentcustomer_customerkey_seq');
+
+
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_menuitem
+(   menuitemid text COLLATE pg_catalog."default" NOT NULL,
+    menuitemname text COLLATE pg_catalog."default" NOT NULL,
+    entitytype text COLLATE pg_catalog."default",
+    calories text COLLATE pg_catalog."default",
+    protein numeric,
+    sugar numeric,
+    fat numeric,
+    is_alcoholic boolean,
+    is_vegetarian_item boolean,
+    is_vegan_item boolean,
+    has_allergen boolean,
+    item_class_type integer,
+    is_active boolean,
+    is_deleted boolean,
+    gms_created_on timestamp without time zone,
+    gms_modified_on timestamp without time zone,
+    itemunitprice numeric(12,3),
+    price_changed_on timestamp without time zone,
+    catalogid text COLLATE pg_catalog."default",
+    sysinserttime TIMESTAMP
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_menuitem
+    OWNER to citus;
+
+
+-- One-time sequence setup
+CREATE SEQUENCE IF NOT EXISTS dim.menuitem_id_seq;
+
+SELECT setval(
+    'dim.menuitem_id_seq',
+    COALESCE((SELECT MAX(id) FROM dim.menuitem), 0)
+);
+
+ALTER TABLE dim.menuitem
+    ALTER COLUMN id SET DEFAULT nextval('dim.menuitem_id_seq');
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_itemcategory
+(
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    categoryid text COLLATE pg_catalog."default" NOT NULL,
+    categoryname text COLLATE pg_catalog."default" NOT NULL,
+    catalogid text COLLATE pg_catalog."default",
+    is_category_active boolean,
+    is_category_deleted BOOLEAN,
+    category_created_on TIMESTAMP,
+    category_modified_on TIMESTAMP,
+    is_alcoholic BOOLEAN,
+    number_of_items SMALLINT,
+    number_of_sub_categories SMALLINT,
+    number_of_item_variations SMALLINT,
+    number_of_combos SMALLINT,
+    number_of_combo_families SMALLINT,
+    sysinserttime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.itemcategory
+    OWNER to citus;
+
+
+ALTER TABLE IF EXISTS dim.itemcategory
+ALTER COLUMN isactive DROP NOT NULL,
+ALTER COLUMN isactive DROP DEFAULT,
+ADD COLUMN IF NOT EXISTS catalogid TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE,
+ADD COLUMN IF NOT EXISTS is_category_deleted BOOLEAN,
+ADD COLUMN IF NOT EXISTS category_created_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS category_modified_on TIMESTAMP,
+ADD COLUMN IF NOT EXISTS is_alcoholic BOOLEAN,
+ADD COLUMN IF NOT EXISTS number_of_items SMALLINT,
+ADD COLUMN IF NOT EXISTS number_of_sub_categories SMALLINT,
+ADD COLUMN IF NOT EXISTS number_of_item_variations SMALLINT,
+ADD COLUMN IF NOT EXISTS number_of_combos SMALLINT,
+ADD COLUMN IF NOT EXISTS number_of_combo_families SMALLINT;
+
+-- One-time sequence setup
+CREATE SEQUENCE IF NOT EXISTS dim.itemcategory_id_seq;
+
+SELECT setval(
+    'dim.itemcategory_id_seq',
+    COALESCE((SELECT MAX(id) FROM dim.itemcategory), 0)
+);
+
+ALTER TABLE dim.itemcategory
+    ALTER COLUMN id SET DEFAULT nextval('dim.itemcategory_id_seq');
+
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_category_hierarchy
+(
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    mapping_created_on timestamp without time zone,
+    mapping_modified_on timestamp without time zone,
+    is_mapping_active boolean,
+    is_mapping_deleted boolean,
+    catalogid text COLLATE pg_catalog."default",
+    catalogname text COLLATE pg_catalog."default",
+    catalog_created_on timestamp without time zone,
+    catalog_modified_on timestamp without time zone,
+    is_catalog_active boolean,
+    is_catalog_deleted boolean,
+    categoryid text COLLATE pg_catalog."default" NOT NULL,
+    categoryname text COLLATE pg_catalog."default",
+    category_created_on timestamp without time zone,
+    category_modified_on timestamp without time zone,
+    is_category_active boolean,
+    is_category_deleted boolean,
+    menuitemid text COLLATE pg_catalog."default",
+    entitytype text COLLATE pg_catalog."default",
+    item_class_type integer,
+    menuitemname text COLLATE pg_catalog."default",
+    item_created_on timestamp without time zone,
+    item_modified_on timestamp without time zone,
+    is_item_active boolean,
+    is_item_deleted boolean,
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT location_category_menuitem_unq UNIQUE (locationid, categoryid, menuitemid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_category_hierarchy
+    OWNER to citus;
+
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_modifier
+(
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default",
+    modifiername character varying(255) COLLATE pg_catalog."default",
+    min_quantity integer,
+    max_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    calories text COLLATE pg_catalog."default" NOT NULL,
+    calories_text text COLLATE pg_catalog."default",
+    is_modifier_active boolean NOT NULL,
+    is_modifier_deleted boolean NOT NULL,
+    modifier_created_on timestamp without time zone,
+    modifier_modified_on timestamp without time zone,
+    is_modifier_default boolean,
+    modifier_default_quantity integer,
+    is_invisible boolean,
+    classification integer,
+    price numeric(12,3),
+    price_changed_on timestamp without time zone,
+    sysinserttime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_modifier
+    OWNER to citus;
+
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_modifiergroup
+(
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupname character varying(510) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    max_selection integer,
+    min_selection integer,
+    free_count integer,
+    pos_linked_entity_id character varying(50) COLLATE pg_catalog."default",
+    is_active boolean NOT NULL,
+    is_deleted boolean NOT NULL,
+    created_on timestamp without time zone,
+    modified_on timestamp without time zone,
+    negative_modifier_behavior integer,
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    max_aggregate_count integer,
+    min_aggregate_count integer,
+    increment_step integer,
+    slider_mode boolean NOT NULL DEFAULT false,
+    slider_mode_modifier boolean NOT NULL DEFAULT false,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT modifier_group_master_pkey PRIMARY KEY (modifiergroupid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_modifiergroup
+    OWNER to citus;
+
+
+CREATE TABLE IF NOT EXISTS stg.dim_modifiergroup_modifier_mapping
+(
+    modifier_mapping_id character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifierid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    catalogid character varying(50) COLLATE pg_catalog."default",
+    is_mapping_active boolean,
+    is_mapping_deleted boolean,
+    mapping_created_on timestamp without time zone,
+    mapping_modified_on timestamp without time zone,
+    is_default boolean,
+    default_quantity integer,
+    allow_quantity_increment boolean,
+    increment_step integer,
+    min_quantity integer,
+    max_quantity integer,
+    calories_text text COLLATE pg_catalog."default",
+    is_invisible boolean,
+    sysinserttime timestamp without time zone,
+    CONSTRAINT modifier_group_modifier_glue_pkey PRIMARY KEY (modifier_mapping_id),
+    CONSTRAINT modfrgrp_modfr_unq UNIQUE (modifiergroupid, modifierid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.dim_modifiergroup_modifier_mapping
+    OWNER to citus;
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS fact.sent_surveys
+(
+    organizationid TEXT COLLATE pg_catalog."default",
+    locationid TEXT COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid TEXT COLLATE pg_catalog."default" NOT NULL,
+    orderid TEXT COLLATE pg_catalog."default",
+    gem_event_category TEXT COLLATE pg_catalog."default",
+    gem_event_type TEXT COLLATE pg_catalog."default",
+    survey_metadata jsonb,
+    is_responded boolean,
+    gem_event_instant TEXT COLLATE pg_catalog."default",
+    gem_syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT sent_surveys_ordersessionid_pkey PRIMARY KEY (locationid, ordersessionid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.sent_surveys
+    OWNER to citus;
+
+
+
+-- Table: fact.modifier_impressions
+
+-- DROP TABLE IF EXISTS fact.modifier_impressions;
+
+CREATE TABLE IF NOT EXISTS fact.modifier_impressions
+(
+    locationid TEXT COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid TEXT COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid TEXT COLLATE pg_catalog."default",
+    orderid TEXT COLLATE pg_catalog."default",
+    menuitemid TEXT COLLATE pg_catalog."default",
+    modifierid TEXT COLLATE pg_catalog."default" NOT NULL,
+    parent_modifier_id TEXT COLLATE pg_catalog."default",
+    selection_type TEXT COLLATE pg_catalog."default",
+    nesting_depth integer,
+    "position" integer,
+    score numeric(5,3),
+    strategy TEXT COLLATE pg_catalog."default",
+    context TEXT COLLATE pg_catalog."default",
+    selected boolean,
+    pre_deselected boolean,
+    confirmed_removed boolean,
+    pre_selected boolean,
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid TEXT COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.modifier_impressions
+    OWNER to citus;
+
+
+
+-- Table: fact.modifier_interactions
+
+-- DROP TABLE IF EXISTS fact.modifier_interactions;
+
+CREATE TABLE IF NOT EXISTS fact.modifier_interactions
+(
+    locationid TEXT COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid TEXT COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid TEXT COLLATE pg_catalog."default",
+    orderid TEXT COLLATE pg_catalog."default",
+    orderitemid TEXT COLLATE pg_catalog."default",
+    menuitemid TEXT COLLATE pg_catalog."default" NOT NULL,
+    modifiergroupid TEXT COLLATE pg_catalog."default" NOT NULL,
+    modifierid TEXT COLLATE pg_catalog."default" NOT NULL,
+    modifiername TEXT COLLATE pg_catalog."default",
+    parent_modifier_id TEXT COLLATE pg_catalog."default",
+    nesting_depth integer,
+    modifierquantity integer,
+    modifierprice numeric(12,3),
+    freequantity integer,
+    selection_type TEXT COLLATE pg_catalog."default",
+    action TEXT COLLATE pg_catalog."default",
+    session_recorded_at TEXT COLLATE pg_catalog."default",
+    businessdate date,
+    orderdatelocal timestamp without time zone,
+    frequentcustomerid TEXT COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone,
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT trxnid_menuitemid_modfrgrpid_modfrid_pk PRIMARY KEY (transactionheaderid, menuitemid, modifiergroupid, modifierid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.modifier_interactions
+    OWNER to citus;
+
+ALTER TABLE IF EXISTS fact.modifier_interactions
+--DROP COLUMN IF EXISTS source,
+ADD COLUMN IF NOT EXISTS sourceid INTEGER;
+
+CREATE TABLE IF NOT EXISTS stg.modifier_recommendation_sessions
+(
+    locationid TEXT COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid TEXT COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid TEXT COLLATE pg_catalog."default",
+    orderid TEXT COLLATE pg_catalog."default",
+    modifier_impressions TEXT COLLATE pg_catalog."default",
+    modifier_interactions TEXT COLLATE pg_catalog."default",
+    businessdate date,
+    orderdateutc TEXT COLLATE pg_catalog."default",
+    orderdatelocal TIMESTAMP,
+    frequentcustomerid TEXT COLLATE pg_catalog."default",
+    syscosmosts BIGINT,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP
+);
+
+ALTER TABLE stg.modifier_recommendation_sessions
+OWNER TO citus;
+
+CREATE TABLE IF NOT EXISTS fact.modifier_recommendations
+(
+    locationid TEXT COLLATE pg_catalog."default" NOT NULL,
+    transactionheaderid TEXT COLLATE pg_catalog."default" NOT NULL,
+    ordersessionid TEXT COLLATE pg_catalog."default",
+    orderid TEXT COLLATE pg_catalog."default",
+    modifier_impressions jsonb,
+    modifier_interactions jsonb,
+    businessdate date,
+    orderdateutc TEXT COLLATE pg_catalog."default",
+    orderdatelocal TIMESTAMP,
+    frequentcustomerid TEXT COLLATE pg_catalog."default",
+    syscosmosts BIGINT,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP
+);
+
+ALTER TABLE IF EXISTS fact.modifier_recommendations
+OWNER TO citus;
+
+CREATE TABLE IF NOT EXISTS fact.location_statistics(
+    organizationid character varying(50) COLLATE pg_catalog."default",
+    organizationname character varying(255) COLLATE pg_catalog."default",
+    locationid character varying(50) COLLATE pg_catalog."default",
+    locationname character varying(255) COLLATE pg_catalog."default",
+    city character varying(255) COLLATE pg_catalog."default",
+    state character varying(255) COLLATE pg_catalog."default",
+    country character varying(255) COLLATE pg_catalog."default",
+    isactive BOOLEAN,
+    timezone character varying(255) COLLATE pg_catalog."default",
+    order_type_labels jsonb,
+    loc_item_popularity jsonb,
+    loc_total_order_count INTEGER,
+    loc_total_sales_amount NUMERIC(12,3),
+    loc_avg_order_amount NUMERIC(12,3),
+    org_total_order_count INTEGER,
+    org_total_sales_amount NUMERIC(12,3),
+    org_avg_order_amount NUMERIC(12,3),
+    number_of_frequent_customers INTEGER,
+    orders_placed_by_freq_customers INTEGER,
+    amount_spent_by_freq_customers NUMERIC(12,3),
+    avg_amount_spent_by_freq_customers NUMERIC(12,3),
+    sysupdatetime TIMESTAMP
+);
+
+ALTER TABLE IF EXISTS fact.location_statistics
+OWNER to citus;
+
+
+
+
+CREATE TABLE IF NOT EXISTS fact.cep_incidents(
+    incidentkey BIGINT,
+    application TEXT COLLATE pg_catalog."default",
+    organizationid TEXT COLLATE pg_catalog."default",
+    locationid TEXT COLLATE pg_catalog."default",
+    deviceid TEXT COLLATE pg_catalog."default",
+    eventmodule TEXT COLLATE pg_catalog."default",
+    eventcategory TEXT COLLATE pg_catalog."default",
+    eventtype TEXT COLLATE pg_catalog."default",
+    eventtoken TEXT COLLATE pg_catalog."default",
+    incidenttype TEXT COLLATE pg_catalog."default",
+    incidentcount INTEGER,
+    eventinstant TEXT COLLATE pg_catalog."default",
+    firstoccurred TIMESTAMP,
+    lastoccurred TIMESTAMP,
+    notificationtypeid TEXT COLLATE pg_catalog."default",
+    incidentdata TEXT COLLATE pg_catalog."default",
+    syscosmosts BIGINT,
+    sysinserttime TIMESTAMP
+);
+
+ALTER TABLE IF EXISTS fact.cep_incidents
+OWNER to citus;
+
+ALTER TABLE IF EXISTS fact.cep_incidents
+ADD COLUMN IF NOT EXISTS severity TEXT COLLATE pg_catalog."default";
+
+--GRANT SELECT ON TABLE fact.cep_incidents TO dhanraj;
+
+ALTER TABLE IF EXISTS dim.kioskdetails
+ADD COLUMN IF NOT EXISTS item_special_request TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS legal_copy_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS ada_configuration TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS calculate_default_modifier_price BOOLEAN,
+ADD COLUMN IF NOT EXISTS track_kiosk_user_behavior BOOLEAN,
+ADD COLUMN IF NOT EXISTS loyalty_feature BOOLEAN,
+ADD COLUMN IF NOT EXISTS pickup_flow BOOLEAN,
+ADD COLUMN IF NOT EXISTS pos_auto_applied_discount BOOLEAN,
+ADD COLUMN IF NOT EXISTS search_functionality_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS recent_orders_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS play_card_config TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS round_up_for_charity BOOLEAN,
+ADD COLUMN IF NOT EXISTS calories_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS scan_and_go_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS age_verification TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS tips_settings TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS business_hours_config TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS order_types TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS localization TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS kiosk_receipt_settings TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS kiosk_fonts TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS kiosk_appearance_text_overrides TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS kiosk_appearance_style_options TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS loyalty_display_settings TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS preorder_popup_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS preorder_popup_text TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS disclaimer_text TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS order_limit_config TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS menu_behavior_config TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS perform_pos_status_check BOOLEAN;
+
+
+ALTER TABLE IF EXISTS dim.vw_grubbrrinstallbase-- kioskdetails
+ADD COLUMN IF NOT EXISTS item_special_request jsonb,
+ADD COLUMN IF NOT EXISTS legal_copy_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS ada_configuration jsonb,
+ADD COLUMN IF NOT EXISTS calculate_default_modifier_price BOOLEAN,
+ADD COLUMN IF NOT EXISTS track_kiosk_user_behavior BOOLEAN,
+ADD COLUMN IF NOT EXISTS loyalty_feature BOOLEAN,
+ADD COLUMN IF NOT EXISTS pickup_flow BOOLEAN,
+ADD COLUMN IF NOT EXISTS pos_auto_applied_discount BOOLEAN,
+ADD COLUMN IF NOT EXISTS search_functionality_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS recent_orders_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS play_card_config jsonb,
+ADD COLUMN IF NOT EXISTS round_up_for_charity BOOLEAN,
+ADD COLUMN IF NOT EXISTS calories_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS scan_and_go_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS age_verification jsonb,
+ADD COLUMN IF NOT EXISTS tips_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS apply_before_taxes BOOLEAN,
+ADD COLUMN IF NOT EXISTS auto_print_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS include_pos_order_number BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_qr_code_when_print_receipt_fails BOOLEAN,
+ADD COLUMN IF NOT EXISTS print_modifier_group_names BOOLEAN,
+ADD COLUMN IF NOT EXISTS print_default_modifiers BOOLEAN,
+ADD COLUMN IF NOT EXISTS print_free_modifiers BOOLEAN,
+ADD COLUMN IF NOT EXISTS print_priced_modifiers BOOLEAN,
+ADD COLUMN IF NOT EXISTS enable_email_receipts BOOLEAN,
+ADD COLUMN IF NOT EXISTS enable_sms_receipt BOOLEAN,
+ADD COLUMN IF NOT EXISTS qr_code_for_receipt BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_screensaver BOOLEAN,
+ADD COLUMN IF NOT EXISTS business_hours_show_message BOOLEAN,
+ADD COLUMN IF NOT EXISTS business_hours_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS pos_hours_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS quantity_limit_per_item INTEGER,
+ADD COLUMN IF NOT EXISTS quantity_limit_per_order INTEGER,
+ADD COLUMN IF NOT EXISTS max_discount_per_order INTEGER,
+ADD COLUMN IF NOT EXISTS show_item_asis_option BOOLEAN,
+ADD COLUMN IF NOT EXISTS enable_minimum_order_total BOOLEAN,
+ADD COLUMN IF NOT EXISTS auto_apply_min_qty_to_first_modifier BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_make_it_a_meal_option BOOLEAN,
+ADD COLUMN IF NOT EXISTS enable_combo_auto_skip BOOLEAN,
+ADD COLUMN IF NOT EXISTS number_of_item_upsell_prompts_per_order INTEGER,
+ADD COLUMN IF NOT EXISTS can_enter_code_for_discount BOOLEAN,
+ADD COLUMN IF NOT EXISTS can_scan_qr_code_for_discount BOOLEAN,
+ADD COLUMN IF NOT EXISTS can_select_from_list_for_discount BOOLEAN,
+ADD COLUMN IF NOT EXISTS enabled_languages jsonb,
+ADD COLUMN IF NOT EXISTS display_modifier_group_restriction BOOLEAN,
+ADD COLUMN IF NOT EXISTS allow_user_to_collapse_or_expand_modifier_groups BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_modifier_group_names_on_order_review BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_default_modifier_on_order_review BOOLEAN,
+ADD COLUMN IF NOT EXISTS auto_expand_modifier_group BOOLEAN,
+ADD COLUMN IF NOT EXISTS enable_nested_modifier_indentation BOOLEAN,
+ADD COLUMN IF NOT EXISTS open_nested_modifiers_in_popup BOOLEAN,
+ADD COLUMN IF NOT EXISTS category_header_display_mode TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS category_header_logo_display_mode TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS show_item_description BOOLEAN,
+ADD COLUMN IF NOT EXISTS category_name_position TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS hide_sold_out_item_and_modifier_on_kiosk BOOLEAN,
+ADD COLUMN IF NOT EXISTS make_category_sidebar_translucent BOOLEAN,
+ADD COLUMN IF NOT EXISTS enable_single_step_subcategory_flow BOOLEAN,
+ADD COLUMN IF NOT EXISTS remove_category_highlighted_border BOOLEAN,
+ADD COLUMN IF NOT EXISTS enable_extended_combo_mode BOOLEAN,
+ADD COLUMN IF NOT EXISTS button_style TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS show_discount_code_button BOOLEAN,
+ADD COLUMN IF NOT EXISTS make_item_combo_images_rounded BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_loyalty_points_on_header BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_card_accepted_payment_options BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_google_pay_accepted_payment_options BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_apple_pay_accepted_payment_options BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_cash_accepted_payment_options BOOLEAN,
+ADD COLUMN IF NOT EXISTS show_tap_to_order_cta BOOLEAN,
+ADD COLUMN IF NOT EXISTS use_text_for_cta BOOLEAN,
+ADD COLUMN IF NOT EXISTS use_image_for_cta BOOLEAN,
+ADD COLUMN IF NOT EXISTS choose_a_currency jsonb,
+ADD COLUMN IF NOT EXISTS choose_a_locale TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS order_number_start INTEGER,
+ADD COLUMN IF NOT EXISTS allotment INTEGER,
+ADD COLUMN IF NOT EXISTS negative_modifier_behavior jsonb,
+ADD COLUMN IF NOT EXISTS disclaimer_text TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS preorder_popup_enabled BOOLEAN,
+ADD COLUMN IF NOT EXISTS preorder_popup_text TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS order_types_identity_config jsonb,
+ADD COLUMN IF NOT EXISTS show_category_highlighted_color BOOLEAN,
+ADD COLUMN IF NOT EXISTS cep_subscriptions jsonb,
+ADD COLUMN IF NOT EXISTS perform_pos_status_check BOOLEAN;
+
+
+--CALL dim.usp_grubbrr_install_base();
+CREATE OR REPLACE PROCEDURE dim.usp_grubbrr_install_base()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+TRUNCATE table dim.vw_grubbrrinstallbase;
+
+WITH order_types_identities as (
+SELECT 
+    locationid,
+    order_type.order_key :: TEXT as order_type_id,
+    (order_type.order_data ->> 'label') :: TEXT as label,
+    (order_type.order_data ->> 'externalDeliveryMode') :: TEXT as external_delivery_mode,
+    (order_type.order_data ->> 'enabled') :: BOOLEAN as order_type_enabled,
+    (order_type.order_data ->> 'posChannel') :: TEXT as pos_channel,
+    (order_type.order_data -> 'orderIdentity' ->> 'orderIdentityMode') :: INTEGER as order_identity_mode,
+    (order_type.order_data -> 'orderIdentity' ->> 'customerIdentityMode') :: INTEGER as customer_identity_mode,
+    (order_type.order_data -> 'orderIdentity' -> 'customerIdentityModes') :: jsonb as customer_identity_modes,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'askBeforeOrder') :: BOOLEAN as ask_before_order,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeCustomerNameOptional') :: BOOLEAN as make_customer_name_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makePhoneNumberOptional') :: BOOLEAN as make_phone_number_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeEmailOptional') :: BOOLEAN as make_email_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeDateOfBirthOptional') :: BOOLEAN as make_date_of_birth_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeLastFourSsnOptional') :: BOOLEAN as make_last_four_ssn_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeAddressLine1Optional') :: BOOLEAN as make_address_line1_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeAddressLine2Optional') :: BOOLEAN as make_address_line2_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeCityOptional') :: BOOLEAN as make_city_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeStateOptional') :: BOOLEAN as make_state_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeZipCodeOptional') :: BOOLEAN as make_zipcode_optional,
+    (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeCountryOptional') :: BOOLEAN as make_country_optional
+from (select locationid, order_types from dim.kioskdetails WHERE dim.is_valid_jsonb(order_types)) as kd
+cross join LATERAL jsonb_each(kd.order_types :: jsonb -> 'options') AS order_type(order_key, order_data)
+), json_order_types as (
+SELECT locationid,
+jsonb_build_object('order_type_id', order_type_id,
+                   'label', label,
+                   'external_delivery_mode', external_delivery_mode,
+                   'order_type_enabled', order_type_enabled,
+                   'pos_channel', pos_channel,
+                   'order_identity_mode', order_identity_mode,
+                   'customer_identity_mode', customer_identity_mode,
+                   'customer_identity_modes', customer_identity_modes,
+                   'ask_before_order', ask_before_order,
+                   'make_customer_name_optional', make_customer_name_optional,
+                   'make_phone_number_optional', make_phone_number_optional,
+                   'make_email_optional', make_email_optional,
+                   'make_date_of_birth_optional', make_date_of_birth_optional, 
+                   'make_last_four_ssn_optional', make_last_four_ssn_optional,
+                   'make_address_line1_optional', make_address_line1_optional,
+                   'make_address_line2_optional', make_address_line2_optional,
+                   'make_city_optional', make_city_optional,
+                   'make_state_optional', make_state_optional,
+                   'make_zipcode_optional', make_zipcode_optional,
+                   'make_country_optional', make_country_optional) as order_type_config
+FROM order_types_identities
+), array_order_types as (
+SELECT locationid, to_jsonb(array_agg(order_type_config)) as order_types_identity_config
+FROM json_order_types
+GROUP BY locationid
+), device_details as (
+SELECT 
+    kiosk_entry.kiosk_key :: TEXT AS kiosk_id,
+    (kiosk_entry.kiosk_data ->> 'name') as kiosk_name,
+    (kiosk_entry.kiosk_data ->> 'kioskHardwareId') as kiosk_hardware_id,
+    (kiosk_entry.kiosk_data -> 'deviceDetails' ->> 'appVersion') as kiosk_software_version,
+    (kiosk_entry.kiosk_data -> 'deviceDetails' ->> 'deviceType') as os_type,
+    (kiosk_entry.kiosk_data -> 'deviceDetails' ->> 'serialNumber') as serial_number,
+    (kiosk_entry.kiosk_data -> 'deviceDetails' ->> 'lastLoginTime') :: TIMESTAMP as last_login_time,
+    (kiosk_entry.kiosk_data -> 'deviceDetails' ->> 'testMode') :: BOOLEAN as is_test_mode,
+    (kiosk_entry.kiosk_data ->> 'lastSync') :: TIMESTAMP as last_sync_time,
+    (kiosk_entry.kiosk_data ->> 'isDemoDevice') :: BOOLEAN as is_demo_kiosk,
+    (kiosk_entry.kiosk_data ->> 'isTestModeOn') :: BOOLEAN as is_test_mode_on,
+    kd.locationid as location_id,
+    (kiosk_entry.kiosk_data ->> 'companyId') as organization_id,
+    (kiosk_entry.kiosk_data ->> 'activated') :: BOOLEAN as is_activated,
+    (kiosk_entry.kiosk_data -> 'paymentIntegrationConfigs') :: jsonb as payment_integration_configs,
+    (kiosk_entry.kiosk_data -> 'printerConfigurations') :: jsonb as printer_configs,
+    (kiosk_entry.kiosk_data ->> 'kioskActivation') :: INTEGER as kiosk_activation,
+    (kiosk_entry.kiosk_data ->> 'kioskMode') :: INTEGER as kiosk_mode,
+    (kiosk_entry.kiosk_data ->> 'kioskLogging') :: INTEGER as kiosk_logging,
+    (kiosk_entry.kiosk_data ->> 'isGoastKisok') :: BOOLEAN as is_goast_kiosk,
+    (kiosk_entry.kiosk_data ->> 'loyaltyLoginOtp') as loyalty_login_otp,
+    kd.pos_provider :: jsonb as pos_provider,
+    kd.loyalty_provider :: jsonb as loyalty_provider,
+    kd.payment_provider :: jsonb as payment_provider,
+    kd.scanners :: jsonb as scanners,
+    kd.item_special_request :: jsonb as item_special_request,
+    kd.legal_copy_enabled :: BOOLEAN as legal_copy_enabled,
+    kd.ada_configuration :: jsonb as ada_configuration,
+    kd.calculate_default_modifier_price :: BOOLEAN as calculate_default_modifier_price,
+    kd.track_kiosk_user_behavior :: BOOLEAN as track_kiosk_user_behavior,
+    kd.loyalty_feature :: BOOLEAN as loyalty_feature,
+    kd.pickup_flow :: BOOLEAN as pickup_flow,
+    kd.pos_auto_applied_discount :: BOOLEAN as pos_auto_applied_discount,
+    kd.search_functionality_enabled :: BOOLEAN as search_functionality_enabled,
+    kd.recent_orders_enabled :: BOOLEAN as recent_orders_enabled,
+    kd.play_card_config :: jsonb as play_card_config,
+    kd.round_up_for_charity :: BOOLEAN as round_up_for_charity,
+    kd.calories_enabled :: BOOLEAN as calories_enabled,
+    kd.scan_and_go_enabled :: BOOLEAN as scan_and_go_enabled,
+    kd.age_verification :: jsonb as age_verification,
+    (kd.tips_settings :: jsonb ->> 'enableTips') :: BOOLEAN as tips_enabled,
+    (kd.tips_settings :: jsonb ->> 'applyBeforeTaxes') :: BOOLEAN as apply_before_taxes,
+    (kd.kiosk_receipt_settings :: jsonb ->> 'autoPrint') :: BOOLEAN as auto_print_enabled,
+    (kd.kiosk_receipt_settings :: jsonb ->> 'includePosOrderNumber') :: BOOLEAN as include_pos_order_number,
+    (kd.kiosk_receipt_settings :: jsonb ->> 'showQrCodeWhenPrintReceiptFails') :: BOOLEAN as show_qr_code_when_print_receipt_fails,
+    (kd.kiosk_receipt_settings :: jsonb -> 'receiptVisibilityOptions' ->> 'modifierGroupNames') :: BOOLEAN as print_modifier_group_names,
+    (kd.kiosk_receipt_settings :: jsonb -> 'receiptVisibilityOptions' ->> 'defaultModifiers') :: BOOLEAN as print_default_modifiers,
+    (kd.kiosk_receipt_settings :: jsonb -> 'receiptVisibilityOptions' ->> 'freeModifiers') :: BOOLEAN as print_free_modifiers,
+    (kd.kiosk_receipt_settings :: jsonb -> 'receiptVisibilityOptions' ->> 'pricedModifiers') :: BOOLEAN as print_priced_modifiers,
+    (kd.kiosk_receipt_settings :: jsonb -> 'emailSettings' ->> 'enableEmailReceipt') :: BOOLEAN as enable_email_receipts,
+    (kd.kiosk_receipt_settings :: jsonb -> 'smsSetting' ->> 'enableSmsReceipt') :: BOOLEAN as enable_sms_receipt,
+    (kd.kiosk_receipt_settings :: jsonb -> 'showQrCodeForReceiptUrl') :: BOOLEAN as qr_code_for_receipt,
+    (kd.business_hours_config :: jsonb -> 'message' ->> 'showScreensaver') :: BOOLEAN as show_screensaver,
+    (kd.business_hours_config :: jsonb ->> 'showMessage') :: BOOLEAN as business_hours_show_message,
+    (kd.business_hours_config :: jsonb ->> 'enabled') :: BOOLEAN as business_hours_enabled,
+    (kd.business_hours_config :: jsonb ->> 'posHoursEnabled') :: BOOLEAN as pos_hours_enabled,
+    (kd.order_limit_config :: jsonb ->> 'quantityLimitPerItem') :: INTEGER as quantity_limit_per_item,
+    (kd.order_limit_config :: jsonb ->> 'quantityLimitPerOrder') :: INTEGER as quantity_limit_per_order,
+    (kd.order_limit_config :: jsonb ->> 'maxDiscountPerOrder') :: INTEGER as max_discount_per_order,
+    (kd.order_limit_config :: jsonb ->> 'showItemAsIsOption') :: BOOLEAN as show_item_asis_option,
+    (kd.order_limit_config :: jsonb ->> 'enableMinimumOrderTotal') :: BOOLEAN as enable_minimum_order_total,
+    (kd.order_limit_config :: jsonb ->> 'autoApplyMinQtyToFirstModifier') :: BOOLEAN as auto_apply_min_qty_to_first_modifier,
+    (kd.order_limit_config :: jsonb ->> 'showMakeItAMealOption') :: BOOLEAN as show_make_it_a_meal_option,
+    (kd.order_limit_config :: jsonb ->> 'enableComboAutoSkip') :: BOOLEAN as enable_combo_auto_skip,
+    (kd.order_limit_config :: jsonb ->> 'countToShowPromptsForItemUpsell') :: INTEGER as number_of_item_upsell_prompts_per_order,
+    (kd.order_limit_config :: jsonb -> 'discountOrderingOptions' ->> 'canEnterCode') :: BOOLEAN as can_enter_code_for_discount,
+    (kd.order_limit_config :: jsonb -> 'discountOrderingOptions' ->> 'canScanQRCode') :: BOOLEAN as can_scan_qr_code_for_discount,
+    (kd.order_limit_config :: jsonb -> 'discountOrderingOptions' ->> 'canSelectFromList') :: BOOLEAN as can_select_from_list_for_discount,
+    to_jsonb(array(select jsonb_object_keys(kd.kiosk_appearance_text_overrides :: jsonb -> 'strings'))) as enabled_languages,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'displayModifierGroupRestrictions') :: BOOLEAN as display_modifier_group_restriction,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'allowUserToCollapseOrExpandModifierGroups') :: BOOLEAN as allow_user_to_collapse_or_expand_modifier_groups,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'showModifierGroupNamesOrderReview') :: BOOLEAN as show_modifier_group_names_on_order_review,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'orderReviewShowDefaultModifiers') :: BOOLEAN as show_default_modifier_on_order_review,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'autoExpandModifierGorup') :: BOOLEAN as auto_expand_modifier_group,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'showFullPremiumModifierPrice') :: BOOLEAN as show_full_premium_modifier_price,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'enableNestedModifierIndentation') :: BOOLEAN as enable_nested_modifier_indentation,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'openNestedModifiersInPopup') :: BOOLEAN as open_nested_modifiers_in_popup,
+    kd.kiosk_appearance_style_options :: jsonb ->> 'categoryHeaderDisplayMode' as category_header_display_mode,
+    kd.kiosk_appearance_style_options :: jsonb ->> 'categoryHeaderLogoDisplayMode' as category_header_logo_display_mode,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'showCategoryHighlightedColor') :: BOOLEAN as show_category_highlighted_color,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'showItemDescriptions') :: BOOLEAN as show_item_description,
+    kd.kiosk_appearance_style_options :: jsonb ->> 'categoryNamePostition' as category_name_position,
+    (kd.kiosk_appearance_style_options :: jsonb -> 'kioskMenuAppearanceOptions' ->> 'hideSoldOutItemAndModifierOnKiosk') :: BOOLEAN as hide_sold_out_item_and_modifier_on_kiosk,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'makeCategorySideTranslucent') :: BOOLEAN as make_category_sidebar_translucent,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'enableSingleStepSubcategoryFlow') :: BOOLEAN as enable_single_step_subcategory_flow,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'removeCategoryHighLightedBorder') :: BOOLEAN as remove_category_highlighted_border,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'enableExtendedComboMode') :: BOOLEAN as enable_extended_combo_mode,
+    kd.kiosk_appearance_style_options :: jsonb ->> 'buttonStyle' as button_style,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'showDiscountCodeButton') :: BOOLEAN as show_discount_code_button,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'makeItemComboImagesRounded') :: BOOLEAN as make_item_combo_images_rounded,
+    (kd.kiosk_appearance_style_options :: jsonb ->> 'showLoyaltyPointsOnHeader') :: BOOLEAN as show_loyalty_points_on_header,
+    (kd.kiosk_appearance_style_options :: jsonb -> 'kioskStyleAcceptedPaymentOptions' ->> 'showCard') :: BOOLEAN as show_card_accepted_payment_options,
+    (kd.kiosk_appearance_style_options :: jsonb -> 'kioskStyleAcceptedPaymentOptions' ->> 'showGooglePay') :: BOOLEAN as show_google_pay_accepted_payment_options,
+    (kd.kiosk_appearance_style_options :: jsonb -> 'kioskStyleAcceptedPaymentOptions' ->> 'showApplePay') :: BOOLEAN as show_apple_pay_accepted_payment_options,
+    (kd.kiosk_appearance_style_options :: jsonb -> 'kioskStyleAcceptedPaymentOptions' ->> 'showCash') :: BOOLEAN as show_cash_accepted_payment_options,
+    (kd.kiosk_appearance_style_options :: jsonb -> 'tapToOrderSetting' ->> 'showTapToOrderCTA') :: BOOLEAN as show_tap_to_order_cta,
+    (kd.kiosk_appearance_style_options :: jsonb -> 'tapToOrderSetting' ->> 'useTextForCTA') :: BOOLEAN as use_text_for_cta,
+    (kd.kiosk_appearance_style_options :: jsonb -> 'tapToOrderSetting' ->> 'useImageForCTA') :: BOOLEAN as use_image_for_cta,
+    (kd.localization :: jsonb -> 'currency') :: jsonb as choose_a_currency,
+    kd.localization :: jsonb -> 'locale' ->> 'code' as choose_a_locale,
+    (kd.order_types :: jsonb -> 'orderTokenSettings' ->> 'orderNumberStart') :: INTEGER as order_number_start,
+    (kd.order_types :: jsonb -> 'orderTokenSettings' ->> 'allotment') :: INTEGER as allotment,
+    (kd.menu_behavior_config :: jsonb -> 'negativeModifierBehavior') :: jsonb as negative_modifier_behavior,
+    kd.disclaimer_text,
+    kd.preorder_popup_enabled,
+    kd.preorder_popup_text,
+    kd.perform_pos_status_check,
+    kd.sysinserttime
+from (select * from dim.kioskdetails WHERE dim.is_valid_jsonb(kiosks)) as kd
+cross join LATERAL jsonb_each(kd.kiosks :: jsonb) AS kiosk_entry(kiosk_key, kiosk_data)
+), total as (
+select distinct  
+       ol.organizationid as organization_id,
+       ol.organizationname as organization_name,
+       ol.locationid as location_id,
+       ol.locationname as location_name,
+       dd.kiosk_id,
+       dd.kiosk_name,
+       case when dd.kiosk_hardware_id like 'kiosk-hardware-%' then substring(dd.kiosk_hardware_id, 16, length(dd.kiosk_hardware_id)) else dd.kiosk_hardware_id end kiosk_hardware_id,
+       dd.kiosk_software_version,
+       dd.os_type,
+       dd.serial_number,
+       dd.is_test_mode,
+       dd.is_demo_kiosk,
+       dd.is_test_mode_on,
+       dd.last_login_time,
+       dd.last_sync_time,
+       k.devicecreatedon as device_created_on,
+       k.devicedeletedon as device_deleted_on,
+       k.istestkiosk as is_test_kiosk,
+       k.devicetype as device_type,
+       dd.is_activated,
+       dd.payment_integration_configs,
+       dd.printer_configs,
+       case dd.kiosk_activation when 1 then 'Auto' when 2 then 'Manual' end as kiosk_activation,
+       case when k.devicedeletedon is not null then True else False end as is_kiosk_deleted,
+       case dd.kiosk_mode when 1 then 'Live' when 2 then 'Demo' when 3 then 'Test' end as kiosk_mode,
+       dd.kiosk_logging,
+       dd.is_goast_kiosk,
+       dd.loyalty_login_otp,
+       dd.pos_provider,
+       dd.payment_provider,
+       '' as payment_device_type,
+       dd.loyalty_provider,
+       dd.scanners,
+       case org.status when 0 then 'Draft' when 1 then 'Onboarding' when 2 then 'Live' when 3 then 'Cancelled' end as organization_status,
+       case loc.status when 0 then 'Draft' when 1 then 'Onboarding' when 2 then 'Live' when 3 then 'Cancelled' end as location_status,
+       org.active as is_org_active,
+       loc.active as is_loc_active,
+       org.isdeleted as is_org_deleted,
+       loc.isdeleted as is_loc_deleted,
+       case when org.status = 2 then org.modifiedon end as org_go_live_date,
+       case when loc.status = 2 then loc.modifiedon end as loc_go_live_date,
+       org.createdon as org_created_date, 
+       loc.createdon as loc_created_date,
+       org.is_ecm_enabled as is_org_ecm_enabled,
+       org.is_cep_enabled as is_org_cep_enabled,
+       org.is_concessionaire_enabled as is_org_concessionaire_enabled,
+       org.is_smart_upsells_enabled as is_org_smart_upsells_enabled,
+       org.is_feedback_survey_enabled as is_org_feedback_survey_enabled,
+       org.is_digital_menu_board_enabled as is_org_digital_menu_board_enabled,
+       org.is_digital_menu_default_format_enabled as is_org_digital_menu_default_format_enabled,
+       loc.is_ecm_enabled as is_loc_ecm_enabled,
+       loc.is_cep_enabled as is_loc_cep_enabled,
+       loc.is_concessionaire_enabled as is_loc_concessionaire_enabled,
+       loc.is_smart_upsells_enabled as is_loc_smart_upsells_enabled,
+       loc.is_feedback_survey_enabled as is_loc_feedback_survey_enabled,
+       loc.is_digital_menu_board_enabled as is_loc_digital_menu_board_enabled,
+       loc.is_digital_menu_default_format_enabled as is_loc_digital_menu_default_format_enabled,
+       dd.sysinserttime,
+       now() as sysupdatetime,
+       dd.item_special_request,
+       dd.legal_copy_enabled,
+       dd.ada_configuration,
+       dd.calculate_default_modifier_price,
+       dd.track_kiosk_user_behavior,
+       dd.loyalty_feature,
+       dd.pickup_flow,
+       dd.pos_auto_applied_discount,
+       dd.search_functionality_enabled,
+       dd.recent_orders_enabled,
+       dd.play_card_config,
+       dd.round_up_for_charity,
+       dd.calories_enabled,
+       dd.scan_and_go_enabled,
+       dd.age_verification,
+       dd.tips_enabled,
+       dd.apply_before_taxes,
+       dd.auto_print_enabled,
+       dd.include_pos_order_number,
+       dd.show_qr_code_when_print_receipt_fails,
+       dd.print_modifier_group_names,
+       dd.print_default_modifiers,
+       dd.print_free_modifiers,
+       dd.print_priced_modifiers,
+       dd.enable_email_receipts,
+       dd.enable_sms_receipt,
+       dd.qr_code_for_receipt,
+       dd.show_screensaver,
+       dd.business_hours_show_message,
+       dd.business_hours_enabled,
+       dd.pos_hours_enabled,
+       dd.quantity_limit_per_item,
+       dd.quantity_limit_per_order,
+       dd.max_discount_per_order,
+       dd.show_item_asis_option,
+       dd.enable_minimum_order_total,
+       dd.auto_apply_min_qty_to_first_modifier,
+       dd.show_make_it_a_meal_option,
+       dd.enable_combo_auto_skip,
+       dd.number_of_item_upsell_prompts_per_order,
+       dd.can_enter_code_for_discount,
+       dd.can_scan_qr_code_for_discount,
+       dd.can_select_from_list_for_discount,
+       dd.enabled_languages,
+       dd.display_modifier_group_restriction,
+       dd.allow_user_to_collapse_or_expand_modifier_groups,
+       dd.show_modifier_group_names_on_order_review,
+       dd.show_default_modifier_on_order_review,
+       dd.auto_expand_modifier_group,
+       dd.enable_nested_modifier_indentation,
+       dd.open_nested_modifiers_in_popup,
+       dd.category_header_display_mode,
+       dd.category_header_logo_display_mode,
+       dd.show_item_description,
+       dd.category_name_position,
+       dd.hide_sold_out_item_and_modifier_on_kiosk,
+       dd.make_category_sidebar_translucent,
+       dd.enable_single_step_subcategory_flow,
+       dd.remove_category_highlighted_border,
+       dd.enable_extended_combo_mode,
+       dd.button_style,
+       dd.show_discount_code_button,
+       dd.make_item_combo_images_rounded,
+       dd.show_loyalty_points_on_header,
+       dd.show_card_accepted_payment_options,
+       dd.show_google_pay_accepted_payment_options,
+       dd.show_apple_pay_accepted_payment_options,
+       dd.show_cash_accepted_payment_options,
+       dd.show_tap_to_order_cta,
+       dd.use_text_for_cta,
+       dd.use_image_for_cta,
+       dd.choose_a_currency,
+       dd.choose_a_locale,
+       dd.order_number_start,
+       dd.allotment,
+       dd.negative_modifier_behavior,
+       dd.disclaimer_text,
+       dd.preorder_popup_enabled,
+       dd.preorder_popup_text,
+       aot.order_types_identity_config,
+       dd.show_category_highlighted_color,
+       org.cep_subscriptions :: jsonb as cep_subscriptions,
+       dd.perform_pos_status_check
+from device_details as dd
+left join array_order_types as aot
+        on dd.location_id = aot.locationid
+inner join dim.kiosk as k 
+        on dd.location_id = k.locationid and dd.kiosk_id = k.kioskid 
+inner join (select * from dim.organizationlocation where organizationtype = 0) as ol 
+        on dd.location_id = ol.locationid
+inner join dim.organization as org
+        on ol.organizationid = org.id
+inner join dim.organization as loc
+        on ol.locationid = loc.id
+)
+INSERT INTO dim.vw_grubbrrinstallbase
+SELECT * FROM total
+WHERE 1=1
+AND location_status = 'Live'
+AND is_loc_active = True
+AND kiosk_mode = 'Live';
+--AND is_kiosk_deleted = False
+--AND is_test_kiosk = False
+--AND is_test_mode_on = False;
+
+END;
+$BODY$;
+
+ALTER PROCEDURE dim.usp_grubbrr_install_base()
+    OWNER TO citus;
+
+-- PROCEDURE: fact.usp_update_datetime_fields()
+
+-- DROP PROCEDURE IF EXISTS fact.usp_update_datetime_fields();
+
+--CALL fact.usp_update_datetime_fields();
+/*
+UPDATE fact.transactionitem
+   SET orderdatelocal = th.orderdatelocal,
+       businessdate = th.businessdate
+FROM fact.transactionheader as th 
+WHERE transactionitem.locationid = th.locationid
+  AND transactionitem.transactionheaderid = th.transactionheaderid
+  AND (transactionitem.orderdatelocal IS NULL OR transactionitem.businessdate IS NULL);
+
+
+UPDATE fact.cep_incidents
+SET severity = de.severity
+FROM fact.deviceevent as de 
+WHERE cep_incidents.organizationid = de.companyid
+  AND cep_incidents.locationid = de.locationid
+  AND cep_incidents.eventmodule = de.moduleid 
+  AND cep_incidents.eventtoken = de.eventtoken
+  AND cep_incidents.eventcategory = de.datacategory
+  AND cep_incidents.eventtype = de.actiontype
+  AND cep_incidents.eventinstant = de.eventinstant;
+*/
+CREATE OR REPLACE PROCEDURE fact.usp_update_datetime_fields()
+LANGUAGE plpgsql
+AS $BODY$
+BEGIN
+
+UPDATE fact.transactionheader 
+   SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone),
+       updateddate    = NOW()
+FROM ( SELECT DISTINCT location.locationid,
+                 CASE
+                     WHEN ((location.timezone IS NULL) OR (location.timezone = ''::text)) THEN 'America/New_York'::text
+                     ELSE location.timezone
+                 END AS timezone
+            FROM dim.location) l
+WHERE (l.locationid = transactionheader.locationid) AND (transactionheader.orderdatelocal IS NULL);
+
+UPDATE fact.transactionheader 
+   SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text),
+       updateddate    = NOW()
+WHERE (transactionheader.orderdatelocal IS NULL);
+
+UPDATE fact.transactionheader 
+   SET dateid      = (to_char(transactionheader.orderdatelocal, 'YYYYMMDDHH24'::text))::integer,
+       updateddate = NOW()
+WHERE (transactionheader.dateid IS NULL);
+
+UPDATE fact.transactionheader 
+   SET businessdate = (transactionheader.orderdatelocal)::date,
+       updateddate = NOW()
+WHERE (transactionheader.businessdate IS NULL);
+
+UPDATE fact.transactionheader 
+   SET abtestid = abtests.abtestid
+FROM dim.abtests
+WHERE (abtests.ordersessionid = transactionheader.ordersessionid) AND (transactionheader.abtestid IS NULL);
+
+
+
+UPDATE fact.transactionitem 
+   SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone),
+       sysupdatetime  = NOW()
+FROM ( SELECT DISTINCT location.locationid,
+                 CASE
+                     WHEN ((location.timezone IS NULL) OR (location.timezone = ''::text)) THEN 'America/New_York'::text
+                     ELSE location.timezone
+                 END AS timezone
+            FROM dim.location) l
+WHERE (l.locationid = transactionitem.locationid) AND (transactionitem.orderdatelocal IS NULL);
+
+UPDATE fact.transactionitem
+   SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text),
+       sysupdatetime  = NOW()
+WHERE (transactionitem.orderdatelocal IS NULL);
+
+UPDATE fact.transactionitem 
+   SET businessdate  = (transactionitem.orderdatelocal)::date,
+       sysupdatetime = NOW()
+WHERE (transactionitem.businessdate IS NULL);
+
+
+UPDATE fact.watermarktable
+   SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.itemmodifier)
+WHERE watermarktablename = 'fact.itemmodifier'
+  AND source = 'nge';
+
+
+END;
+$BODY$;
+
+
+ALTER PROCEDURE fact.usp_update_datetime_fields()
+    OWNER TO citus;
+
+
+CREATE OR REPLACE VIEW dim.vw_weatherhourlydata
+ AS
+ SELECT w.locationid,
+    (w.weatherinfo ->> 'Date'::text)::date AS weatherdate,
+    (hour_entry.hour_data ->> 'Hour'::text)::integer AS hh,
+    (hour_entry.hour_data ->> 'Humidity'::text)::INTEGER AS humidity,
+    hour_entry.hour_data ->> 'Condition'::text AS condition,
+    ((hour_entry.hour_data ->> 'TemperatureInCelcius'::text))::numeric(8,2) AS temperature_c,
+    (hour_entry.hour_data ->> 'IsHot'::text)::BOOLEAN AS is_hot,
+    (hour_entry.hour_data ->> 'IsCalm'::text)::BOOLEAN AS is_calm,
+    (hour_entry.hour_data ->> 'IsCold'::text)::BOOLEAN AS is_cold,
+    (hour_entry.hour_data ->> 'IsCool'::text)::BOOLEAN AS is_cool,
+    (hour_entry.hour_data ->> 'IsMild'::text)::BOOLEAN AS is_mild,
+    (hour_entry.hour_data ->> 'IsWarm'::text)::BOOLEAN AS is_warm,
+    (hour_entry.hour_data ->> 'RainMm'::text)::numeric(8,2) AS rain_mm,
+    (hour_entry.hour_data ->> 'IsSunny'::text)::BOOLEAN AS is_sunny,
+    (hour_entry.hour_data ->> 'IsWindy'::text)::BOOLEAN AS is_windy,
+    (hour_entry.hour_data ->> 'IsCloudy'::text)::BOOLEAN AS is_cloudy,
+    (hour_entry.hour_data ->> 'IsDaytime'::text)::BOOLEAN AS is_daytime,
+    (hour_entry.hour_data ->> 'IsRaining'::text)::BOOLEAN AS is_raining,
+    (hour_entry.hour_data ->> 'IsSnowing'::text)::BOOLEAN AS is_snowing,
+    (hour_entry.hour_data ->> 'IsVeryHot'::text)::BOOLEAN AS is_very_hot,
+    (hour_entry.hour_data ->> 'IsFreezing'::text)::BOOLEAN AS is_freezing,
+    (hour_entry.hour_data ->> 'IsOvercast'::text)::BOOLEAN AS is_overcast,
+    (hour_entry.hour_data ->> 'SnowfallMm'::text)::numeric(8,2) AS snowfall_mm,
+    hour_entry.hour_data ->> 'TempBucket'::text AS temp_bucket,
+    hour_entry.hour_data ->> 'WindBucket'::text AS wind_bucket,
+    (hour_entry.hour_data ->> 'FeelsColder'::text)::BOOLEAN AS feels_colder,
+    (hour_entry.hour_data ->> 'FeelsHotter'::text)::BOOLEAN AS feels_hotter,
+    hour_entry.hour_data ->> 'FoodWeather'::text AS food_weather,
+    (hour_entry.hour_data ->> 'IsHeavyRain'::text)::BOOLEAN AS is_heavy_rain,
+    (hour_entry.hour_data ->> 'IsLightRain'::text)::BOOLEAN AS is_light_rain,
+    (hour_entry.hour_data ->> 'IsNighttime'::text)::BOOLEAN AS is_nighttime,
+    (hour_entry.hour_data ->> 'IsVeryWindy'::text)::BOOLEAN AS is_very_windy,
+    (hour_entry.hour_data ->> 'PressureHpa'::text)::numeric(8,2) AS pressure_hpa,
+    (hour_entry.hour_data ->> 'WeatherCode'::text)::INTEGER AS weather_code,
+    (hour_entry.hour_data ->> 'WindGustKmh'::text)::numeric(8,2) AS wind_gust_kmh,
+    (hour_entry.hour_data ->> 'ComfortScore'::text)::INTEGER AS comfort_score,
+    hour_entry.hour_data ->> 'DrinkWeather'::text AS drink_weather,
+    (hour_entry.hour_data ->> 'WindSpeedKmh'::text)::numeric(8,2) AS wind_speed_kmh,
+    hour_entry.hour_data ->> 'ComfortBucket'::text AS comfort_bucket,
+    hour_entry.hour_data ->> 'HumidityBucket'::text AS humidity_bucket,
+    hour_entry.hour_data ->> 'ConditionBucket'::text AS condition_bucket,
+    (hour_entry.hour_data ->> 'IsPrecipitating'::text)::BOOLEAN AS is_precipitating,
+    (hour_entry.hour_data ->> 'PrecipitationMm'::text)::numeric(8,2) AS precipitation_mm,
+    (hour_entry.hour_data ->> 'VisibilityMeters'::text)::numeric(8,2) AS visibility_meters,
+    (hour_entry.hour_data ->> 'CloudCoverPercent'::text)::numeric(8,2) AS cloud_cover_percent,
+    (hour_entry.hour_data ->> 'IsUnseasonablyHot'::text)::BOOLEAN AS is_unseasonably_hot,
+    (hour_entry.hour_data ->> 'IsUnseasonablyCold'::text)::BOOLEAN AS is_unseasonably_cold,
+    (hour_entry.hour_data ->> 'OutdoorDiningScore'::text)::INTEGER AS outdoor_dining_score,
+    (hour_entry.hour_data ->> 'WindDirectionDegrees'::text)::INTEGER AS wind_direction_degrees,
+    (hour_entry.hour_data ->> 'PrecipitationProbability'::text)::numeric(8,2) AS precipitation_probability,
+    (hour_entry.hour_data ->> 'ApparentTemperatureCelsius'::text)::numeric(8,2) AS apparent_temperature_celsius
+   FROM dim.weather w
+     CROSS JOIN LATERAL jsonb_each(w.weatherinfo -> 'Hours'::text) hour_entry(hour_key, hour_data)
+  WHERE w.weatherinfo::text ~~ '{"Date":%'::text;
+
+ALTER TABLE IF EXISTS dim.vw_weatherhourlydata
+    OWNER TO citus;
+
+
+-- PROCEDURE: dim.usp_master_keys_for_duplicate_items()
+
+-- DROP PROCEDURE IF EXISTS dim.usp_master_keys_for_duplicate_items();
+
+-- CALL dim.usp_master_keys_for_duplicate_items();
+
+CREATE OR REPLACE PROCEDURE dim.usp_master_keys_for_duplicate_items()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+TRUNCATE TABLE dim.duplicate_items_master;
+
+WITH duplicate_items AS (
+    SELECT *, 
+           count(*) over(PARTITION BY locationid, trim(lower(menuitemname))) as dupl
+    FROM dim.category_hierarchy
+)
+INSERT INTO dim.duplicate_items_master (
+    organizationid,
+    locationid,
+    categoryid,
+    categoryname,
+    menuitemid,
+    entitytype,
+    item_class_type,
+    menuitemname,
+    sysinserttime
+)
+SELECT organizationid,
+       locationid,
+       categoryid,
+       categoryname,
+       menuitemid,
+       entitytype,
+       item_class_type,
+       menuitemname,
+       now()::TIMESTAMP
+FROM duplicate_items di
+WHERE dupl > 1
+  /*AND NOT EXISTS (SELECT 1 FROM dim.duplicate_items_master as dim
+                  WHERE dim.locationid = di.locationid
+                    AND dim.categoryid = di.categoryid
+                    AND dim.menuitemid = di.menuitemid)*/
+  ;
+
+WITH item_counts AS (
+    SELECT locationid, dimmenuitemid, count(*) AS instance_count
+    FROM fact.transactionitem
+	WHERE transactionheaderid like 'ordevt-%'
+    GROUP BY locationid, dimmenuitemid
+)
+UPDATE dim.duplicate_items_master dim
+SET instance_count = ic.instance_count,
+    sysupdatetime  = now()::TIMESTAMP
+FROM item_counts ic
+WHERE dim.locationid = ic.locationid
+  AND dim.menuitemid = ic.dimmenuitemid;
+
+UPDATE dim.duplicate_items_master dim
+SET masteritemid = concat('mstritm-', uuid_generate_v5(uuid_ns_dns(), concat(dim.locationid, ':', trim(lower(dim.menuitemname))))),
+	sysupdatetime  = now()::TIMESTAMP
+WHERE dim.masteritemid IS NULL;
+
+
+END;
+$BODY$;
+ALTER PROCEDURE dim.usp_master_keys_for_duplicate_items()
+    OWNER TO citus;
+
+-- CALL fact.usp_location_statistics()
+
+CREATE OR REPLACE PROCEDURE fact.usp_location_statistics()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+TRUNCATE TABLE fact.location_statistics;
+
+WITH org_loc_lookup AS (
+    SELECT DISTINCT ol.organizationid, ol.organizationname, 
+           ol.locationid, ol.locationname
+    FROM dim.organizationlocation AS ol
+    WHERE 1=1 
+      --AND (CASE WHEN 'com-3owh66znkd' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = 'com-3owh66znkd'
+      AND ol.organizationtype = 0
+), order_items AS (
+    SELECT ti.*
+    FROM (
+        SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* 
+        FROM fact.transactionitem AS ti
+        INNER JOIN org_loc_lookup as ol
+			ON ti.locationid = ol.locationid
+        WHERE 1=1
+          AND ti.transactionheaderid LIKE 'ordevt-%'
+    ) as ti
+), frequent_customers as (
+    SELECT fc.organizationid, 
+           count(*) as number_of_frequent_customers,
+           sum(fc.ordercount) as orders_placed_by_freq_customers,
+           sum(fc.amountspent) as amount_spent_by_freq_customers,
+           sum(fc.amountspent) / case when sum(fc.ordercount) > 0 then sum(fc.ordercount) else 1 end as avg_amount_spent_by_freq_customers
+    FROM dim.frequentcustomer as fc
+    GROUP BY fc.organizationid
+), org_agg_trxn as (
+	SELECT ol.organizationid, 
+           count(*) as org_total_order_count,
+           sum(th.ordertotal) as org_total_sales_amount,
+           round(avg(th.ordertotal), 3) as org_avg_order_amount
+	FROM fact.transactionheader as th 
+    INNER JOIN org_loc_lookup as ol
+            ON th.locationid = ol.locationid
+    WHERE th.orderstatus = 'order-placed'
+	GROUP BY organizationid
+), loc_agg_trxn as (
+	SELECT th.locationid, 
+           count(*) as loc_total_order_count,
+           sum(th.ordertotal) as loc_total_sales_amount,
+           round(avg(th.ordertotal), 3) as loc_avg_order_amount
+	FROM fact.transactionheader as th 
+    WHERE th.orderstatus = 'order-placed'
+	GROUP BY th.locationid
+), loc_agg as (
+	SELECT organizationid, locationid, 
+           count(*) as total_items_ordered_within_loc
+	FROM order_items
+	GROUP BY organizationid, locationid
+), loc_itm_agg as (
+	SELECT organizationid, locationid, dimmenuitemid, 
+    count(*) as item_selection_frequency_within_loc,
+    max(itemunitprice) as itemunitprice
+	FROM order_items
+	GROUP BY organizationid, locationid, dimmenuitemid
+), item_statistics AS (
+	SELECT lia.organizationid, lia.locationid, lia.dimmenuitemid, lia.itemunitprice,
+           lia.item_selection_frequency_within_loc,
+           la.total_items_ordered_within_loc,
+           100 * lia.item_selection_frequency_within_loc :: NUMERIC(8,3) / la.total_items_ordered_within_loc as pct_item_selection_freq_within_loc,
+           dense_rank() OVER(PARTITION by lia.locationid ORDER BY item_selection_frequency_within_loc DESC) as loc_item_popularity
+	FROM loc_itm_agg as lia
+    INNER JOIN loc_agg as la 
+            ON lia.organizationid = la.organizationid
+           AND lia.locationid = la.locationid
+), item_details AS (
+    SELECT its.organizationid, its.locationid, 
+    jsonb_agg(
+        jsonb_build_object(
+            'menuitemid', its.dimmenuitemid, 
+            'x_times_selected', its.item_selection_frequency_within_loc,
+            'total_items_selected', its.total_items_ordered_within_loc,
+            'pct_of_all_items',  its.pct_item_selection_freq_within_loc,
+            'item_class_type', mi.item_class_type,
+            'itemunitprice', COALESCE(its.itemunitprice, mi.itemunitprice),
+            'loc_item_popularity', loc_item_popularity
+        ) ORDER BY loc_item_popularity ASC, item_selection_frequency_within_loc DESC
+    ) as loc_item_popularity
+    FROM item_statistics as its 
+    LEFT JOIN dim.menuitem as mi
+           ON its.dimmenuitemid = mi.menuitemid
+    WHERE loc_item_popularity <= 20
+    GROUP BY its.organizationid, its.locationid
+), order_types AS (
+SELECT locationid, jsonb_agg(value->>'label') AS order_type_labels
+FROM (SELECT * FROM dim.kioskdetails 
+      WHERE dim.is_valid_jsonb(order_types) 
+        AND locationid IN (SELECT locationid FROM org_loc_lookup)
+      ) as ld
+CROSS JOIN LATERAL jsonb_each(ld.order_types :: jsonb -> 'options')
+GROUP BY locationid
+)
+INSERT INTO fact.location_statistics
+SELECT DISTINCT 
+olk.organizationid,
+olk.organizationname,
+olk.locationid,
+olk.locationname,
+l.city,
+l.state,
+l.country,
+l.active as isactive,
+l.timezone,
+ot.order_type_labels,
+itd.loc_item_popularity,
+COALESCE(la.loc_total_order_count, 0) as loc_total_order_count,
+COALESCE(la.loc_total_sales_amount, 0) as loc_total_sales_amount,
+COALESCE(la.loc_avg_order_amount, 0) as loc_avg_order_amount,
+COALESCE(oa.org_total_order_count, 0) as org_total_order_count,
+COALESCE(oa.org_total_sales_amount, 0) as org_total_sales_amount,
+COALESCE(oa.org_avg_order_amount, 0) as org_avg_order_amount,
+COALESCE(fc.number_of_frequent_customers, 0) as number_of_frequent_customers,
+COALESCE(fc.orders_placed_by_freq_customers, 0) as orders_placed_by_freq_customers,
+COALESCE(fc.amount_spent_by_freq_customers, 0) as amount_spent_by_freq_customers,
+COALESCE(ROUND(fc.avg_amount_spent_by_freq_customers, 3), 0) as avg_amount_spent_by_freq_customers,
+now() :: TIMESTAMP as sysupdatetime
+FROM org_loc_lookup as olk
+LEFT JOIN dim.organization as l
+       ON olk.locationid = l.id
+LEFT JOIN order_types as ot
+       ON olk.locationid = ot.locationid
+LEFT JOIN item_details as itd
+       ON olk.locationid = itd.locationid
+LEFT JOIN loc_agg_trxn as la 
+       ON olk.locationid = la.locationid
+LEFT JOIN org_agg_trxn as oa
+       ON olk.organizationid = oa.organizationid
+LEFT JOIN frequent_customers as fc 
+       ON olk.organizationid = fc.organizationid;
+
+END;
+$BODY$;
+ALTER PROCEDURE fact.usp_location_statistics()
+    OWNER TO citus;
+
+CREATE OR REPLACE PROCEDURE fact.usp_offer_analysis()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+WITH delta as (
+         SELECT * FROM fact.recommendations as rc
+         WHERE 1=1 
+           AND rc.syscosmosts > (select ts - 10 from fact.watermarktable where watermarktablename = 'fact.recommendations')
+           AND not EXISTS (select 1 from fact.vw_offer_analysis as oa where oa.locationid = rc.locationid and oa.transactionheaderid = rc.transactionheaderid)
+), rec AS (
+         SELECT rc.transactionheaderid,
+            rc.locationid,
+            rc.recommendationid,
+            rc.offereditems,
+            rc.prompttimestamp,
+            rc.prompttimestamp :: TIMESTAMP as upsellprompttime,
+            rc.syscosmosts,
+            element.value ->> 'itemId'::text AS offered_itemid,
+            element.value ->> 'upsellLevel'::text AS offered_upselllevel,
+            element.value ->> 'promptItemId'::text AS offered_prmpid,
+            element.value ->> 'upsellGroupId'::text AS offered_upslgrpid
+           FROM delta as rc,
+            LATERAL jsonb_array_elements(rc.offereditems) element(value)
+), selected AS (
+         SELECT rc.transactionheaderid,
+            rc.locationid,
+            rc.recommendationid,
+            rc.selecteditems,
+            rc.prompttimestamp,
+            element.value ->> 'itemId'::text AS selected_itemid,
+            element.value ->> 'quantity'::text AS selected_quantity,
+            element.value ->> 'upsellLevel'::text AS selected_upselllevel,
+            element.value ->> 'promptItemId'::text AS selected_prmpid,
+            element.value ->> 'upsellGroupId'::text AS selected_upslgrpid
+           FROM delta as rc,
+            LATERAL jsonb_array_elements(rc.selecteditems) element(value)
+), item_analysis as (
+        SELECT r.locationid, 
+            r.transactionheaderid,
+            r.recommendationid,
+            r.offered_itemid AS offereditem,
+            s.selected_itemid AS selecteditem,
+                CASE
+                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'item'::text THEN 'Item Level Upsells'::text
+                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'order'::text THEN 'Order Level Upsells'::text
+                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'ai'::text THEN 'Smart Upsells'::text
+                    ELSE NULL::text
+                END AS upselltype,
+            coalesce(s.selected_upslgrpid, r.offered_upslgrpid) AS upsellgroupid,
+            ul.upsellgroupname,
+                CASE
+                    WHEN lower(s.selected_quantity) = ANY (ARRAY['true'::text, '1'::text]) THEN 1
+                    ELSE lower(s.selected_quantity)::integer
+                END AS quantity,
+            r.prompttimestamp,
+            r.upsellprompttime,
+            r.syscosmosts,
+            now() as sysinserttime
+        FROM (SELECT * FROM rec WHERE rec.offered_itemid like 'itm-%') r
+            LEFT JOIN selected s ON r.transactionheaderid::text = s.transactionheaderid::text 
+                                AND r.recommendationid::text = s.recommendationid::text 
+                                AND r.offered_itemid = s.selected_itemid
+            LEFT JOIN dim.upsellgrouplookup ul ON coalesce(s.selected_upslgrpid, r.offered_upslgrpid) = ul.upsellgroupid::text
+), category_analysis as (
+        SELECT r.locationid, 
+            r.transactionheaderid,
+            r.recommendationid,
+            r.offered_itemid AS offereditem,
+            s.selected_itemid AS selecteditem,
+                CASE
+                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'item'::text THEN 'Item Level Upsells'::text
+                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'order'::text THEN 'Order Level Upsells'::text
+                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'ai'::text THEN 'Smart Upsells'::text
+                    ELSE NULL::text
+                END AS upselltype,
+            coalesce(s.selected_upslgrpid, r.offered_upslgrpid) AS upsellgroupid,
+            ul.upsellgroupname,
+                CASE
+                    WHEN lower(s.selected_quantity) = ANY (ARRAY['true'::text, '1'::text]) THEN 1
+                    ELSE lower(s.selected_quantity)::integer
+                END AS quantity,
+            r.prompttimestamp,
+            r.upsellprompttime,
+            r.syscosmosts,
+            now() as sysinserttime
+        FROM (SELECT * FROM rec WHERE rec.offered_itemid like 'cat-%') as r
+        INNER join dim.category_hierarchy as ctg 
+                on r.offered_itemid = ctg.categoryid
+        INNER JOIN (SELECT * FROM selected WHERE selected.selected_itemid not in (SELECT offered_itemid FROM rec)) s 
+                ON r.transactionheaderid::text = s.transactionheaderid::text 
+                AND r.recommendationid::text = s.recommendationid::text 
+                AND ctg.menuitemid = s.selected_itemid --to determine which offered item is selected
+        LEFT JOIN dim.upsellgrouplookup ul ON coalesce(s.selected_upslgrpid, r.offered_upslgrpid) = ul.upsellgroupid::text
+), total as (
+            SELECT * FROM item_analysis
+            UNION
+            SELECT * FROM category_analysis
+    ) INSERT INTO fact.vw_offer_analysis
+      SELECT * FROM total;
+
+    UPDATE fact.watermarktable
+    SET ts = rec.maxts
+    FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.recommendations' as tablename FROM fact.recommendations) as rec 
+    WHERE watermarktable.watermarktablename = rec.tablename;
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_offer_analysis()
+    OWNER TO citus;
+
+
+--CALL fact.usp_recommendations_stage_to_fact();
+CREATE OR REPLACE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+insert into fact.recommendations 
+(transactionheaderid, locationid, recommendationid, offereditems, selecteditems, isconverted, prompttimestamp, sysinserttime, syscosmosts)
+select rc.transactionheaderid,
+       rc.locationid,
+       rc.recommendationid, 
+       rc.offereditems :: jsonb, 
+       rc.selecteditems :: jsonb, 
+       case when (rc.selecteditems = '[]' or rc.selecteditems is null) then false else true end as isconverted,
+       rc.prompttimestamp, 
+       rc.sysinserttime,
+       rc.syscosmosts
+from stg.recommendations as rc
+where not exists (select 1 from fact.recommendations as th where th.transactionheaderid = rc.transactionheaderid and th.recommendationid = rc.recommendationid);
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_item_recommendations_stage_to_fact()
+OWNER TO citus;
+
+--CALL fact.usp_modifier_recommendations_stage_to_fact();
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+insert into fact.modifier_recommendations 
+(locationid, transactionheaderid, ordersessionid, orderid, modifier_impressions, modifier_interactions, 
+ businessdate, orderdateutc, frequentcustomerid, syscosmosts, sysinserttime)
+select mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       mrc.modifier_impressions :: jsonb, 
+       mrc.modifier_interactions :: jsonb, 
+       mrc.businessdate, 
+       mrc.orderdateutc,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime
+from stg.modifier_recommendation_sessions as mrc
+where not exists (select 1 from fact.modifier_recommendations as mr where mr.locationid = mrc.locationid and mr.transactionheaderid = mrc.transactionheaderid);
+
+UPDATE fact.modifier_recommendations
+SET orderdatelocal = orderdateutc::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone from dim.location) as l
+WHERE modifier_recommendations.locationid = l.locationid 
+  AND modifier_recommendations.orderdatelocal is null;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_recommendations)
+WHERE watermarktablename = 'fact.modifier_recommendations'
+  AND source = 'nge';
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_modifier_recommendations_stage_to_fact()
+OWNER TO citus;
+
+
+
+--CALL fact.usp_modifier_impression_analysis();
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_impression_analysis()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+WITH delta_impressions AS (
+SELECT *
+FROM fact.modifier_recommendations as mrc
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_impressions' AND source = 'nge')
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_impressions as mim 
+                  WHERE mim.locationid = mrc.locationid
+                    AND mim.transactionheaderid = mrc.transactionheaderid)
+), modifier_impressions AS (
+SELECT mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       outer_elem->>'itemId'                 AS menuitemid,
+       rec->>'modifierId'                    AS modifierid,
+       outer_elem->>'parentModifierId'       AS parent_modifier_id,
+       outer_elem->>'selectionType'          AS selection_type,
+      (outer_elem->>'nestingDepth')::INTEGER AS nesting_depth,    
+      (rec->>'position')::INTEGER            AS position,
+      (rec->>'score')::NUMERIC(5, 3)         AS score,
+       outer_elem->>'strategy'               AS strategy,
+       outer_elem->>'context'                AS context,
+      (rec->>'selected')::boolean            AS selected,
+      (rec->>'preDeselected')::boolean       AS pre_deselected,
+      (rec->>'confirmedRemoved')::boolean    AS confirmed_removed,
+      (rec->>'preSelected')::boolean         AS pre_selected,
+       mrc.businessdate, 
+       mrc.orderdatelocal,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime    
+FROM delta_impressions as mrc,
+    -- Step 1: unnest the top-level array
+    jsonb_array_elements(modifier_impressions) AS outer_elem,
+    -- Step 2: unnest the nested recommendations array
+    jsonb_array_elements(outer_elem->'recommendations') AS rec
+)
+INSERT INTO fact.modifier_impressions
+SELECT *, NULL :: TIMESTAMP as sysupdatetime
+FROM modifier_impressions;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_impressions)
+WHERE watermarktablename = 'fact.modifier_impressions'
+  AND source = 'nge';
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_modifier_impression_analysis()
+OWNER TO citus;
+
+
+
+
+--CALL fact.usp_modifier_interaction_analysis();
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_interaction_analysis()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+WITH delta_interactions AS (
+SELECT *
+FROM fact.modifier_recommendations as mrc
+WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Interactions')
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mim 
+                  WHERE mim.locationid = mrc.locationid
+                    AND mim.transactionheaderid = mrc.transactionheaderid)
+), modifier_interactions AS (
+SELECT mrc.locationid,
+       mrc.transactionheaderid,
+       mrc.ordersessionid,
+       mrc.orderid,
+       outer_elem->>'itemId' as menuitemid,
+       outer_elem->>'action' as action,
+       outer_elem->>'modifierId' as modifierid,
+       (outer_elem->>'recordedAt')::TIMESTAMP as recorded_at,
+       (outer_elem->>'nestingDepth') :: INTEGER as nesting_depth,
+       outer_elem->>'selectionType' as selection_type,
+       outer_elem->>'modifierGroupId' as modifiergroupid,
+       outer_elem->>'parentModifierId' as parent_modifier_id,
+       mrc.businessdate, 
+       mrc.orderdatelocal,
+       mrc.frequentcustomerid,
+       mrc.syscosmosts,
+       mrc.sysinserttime    
+FROM delta_interactions as mrc,
+    -- Step 1: unnest the top-level array
+    jsonb_array_elements(modifier_interactions) AS outer_elem
+), trxn_enrichment AS (
+SELECT mi.locationid,
+       mi.transactionheaderid,
+       mi.ordersessionid,
+       mi.orderid,
+       imd.itemid as orderitemid,
+       mi.menuitemid,
+       mi.modifiergroupid,
+       mi.modifierid,
+       imd.modifiername,
+       mi.parent_modifier_id,
+       mi.nesting_depth,
+       imd.modifierquantity,
+       imd.modifierprice,
+       imd.freequantity,
+       mi.selection_type,
+       mi.action,
+       mi.recorded_at as session_recorded_at,
+       mi.businessdate,
+       mi.orderdatelocal,
+       mi.frequentcustomerid,
+       mi.syscosmosts,
+       mi.sysinserttime
+    FROM modifier_interactions as mi 
+    LEFT JOIN fact.transactionitem as ti 
+        ON mi.locationid = ti.locationid
+        AND mi.transactionheaderid = ti.transactionheaderid
+        AND mi.menuitemid = ti.dimmenuitemid
+    LEFT JOIN fact.itemmodifier as imd 
+        ON mi.transactionheaderid = imd.transactionheaderid
+        AND ti.itemid = imd.itemid
+        AND mi.modifiergroupid = imd.modifiergroupid
+        AND mi.modifierid = imd.modifierid
+)
+INSERT INTO fact.modifier_interactions
+SELECT *, 
+       NULL :: TIMESTAMP as sysupdatetime, 
+       5 as sourceid
+FROM trxn_enrichment;
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 5)
+WHERE watermarktablename = 'fact.modifier_interactions'
+  AND source = 'nge-Interactions';
+
+
+WITH delta_modifier_trxns AS (
+SELECT *
+FROM fact.itemmodifier as im
+WHERE locationid LIKE 'loc-%'
+  AND (syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options') OR
+       syscosmosts IS NULL)
+  AND NOT EXISTS (SELECT 1 FROM fact.modifier_interactions as mint 
+                  WHERE mint.locationid = im.locationid
+                    AND mint.transactionheaderid = im.transactionheaderid)
+), modfr_enrichment AS (
+SELECT mt.locationid,
+       mt.transactionheaderid,
+       ti.ordersessionid,
+       ti.orderid,
+       ti.itemid as orderitemid,
+       ti.dimmenuitemid as menuitemid,
+       mt.modifiergroupid,
+       mt.modifierid,
+       mt.modifiername,
+       NULL :: TEXT as parent_modifier_id,
+       NULL :: INTEGER as nesting_depth,
+       mt.modifierquantity,
+       mt.modifierprice,
+       mt.freequantity,
+       CASE WHEN mgm.is_default = False AND mg.min_selection = 0 AND mg.max_selection >= 0 THEN 'optional'
+            WHEN mgm.is_default = False AND mg.min_selection >= 1 AND mg.max_selection >= 1 THEN 'required'
+            WHEN mgm.is_default = True THEN 'default' END selection_type,
+
+       CASE WHEN mgm.is_default = False AND mg.min_selection = 0 AND mg.max_selection >= 0 AND mt.modifierquantity >= 1 THEN 'added'                  --optional modifier added
+            WHEN mgm.is_default = False AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'selected'              --required modifier selected
+            WHEN mgm.is_default = True AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity >= 1 THEN 'kept'                   --default modifier left selected
+            WHEN mgm.is_default = True AND mg.min_selection >= 1 AND mg.max_selection >= 1 AND mt.modifierquantity = 0 THEN 'removed' END AS action,  --default modifier de-selected
+       NULL :: TEXT as session_recorded_at,
+       mt.businessdate,
+       ti.orderdatelocal,
+       ti.frequentcustomerid,
+       mt.syscosmosts,
+       mt.sysinserttime
+FROM delta_modifier_trxns as mt
+LEFT JOIN dim.modifier_group_mapping as mgm
+    ON mgm.modifiergroupid = mt.modifiergroupid
+    AND mgm.modifierid = mt.modifierid
+LEFT JOIN dim.modifier_group as mg 
+    ON mg.modifiergroupid = mt.modifiergroupid
+LEFT JOIN fact.transactionitem as ti 
+    ON mt.transactionheaderid = ti.transactionheaderid
+    AND mt.itemid = ti.itemid
+)
+INSERT INTO fact.modifier_interactions
+SELECT *, 
+       NULL :: TIMESTAMP as sysupdatetime, 
+       6 as sourceid
+FROM modfr_enrichment;
+
+
+/*
+UPDATE fact.modifier_interactions
+SET modifierquantity = im.modifierquantity,
+    modifierprice = im.modifierprice,
+    freequantity = im.freequantity
+FROM fact.itemmodifier as im 
+WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
+  AND modifier_interactions.orderid = im.orderid 
+  AND modifier_interactions.modifiergroupid = im.modifiergroupid
+  AND modifier_interactions.modifierid = im.modifierid
+  AND modifier_interactions.modifierquantity IS NULL
+  AND modifier_interactions.modifierprice IS NULL
+  AND modifier_interactions.freequantity IS NULL;
+*/
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 6)
+WHERE watermarktablename = 'fact.modifier_interactions'
+  AND source = 'nge-Options';
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_modifier_interaction_analysis()
+OWNER TO citus;
+
+
+--CALL fact.usp_gem_sent_surveys_to_fact();
+
+CREATE OR REPLACE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+INSERT INTO fact.sent_surveys
+SELECT
+    organizationid,
+    locationid,
+    ordersessionid,
+    orderid,
+    gem_event_category,
+    gem_event_type,
+    survey_metadata :: jsonb as survey_metadata,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime
+FROM stg.sent_surveys AS ss
+WHERE NOT EXISTS (SELECT 1 FROM fact.sent_surveys as fs 
+                  WHERE fs.locationid = ss.locationid 
+                    AND fs.ordersessionid = ss.ordersessionid);
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) FROM fact.sent_surveys)
+WHERE watermarktablename = 'fact.sent_surveys'
+  AND source = 'gem';
+
+END;
+$BODY$;
+
+
+ALTER PROCEDURE fact.usp_gem_sent_surveys_to_fact()
+OWNER TO citus;
+
+
+
+
+--CALL fact.usp_gem_sent_surveys_to_fact();
+
+CREATE OR REPLACE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+DROP TABLE IF EXISTS temp_delta_sent_surveys;
+CREATE TEMPORARY TABLE temp_delta_sent_surveys (
+    organizationid       TEXT COLLATE pg_catalog."default",
+    locationid           TEXT COLLATE pg_catalog."default",
+    ordersessionid       TEXT COLLATE pg_catalog."default",
+    transactionheaderid  TEXT COLLATE pg_catalog."default",
+    gem_event_category   TEXT COLLATE pg_catalog."default",
+    gem_event_type       TEXT COLLATE pg_catalog."default",
+    orderid              TEXT COLLATE pg_catalog."default",
+    surveyid             TEXT COLLATE pg_catalog."default",
+    itemid               TEXT COLLATE pg_catalog."default",
+    is_responded         BOOLEAN,
+    gem_event_instant    TEXT COLLATE pg_catalog."default",
+    gem_syscosmosts      BIGINT,
+    sysinserttime        TIMESTAMP,
+    sysupdatetime        TIMESTAMP,
+    menuitemid           TEXT COLLATE pg_catalog."default"
+);
+
+
+WITH delta_sent_surveys AS (
+    SELECT 
+        organizationid,
+        locationid,
+        ordersessionid,
+        orderid AS transactionheaderid,
+        gem_event_category,
+        gem_event_type,
+        survey_metadata,
+        CONCAT('ord-', (survey_metadata ->> 'orderId')::TEXT) AS orderid,
+        CASE WHEN jsonb_typeof(survey_metadata -> 'surveyIds') = 'array' THEN survey_metadata -> 'surveyIds' END AS surveyid_array,
+        CASE WHEN survey_metadata ->> 'surveyIds' NOT LIKE '[%]' THEN survey_metadata ->> 'surveyIds' END AS surveyid_text,
+        CASE WHEN jsonb_typeof(survey_metadata -> 'itemId') = 'array' THEN survey_metadata -> 'itemId' END AS itemid_array,
+        CASE WHEN survey_metadata ->> 'itemId' NOT LIKE '[%]' THEN survey_metadata ->> 'itemId' END AS itemid_text,
+        is_responded,
+        gem_event_instant,
+        gem_syscosmosts,
+        sysinserttime,
+        sysupdatetime
+    FROM fact.sent_surveys AS ss
+    WHERE ss.gem_syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem')
+      AND NOT EXISTS (SELECT 1 FROM fact.itemssurvey AS its 
+                      WHERE its.locationid = ss.locationid
+                        AND its.orderid = ss.orderid)
+), flattened_survey_trxns AS (
+    SELECT
+        dss.organizationid,
+        dss.locationid,
+        dss.ordersessionid,
+        dss.transactionheaderid,
+        dss.gem_event_category,
+        dss.gem_event_type,
+        dss.orderid,
+        TRIM(flat_survey.surveyid) AS surveyid,
+        --TRIM(flat_item.itemid)     AS itemid,
+        dss.is_responded,
+        dss.gem_event_instant,
+        dss.gem_syscosmosts,
+        dss.sysinserttime,
+        dss.sysupdatetime
+    FROM delta_sent_surveys AS dss
+    CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.surveyid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.surveyid_array))
+                 WHEN dss.surveyid_text  IS NOT NULL THEN string_to_array(dss.surveyid_text, ',')
+            END
+        ) AS surveyid
+    ) AS flat_survey
+    /*CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.itemid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.itemid_array))
+                 WHEN dss.itemid_text  IS NOT NULL THEN string_to_array(dss.itemid_text, ',')
+            END
+        ) AS itemid
+    ) AS flat_item*/
+), flattened_item_trxns AS (
+    SELECT
+        dss.organizationid,
+        dss.locationid,
+        dss.ordersessionid,
+        dss.transactionheaderid,
+        dss.gem_event_category,
+        dss.gem_event_type,
+        dss.orderid,
+        --TRIM(flat_survey.surveyid) AS surveyid,
+        TRIM(flat_item.itemid)     AS itemid,
+        dss.is_responded,
+        dss.gem_event_instant,
+        dss.gem_syscosmosts,
+        dss.sysinserttime,
+        dss.sysupdatetime
+    FROM delta_sent_surveys AS dss
+    /*CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.surveyid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.surveyid_array))
+                 WHEN dss.surveyid_text  IS NOT NULL THEN string_to_array(dss.surveyid_text, ',')
+            END
+        ) AS surveyid
+    ) AS flat_survey*/
+    CROSS JOIN LATERAL (
+        SELECT unnest(
+            CASE WHEN dss.itemid_array IS NOT NULL THEN ARRAY(SELECT jsonb_array_elements_text(dss.itemid_array))
+                 WHEN dss.itemid_text  IS NOT NULL THEN string_to_array(dss.itemid_text, ',')
+            END
+        ) AS itemid
+    ) AS flat_item
+
+), joined_surveys_with_items AS (
+    SELECT st.organizationid,
+           st.locationid,
+           st.ordersessionid,
+           st.transactionheaderid,
+           st.gem_event_category,
+           st.gem_event_type,
+           st.orderid,
+           st.surveyid,
+           it.itemid,
+           st.is_responded,
+           st.gem_event_instant,
+           st.gem_syscosmosts,
+           st.sysinserttime,
+           st.sysupdatetime 
+           --ti.dimmenuitemid as menuitemid
+    FROM flattened_survey_trxns as st 
+    LEFT JOIN flattened_item_trxns as it
+        ON st.locationid = it.locationid
+        AND st.transactionheaderid = it.transactionheaderid
+)
+INSERT INTO temp_delta_sent_surveys
+SELECT * FROM joined_surveys_with_items;
+
+
+INSERT INTO fact.itemssurvey (
+    organizationid,
+    locationid,
+    ordersessionid,
+    orderid,
+    surveyissuedtimestamp,
+    gem_event_category,
+    gem_event_type,
+    surveyid,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime,
+    itemid
+)
+SELECT
+    organizationid,
+    locationid,
+    ordersessionid,
+    transactionheaderid,
+    CASE WHEN substring(gem_event_instant, 20, 1) = '.' 
+         THEN replace(replace(substring(gem_event_instant, 1, 23), 'T', ' '), '+', '0') 
+         ELSE replace(substring(gem_event_instant, 1, 19), 'T', ' ') 
+    END AS surveyissuedtimestamp,
+    gem_event_category,
+    gem_event_type,
+    surveyid,
+    is_responded,
+    gem_event_instant,
+    gem_syscosmosts,
+    sysinserttime,
+    sysupdatetime,
+    itemid
+FROM temp_delta_sent_surveys as tds
+WHERE NOT EXISTS (SELECT * FROM fact.itemssurvey as its 
+                  WHERE its.organizationid = tds.organizationid
+                    AND its.locationid = tds.locationid
+                    AND its.orderid = tds.transactionheaderid
+                    AND its.itemid = tds.menuitemid
+                    AND its.surveyid = tds.surveyid);
+
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(gem_syscosmosts), 1775002010) - 10 FROM fact.itemssurvey)
+WHERE watermarktablename = 'fact.itemssurvey'
+  AND source = 'gem';
+
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
+OWNER TO citus;
+
+
+
+
+--CALL fact.usp_update_occasion_survey_datetime_fields();
+--SELECT *, to_timestamp(ts) FROM fact.watermarktable as wt;
+
+
+CREATE OR REPLACE PROCEDURE fact.usp_update_occasion_survey_datetime_fields()
+LANGUAGE plpgsql
+AS $BODY$
+
+BEGIN
+
+UPDATE fact.occasionsurveydetail
+SET organizationid = ol.organizationid
+FROM (select * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
+WHERE occasionsurveydetail.locationid = ol.locationid 
+  and occasionsurveydetail.organizationid is null;
+
+UPDATE fact.itemssurvey
+SET organizationid = ol.organizationid
+FROM (select * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
+WHERE itemssurvey.locationid = ol.locationid 
+  and itemssurvey.organizationid is null;
+
+UPDATE fact.occasionsurveydetail
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
+WHERE occasionsurveydetail.locationid = l.locationid
+  and occasionsurveydetail.surveylocaltimestamp is null;
+
+UPDATE fact.occasionsurveydetail
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'
+WHERE surveylocaltimestamp is null;
+
+UPDATE fact.itemssurvey
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
+WHERE itemssurvey.locationid = l.locationid
+  and itemssurvey.surveylocaltimestamp is null;
+
+UPDATE fact.itemssurvey
+SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'
+WHERE surveylocaltimestamp is null;
+
+UPDATE fact.occasionsurveydetail
+SET dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)
+WHERE dateid is null;
+
+UPDATE fact.itemssurvey
+SET dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)
+WHERE dateid is null;
+
+DELETE FROM fact.occasionsurveydetail as osd
+WHERE NOT EXISTS (SELECT 1 FROM dim.occasionsurvey as os 
+                WHERE os.organizationid = osd.organizationid
+                  AND os.surveyid = osd.surveyid);
+
+DELETE FROM fact.itemssurvey as its 
+WHERE NOT EXISTS (SELECT 1 FROM dim.occasionsurvey as os 
+                WHERE os.organizationid = its.organizationid
+                  AND os.surveyid = its.surveyid);
+
+UPDATE fact.watermarktable
+SET ts = tr.maxts
+FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 1) as tr 
+WHERE watermarktable.watermarktablename = tr.tablename
+  AND watermarktable.source = 'nge';
+
+UPDATE fact.watermarktable
+SET ts = tr.maxts
+FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 2) as tr 
+WHERE watermarktable.watermarktablename = tr.tablename
+  AND watermarktable.source = 'gem';
+
+UPDATE fact.watermarktable
+SET ts = (SELECT coalesce(max(nge_syscosmosts), 1720000300) - 10 FROM fact.itemssurvey)
+WHERE watermarktablename = 'fact.itemssurvey'
+  AND source = 'nge';
+
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_update_occasion_survey_datetime_fields()
+OWNER TO citus;
