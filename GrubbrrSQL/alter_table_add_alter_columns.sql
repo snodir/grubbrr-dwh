@@ -71,6 +71,38 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
 
 -- Table: dim.menuitem
 
+CREATE OR REPLACE FUNCTION dim.is_valid_jsonb(input TEXT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql IMMUTABLE STRICT
+AS $BODY$
+BEGIN
+    PERFORM input::jsonb;
+    RETURN TRUE;
+EXCEPTION WHEN others THEN
+    RETURN FALSE;
+END;
+$BODY$;
+
+
+CREATE OR REPLACE FUNCTION dim.array_to_text(a jsonb)
+RETURNS TEXT
+LANGUAGE sql IMMUTABLE STRICT
+AS $BODY$
+    SELECT initcap(replace(replace(replace(a::text, '[', ''), ']', ''), '"', ''));
+$BODY$;
+
+CREATE OR REPLACE FUNCTION fact.parse_iso_timestamp(ts_string TEXT)
+RETURNS TEXT
+LANGUAGE sql IMMUTABLE STRICT
+AS $BODY$
+    SELECT CASE WHEN substring(ts_string, 20, 1) = '.'
+                THEN replace(replace(substring(ts_string, 1, 23), 'T', ' '), '+', '0')
+                ELSE replace(substring(ts_string, 1, 19), 'T', ' ')
+           END;
+$BODY$;
+
+
+
 CREATE TABLE IF NOT EXISTS dim.menuitem
 (
     id bigint NOT NULL,
@@ -286,8 +318,8 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 ALTER TABLE dim.organizationlocation
-    ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
-    ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
 
 ALTER TABLE dim.userlocation
     ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE;
@@ -1080,35 +1112,6 @@ ADD COLUMN IF NOT EXISTS show_category_highlighted_color BOOLEAN,
 ADD COLUMN IF NOT EXISTS cep_subscriptions jsonb,
 ADD COLUMN IF NOT EXISTS perform_pos_status_check BOOLEAN;
 
-CREATE OR REPLACE FUNCTION dim.is_valid_jsonb(input TEXT)
-RETURNS BOOLEAN
-LANGUAGE plpgsql IMMUTABLE STRICT
-AS $BODY$
-BEGIN
-    PERFORM input::jsonb;
-    RETURN TRUE;
-EXCEPTION WHEN others THEN
-    RETURN FALSE;
-END;
-$BODY$;
-
-
-CREATE OR REPLACE FUNCTION dim.array_to_text(a jsonb)
-RETURNS TEXT
-LANGUAGE sql IMMUTABLE STRICT
-AS $BODY$
-    SELECT initcap(replace(replace(replace(a::text, '[', ''), ']', ''), '"', ''));
-$BODY$;
-
-CREATE OR REPLACE FUNCTION fact.parse_iso_timestamp(ts_string TEXT)
-RETURNS TEXT
-LANGUAGE sql IMMUTABLE STRICT
-AS $BODY$
-    SELECT CASE WHEN substring(ts_string, 20, 1) = '.'
-                THEN replace(replace(substring(ts_string, 1, 23), 'T', ' '), '+', '0')
-                ELSE replace(substring(ts_string, 1, 19), 'T', ' ')
-           END;
-$BODY$;
 
 --CALL dim.usp_grubbrr_install_base();
 CREATE OR REPLACE PROCEDURE dim.usp_grubbrr_install_base()
