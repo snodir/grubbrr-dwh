@@ -1,3 +1,6 @@
+
+
+
 DROP VIEW IF EXISTS public.vw_transactiondetails;
 
 ALTER TABLE IF EXISTS fact.watermarktable
@@ -472,6 +475,32 @@ ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
 
 ALTER TABLE IF EXISTS dim.item_modifier_group_modifier_mapping
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
+
+-- Table: dim.abtests
+
+-- DROP TABLE IF EXISTS dim.abtests;
+
+CREATE TABLE IF NOT EXISTS dim.abtests
+(
+    abtestid bigint NOT NULL,
+    organizationid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default",
+    experimentid text COLLATE pg_catalog."default",
+    experimentname text COLLATE pg_catalog."default",
+    variantid text COLLATE pg_catalog."default",
+    variantname text COLLATE pg_catalog."default",
+    ordersessionid text COLLATE pg_catalog."default",
+    deviceid text COLLATE pg_catalog."default",
+    devicename text COLLATE pg_catalog."default",
+    syscosmosts bigint,
+    sysinserttime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS dim.abtests
+    OWNER to citus;
 
 
 CREATE TABLE IF NOT EXISTS stg.sent_surveys
@@ -966,24 +995,24 @@ OWNER to citus;
 
 
 CREATE TABLE IF NOT EXISTS fact.cep_incidents(
-incidentkey BIGINT,
-application TEXT COLLATE pg_catalog."default",
-organizationid TEXT COLLATE pg_catalog."default",
-locationid TEXT COLLATE pg_catalog."default",
-deviceid TEXT COLLATE pg_catalog."default",
-eventmodule TEXT COLLATE pg_catalog."default",
-eventcategory TEXT COLLATE pg_catalog."default",
-eventtype TEXT COLLATE pg_catalog."default",
-eventtoken TEXT COLLATE pg_catalog."default",
-incidenttype TEXT COLLATE pg_catalog."default",
-incidentcount INTEGER,
-eventinstant TEXT COLLATE pg_catalog."default",
-firstoccurred TIMESTAMP,
-lastoccurred TIMESTAMP,
-notificationtypeid TEXT COLLATE pg_catalog."default",
-incidentdata TEXT COLLATE pg_catalog."default",
-syscosmosts BIGINT,
-sysinserttime TIMESTAMP
+    incidentkey BIGINT,
+    application TEXT COLLATE pg_catalog."default",
+    organizationid TEXT COLLATE pg_catalog."default",
+    locationid TEXT COLLATE pg_catalog."default",
+    deviceid TEXT COLLATE pg_catalog."default",
+    eventmodule TEXT COLLATE pg_catalog."default",
+    eventcategory TEXT COLLATE pg_catalog."default",
+    eventtype TEXT COLLATE pg_catalog."default",
+    eventtoken TEXT COLLATE pg_catalog."default",
+    incidenttype TEXT COLLATE pg_catalog."default",
+    incidentcount INTEGER,
+    eventinstant TEXT COLLATE pg_catalog."default",
+    firstoccurred TIMESTAMP,
+    lastoccurred TIMESTAMP,
+    notificationtypeid TEXT COLLATE pg_catalog."default",
+    incidentdata TEXT COLLATE pg_catalog."default",
+    syscosmosts BIGINT,
+    sysinserttime TIMESTAMP
 );
 
 ALTER TABLE IF EXISTS fact.cep_incidents
