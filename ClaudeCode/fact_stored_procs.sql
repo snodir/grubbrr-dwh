@@ -1728,13 +1728,22 @@ CREATE OR REPLACE PROCEDURE fact.usp_offer_analysis()
     LANGUAGE plpgsql
     AS $BODY$
 
+DECLARE
+    v_max_syscosmosts BIGINT;
 BEGIN
+
+    SELECT COALESCE(ts, 1775002010) - 10
+    INTO v_max_syscosmosts
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.recommendations'
+      AND source             = 'nge';
 
 WITH delta as (
          SELECT * FROM fact.recommendations as rc
-         WHERE 1=1 
-           AND rc.syscosmosts > (select ts - 10 from fact.watermarktable where watermarktablename = 'fact.recommendations')
-           AND not EXISTS (select 1 from fact.vw_offer_analysis as oa where oa.locationid = rc.locationid and oa.transactionheaderid = rc.transactionheaderid)
+         WHERE rc.syscosmosts > v_max_syscosmosts
+           AND NOT EXISTS (SELECT 1 FROM fact.vw_offer_analysis as oa 
+                    WHERE oa.locationid = rc.locationid 
+                      AND oa.transactionheaderid = rc.transactionheaderid)
 ), rec AS (
          SELECT rc.transactionheaderid,
             rc.locationid,
@@ -1828,8 +1837,9 @@ WITH delta as (
 
     UPDATE fact.watermarktable
     SET ts = rec.maxts
-    FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.recommendations' as tablename FROM fact.recommendations) as rec 
-    WHERE watermarktable.watermarktablename = rec.tablename;
+    FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.recommendations' as tablename, 'nge' as source FROM fact.recommendations) as rec 
+    WHERE watermarktable.watermarktablename = rec.tablename
+      AND watermarktable.source             = rec.source;
 
 END;
 $BODY$;
@@ -3572,7 +3582,7 @@ BEGIN
             ub.ordersessionidentifier,
             ub.eventtype,
             busdate AS eventtime
-        FROM fact.userbehaviour ub
+        FROM stg.silver_kiosk_events ub
         WHERE ub.eventtype IN (
             'ItemCustomizeClicked', 'CustomizeItemSelected', 'ComboCustomizeClicked',
             'RegularItemSelected',  'ComboComponentItemSelected', 'AddToCartClicked',
@@ -3712,7 +3722,7 @@ BEGIN
         OR fact.transactionitem.addtocarttime IS NULL;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionitem WHERE sourceid = 1)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionitem WHERE transactionheaderid LIKE 'ordevt-%')
     WHERE watermarktablename = 'fact.transactionitem'
       AND source             = 'nge';
 
@@ -3795,9 +3805,20 @@ BEGIN
         paymentcardtype,
         syscosmosts
     FROM delta
-
-    ON CONFLICT (locationid, transactionheaderid, paymentintegrationid, paymentid)
-    DO NOTHING;  -- payments are immutable once recorded
+    WHERE EXISTS (
+            SELECT 1
+            FROM fact.transactionheader AS th
+            WHERE th.locationid          = r.locationid
+              AND th.transactionheaderid = r.transactionheaderid
+    )
+    AND NOT EXISTS (
+            SELECT 1
+            FROM fact.transactionpayment AS tp
+            WHERE tp.locationid          = r.locationid
+              AND tp.transactionheaderid = r.transactionheaderid
+    );
+    --ON CONFLICT (locationid, transactionheaderid, paymentintegrationid, paymentid)
+    --DO NOTHING;  -- payments are immutable once recorded
 
     UPDATE fact.watermarktable
     SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionpayment)
