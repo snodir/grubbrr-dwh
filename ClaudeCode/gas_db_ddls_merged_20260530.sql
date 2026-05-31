@@ -311,8 +311,7 @@ CREATE TABLE IF NOT EXISTS dim.catalog (
 ALTER TABLE IF EXISTS dim.catalog OWNER TO citus;
 
 -- Schema evolution: dim.catalog
-ALTER TABLE IF EXISTS dim.catalog
-    OWNER to citus;
+
 ALTER TABLE IF EXISTS dim.catalog
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
@@ -358,8 +357,7 @@ CREATE TABLE IF NOT EXISTS dim.category_hierarchy (
 ALTER TABLE IF EXISTS dim.category_hierarchy OWNER TO citus;
 
 -- Schema evolution: dim.category_hierarchy
-ALTER TABLE IF EXISTS dim.category_hierarchy
-    OWNER to citus;
+
 ALTER TABLE IF EXISTS dim.category_hierarchy
 DROP COLUMN IF EXISTS id;
 
@@ -468,6 +466,9 @@ CREATE TABLE IF NOT EXISTS dim.element (
 
 ALTER TABLE IF EXISTS dim.element OWNER TO citus;
 
+ALTER TABLE IF EXISTS dim.element
+    ALTER COLUMN elementid SET DEFAULT nextval('dim.element_id_seq');
+
 --
 -- TOC entry 421 (class 1259 OID 419500)
 -- Name: experiment; Type: TABLE; Schema: dim; Owner: citus
@@ -480,7 +481,7 @@ CREATE TABLE IF NOT EXISTS dim.experiment (
 
 
 ALTER TABLE IF EXISTS dim.experiment OWNER TO citus;
-*/
+
 --
 -- TOC entry 420 (class 1259 OID 419499)
 -- Name: experiment_dimkey_seq; Type: SEQUENCE; Schema: dim; Owner: citus
@@ -504,7 +505,7 @@ ALTER SEQUENCE dim.experiment_dimkey_seq OWNER TO citus;
 --
 
 ALTER SEQUENCE dim.experiment_dimkey_seq OWNED BY dim.experiment.dimkey;
-
+*/
 
 --
 -- TOC entry 404 (class 1259 OID 180315)
@@ -929,11 +930,17 @@ CREATE TABLE IF NOT EXISTS dim.location (
     zipcode text,
     latitude text,
     longitude text,
-    timezone text
+    timezone text,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP
 );
 
 
 ALTER TABLE IF EXISTS dim.location OWNER TO citus;
+
+ALTER TABLE dim.location
+    ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+    ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
 
 --
 -- TOC entry 409 (class 1259 OID 327009)
@@ -1331,7 +1338,9 @@ ALTER TABLE IF EXISTS dim.organization OWNER TO citus;
 
 -- Schema evolution: dim.organization
 ALTER TABLE IF EXISTS dim.organization
-ADD COLUMN IF NOT EXISTS cep_subscriptions TEXT COLLATE pg_catalog."default";
+ADD COLUMN IF NOT EXISTS cep_subscriptions TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 --
 -- TOC entry 384 (class 1259 OID 32888)

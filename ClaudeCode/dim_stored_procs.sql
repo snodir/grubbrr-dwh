@@ -13,7 +13,7 @@
 
 CREATE PROCEDURE dim.usp_grubbrr_install_base()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 BEGIN
 
@@ -350,7 +350,7 @@ AND kiosk_mode = 'Live';
 --AND is_test_mode_on = False;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_grubbrr_install_base() OWNER TO citus;
@@ -362,7 +362,7 @@ ALTER PROCEDURE dim.usp_grubbrr_install_base() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_grubbrr_install_base_all_devices()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 BEGIN
 
@@ -700,7 +700,7 @@ WHERE 1=1;
 
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_grubbrr_install_base_all_devices() OWNER TO citus;
@@ -712,7 +712,7 @@ ALTER PROCEDURE dim.usp_grubbrr_install_base_all_devices() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_master_keys_for_duplicate_items()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 BEGIN
 
@@ -771,7 +771,7 @@ WHERE dim.masteritemid IS NULL;
 
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_master_keys_for_duplicate_items() OWNER TO citus;
@@ -783,7 +783,7 @@ ALTER PROCEDURE dim.usp_master_keys_for_duplicate_items() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_catalog()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     CREATE TEMP TABLE tmp_catalog ON COMMIT DROP AS
@@ -874,7 +874,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_catalog() OWNER TO citus;
@@ -886,7 +886,7 @@ ALTER PROCEDURE dim.usp_refresh_catalog() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_category_hierarchy()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     CREATE TEMP TABLE tmp_category_hierarchy ON COMMIT DROP AS
@@ -1051,7 +1051,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_category_hierarchy() OWNER TO citus;
@@ -1063,7 +1063,7 @@ ALTER PROCEDURE dim.usp_refresh_category_hierarchy() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_dim_location_kiosk_details()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     ---------------------------------------------------------------------------
@@ -1268,7 +1268,7 @@ BEGIN
     WHERE d.locationid = l.locationid;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_dim_location_kiosk_details() OWNER TO citus;
@@ -1280,7 +1280,7 @@ ALTER PROCEDURE dim.usp_refresh_dim_location_kiosk_details() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_element()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     -- ── Step 1: extract distinct elements from insight events ──
@@ -1329,7 +1329,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_element() OWNER TO citus;
@@ -1341,7 +1341,7 @@ ALTER PROCEDURE dim.usp_refresh_element() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_frequentcustomer()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     CREATE TEMP TABLE tmp_frequentcustomer ON COMMIT DROP AS
@@ -1430,7 +1430,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_frequentcustomer() OWNER TO citus;
@@ -1442,7 +1442,7 @@ ALTER PROCEDURE dim.usp_refresh_frequentcustomer() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_itemcategory()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     CREATE TEMP TABLE tmp_itemcategory ON COMMIT DROP AS
@@ -1545,7 +1545,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_itemcategory() OWNER TO citus;
@@ -1557,7 +1557,7 @@ ALTER PROCEDURE dim.usp_refresh_itemcategory() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_kiosk()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     -- ── Step 1: deduplicate staging ───────────────────────────
@@ -1634,7 +1634,7 @@ BEGIN
       );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_kiosk() OWNER TO citus;
@@ -1646,7 +1646,7 @@ ALTER PROCEDURE dim.usp_refresh_kiosk() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_location_kiosk_details()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     ---------------------------------------------------------------------------
@@ -1851,7 +1851,7 @@ BEGIN
     WHERE d.locationid = l.locationid;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_location_kiosk_details() OWNER TO citus;
@@ -1863,7 +1863,7 @@ ALTER PROCEDURE dim.usp_refresh_location_kiosk_details() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_menuitem()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     CREATE TEMP TABLE tmp_menuitem ON COMMIT DROP AS
@@ -1994,7 +1994,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_menuitem() OWNER TO citus;
@@ -2006,7 +2006,7 @@ ALTER PROCEDURE dim.usp_refresh_menuitem() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_modifier()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     -- -------------------------------------------------------
@@ -2139,7 +2139,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_modifier() OWNER TO citus;
@@ -2151,7 +2151,7 @@ ALTER PROCEDURE dim.usp_refresh_modifier() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_modifiergroup()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     CREATE TEMP TABLE tmp_modifier_group ON COMMIT DROP AS
@@ -2276,7 +2276,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_modifiergroup() OWNER TO citus;
@@ -2288,7 +2288,7 @@ ALTER PROCEDURE dim.usp_refresh_modifiergroup() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_modifiergroup_modifier_mapping()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     CREATE TEMP TABLE tmp_modifier_group ON COMMIT DROP AS
@@ -2413,7 +2413,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_modifiergroup_modifier_mapping() OWNER TO citus;
@@ -2425,7 +2425,7 @@ ALTER PROCEDURE dim.usp_refresh_modifiergroup_modifier_mapping() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_occasionsurvey()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     -- ── Step 1: deduplicate staging ───────────────────────────
@@ -2511,7 +2511,7 @@ BEGIN
       );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_occasionsurvey() OWNER TO citus;
@@ -2523,7 +2523,7 @@ ALTER PROCEDURE dim.usp_refresh_occasionsurvey() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_ordertype()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     -- ── Step 1: deduplicate source ────────────────────────────
@@ -2600,7 +2600,7 @@ BEGIN
       AND d.ordertypelabel IS DISTINCT FROM t.ordertypelabel;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_ordertype() OWNER TO citus;
@@ -2612,7 +2612,7 @@ ALTER PROCEDURE dim.usp_refresh_ordertype() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_organization()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     INSERT INTO dim.organization (
@@ -2722,7 +2722,7 @@ BEGIN
         sysupdatetime                          = NOW();
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_organization() OWNER TO citus;
@@ -2732,9 +2732,9 @@ ALTER PROCEDURE dim.usp_refresh_organization() OWNER TO citus;
 -- Name: usp_refresh_organizationlocation(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_organizationlocation()
-    LANGUAGE plpgsql
-    AS $$
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_organizationlocation()
+LANGUAGE plpgsql
+AS $BODY$
 BEGIN
 
     -- ── Step 1: deduplicate staging ───────────────────────────
@@ -2818,9 +2818,82 @@ BEGIN
     WHERE organizationlocation.organizationid = cte.organizationid
       AND organizationlocation.locationid     = cte.locationid;
 
-END;
-$$;
+-- ── Step 5: sync dim.location from organizationlocation + organization ──
+    -- Scope: organizationtype = 0 (location-level rows only).
+    -- Coordinates format in dim.organization: "(26.0940882,-80.2690641)"
+    -- No columns added to dim.location — mapping to existing schema only.
 
+    -- 5a: INSERT net-new locations
+    INSERT INTO dim.location (
+        locationid,
+        companyid,          -- ← ol.organizationid
+        locationgroupid,    -- no source mapping; NULL
+        locationname,       -- ← ol.locationname
+        address1,           -- ← o.address1
+        address2,           -- ← o.address2
+        city,               -- ← o.city
+        state,              -- ← o.state
+        zipcode,            -- ← o.zipcode
+        latitude,           -- ← o.coordinates part 1
+        longitude,          -- ← o.coordinates part 2
+        timezone,           -- ← o.timezone
+        sysinserttime
+    )
+    SELECT
+        ol.locationid,
+        ol.organizationid                                                                     AS companyid,
+        NULL                                                                                  AS locationgroupid,
+        ol.locationname,
+        o.address1,
+        o.address2,
+        o.city,
+        o.state,
+        o.zipcode,
+        TRIM(SPLIT_PART(REPLACE(REPLACE(o.coordinates, '(', ''), ')', ''), ',', 1))          AS latitude,
+        TRIM(SPLIT_PART(REPLACE(REPLACE(o.coordinates, '(', ''), ')', ''), ',', 2))          AS longitude,
+        o.timezone,
+        NOW()
+    FROM dim.organizationlocation ol
+    INNER JOIN dim.organization o
+            ON ol.locationid = o.id
+           AND ol.organizationtype = 0
+    WHERE NOT EXISTS (
+        SELECT 1 FROM dim.location loc
+        WHERE loc.locationid = ol.locationid
+    );
+
+    -- 5b: UPDATE changed location-level attributes
+    UPDATE dim.location loc
+    SET
+        locationname  = ol.locationname,
+        address1      = o.address1,
+        address2      = o.address2,
+        city          = o.city,
+        state         = o.state,
+        zipcode       = o.zipcode,
+        latitude      = TRIM(SPLIT_PART(REPLACE(REPLACE(o.coordinates, '(', ''), ')', ''), ',', 1)),
+        longitude     = TRIM(SPLIT_PART(REPLACE(REPLACE(o.coordinates, '(', ''), ')', ''), ',', 2)),
+        timezone      = o.timezone,
+        sysupdatetime = NOW()
+    FROM dim.organizationlocation ol
+    INNER JOIN dim.organization o
+            ON ol.locationid = o.id
+           AND ol.organizationtype = 0
+    WHERE loc.locationid = ol.locationid
+      AND (
+          loc.locationname IS DISTINCT FROM ol.locationname                                                           OR
+          loc.address1     IS DISTINCT FROM o.address1                                                                OR
+          loc.address2     IS DISTINCT FROM o.address2                                                                OR
+          loc.city         IS DISTINCT FROM o.city                                                                    OR
+          loc.state        IS DISTINCT FROM o.state                                                                   OR
+          loc.zipcode      IS DISTINCT FROM o.zipcode                                                                 OR
+          loc.latitude     IS DISTINCT FROM TRIM(SPLIT_PART(REPLACE(REPLACE(o.coordinates, '(', ''), ')', ''), ',', 1)) OR
+          loc.longitude    IS DISTINCT FROM TRIM(SPLIT_PART(REPLACE(REPLACE(o.coordinates, '(', ''), ')', ''), ',', 2)) OR
+          loc.timezone     IS DISTINCT FROM o.timezone
+      );
+
+END;
+$BODY$;
 
 ALTER PROCEDURE dim.usp_refresh_organizationlocation() OWNER TO citus;
 
@@ -2831,7 +2904,7 @@ ALTER PROCEDURE dim.usp_refresh_organizationlocation() OWNER TO citus;
 
 CREATE PROCEDURE dim.usp_refresh_view()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     -- ── Step 1: extract distinct view names from insight events ──
@@ -2868,7 +2941,7 @@ BEGIN
     );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE dim.usp_refresh_view() OWNER TO citus;

@@ -12,7 +12,7 @@
 
 CREATE FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) RETURNS TABLE(companyid text, locationid text, eventtoken text, dateid integer, deviceid text, eventinstant timestamp without time zone, duration_type text)
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
         begin 
 	        RETURN QUERY
             SELECT
@@ -33,7 +33,7 @@ CREATE FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) RETUR
             GROUP BY 
                 e.companyid, e.locationid, e.eventtoken, e.dateid, e.deviceid;
         END;
-        $$;
+        $BODY$;
 
 
 ALTER FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) OWNER TO citus;
@@ -45,7 +45,7 @@ ALTER FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) OWNER 
 
 CREATE FUNCTION fact.updatewatermark(tablename text) RETURNS void
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 		DECLARE 
 			watermarkvalue timestamp without time zone;
 		BEGIN
@@ -59,7 +59,7 @@ CREATE FUNCTION fact.updatewatermark(tablename text) RETURNS void
 
 			RETURN;
 		END;
-		$$;
+		$BODY$;
 
 
 ALTER FUNCTION fact.updatewatermark(tablename text) OWNER TO citus;
@@ -71,7 +71,7 @@ ALTER FUNCTION fact.updatewatermark(tablename text) OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_customer_menu_preferences()
     LANGUAGE sql
-    AS $$
+    AS $BODY$
 
 TRUNCATE TABLE fact.customer_menu_preferences;
 
@@ -190,7 +190,7 @@ SELECT * from total
 --ORDER BY frequentcustomerid
 
 
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_customer_menu_preferences() OWNER TO citus;
@@ -202,7 +202,7 @@ ALTER PROCEDURE fact.usp_customer_menu_preferences() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_gem_ordertiming_to_fact_ordertiming()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_watermark BIGINT;
@@ -349,7 +349,7 @@ BEGIN
       AND  source             = 'gem';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_gem_ordertiming_to_fact_ordertiming() OWNER TO citus;
@@ -361,7 +361,7 @@ ALTER PROCEDURE fact.usp_gem_ordertiming_to_fact_ordertiming() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 
 DECLARE
@@ -434,7 +434,7 @@ BEGIN
       AND source             = 'gem';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_gem_sent_surveys_to_fact() OWNER TO citus;
@@ -446,7 +446,7 @@ ALTER PROCEDURE fact.usp_gem_sent_surveys_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_gem_usercheckedin_to_fact_usercheckedin()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_watermark     BIGINT;
@@ -658,7 +658,7 @@ BEGIN
       AND  source             = 'gem';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_gem_usercheckedin_to_fact_usercheckedin() OWNER TO citus;
@@ -670,7 +670,7 @@ ALTER PROCEDURE fact.usp_gem_usercheckedin_to_fact_usercheckedin() OWNER TO citu
 
 CREATE PROCEDURE fact.usp_gsh_devicestate_to_fact_devicestate()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_watermark     TIMESTAMP;
@@ -778,7 +778,7 @@ BEGIN
 
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_gsh_devicestate_to_fact_devicestate() OWNER TO citus;
@@ -790,7 +790,7 @@ ALTER PROCEDURE fact.usp_gsh_devicestate_to_fact_devicestate() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_gsh_devicetelemetry_to_fact_devicetelemetry()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_watermark TIMESTAMP;
@@ -908,7 +908,7 @@ BEGIN
       AND  source             = 'gsh';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_gsh_devicetelemetry_to_fact_devicetelemetry() OWNER TO citus;
@@ -920,7 +920,7 @@ ALTER PROCEDURE fact.usp_gsh_devicetelemetry_to_fact_devicetelemetry() OWNER TO 
 
 CREATE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 BEGIN
 
@@ -939,7 +939,7 @@ from stg.recommendations as rc
 where not exists (select 1 from fact.recommendations as th where th.transactionheaderid = rc.transactionheaderid and th.recommendationid = rc.recommendationid);
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_item_recommendations_stage_to_fact() OWNER TO citus;
@@ -951,7 +951,7 @@ ALTER PROCEDURE fact.usp_item_recommendations_stage_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_location_menu_preferences()
     LANGUAGE sql
-    AS $$
+    AS $BODY$
 
 TRUNCATE TABLE fact.location_menu_preferences;
 
@@ -1065,7 +1065,7 @@ SELECT * from total
 --WHERE fc_organizationid <> ol_organizationid
 --ORDER BY item_selection_frequency desc
 
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_location_menu_preferences() OWNER TO citus;
@@ -1077,7 +1077,7 @@ ALTER PROCEDURE fact.usp_location_menu_preferences() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_location_statistics()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 BEGIN
 
@@ -1213,7 +1213,7 @@ LEFT JOIN frequent_customers as fc
        ON olk.organizationid = fc.organizationid;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_location_statistics() OWNER TO citus;
@@ -1225,7 +1225,7 @@ ALTER PROCEDURE fact.usp_location_statistics() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_modifier_impression_analysis()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 
 BEGIN
@@ -1276,7 +1276,7 @@ WHERE watermarktablename = 'fact.modifier_impressions'
   AND source = 'nge';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_modifier_impression_analysis() OWNER TO citus;
@@ -1288,7 +1288,7 @@ ALTER PROCEDURE fact.usp_modifier_impression_analysis() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_modifier_interaction_analysis()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 BEGIN
 
@@ -1441,7 +1441,7 @@ WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge-Options';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_modifier_interaction_analysis() OWNER TO citus;
@@ -1453,7 +1453,7 @@ ALTER PROCEDURE fact.usp_modifier_interaction_analysis() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_modifier_recommendation_analysis()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 BEGIN
 
@@ -1638,7 +1638,7 @@ WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge-Options';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_modifier_recommendation_analysis() OWNER TO citus;
@@ -1650,7 +1650,7 @@ ALTER PROCEDURE fact.usp_modifier_recommendation_analysis() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_nge_update_itemssurvey()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_max_nge_syscosmosts BIGINT;
@@ -1714,7 +1714,7 @@ BEGIN
       AND source             = 'nge';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_nge_update_itemssurvey() OWNER TO citus;
@@ -1726,7 +1726,7 @@ ALTER PROCEDURE fact.usp_nge_update_itemssurvey() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_offer_analysis()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 BEGIN
 
@@ -1832,7 +1832,7 @@ WITH delta as (
     WHERE watermarktable.watermarktablename = rec.tablename;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_offer_analysis() OWNER TO citus;
@@ -1844,7 +1844,7 @@ ALTER PROCEDURE fact.usp_offer_analysis() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_max_gem_syscosmosts BIGINT;
@@ -2025,7 +2025,7 @@ BEGIN
       AND source             = 'gem';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey() OWNER TO citus;
@@ -2037,7 +2037,7 @@ ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_silver_aborted_orders_and_items_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_max_syscosmosts BIGINT;
@@ -2305,7 +2305,7 @@ BEGIN
       AND source             = 'gem';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_aborted_orders_and_items_to_fact() OWNER TO citus;
@@ -2317,7 +2317,7 @@ ALTER PROCEDURE fact.usp_silver_aborted_orders_and_items_to_fact() OWNER TO citu
 
 CREATE PROCEDURE fact.usp_silver_item_modifiers_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_max_syscosmosts BIGINT;
@@ -2410,7 +2410,7 @@ BEGIN
       AND source             = 'nge';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_item_modifiers_to_fact() OWNER TO citus;
@@ -2422,7 +2422,7 @@ ALTER PROCEDURE fact.usp_silver_item_modifiers_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 DECLARE
     v_max_syscosmosts BIGINT;
 BEGIN
@@ -2540,7 +2540,7 @@ BEGIN
     FROM new_events;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent() OWNER TO citus;
@@ -2552,7 +2552,7 @@ ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent() OWNER TO citu
 
 CREATE PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 DECLARE
     v_max_syscosmosts BIGINT;
 BEGIN
@@ -2696,7 +2696,7 @@ BEGIN
     FROM enriched;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour() OWNER TO citus;
@@ -2708,7 +2708,7 @@ ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour() OWNER TO ci
 
 CREATE PROCEDURE fact.usp_silver_modifier_impressions_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_watermark_impressions     BIGINT;
@@ -2829,7 +2829,7 @@ BEGIN
       AND source             = 'nge';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_modifier_impressions_to_fact() OWNER TO citus;
@@ -2841,7 +2841,7 @@ ALTER PROCEDURE fact.usp_silver_modifier_impressions_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_silver_modifier_interactions_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_watermark_interactions    BIGINT;
@@ -3033,7 +3033,7 @@ BEGIN
       AND source             = 'nge-Options';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_modifier_interactions_to_fact() OWNER TO citus;
@@ -3045,7 +3045,7 @@ ALTER PROCEDURE fact.usp_silver_modifier_interactions_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_silver_modifier_recommendations_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_max_syscosmosts BIGINT;
@@ -3126,7 +3126,7 @@ BEGIN
       AND source             = 'nge';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_modifier_recommendations_to_fact() OWNER TO citus;
@@ -3138,7 +3138,7 @@ ALTER PROCEDURE fact.usp_silver_modifier_recommendations_to_fact() OWNER TO citu
 
 CREATE PROCEDURE fact.usp_silver_transaction_header_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_max_syscosmosts BIGINT;
@@ -3396,7 +3396,7 @@ BEGIN
       AND source             = 'nge';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_transaction_header_to_fact() OWNER TO citus;
@@ -3408,7 +3408,7 @@ ALTER PROCEDURE fact.usp_silver_transaction_header_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_silver_transaction_item_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_max_syscosmosts BIGINT;
@@ -3717,7 +3717,7 @@ BEGIN
       AND source             = 'nge';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_transaction_item_to_fact() OWNER TO citus;
@@ -3729,7 +3729,7 @@ ALTER PROCEDURE fact.usp_silver_transaction_item_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_silver_transaction_payment_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 
 DECLARE
@@ -3805,7 +3805,7 @@ BEGIN
       AND source             = 'nge';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_transaction_payment_to_fact() OWNER TO citus;
@@ -3817,7 +3817,7 @@ ALTER PROCEDURE fact.usp_silver_transaction_payment_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_silver_transaction_refunds_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_watermark     BIGINT;
@@ -3919,7 +3919,7 @@ BEGIN
     WHERE watermarktablename = 'fact.transactionrefunds';
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_transaction_refunds_to_fact() OWNER TO citus;
@@ -3931,7 +3931,7 @@ ALTER PROCEDURE fact.usp_silver_transaction_refunds_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_silver_upsell_recommendations_to_fact()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 DECLARE
     v_max_syscosmosts BIGINT;
@@ -4005,7 +4005,7 @@ BEGIN
         fact.recommendations.isconverted IS DISTINCT FROM true;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_upsell_recommendations_to_fact() OWNER TO citus;
@@ -4197,7 +4197,7 @@ ALTER PROCEDURE fact.usp_stg_occasionsurveydetail_to_fact() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_update_datetime_fields()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
 UPDATE fact.transactionheader 
@@ -4262,7 +4262,7 @@ WHERE watermarktablename = 'fact.itemmodifier'
 
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_update_datetime_fields() OWNER TO citus;
@@ -4274,7 +4274,7 @@ ALTER PROCEDURE fact.usp_update_datetime_fields() OWNER TO citus;
 
 CREATE PROCEDURE fact.usp_update_occasion_survey_datetime_fields()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 
 BEGIN
 
@@ -4347,7 +4347,7 @@ WHERE watermarktablename = 'fact.itemssurvey'
 
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_update_occasion_survey_datetime_fields() OWNER TO citus;

@@ -16,7 +16,7 @@ WHERE 1=1
   --AND sysupdatetime_after_migration is NULL ,'userbehaviour','deviceevent','userlocation',
   --AND table_name IN ('occasionsurvey','userbehaviour','deviceevent')
 )
-SELECT *
+SELECT table_schema, table_name, key_columns, dependency_level, dependency_count
 FROM unique_records
 WHERE rn = 1
 ORDER BY dependency_level, 

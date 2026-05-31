@@ -1,5 +1,10 @@
 SELECT * FROM dim.organization LIMIT 100;
 
+ALTER TABLE IF EXISTS dim.organization
+    ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+    ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
+
+
 -- Table: dim.organization
 
 -- DROP TABLE IF EXISTS dim.organization;
@@ -45,11 +50,7 @@ CREATE TABLE IF NOT EXISTS dim.organization
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS dim.organization
-OWNER to citus,
-ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
-ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
-
+ALTER TABLE IF EXISTS dim.organization OWNER to citus;
 
 
 
