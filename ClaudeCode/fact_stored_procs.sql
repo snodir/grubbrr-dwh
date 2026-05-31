@@ -69,7 +69,7 @@ ALTER FUNCTION fact.updatewatermark(tablename text) OWNER TO citus;
 -- Name: usp_customer_menu_preferences(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_customer_menu_preferences()
+CREATE OR REPLACE PROCEDURE fact.usp_customer_menu_preferences()
     LANGUAGE sql
     AS $BODY$
 
@@ -200,7 +200,7 @@ ALTER PROCEDURE fact.usp_customer_menu_preferences() OWNER TO citus;
 -- Name: usp_gem_ordertiming_to_fact_ordertiming(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_gem_ordertiming_to_fact_ordertiming()
+CREATE OR REPLACE PROCEDURE fact.usp_gem_ordertiming_to_fact_ordertiming()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -359,7 +359,7 @@ ALTER PROCEDURE fact.usp_gem_ordertiming_to_fact_ordertiming() OWNER TO citus;
 -- Name: usp_gem_sent_surveys_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_gem_sent_surveys_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -444,7 +444,7 @@ ALTER PROCEDURE fact.usp_gem_sent_surveys_to_fact() OWNER TO citus;
 -- Name: usp_gem_usercheckedin_to_fact_usercheckedin(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_gem_usercheckedin_to_fact_usercheckedin()
+CREATE OR REPLACE PROCEDURE fact.usp_gem_usercheckedin_to_fact_usercheckedin()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -668,7 +668,7 @@ ALTER PROCEDURE fact.usp_gem_usercheckedin_to_fact_usercheckedin() OWNER TO citu
 -- Name: usp_gsh_devicestate_to_fact_devicestate(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_gsh_devicestate_to_fact_devicestate()
+CREATE OR REPLACE PROCEDURE fact.usp_gsh_devicehealth_to_fact_devicestate()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -771,7 +771,7 @@ BEGIN
     -- ----------------------------------------------------------
 
         UPDATE fact.watermarktable
-        SET    ts = (SELECT COALESCE(MAX(id), 1775002010) FROM fact.devicestate)
+        SET    watermarkvalue = (SELECT COALESCE(MAX(lasteventtime), '1970-01-01 00:00:00'::TIMESTAMP) FROM fact.devicestate)
         WHERE  watermarktablename = 'fact.devicestate'
           AND  source             = 'gsh';
 
@@ -781,14 +781,14 @@ END;
 $BODY$;
 
 
-ALTER PROCEDURE fact.usp_gsh_devicestate_to_fact_devicestate() OWNER TO citus;
+ALTER PROCEDURE fact.usp_gsh_devicehealth_to_fact_devicestate() OWNER TO citus;
 
 --
 -- TOC entry 1039 (class 1255 OID 3650138)
 -- Name: usp_gsh_devicetelemetry_to_fact_devicetelemetry(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_gsh_devicetelemetry_to_fact_devicetelemetry()
+CREATE OR REPLACE PROCEDURE fact.usp_gsh_devicetelemetry_to_fact_devicetelemetry()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -918,7 +918,7 @@ ALTER PROCEDURE fact.usp_gsh_devicetelemetry_to_fact_devicetelemetry() OWNER TO 
 -- Name: usp_item_recommendations_stage_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_item_recommendations_stage_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -949,7 +949,7 @@ ALTER PROCEDURE fact.usp_item_recommendations_stage_to_fact() OWNER TO citus;
 -- Name: usp_location_menu_preferences(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_location_menu_preferences()
+CREATE OR REPLACE PROCEDURE fact.usp_location_menu_preferences()
     LANGUAGE sql
     AS $BODY$
 
@@ -1075,7 +1075,7 @@ ALTER PROCEDURE fact.usp_location_menu_preferences() OWNER TO citus;
 -- Name: usp_location_statistics(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_location_statistics()
+CREATE OR REPLACE PROCEDURE fact.usp_location_statistics()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -1223,7 +1223,7 @@ ALTER PROCEDURE fact.usp_location_statistics() OWNER TO citus;
 -- Name: usp_modifier_impression_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_modifier_impression_analysis()
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_impression_analysis()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -1286,7 +1286,7 @@ ALTER PROCEDURE fact.usp_modifier_impression_analysis() OWNER TO citus;
 -- Name: usp_modifier_interaction_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_modifier_interaction_analysis()
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_interaction_analysis()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -1451,7 +1451,7 @@ ALTER PROCEDURE fact.usp_modifier_interaction_analysis() OWNER TO citus;
 -- Name: usp_modifier_recommendation_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_modifier_recommendation_analysis()
+CREATE OR REPLACE PROCEDURE fact.usp_modifier_recommendation_analysis()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -1648,7 +1648,7 @@ ALTER PROCEDURE fact.usp_modifier_recommendation_analysis() OWNER TO citus;
 -- Name: usp_nge_update_itemssurvey(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_nge_update_itemssurvey()
+CREATE OR REPLACE PROCEDURE fact.usp_nge_update_itemssurvey()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -1724,7 +1724,7 @@ ALTER PROCEDURE fact.usp_nge_update_itemssurvey() OWNER TO citus;
 -- Name: usp_offer_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_offer_analysis()
+CREATE OR REPLACE PROCEDURE fact.usp_offer_analysis()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -1842,7 +1842,7 @@ ALTER PROCEDURE fact.usp_offer_analysis() OWNER TO citus;
 -- Name: usp_sent_surveys_to_fact_itemssurvey(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
+CREATE OR REPLACE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -2035,7 +2035,7 @@ ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey() OWNER TO citus;
 -- Name: usp_silver_aborted_orders_and_items_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_aborted_orders_and_items_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_aborted_orders_and_items_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -2315,7 +2315,7 @@ ALTER PROCEDURE fact.usp_silver_aborted_orders_and_items_to_fact() OWNER TO citu
 -- Name: usp_silver_item_modifiers_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_item_modifiers_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_item_modifiers_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -2420,7 +2420,7 @@ ALTER PROCEDURE fact.usp_silver_item_modifiers_to_fact() OWNER TO citus;
 -- Name: usp_silver_kiosk_events_to_fact_deviceevent(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent()
     LANGUAGE plpgsql
     AS $BODY$
 DECLARE
@@ -2550,7 +2550,7 @@ ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent() OWNER TO citu
 -- Name: usp_silver_kiosk_events_to_fact_userbehaviour(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour()
     LANGUAGE plpgsql
     AS $BODY$
 DECLARE
@@ -2706,7 +2706,7 @@ ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour() OWNER TO ci
 -- Name: usp_silver_modifier_impressions_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_modifier_impressions_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_modifier_impressions_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -2839,7 +2839,7 @@ ALTER PROCEDURE fact.usp_silver_modifier_impressions_to_fact() OWNER TO citus;
 -- Name: usp_silver_modifier_interactions_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_modifier_interactions_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_modifier_interactions_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -3043,7 +3043,7 @@ ALTER PROCEDURE fact.usp_silver_modifier_interactions_to_fact() OWNER TO citus;
 -- Name: usp_silver_modifier_recommendations_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_modifier_recommendations_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_modifier_recommendations_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -3136,7 +3136,7 @@ ALTER PROCEDURE fact.usp_silver_modifier_recommendations_to_fact() OWNER TO citu
 -- Name: usp_silver_transaction_header_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_transaction_header_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_header_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -3406,7 +3406,7 @@ ALTER PROCEDURE fact.usp_silver_transaction_header_to_fact() OWNER TO citus;
 -- Name: usp_silver_transaction_item_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_transaction_item_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_item_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -3727,7 +3727,7 @@ ALTER PROCEDURE fact.usp_silver_transaction_item_to_fact() OWNER TO citus;
 -- Name: usp_silver_transaction_payment_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_transaction_payment_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_payment_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -3815,7 +3815,7 @@ ALTER PROCEDURE fact.usp_silver_transaction_payment_to_fact() OWNER TO citus;
 -- Name: usp_silver_transaction_refunds_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_transaction_refunds_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_transaction_refunds_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -3929,7 +3929,7 @@ ALTER PROCEDURE fact.usp_silver_transaction_refunds_to_fact() OWNER TO citus;
 -- Name: usp_silver_upsell_recommendations_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_silver_upsell_recommendations_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_silver_upsell_recommendations_to_fact()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -4015,7 +4015,7 @@ ALTER PROCEDURE fact.usp_silver_upsell_recommendations_to_fact() OWNER TO citus;
 -- Name: usp_stg_occasionsurveydetail_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_stg_occasionsurveydetail_to_fact()
+CREATE OR REPLACE PROCEDURE fact.usp_stg_occasionsurveydetail_to_fact()
     LANGUAGE plpgsql
     AS $_$
 
@@ -4195,7 +4195,7 @@ ALTER PROCEDURE fact.usp_stg_occasionsurveydetail_to_fact() OWNER TO citus;
 -- Name: usp_update_datetime_fields(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_update_datetime_fields()
+CREATE OR REPLACE PROCEDURE fact.usp_update_datetime_fields()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -4272,7 +4272,7 @@ ALTER PROCEDURE fact.usp_update_datetime_fields() OWNER TO citus;
 -- Name: usp_update_occasion_survey_datetime_fields(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
-CREATE PROCEDURE fact.usp_update_occasion_survey_datetime_fields()
+CREATE OR REPLACE PROCEDURE fact.usp_update_occasion_survey_datetime_fields()
     LANGUAGE plpgsql
     AS $BODY$
 

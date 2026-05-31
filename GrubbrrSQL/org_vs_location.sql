@@ -13,6 +13,9 @@ WHERE 1=1
   AND active = False
 ORDER by createdon desc;
 
+SELECT * 
+FROM dim.organization
+WHERE id = 'loc-0be64e65-c6e8-460f-bc14-6c5558eef57e'
 
 SELECT DISTINCT o.id, o.name, k.kioskid, k.kioskname, o.organizationtype, o.status,
        CASE o.status 

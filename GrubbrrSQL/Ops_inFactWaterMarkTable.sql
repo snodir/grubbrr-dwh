@@ -21,7 +21,7 @@ SELECT EXTRACT(EPOCH FROM ('2024-01-01 10:00:00.847' :: TIMESTAMP - '2024-01-01 
             ELSE replace(substring('2025-07-10T09:49:50.168+00:00',1,19),'T',' ') 
        END as ts_datetime,
        CASE WHEN '2025-07-21 10:05:54.018869' > '2025-07-21 10:05:54.018868' then 'datetime_is_ok' end is_ts_good,
-       EXTRACT(EPOCH FROM TIMESTAMP '2024-05-01 00:00:00')::BIGINT;
+       EXTRACT(EPOCH FROM TIMESTAMP '2026-05-20 00:00:00')::BIGINT;
 --1775825597 fact.itemmodifier
 /*
 1769755658
@@ -55,9 +55,9 @@ WHERE watermarktable.watermarktablename = tr.tablename
 
 
 UPDATE fact.watermarktable
-SET ts = 1777864681--1775002010
+SET ts = 1779235200--1775002010
 WHERE watermarktablename = 'fact.transactionheader'-- IN ('fact.modifier_interactions')--,'fact.modifier_recommendations','fact.modifier_impressions','fact.modifier_interactions')
-  AND source = 'nge'-- IN ('nge-Interactions')--,'nge')
+  AND source = 'gem'-- IN ('nge-Interactions')--,'nge')
 
 --UPDATE fact.watermarktable
 SET ts = 1600000300

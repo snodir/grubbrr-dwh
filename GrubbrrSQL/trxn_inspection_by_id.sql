@@ -1,7 +1,7 @@
 SELECT *--count(*)
 FROM fact.transactionheader as th 
-WHERE 1=1 AND th.locationid = 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
---AND th.transactionheaderid IN ('ordevt-OZQ8NI5X4UF8D3WZ','ordevt-T59U5WOBY00GZYMA','ordevt-BPYP5JNK05IZ0P6W')
+WHERE 1=1 AND th.locationid = 'loc-0be64e65-c6e8-460f-bc14-6c5558eef57e'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+AND th.transactionheaderid = 'ordevt-bcgbi2qnx2' --IN ('ordevt-OZQ8NI5X4UF8D3WZ','ordevt-T59U5WOBY00GZYMA','ordevt-BPYP5JNK05IZ0P6W')
 AND th.orderstatus = 'order-placed'
 --AND th.businessdate = '2026-05-21'
 ORDER BY th.orderdatelocal DESC
@@ -12,6 +12,10 @@ WHERE 1=1 AND locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad
 ORDER BY syscosmosts DESC
 LIMIT 100;
 
+
+SELECT max(th.syscosmosts) as maxts, 'fact.transactionheader' as watermarktablename, 'nge' as source
+FROM fact.transactionheader as th
+WHERE sourceid = 1 --1780133426	fact.transactionheader	nge
 
 SELECT DISTINCT orderstatus FROM fact.transactionheader
 

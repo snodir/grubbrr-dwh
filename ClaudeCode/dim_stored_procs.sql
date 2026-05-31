@@ -11,7 +11,7 @@
 -- Name: usp_grubbrr_install_base(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_grubbrr_install_base()
+CREATE OR REPLACE PROCEDURE dim.usp_grubbrr_install_base()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -360,7 +360,7 @@ ALTER PROCEDURE dim.usp_grubbrr_install_base() OWNER TO citus;
 -- Name: usp_grubbrr_install_base_all_devices(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_grubbrr_install_base_all_devices()
+CREATE OR REPLACE PROCEDURE dim.usp_grubbrr_install_base_all_devices()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -710,7 +710,7 @@ ALTER PROCEDURE dim.usp_grubbrr_install_base_all_devices() OWNER TO citus;
 -- Name: usp_master_keys_for_duplicate_items(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_master_keys_for_duplicate_items()
+CREATE OR REPLACE PROCEDURE dim.usp_master_keys_for_duplicate_items()
     LANGUAGE plpgsql
     AS $BODY$
 
@@ -781,7 +781,7 @@ ALTER PROCEDURE dim.usp_master_keys_for_duplicate_items() OWNER TO citus;
 -- Name: usp_refresh_catalog(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_catalog()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_catalog()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -884,7 +884,7 @@ ALTER PROCEDURE dim.usp_refresh_catalog() OWNER TO citus;
 -- Name: usp_refresh_category_hierarchy(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_category_hierarchy()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_category_hierarchy()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -1061,7 +1061,7 @@ ALTER PROCEDURE dim.usp_refresh_category_hierarchy() OWNER TO citus;
 -- Name: usp_refresh_dim_location_kiosk_details(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_dim_location_kiosk_details()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_dim_location_kiosk_details()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -1278,7 +1278,7 @@ ALTER PROCEDURE dim.usp_refresh_dim_location_kiosk_details() OWNER TO citus;
 -- Name: usp_refresh_element(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_element()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_element()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -1339,7 +1339,7 @@ ALTER PROCEDURE dim.usp_refresh_element() OWNER TO citus;
 -- Name: usp_refresh_frequentcustomer(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_frequentcustomer()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_frequentcustomer()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -1440,7 +1440,7 @@ ALTER PROCEDURE dim.usp_refresh_frequentcustomer() OWNER TO citus;
 -- Name: usp_refresh_itemcategory(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_itemcategory()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_itemcategory()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -1555,7 +1555,7 @@ ALTER PROCEDURE dim.usp_refresh_itemcategory() OWNER TO citus;
 -- Name: usp_refresh_kiosk(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_kiosk()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_kiosk()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -1644,7 +1644,7 @@ ALTER PROCEDURE dim.usp_refresh_kiosk() OWNER TO citus;
 -- Name: usp_refresh_location_kiosk_details(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_location_kiosk_details()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_location_kiosk_details()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -1861,7 +1861,7 @@ ALTER PROCEDURE dim.usp_refresh_location_kiosk_details() OWNER TO citus;
 -- Name: usp_refresh_menuitem(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_menuitem()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_menuitem()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -2004,7 +2004,7 @@ ALTER PROCEDURE dim.usp_refresh_menuitem() OWNER TO citus;
 -- Name: usp_refresh_modifier(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_modifier()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_modifier()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -2149,7 +2149,7 @@ ALTER PROCEDURE dim.usp_refresh_modifier() OWNER TO citus;
 -- Name: usp_refresh_modifiergroup(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_modifiergroup()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_modifiergroup()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -2286,7 +2286,7 @@ ALTER PROCEDURE dim.usp_refresh_modifiergroup() OWNER TO citus;
 -- Name: usp_refresh_modifiergroup_modifier_mapping(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_modifiergroup_modifier_mapping()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_modifiergroup_modifier_mapping()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -2423,7 +2423,7 @@ ALTER PROCEDURE dim.usp_refresh_modifiergroup_modifier_mapping() OWNER TO citus;
 -- Name: usp_refresh_occasionsurvey(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_occasionsurvey()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_occasionsurvey()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -2521,7 +2521,7 @@ ALTER PROCEDURE dim.usp_refresh_occasionsurvey() OWNER TO citus;
 -- Name: usp_refresh_ordertype(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_ordertype()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_ordertype()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -2610,7 +2610,7 @@ ALTER PROCEDURE dim.usp_refresh_ordertype() OWNER TO citus;
 -- Name: usp_refresh_organization(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_organization()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_organization()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -2902,7 +2902,7 @@ ALTER PROCEDURE dim.usp_refresh_organizationlocation() OWNER TO citus;
 -- Name: usp_refresh_view(); Type: PROCEDURE; Schema: dim; Owner: citus
 --
 
-CREATE PROCEDURE dim.usp_refresh_view()
+CREATE OR REPLACE PROCEDURE dim.usp_refresh_view()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
