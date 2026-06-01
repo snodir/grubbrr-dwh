@@ -1,3 +1,5 @@
+--CALL fact.usp_offer_analysis();
+
 --CREATE SCHEMA if not EXISTS stg
 
 --drop TABLE if EXISTS stg.recommendations;
@@ -46,7 +48,7 @@ HAVING count(*) > 1
 
 
 --drop TABLE if EXISTS fact.recommendations;
-create TABLE if not EXISTS fact.recommendations (
+CREATE TABLE IF NOT EXISTS fact.recommendations (
 transactionheaderid character varying(50) COLLATE pg_catalog."default" NOT NULL,
 locationid character varying(50) COLLATE pg_catalog."default" NOT NULL,
 recommendationid character varying(50) COLLATE pg_catalog."default" NOT NULL,

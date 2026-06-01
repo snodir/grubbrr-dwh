@@ -1751,107 +1751,182 @@ BEGIN
     WHERE watermarktablename = 'fact.recommendations'
       AND source             = 'nge';
 
-WITH delta as (
-         SELECT * FROM fact.recommendations as rc
-         WHERE rc.syscosmosts > v_max_syscosmosts
-           AND NOT EXISTS (SELECT 1 FROM fact.vw_offer_analysis as oa 
-                    WHERE oa.locationid = rc.locationid 
-                      AND oa.transactionheaderid = rc.transactionheaderid)
+WITH delta AS (
+        SELECT * FROM fact.recommendations AS rc
+        WHERE rc.syscosmosts > v_max_syscosmosts
+          AND NOT EXISTS (
+                SELECT 1 FROM fact.vw_offer_analysis AS oa
+                WHERE oa.locationid          = rc.locationid
+                  AND oa.transactionheaderid = rc.transactionheaderid
+              )
 ), rec AS (
-         SELECT rc.transactionheaderid,
+        SELECT
+            rc.transactionheaderid,
             rc.locationid,
             rc.recommendationid,
             rc.offereditems,
             rc.prompttimestamp,
-            rc.prompttimestamp :: TIMESTAMP as upsellprompttime,
+            rc.prompttimestamp :: TIMESTAMP                                 AS upsellprompttime,
             rc.syscosmosts,
-            element.value ->> 'itemId'::text AS offered_itemid,
-            element.value ->> 'upsellLevel'::text AS offered_upselllevel,
-            element.value ->> 'promptItemId'::text AS offered_prmpid,
-            element.value ->> 'upsellGroupId'::text AS offered_upslgrpid
-           FROM delta as rc,
+            element.value ->> 'itemId'       :: TEXT                       AS offered_itemid,
+            element.value ->> 'upsellLevel'  :: TEXT                       AS offered_upselllevel,
+            element.value ->> 'promptItemId' :: TEXT                       AS offered_prmpid,
+            element.value ->> 'upsellGroupId':: TEXT                       AS offered_upslgrpid
+        FROM delta AS rc,
             LATERAL jsonb_array_elements(rc.offereditems) element(value)
 ), selected AS (
-         SELECT rc.transactionheaderid,
+        SELECT
+            rc.transactionheaderid,
             rc.locationid,
             rc.recommendationid,
             rc.selecteditems,
             rc.prompttimestamp,
-            element.value ->> 'itemId'::text AS selected_itemid,
-            element.value ->> 'quantity'::text AS selected_quantity,
-            element.value ->> 'upsellLevel'::text AS selected_upselllevel,
-            element.value ->> 'promptItemId'::text AS selected_prmpid,
-            element.value ->> 'upsellGroupId'::text AS selected_upslgrpid
-           FROM delta as rc,
+            element.value ->> 'itemId'       :: TEXT                       AS selected_itemid,
+            element.value ->> 'quantity'     :: TEXT                       AS selected_quantity,
+            element.value ->> 'upsellLevel'  :: TEXT                       AS selected_upselllevel,
+            element.value ->> 'promptItemId' :: TEXT                       AS selected_prmpid,
+            element.value ->> 'upsellGroupId':: TEXT                       AS selected_upslgrpid
+        FROM delta AS rc,
             LATERAL jsonb_array_elements(rc.selecteditems) element(value)
-), item_analysis as (
-        SELECT r.locationid, 
+), item_analysis AS (
+        SELECT
+            r.locationid,
             r.transactionheaderid,
             r.recommendationid,
-            r.offered_itemid AS offereditem,
-            s.selected_itemid AS selecteditem,
-                CASE
-                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'item'::text THEN 'Item Level Upsells'::text
-                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'order'::text THEN 'Order Level Upsells'::text
-                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'ai'::text THEN 'Smart Upsells'::text
-                    ELSE NULL::text
-                END AS upselltype,
-            coalesce(s.selected_upslgrpid, r.offered_upslgrpid) AS upsellgroupid,
+            r.offered_itemid                                                AS offereditem,
+            r.offered_upselllevel                                           AS offereditem_upselllevel,
+            r.offered_prmpid                                                AS offered_promptitemid,
+            r.offered_upslgrpid                                             AS offered_upsellgroupid,
+            s.selected_itemid                                               AS selecteditem,
+            s.selected_upselllevel                                          AS selecteditem_upselllevel,
+            s.selected_prmpid                                               AS selected_promptitemid,
+            s.selected_upslgrpid                                            AS selected_upsellgroupid,
+            CASE
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'item'     THEN 'Item Level Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'order'    THEN 'Order Level Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai'       THEN 'Smart Order Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai-order' THEN 'Smart Order Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai-item'  THEN 'Smart Item Upsells'
+                ELSE NULL
+            END                                                             AS upselltype,
+            COALESCE(s.selected_upslgrpid, r.offered_upslgrpid)            AS upsellgroupid,
             ul.upsellgroupname,
-                CASE
-                    WHEN lower(s.selected_quantity) = ANY (ARRAY['true'::text, '1'::text]) THEN 1
-                    ELSE lower(s.selected_quantity)::integer
-                END AS quantity,
+            CASE
+                WHEN lower(s.selected_quantity) = ANY (ARRAY['true', '1']) THEN 1
+                ELSE lower(s.selected_quantity) :: INTEGER
+            END                                                             AS quantity,
             r.prompttimestamp,
             r.upsellprompttime,
             r.syscosmosts,
-            now() as sysinserttime
-        FROM (SELECT * FROM rec WHERE rec.offered_itemid like 'itm-%') r
-            LEFT JOIN selected s ON r.transactionheaderid::text = s.transactionheaderid::text 
-                                AND r.recommendationid::text = s.recommendationid::text 
-                                AND r.offered_itemid = s.selected_itemid
-            LEFT JOIN dim.upsellgrouplookup ul ON coalesce(s.selected_upslgrpid, r.offered_upslgrpid) = ul.upsellgroupid::text
-), category_analysis as (
-        SELECT r.locationid, 
+            NOW()                                                           AS sysinserttime
+        FROM (SELECT * FROM rec WHERE rec.offered_itemid LIKE 'itm-%') AS r
+        LEFT JOIN selected                  AS s
+            ON  s.transactionheaderid :: TEXT = r.transactionheaderid :: TEXT
+            AND s.recommendationid    :: TEXT = r.recommendationid    :: TEXT
+            AND s.selected_itemid     :: TEXT = r.offered_itemid      :: TEXT
+        LEFT JOIN dim.upsellgrouplookup     AS ul
+            ON  ul.upsellgroupid :: TEXT = COALESCE(s.selected_upslgrpid, r.offered_upslgrpid)
+), category_analysis AS (
+        SELECT
+            r.locationid,
             r.transactionheaderid,
             r.recommendationid,
-            r.offered_itemid AS offereditem,
-            s.selected_itemid AS selecteditem,
-                CASE
-                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'item'::text THEN 'Item Level Upsells'::text
-                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'order'::text THEN 'Order Level Upsells'::text
-                    WHEN lower(coalesce(s.selected_upselllevel, r.offered_upselllevel)) = 'ai'::text THEN 'Smart Upsells'::text
-                    ELSE NULL::text
-                END AS upselltype,
-            coalesce(s.selected_upslgrpid, r.offered_upslgrpid) AS upsellgroupid,
+            r.offered_itemid                                                AS offereditem,
+            r.offered_upselllevel                                           AS offereditem_upselllevel,
+            r.offered_prmpid                                                AS offered_promptitemid,
+            r.offered_upslgrpid                                             AS offered_upsellgroupid,
+            s.selected_itemid                                               AS selecteditem,
+            s.selected_upselllevel                                          AS selecteditem_upselllevel,
+            s.selected_prmpid                                               AS selected_promptitemid,
+            s.selected_upslgrpid                                            AS selected_upsellgroupid,
+            CASE
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'item'     THEN 'Item Level Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'order'    THEN 'Order Level Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai'       THEN 'Smart Order Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai-order' THEN 'Smart Order Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai-item'  THEN 'Smart Item Upsells'
+                ELSE NULL
+            END                                                             AS upselltype,
+            COALESCE(s.selected_upslgrpid, r.offered_upslgrpid)            AS upsellgroupid,
             ul.upsellgroupname,
-                CASE
-                    WHEN lower(s.selected_quantity) = ANY (ARRAY['true'::text, '1'::text]) THEN 1
-                    ELSE lower(s.selected_quantity)::integer
-                END AS quantity,
+            CASE
+                WHEN lower(s.selected_quantity) = ANY (ARRAY['true', '1']) THEN 1
+                ELSE lower(s.selected_quantity) :: INTEGER
+            END                                                             AS quantity,
             r.prompttimestamp,
             r.upsellprompttime,
             r.syscosmosts,
-            now() as sysinserttime
-        FROM (SELECT * FROM rec WHERE rec.offered_itemid like 'cat-%') as r
-        INNER join dim.category_hierarchy as ctg 
-                on r.offered_itemid = ctg.categoryid
-        INNER JOIN (SELECT * FROM selected WHERE selected.selected_itemid not in (SELECT offered_itemid FROM rec)) s 
-                ON r.transactionheaderid::text = s.transactionheaderid::text 
-                AND r.recommendationid::text = s.recommendationid::text 
-                AND ctg.menuitemid = s.selected_itemid --to determine which offered item is selected
-        LEFT JOIN dim.upsellgrouplookup ul ON coalesce(s.selected_upslgrpid, r.offered_upslgrpid) = ul.upsellgroupid::text
-), total as (
-            SELECT * FROM item_analysis
-            UNION
-            SELECT * FROM category_analysis
-    ) INSERT INTO fact.vw_offer_analysis
-      SELECT * FROM total;
+            NOW()                                                           AS sysinserttime
+        FROM (SELECT * FROM rec WHERE rec.offered_itemid LIKE 'cat-%') AS r
+        INNER JOIN dim.category_hierarchy   AS ctg
+            ON  ctg.categoryid = r.offered_itemid
+        INNER JOIN (
+                SELECT * FROM selected
+                WHERE selected.selected_itemid NOT IN (SELECT offered_itemid FROM rec)
+              )                             AS s
+            ON  s.transactionheaderid :: TEXT = r.transactionheaderid :: TEXT
+            AND s.recommendationid    :: TEXT = r.recommendationid    :: TEXT
+            AND s.selected_itemid             = ctg.menuitemid
+        LEFT JOIN dim.upsellgrouplookup     AS ul
+            ON  ul.upsellgroupid :: TEXT = COALESCE(s.selected_upslgrpid, r.offered_upslgrpid)
+), total AS (
+        SELECT * FROM item_analysis
+        UNION
+        SELECT * FROM category_analysis
+)
+INSERT INTO fact.vw_offer_analysis (
+    locationid,
+    transactionheaderid,
+    recommendationid,
+    offereditem,
+    offereditem_upselllevel,
+    offered_promptitemid,
+    offered_upsellgroupid,
+    selecteditem,
+    selecteditem_upselllevel,
+    selected_promptitemid,
+    selected_upsellgroupid,
+    upselltype,
+    upsellgroupid,
+    upsellgroupname,
+    quantity,
+    prompttimestamp,
+    upsellprompttime,
+    syscosmosts,
+    sysinserttime
+)
+SELECT
+    locationid,
+    transactionheaderid,
+    recommendationid,
+    offereditem,
+    offereditem_upselllevel,
+    offered_promptitemid,
+    offered_upsellgroupid,
+    selecteditem,
+    selecteditem_upselllevel,
+    selected_promptitemid,
+    selected_upsellgroupid,
+    upselltype,
+    upsellgroupid,
+    upsellgroupname,
+    quantity,
+    prompttimestamp,
+    upsellprompttime,
+    syscosmosts,
+    sysinserttime
+FROM total;
 
     UPDATE fact.watermarktable
-    SET ts = rec.maxts,
+    SET ts            = rec.maxts,
         sysupdatetime = NOW() :: TIMESTAMP
-    FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.recommendations' as tablename, 'nge' as source FROM fact.recommendations) as rec 
+    FROM (
+        SELECT
+            COALESCE(MAX(syscosmosts), 1500000010)  AS maxts,
+            'fact.recommendations'                  AS tablename,
+            'nge'                                   AS source
+        FROM fact.recommendations
+    ) AS rec
     WHERE watermarktable.watermarktablename = rec.tablename
       AND watermarktable.source             = rec.source;
 
@@ -2733,6 +2808,245 @@ $BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour() OWNER TO citus;
+
+
+CREATE OR REPLACE PROCEDURE fact.usp_stg_gem_failed_order_job_notifications_to_fact()
+    LANGUAGE plpgsql
+    AS $BODY$
+DECLARE
+    v_max_syscosmosts BIGINT;
+BEGIN
+
+    -- Capture watermark once upfront
+    SELECT COALESCE(ts, 1767225610) - 10
+    INTO v_max_syscosmosts
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.gem_failed_order_job_notifications'
+      AND source             = 'gem-Job';
+
+
+    WITH new_notifications AS (
+
+        -- ── Source filter + dedup ─────────────────────────────
+        -- DISTINCT ON natural key, latest syscosmosts wins
+        -- NOT EXISTS deduplicates against fact on:
+        --   incidentid == incidentid
+        --   eventtoken == eventtoken
+
+        SELECT DISTINCT ON (
+            stg.incidentid,
+            stg.eventtoken
+        )
+            stg.incidentid,
+            stg.application,
+            stg.organizationid,
+            stg.locationid,
+            stg.eventmodule,
+            stg.eventcategory,
+            stg.eventtype,
+            stg.eventtoken,
+            stg.incidentcount,
+            stg.firstoccurred,
+            stg.lastoccurred,
+            stg.incidenttype,
+            stg.notificationtypeid,
+            stg.syscosmosts
+        FROM stg.gem_failed_order_job_notifications     AS stg
+        WHERE stg.syscosmosts   > v_max_syscosmosts
+          AND NOT EXISTS (
+                SELECT 1
+                FROM fact.gem_failed_order_job_notifications    AS f
+                WHERE f.incidentid = stg.incidentid :: BIGINT
+                  AND f.eventtoken = stg.eventtoken
+              )
+        ORDER BY
+            stg.incidentid,
+            stg.eventtoken,
+            stg.syscosmosts DESC NULLS LAST
+
+    )
+    INSERT INTO fact.gem_failed_order_job_notifications (
+        incidentid,
+        application,
+        organizationid,
+        locationid,
+        eventmodule,
+        eventcategory,
+        eventtype,
+        eventtoken,
+        incidentcount,
+        firstoccurred,
+        lastoccurred,
+        incidenttype,
+        notificationtypeid,
+        syscosmosts,
+        sysinserttime
+    )
+    SELECT
+        incidentid :: BIGINT,
+        application,
+        organizationid,
+        locationid,
+        eventmodule,
+        eventcategory,
+        eventtype,
+        eventtoken,
+        incidentcount,
+        firstoccurred,
+        lastoccurred,
+        incidenttype,
+        notificationtypeid,
+        syscosmosts,
+        NOW() :: TIMESTAMP      AS sysinserttime
+    FROM new_notifications;
+
+
+    UPDATE fact.watermarktable
+    SET ts            = (SELECT COALESCE(MAX(syscosmosts), 0) FROM fact.gem_failed_order_job_notifications),
+        sysupdatetime = NOW() :: TIMESTAMP
+    WHERE watermarktablename = 'fact.gem_failed_order_job_notifications'
+      AND source             = 'gem-Job';
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_stg_gem_failed_order_job_notifications_to_fact() OWNER TO citus;
+
+
+
+CREATE OR REPLACE PROCEDURE fact.usp_silver_cep_incidents_to_fact_cep_incidents()
+    LANGUAGE plpgsql
+    AS $BODY$
+DECLARE
+    v_max_syscosmosts BIGINT;
+BEGIN
+
+    -- Capture watermark once upfront
+    SELECT COALESCE(ts, 1767225610) - 10
+    INTO v_max_syscosmosts
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.cep_incidents'
+      AND source             = 'gem';
+
+
+    WITH new_error_events AS (
+
+        -- ── Source filter + dedup ─────────────────────────────
+        -- stg.silver_cep_incidents is pre-filtered at the bronze→silver
+        -- layer (application=nge, module=connector, severity=critical,
+        -- category=order, type=ordersubmitresponse), so no re-filtering needed.
+        -- DISTINCT ON natural key, latest syscosmosts wins.
+        -- NOT EXISTS mirrors ADF negate exists against GASfactCEPIncidents:
+        --   id        == incidentkey
+        --   token     == eventtoken
+        -- EXISTS dim.organizationlocation mirrors ADF ExistingLocations check
+
+        SELECT DISTINCT ON (
+            sci.id,
+            sci.token
+        )
+            sci.id,
+            sci.application,
+            sci.companyid,
+            sci.locationid,
+            sci.eventmodule,
+            sci.eventcategory,
+            sci.eventtype,
+            sci.severity,
+            sci.token,
+            sci.eventinstant,
+            sci.device,
+            sci.data,
+            sci.syscosmosts
+        FROM stg.silver_cep_incidents               AS sci
+        WHERE sci.syscosmosts   > v_max_syscosmosts
+          AND NOT EXISTS (
+                SELECT 1
+                FROM fact.cep_incidents              AS ci
+                WHERE ci.incidentkey = sci.id :: BIGINT
+                  AND ci.eventtoken  = sci.token
+              )
+          AND EXISTS (
+                SELECT 1
+                FROM dim.organizationlocation        AS ol
+                WHERE ol.locationid     = sci.locationid
+                  AND ol.organizationid = sci.companyid
+              )
+        ORDER BY
+            sci.id,
+            sci.token,
+            sci.syscosmosts DESC NULLS LAST
+
+    )
+    INSERT INTO fact.cep_incidents (
+        incidentkey,
+        application,
+        organizationid,
+        locationid,
+        deviceid,
+        eventmodule,
+        eventcategory,
+        eventtype,
+        eventtoken,
+        incidenttype,
+        incidentcount,
+        eventinstant,
+        firstoccurred,
+        lastoccurred,
+        notificationtypeid,
+        incidentdata,
+        syscosmosts,
+        sysinserttime,
+        severity
+    )
+    -- ── gemJobCEP left join mirrored here ──────────────────────
+    -- ADF joins error events LEFT JOIN gemCEPIncidents
+    -- (Cosmos job='asa-failed-order') on:
+    --   incidentkey  == incidentid
+    --   errortoken   == eventtoken
+    --   eventcategory == eventcategory
+    --   eventtype    == eventtype
+    -- Incident metadata (counts, timestamps) enriched from
+    -- fact.gem_failed_order_job_notifications
+    SELECT
+        nee.id :: BIGINT                                                    AS incidentkey,
+        nee.application,
+        nee.companyid                                                       AS organizationid,
+        nee.locationid,
+        nee.device                                                          AS deviceid,
+        nee.eventmodule,
+        nee.eventcategory,
+        nee.eventtype,
+        nee.token                                                           AS eventtoken,
+        gfojn.incidenttype,
+        gfojn.incidentcount,
+        nee.eventinstant,
+        fact.parse_iso_timestamp(gfojn.firstoccurred) :: TIMESTAMP          AS firstoccurred,
+        fact.parse_iso_timestamp(gfojn.lastoccurred) :: TIMESTAMP           AS firstoccurred,
+        gfojn.notificationtypeid,
+        nee.data                                                            AS incidentdata,
+        nee.syscosmosts,
+        NOW() :: TIMESTAMP                                                  AS sysinserttime,
+        nee.severity
+    FROM new_error_events                               AS nee
+    LEFT JOIN fact.gem_failed_order_job_notifications   AS gfojn
+        ON  gfojn.incidentid    = nee.id :: BIGINT
+        AND gfojn.eventtoken    = nee.token
+        AND gfojn.eventcategory = nee.eventcategory
+        AND gfojn.eventtype     = nee.eventtype;
+
+
+    UPDATE fact.watermarktable
+    SET ts            = (SELECT COALESCE(MAX(syscosmosts), 0) FROM fact.cep_incidents),
+        sysupdatetime = NOW() :: TIMESTAMP
+    WHERE watermarktablename = 'fact.cep_incidents'
+      AND source             = 'gem';
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_silver_cep_incidents_to_fact_cep_incidents() OWNER TO citus;
+
 
 --
 -- TOC entry 1479 (class 1255 OID 3629703)

@@ -824,7 +824,7 @@ ALTER TABLE IF EXISTS dim.kiosk OWNER TO citus;
 
 
 ALTER TABLE IF EXISTS dim.kiosk
-    ALTER COLUMN id SET DEFAULT nextval('dim.itemcategory_id_seq');
+    ALTER COLUMN id SET DEFAULT nextval('dim.kiosk_id_seq');
 
 
 --
@@ -2073,6 +2073,29 @@ ALTER TABLE IF EXISTS etl.bronze_partition_registry OWNER TO citus;
 -- Name: cep_incidents; Type: TABLE; Schema: fact; Owner: citus
 --
 
+CREATE TABLE IF NOT EXISTS fact.gem_failed_order_job_notifications
+(
+    incidentid          BIGINT,
+    application         TEXT    COLLATE pg_catalog."default",
+    organizationid      TEXT    COLLATE pg_catalog."default",
+    locationid          TEXT    COLLATE pg_catalog."default",
+    eventmodule         TEXT    COLLATE pg_catalog."default",
+    eventcategory       TEXT    COLLATE pg_catalog."default",
+    eventtype           TEXT    COLLATE pg_catalog."default",
+    eventtoken          TEXT    COLLATE pg_catalog."default",
+    incidentcount       INTEGER,
+    firstoccurred       TEXT    COLLATE pg_catalog."default",
+    lastoccurred        TEXT    COLLATE pg_catalog."default",
+    incidenttype        TEXT    COLLATE pg_catalog."default",
+    notificationtypeid  TEXT    COLLATE pg_catalog."default",
+    syscosmosts         BIGINT,
+    sysinserttime       TIMESTAMP WITHOUT TIME ZONE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.gem_failed_order_job_notifications OWNER TO citus;
+
 CREATE TABLE IF NOT EXISTS fact.cep_incidents (
     incidentkey bigint,
     application text,
@@ -3007,7 +3030,8 @@ ADD COLUMN IF NOT EXISTS eventcategory TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 
-
+ALTER TABLE IF EXISTS fact.userbehaviour
+    ALTER COLUMN id SET DEFAULT nextval('fact.userbehaviour_id_seq');
 
 
 --
@@ -3081,11 +3105,27 @@ CREATE TABLE IF NOT EXISTS fact.vw_offer_analysis (
     prompttimestamp text,
     upsellprompttime timestamp without time zone,
     syscosmosts bigint,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    offereditem_upselllevel    TEXT,
+    offered_promptitemid       TEXT,
+    offered_upsellgroupid      TEXT,
+    selecteditem_upselllevel   TEXT,
+    selected_promptitemid      TEXT,
+    selected_upsellgroupid     TEXT
 );
 
 
 ALTER TABLE IF EXISTS fact.vw_offer_analysis OWNER TO citus;
+
+-- Add 6 new columns to fact.vw_offer_analysis
+
+ALTER TABLE IF EXISTS fact.vw_offer_analysis 
+ADD COLUMN IF NOT EXISTS offereditem_upselllevel    TEXT,
+ADD COLUMN IF NOT EXISTS offered_promptitemid       TEXT,
+ADD COLUMN IF NOT EXISTS offered_upsellgroupid      TEXT,
+ADD COLUMN IF NOT EXISTS selecteditem_upselllevel   TEXT,
+ADD COLUMN IF NOT EXISTS selected_promptitemid      TEXT,
+ADD COLUMN IF NOT EXISTS selected_upsellgroupid     TEXT;
 
 --
 -- TOC entry 399 (class 1259 OID 33011)
@@ -3098,7 +3138,9 @@ CREATE TABLE IF NOT EXISTS fact.watermarktable (
     watermarkvalue timestamp without time zone,
     ticks bigint,
     ts bigint,
-    source character varying(50) NOT NULL
+    source character varying(50) NOT NULL,
+    sysinserttime TIMESTAMP,
+    sysupdatetime TIMESTAMP
 );
 
 
@@ -4286,6 +4328,30 @@ CREATE TABLE IF NOT EXISTS stg.silver_kiosk_events (
 
 
 ALTER TABLE stg.silver_kiosk_events OWNER TO citus;
+
+
+CREATE TABLE IF NOT EXISTS stg.gem_failed_order_job_notifications
+(
+    incidentid          TEXT    COLLATE pg_catalog."default",
+    application         TEXT    COLLATE pg_catalog."default",
+    organizationid      TEXT    COLLATE pg_catalog."default",
+    locationid          TEXT    COLLATE pg_catalog."default",
+    eventmodule         TEXT    COLLATE pg_catalog."default",
+    eventcategory       TEXT    COLLATE pg_catalog."default",
+    eventtype           TEXT    COLLATE pg_catalog."default",
+    eventtoken          TEXT    COLLATE pg_catalog."default",
+    incidentcount       INTEGER,
+    firstoccurred       TEXT    COLLATE pg_catalog."default",
+    lastoccurred        TEXT    COLLATE pg_catalog."default",
+    incidenttype        TEXT    COLLATE pg_catalog."default",
+    notificationtypeid  TEXT    COLLATE pg_catalog."default",
+    syscosmosts         BIGINT,
+    sysinserttime       TIMESTAMP WITHOUT TIME ZONE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.gem_failed_order_job_notifications OWNER TO citus;
 
 --
 -- TOC entry 483 (class 1259 OID 3571370)
