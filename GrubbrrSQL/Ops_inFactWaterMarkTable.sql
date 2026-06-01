@@ -7,7 +7,7 @@ FROM fact.watermarktable as wt;
 SELECT * FROM fact.pipelinerunstatus;
 --1753100010 = 2025-07-21 12:13:30+00
 -- Result: 724.0  ✓ (847ms - 123ms = 724ms)
-SELECT EXTRACT(EPOCH FROM TIMESTAMP '2026-05-20 00:00:00')::BIGINT,
+SELECT EXTRACT(EPOCH FROM TIMESTAMP '2026-01-01 00:00:10')::BIGINT,
        EXTRACT(EPOCH FROM ('2024-01-01 10:00:00.847' :: TIMESTAMP - '2024-01-01 10:00:00.123' :: TIMESTAMP)) AS diff_ms,
        CURRENT_TIMESTAMP, to_timestamp(1763675405) as sample_ts,
        now(), 
