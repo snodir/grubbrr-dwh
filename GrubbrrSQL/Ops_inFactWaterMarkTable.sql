@@ -3,10 +3,12 @@ FROM fact.watermarktable as wt;
 
 --CALL fact.usp_update_datetime_fields();
 
+
 SELECT * FROM fact.pipelinerunstatus;
 --1753100010 = 2025-07-21 12:13:30+00
 -- Result: 724.0  ✓ (847ms - 123ms = 724ms)
-SELECT EXTRACT(EPOCH FROM ('2024-01-01 10:00:00.847' :: TIMESTAMP - '2024-01-01 10:00:00.123' :: TIMESTAMP)) AS diff_ms,
+SELECT EXTRACT(EPOCH FROM TIMESTAMP '2026-05-20 00:00:00')::BIGINT,
+       EXTRACT(EPOCH FROM ('2024-01-01 10:00:00.847' :: TIMESTAMP - '2024-01-01 10:00:00.123' :: TIMESTAMP)) AS diff_ms,
        CURRENT_TIMESTAMP, to_timestamp(1763675405) as sample_ts,
        now(), 
        to_timestamp(1708637922) as first_order_ts,
@@ -80,14 +82,18 @@ SET source = CASE WHEN watermarktablename in ('fact.transactionrefunds','fact.tr
 --ub-1753924223
 --th-1753765118
 
-SELECT * fact.watermarktable --WHERE watermarktablename = 'fact.occasionsurveydetail'
+SELECT * FROM fact.watermarktable --WHERE watermarktablename = 'fact.occasionsurveydetail'
 
 ALTER TABLE fact.watermarktable
 --ADD source CHARACTER VARYING(10)
-ADD CONSTRAINT watermarktablename_pk PRIMARY key (watermarktablename, source)--,
-ADD ticks BIGINT,
-ADD ts BIGINT
+--ADD CONSTRAINT watermarktablename_pk PRIMARY key (watermarktablename, source)--,
+ADD COLUMN IF NOT EXISTS ticks BIGINT,
+ADD COLUMN IF NOT EXISTS ts BIGINT,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 SELECT MAX(busdate) as busdate, max(syscosmosts) as syscosmosts from fact.userbehaviour
+
+
 
 --DELETE-- FROM fact.watermarktable WHERE watermarktablename = 'fact.ordertiming'
 ALTER TABLE fact.watermarktable

@@ -3106,7 +3106,9 @@ ALTER TABLE IF EXISTS fact.watermarktable OWNER TO citus;
 
 -- Schema evolution: fact.watermarktable
 ALTER TABLE IF EXISTS fact.watermarktable
-ALTER COLUMN source TYPE CHARACTER VARYING(50);
+ALTER COLUMN source TYPE CHARACTER VARYING(50),
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 --
 -- TOC entry 465 (class 1259 OID 3048276)

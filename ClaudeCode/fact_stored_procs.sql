@@ -10,7 +10,7 @@
 -- Name: fn_getdata(text, text, text, text); Type: FUNCTION; Schema: fact; Owner: citus
 --
 
-CREATE FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) RETURNS TABLE(companyid text, locationid text, eventtoken text, dateid integer, deviceid text, eventinstant timestamp without time zone, duration_type text)
+CREATE OR REPLACE FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) RETURNS TABLE(companyid text, locationid text, eventtoken text, dateid integer, deviceid text, eventinstant timestamp without time zone, duration_type text)
     LANGUAGE plpgsql
     AS $BODY$
         begin 
@@ -43,7 +43,7 @@ ALTER FUNCTION fact.fn_getdata(aty text, dc text, modid text, appli text) OWNER 
 -- Name: updatewatermark(text); Type: FUNCTION; Schema: fact; Owner: citus
 --
 
-CREATE FUNCTION fact.updatewatermark(tablename text) RETURNS void
+CREATE OR REPLACE FUNCTION fact.updatewatermark(tablename text) RETURNS void
     LANGUAGE plpgsql
     AS $BODY$
 		DECLARE 
@@ -54,7 +54,8 @@ CREATE FUNCTION fact.updatewatermark(tablename text) RETURNS void
 			FROM fact.devicestate;
 	
 			UPDATE fact.watermarktable
-			SET watermarkvalue = watermarkvalue
+			SET watermarkvalue = watermarkvalue,
+                sysupdatetime = NOW() :: TIMESTAMP
 			WHERE watermarktablename = tablename;
 
 			RETURN;
@@ -344,7 +345,8 @@ BEGIN
     -- Mirrors ADF: MaxCosmosTs reads MAX(syscosmosts) from fact.ordertiming
     -- ----------------------------------------------------------
     UPDATE fact.watermarktable
-    SET    ts = (SELECT COALESCE(MAX(syscosmosts), 1720000300) FROM fact.ordertiming)
+    SET    ts = (SELECT COALESCE(MAX(syscosmosts), 1720000300) FROM fact.ordertiming),
+           sysupdatetime = NOW() :: TIMESTAMP
     WHERE  watermarktablename = 'fact.ordertiming'
       AND  source             = 'gem';
 
@@ -429,7 +431,8 @@ BEGIN
     );
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(gem_syscosmosts), 1775002010) FROM fact.sent_surveys)
+    SET ts = (SELECT COALESCE(MAX(gem_syscosmosts), 1775002010) FROM fact.sent_surveys),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.sent_surveys'
       AND source             = 'gem';
 
@@ -653,7 +656,8 @@ BEGIN
     -- Step 3 — Advance the watermark
     -- ----------------------------------------------------------
     UPDATE fact.watermarktable
-    SET    ts = (SELECT coalesce(max(syscosmosts), 1775002010) FROM fact.usercheckedin)
+    SET    ts = (SELECT coalesce(max(syscosmosts), 1775002010) FROM fact.usercheckedin),
+           sysupdatetime = NOW() :: TIMESTAMP
     WHERE  watermarktablename = 'fact.usercheckedin'
       AND  source             = 'gem';
 
@@ -771,7 +775,8 @@ BEGIN
     -- ----------------------------------------------------------
 
         UPDATE fact.watermarktable
-        SET    watermarkvalue = (SELECT COALESCE(MAX(lasteventtime), '1970-01-01 00:00:00'::TIMESTAMP) FROM fact.devicestate)
+        SET    watermarkvalue = (SELECT COALESCE(MAX(lasteventtime), '1970-01-01 00:00:00'::TIMESTAMP) FROM fact.devicestate),
+               sysupdatetime  = NOW() :: TIMESTAMP
         WHERE  watermarktablename = 'fact.devicestate'
           AND  source             = 'gsh';
 
@@ -903,7 +908,8 @@ BEGIN
     SET    watermarkvalue = (
                SELECT LEAST(MAX(cputimestamp), MAX(memorytimestamp))
                FROM   fact.devicetelemetry
-           )
+           ),
+           sysupdatetime = NOW() :: TIMESTAMP
     WHERE  watermarktablename = 'fact.devicetelemetry'
       AND  source             = 'gsh';
 
@@ -1271,7 +1277,8 @@ SELECT *, NULL :: TIMESTAMP as sysupdatetime
 FROM modifier_impressions;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_impressions)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_impressions),
+    sysupdatetime = NOW() :: TIMESTAMP
 WHERE watermarktablename = 'fact.modifier_impressions'
   AND source = 'nge';
 
@@ -1361,7 +1368,8 @@ SELECT *,
 FROM trxn_enrichment;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 5)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 5),
+    sysupdatetime = NOW() :: TIMESTAMP
 WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge-Interactions';
 
@@ -1436,7 +1444,8 @@ WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
   AND modifier_interactions.freequantity IS NULL;
 */
 UPDATE fact.watermarktable
-SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 6)
+SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.modifier_interactions WHERE sourceid = 6),
+    sysupdatetime = NOW() :: TIMESTAMP
 WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge-Options';
 
@@ -1498,7 +1507,8 @@ SELECT *, NULL :: TIMESTAMP as sysupdatetime
 FROM modifier_impressions;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_impressions)
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_impressions),
+    sysupdatetime = NOW() :: TIMESTAMP
 WHERE watermarktablename = 'fact.modifier_impressions'
   AND source = 'nge';
 
@@ -1569,7 +1579,8 @@ SELECT *, NULL :: TIMESTAMP as sysupdatetime
 FROM trxn_enrichment;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL),
+    sysupdatetime = NOW() :: TIMESTAMP
 WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge';
 
@@ -1633,7 +1644,8 @@ WHERE modifier_interactions.transactionheaderid = im.transactionheaderid
   AND modifier_interactions.freequantity IS NULL;
 
 UPDATE fact.watermarktable
-SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL)
+SET ts = (SELECT max(syscosmosts) - 10 FROM fact.modifier_interactions WHERE modifiername IS NOT NULL),
+    sysupdatetime = NOW() :: TIMESTAMP
 WHERE watermarktablename = 'fact.modifier_interactions'
   AND source = 'nge-Options';
 
@@ -1709,7 +1721,8 @@ BEGIN
       AND f.sysupdatetime IS NULL;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(nge_syscosmosts), 1775002010) FROM fact.itemssurvey)
+    SET ts = (SELECT COALESCE(MAX(nge_syscosmosts), 1775002010) FROM fact.itemssurvey),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.itemssurvey'
       AND source             = 'nge';
 
@@ -1836,7 +1849,8 @@ WITH delta as (
       SELECT * FROM total;
 
     UPDATE fact.watermarktable
-    SET ts = rec.maxts
+    SET ts = rec.maxts,
+        sysupdatetime = NOW() :: TIMESTAMP
     FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.recommendations' as tablename, 'nge' as source FROM fact.recommendations) as rec 
     WHERE watermarktable.watermarktablename = rec.tablename
       AND watermarktable.source             = rec.source;
@@ -1984,7 +1998,9 @@ BEGIN
 
     )
     INSERT INTO temp_delta_sent_surveys
-    SELECT * FROM joined_surveys_with_items;
+    SELECT DISTINCT ON (locationid, transactionheaderid, surveyid, itemid) * 
+    FROM joined_surveys_with_items
+    ORDER BY locationid, transactionheaderid, surveyid, itemid, gem_syscosmosts DESC;
 
     INSERT INTO fact.itemssurvey (
         organizationid,
@@ -2030,7 +2046,8 @@ BEGIN
     );
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(gem_syscosmosts), 1775002010) FROM fact.itemssurvey)
+    SET ts = (SELECT COALESCE(MAX(gem_syscosmosts), 1775002010) FROM fact.itemssurvey),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.itemssurvey'
       AND source             = 'gem';
 
@@ -2310,7 +2327,8 @@ BEGIN
 
     -- Advance watermark to max GEM syscosmosts across all sourceid = 2 headers
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionheader WHERE sourceid = 2)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionheader WHERE sourceid = 2),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.transactionheader'
       AND source             = 'gem';
 
@@ -2415,7 +2433,8 @@ BEGIN
         syscosmosts      = GREATEST(EXCLUDED.syscosmosts, fact.itemmodifier.syscosmosts);
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.itemmodifier)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.itemmodifier),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.itemmodifier'
       AND source             = 'nge';
 
@@ -2549,9 +2568,13 @@ BEGIN
         syscosmosts
     FROM new_events;
 
+    UPDATE fact.watermarktable
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.deviceevent),
+        sysupdatetime = NOW() :: TIMESTAMP
+    WHERE watermarktablename = 'fact.deviceevent'
+      AND source             = 'gem';
 END;
 $BODY$;
-
 
 ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent() OWNER TO citus;
 
@@ -2834,7 +2857,8 @@ BEGIN
     );
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_impressions)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_impressions),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.modifier_impressions'
       AND source             = 'nge';
 
@@ -2967,7 +2991,8 @@ BEGIN
     FROM trxn_enrichment;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_interactions WHERE sourceid = 5)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_interactions WHERE sourceid = 5),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.modifier_interactions'
       AND source             = 'nge-Interactions';
 
@@ -3038,7 +3063,8 @@ BEGIN
     FROM modfr_enrichment;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_interactions WHERE sourceid = 6)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_interactions WHERE sourceid = 6),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.modifier_interactions'
       AND source             = 'nge-Options';
 
@@ -3131,7 +3157,8 @@ BEGIN
     );
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_recommendations)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.modifier_recommendations),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.modifier_recommendations'
       AND source             = 'nge';
 
@@ -3401,7 +3428,8 @@ BEGIN
     );
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionheader WHERE sourceid = 1)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionheader WHERE sourceid = 1),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.transactionheader'
       AND source             = 'nge';
 
@@ -3722,7 +3750,8 @@ BEGIN
         OR fact.transactionitem.addtocarttime IS NULL;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionitem WHERE transactionheaderid LIKE 'ordevt-%')
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionitem WHERE transactionheaderid LIKE 'ordevt-%'),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.transactionitem'
       AND source             = 'nge';
 
@@ -3821,7 +3850,8 @@ BEGIN
     --DO NOTHING;  -- payments are immutable once recorded
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionpayment)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionpayment),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.transactionpayment'
       AND source             = 'nge';
 
@@ -3845,12 +3875,12 @@ DECLARE
 
 BEGIN
 
-    -- No source filter on this watermark row
+    -- Capture watermark
     SELECT COALESCE(ts, 1775002010) - 10
     INTO v_watermark
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.transactionrefunds'
-      AND source = 'nge';
+      AND source             = 'nge';
 
     WITH delta AS (
         -- Deduplicate: keep latest refund snapshot per (locationid, transactionheaderid)
@@ -3900,13 +3930,14 @@ BEGIN
     FROM delta d
     -- mirror ADF ExistingPayments step: only load refunds for orders already in fact layer
     INNER JOIN fact.transactionheader th
-            ON th.orderid    = d.orderid
-           AND th.locationid = d.locationid
+            ON th.locationid = d.locationid 
+           AND th.orderid    = d.orderid
     -- mirror ADF NewRefunds step (negate:true): skip if already recorded
     WHERE NOT EXISTS (
         SELECT 1
         FROM fact.transactionrefunds tr
-        WHERE tr.transactionheaderid = d.transactionheaderid
+        WHERE tr.locationid = d.locationid
+          AND tr.transactionheaderid = d.transactionheaderid
     );
 
     -- ----------------------------------------------------------
@@ -3929,15 +3960,18 @@ BEGIN
     SET paymentstatus = CASE LOWER(r.refundtype)
                             WHEN 'fullrefund' THEN 'Fully refunded'
                             ELSE                   'Partially refunded'
-                        END
+                        END,
+        updateddate   = NOW() :: TIMESTAMP
     FROM latest_refunds r
     WHERE fact.transactionheader.locationid = r.locationid
       AND fact.transactionheader.orderid    = r.orderid
       AND r.rn = 1;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionrefunds)
-    WHERE watermarktablename = 'fact.transactionrefunds';
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.transactionrefunds),
+        sysupdatetime = NOW() :: TIMESTAMP
+    WHERE watermarktablename = 'fact.transactionrefunds'
+      AND source             = 'nge';
 
 END;
 $BODY$;
@@ -4038,7 +4072,7 @@ ALTER PROCEDURE fact.usp_silver_upsell_recommendations_to_fact() OWNER TO citus;
 
 CREATE OR REPLACE PROCEDURE fact.usp_stg_occasionsurveydetail_to_fact()
     LANGUAGE plpgsql
-    AS $_$
+    AS $BODY$
 
 DECLARE
     v_max_syscosmosts_nge   BIGINT;
@@ -4085,7 +4119,7 @@ BEGIN
         syscosmosts,
         sourceid
     )
-    SELECT
+    SELECT DISTINCT ON (stg.locationid, stg.surveytransid, stg.orderid)
         ol.organizationid,
         stg.locationid,
         stg.dateid,
@@ -4116,15 +4150,14 @@ BEGIN
         ON  os.organizationid = ol.organizationid
         AND os.surveyid       = stg.surveyid
     WHERE stg.sourceid      = 1
-      AND stg.syscosmosts   > v_max_syscosmosts_nge
-      AND NOT EXISTS (
-          SELECT 1
-          FROM fact.occasionsurveydetail AS f
-          WHERE f.locationid    = stg.locationid
+    AND stg.syscosmosts   > v_max_syscosmosts_nge
+    AND NOT EXISTS (
+        SELECT 1
+        FROM fact.occasionsurveydetail AS f
+        WHERE f.locationid    = stg.locationid
             AND f.surveytransid = stg.surveytransid
             AND f.orderid       = stg.orderid
-      );
-
+    );
 
     -- ================================================================
     -- Stream 2: GEM Skipped Surveys (sourceid = 2)      [MODIFIED]
@@ -4193,20 +4226,22 @@ BEGIN
     );
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.occasionsurveydetail WHERE sourceid = 1)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.occasionsurveydetail WHERE sourceid = 1),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.occasionsurveydetail'
       AND source             = 'nge';
 
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.occasionsurveydetail WHERE sourceid = 2)
+    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.occasionsurveydetail WHERE sourceid = 2),
+        sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.occasionsurveydetail'
       AND source             = 'gem';
 
 
 
 END;
-$_$;
+$BODY$;
 
 
 ALTER PROCEDURE fact.usp_stg_occasionsurveydetail_to_fact() OWNER TO citus;
@@ -4224,13 +4259,8 @@ BEGIN
 UPDATE fact.transactionheader 
    SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone),
        updateddate    = NOW()
-FROM ( SELECT DISTINCT location.locationid,
-                 CASE
-                     WHEN ((location.timezone IS NULL) OR (location.timezone = ''::text)) THEN 'America/New_York'::text
-                     ELSE location.timezone
-                 END AS timezone
-            FROM dim.location) l
-WHERE (l.locationid = transactionheader.locationid) AND (transactionheader.orderdatelocal IS NULL);
+FROM dim.organization AS l
+WHERE (l.id = transactionheader.locationid) AND (transactionheader.orderdatelocal IS NULL);
 
 UPDATE fact.transactionheader 
    SET orderdatelocal = ((transactionheader.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text),
@@ -4257,13 +4287,8 @@ WHERE (abtests.ordersessionid = transactionheader.ordersessionid) AND (transacti
 UPDATE fact.transactionitem 
    SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE l.timezone),
        sysupdatetime  = NOW()
-FROM ( SELECT DISTINCT location.locationid,
-                 CASE
-                     WHEN ((location.timezone IS NULL) OR (location.timezone = ''::text)) THEN 'America/New_York'::text
-                     ELSE location.timezone
-                 END AS timezone
-            FROM dim.location) l
-WHERE (l.locationid = transactionitem.locationid) AND (transactionitem.orderdatelocal IS NULL);
+FROM dim.organization AS l
+WHERE (l.id = transactionitem.locationid) AND (transactionitem.orderdatelocal IS NULL);
 
 UPDATE fact.transactionitem
    SET orderdatelocal = ((transactionitem.orderdateutc) :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'::text),
@@ -4275,11 +4300,6 @@ UPDATE fact.transactionitem
        sysupdatetime = NOW()
 WHERE (transactionitem.businessdate IS NULL);
 
-
-UPDATE fact.watermarktable
-   SET ts = (SELECT coalesce(max(syscosmosts), 1775002010) - 10 FROM fact.itemmodifier)
-WHERE watermarktablename = 'fact.itemmodifier'
-  AND source = 'nge';
 
 
 END;
@@ -4350,19 +4370,22 @@ WHERE NOT EXISTS (SELECT 1 FROM dim.occasionsurvey as os
                   AND os.surveyid = its.surveyid);
 
 UPDATE fact.watermarktable
-SET ts = tr.maxts
+SET ts = tr.maxts,
+    sysupdatetime = NOW() :: TIMESTAMP
 FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 1) as tr 
 WHERE watermarktable.watermarktablename = tr.tablename
   AND watermarktable.source = 'nge';
 
 UPDATE fact.watermarktable
-SET ts = tr.maxts
+SET ts = tr.maxts,
+    sysupdatetime = NOW() :: TIMESTAMP
 FROM (SELECT coalesce(max(syscosmosts), 1500000010) as maxts, 'fact.occasionsurveydetail' as tablename FROM fact.occasionsurveydetail WHERE sourceid = 2) as tr 
 WHERE watermarktable.watermarktablename = tr.tablename
   AND watermarktable.source = 'gem';
 
 UPDATE fact.watermarktable
-SET ts = (SELECT coalesce(max(nge_syscosmosts), 1720000300) - 10 FROM fact.itemssurvey)
+SET ts = (SELECT coalesce(max(nge_syscosmosts), 1720000300) - 10 FROM fact.itemssurvey),
+    sysupdatetime = NOW() :: TIMESTAMP
 WHERE watermarktablename = 'fact.itemssurvey'
   AND source = 'nge';
 
