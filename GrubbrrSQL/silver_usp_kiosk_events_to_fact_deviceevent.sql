@@ -2,7 +2,7 @@ SELECT * FROM fact.deviceevent
 WHERE syscosmosts IS NOT NULL 
 ORDER BY syscosmosts DESC LIMIT 100;
 
-CALL fact.usp_silver_kiosk_events_to_deviceevent();
+CALL fact.usp_silver_kiosk_events_to_fact_deviceevent();
 
 -- Table: fact.deviceevent
 

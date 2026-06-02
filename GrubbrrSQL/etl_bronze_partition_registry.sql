@@ -119,7 +119,7 @@ SELECT
     NULL :: TIMESTAMP as sysupdatetime
 FROM dim.datedim as dt
 WHERE dt.yearval = 2026
-  AND dt.monthval = 5
+  AND dt.monthval = 6
 
 UNION ALL
 
@@ -148,6 +148,6 @@ SELECT
     NULL :: TIMESTAMP as sysupdatetime
 FROM dim.datedim as dt
 WHERE dt.yearval = 2026
-  AND dt.monthval = 5;
+  AND dt.monthval = 6;
 
 --SELECT '01'::INTEGER;

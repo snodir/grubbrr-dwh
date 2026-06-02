@@ -3,7 +3,7 @@ SELECT * FROM fact.userbehaviour as ub ORDER BY id DESC LIMIT 1000;
 ALTER TABLE fact.userbehaviour
     ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
 
---CALL fact.usp_silver_userbehaviour_to_fact();
+--CALL fact.usp_silver_kiosk_events_to_fact_userbehaviour();
 
 CREATE INDEX IF NOT EXISTS ix_userbehaviour_syscosmosts_brin
     ON fact.userbehaviour USING brin (syscosmosts)

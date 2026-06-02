@@ -213,7 +213,7 @@ BEGIN
     -- ----------------------------------------------------------
     -- Step 1 — Read the current watermark
     -- ----------------------------------------------------------
-    SELECT COALESCE(ts, 1720000300) - 10
+    SELECT COALESCE(ts, 1775002010) - 600
     INTO   v_watermark
     FROM   fact.watermarktable
     WHERE  watermarktablename = 'fact.ordertiming'
@@ -232,10 +232,6 @@ BEGIN
             stg.token,
             stg.device,
             -- dateid: mirrors ADF replace(replace(substring(instant,0,13),'-',''),'T','')
-            REPLACE(
-                REPLACE(SUBSTRING(stg.eventinstant, 1, 13), '-', ''),
-                'T', ''
-            ) :: INTEGER                                            AS dateid,
             stg.eventcategory                                       AS eventcategory,
             stg.eventtype                                           AS eventtype,
             fact.parse_iso_timestamp(stg.eventinstant) :: TIMESTAMP AS eventinstant,
@@ -245,7 +241,7 @@ BEGIN
           AND stg.application   = 'nge'
           AND stg.token         > ''
           AND stg.token         IS NOT NULL
-          --AND stg.syscosmosts   > v_watermark
+          AND stg.syscosmosts   > v_watermark
           AND (
                   (LOWER(stg.eventcategory) = 'session'  AND LOWER(stg.eventtype) = 'started')
                OR (LOWER(stg.eventcategory) = 'service'  AND LOWER(stg.eventtype) = 'select')
@@ -255,12 +251,12 @@ BEGIN
                OR (LOWER(stg.eventcategory) = 'order'    AND LOWER(stg.eventtype) = 'paidinfull')
                OR (LOWER(stg.eventcategory) = 'session'  AND LOWER(stg.eventtype) = 'closed')
           )
-          AND NOT EXISTS (
+          /*AND NOT EXISTS (
                   SELECT 1
                   FROM   fact.ordertiming AS f
                   WHERE  f.locationid  = stg.locationid
                     AND  f.eventtoken  = stg.token
-              )
+              )*/
     ),
 
     aggregated AS (
@@ -271,7 +267,8 @@ BEGIN
             companyid,
             token                                                                                                        AS eventtoken,
             device                                                                                                       AS deviceid,
-            dateid,
+            MIN(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'started'     
+                     THEN REPLACE(REPLACE(SUBSTRING(eventinstant, 1, 13), '-', ''), 'T', '') :: INTEGER END)             AS dateid,
             MIN(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'started'      THEN eventinstant END) AS sessionstart,
             MIN(CASE WHEN LOWER(eventcategory) = 'service'  AND LOWER(eventtype) = 'select'       THEN eventinstant END) AS menustart,
             MIN(CASE WHEN LOWER(eventcategory) = 'item'     AND LOWER(eventtype) = 'selected'     THEN eventinstant END) AS itemstart,
@@ -281,7 +278,7 @@ BEGIN
             MAX(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'closed'       THEN eventinstant END) AS orderend,
             MAX(syscosmosts)                                                                                             AS syscosmosts
         FROM  new_events
-        GROUP BY locationid, companyid, token, device, dateid
+        GROUP BY locationid, companyid, token, device--, dateid
     )
 
     INSERT INTO fact.ordertiming (
@@ -339,6 +336,7 @@ BEGIN
         NOW()::timestamp                                                                     AS sysinserttime,
         syscosmosts
     FROM aggregated;
+    --ON CONFLICT DO UPDATE SET;
 
     -- ----------------------------------------------------------
     -- Step 3 — Advance the watermark
@@ -2532,10 +2530,11 @@ DECLARE
 BEGIN
 
     -- Capture watermark once upfront
-    SELECT COALESCE(MAX(syscosmosts) - 10, 0)
+    SELECT COALESCE(ts, 1775002010) - 600
     INTO v_max_syscosmosts
-    FROM fact.deviceevent;
-
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.deviceevent'
+      AND source             = 'gem';
 
     WITH new_events AS (
 
@@ -3496,7 +3495,7 @@ DECLARE
 BEGIN
 
     -- Capture watermark once upfront
-    SELECT COALESCE(ts, 1775002010) - 10
+    SELECT COALESCE(ts, 1775002010) - 600
     INTO v_max_syscosmosts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.transactionheader'
@@ -3595,7 +3594,7 @@ BEGIN
 
     ), orders_enriched AS (
 
-        SELECT
+        SELECT DISTINCT ON (locationid, transactionheaderid)
             qt.*,
             fact.parse_iso_timestamp(ke.orderstarttime)  :: TIMESTAMP AS orderstarttime,
             fact.parse_iso_timestamp(ke.reviewordertime) :: TIMESTAMP AS reviewordertime,
@@ -3606,6 +3605,7 @@ BEGIN
         LEFT JOIN aggregated_kiosk_events AS ke
             ON  ke.locationid = qt.locationid
             AND ke.token      = qt.ordersessionid
+        ORDER BY locationid, transactionheaderid, orderdateutc DESC
 
     )
     INSERT INTO fact.transactionheader (
@@ -3766,7 +3766,7 @@ DECLARE
     v_max_syscosmosts BIGINT;
 BEGIN
 
-    SELECT COALESCE(ts, 1775002010) - 10
+    SELECT COALESCE(ts, 1775002010) - 600
     INTO v_max_syscosmosts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.transactionitem'
@@ -3997,7 +3997,7 @@ BEGIN
         syscosmosts,
         frequentcustomerid
     )
-    SELECT
+    SELECT DISTINCT ON (r.transactionheaderid, r.itemid, r.itemname)
         r.transactionheaderid,
         r.categoryid,
         r.menuitemid,
@@ -4050,6 +4050,7 @@ BEGIN
     --      AND ti.itemid              = r.itemid
     --      AND ti.itemname            = r.itemname
     --)
+    ORDER BY r.transactionheaderid, r.itemid, r.itemname, r.orderdateutc DESC
     ON CONFLICT (transactionheaderid, itemid, itemname)
     DO UPDATE SET
         customize        = EXCLUDED.customize,
@@ -4463,14 +4464,14 @@ BEGIN
     INNER JOIN dim.occasionsurvey AS os
         ON  os.organizationid = ol.organizationid
         AND os.surveyid       = stg.surveyid
-    WHERE stg.sourceid      = 1
-    AND stg.syscosmosts   > v_max_syscosmosts_nge
+    WHERE stg.syscosmosts   > v_max_syscosmosts_nge
     AND NOT EXISTS (
         SELECT 1
         FROM fact.occasionsurveydetail AS f
-        WHERE f.locationid    = stg.locationid
+        WHERE f.locationid      = stg.locationid
             AND f.surveytransid = stg.surveytransid
             AND f.orderid       = stg.orderid
+            AND f.sourceid      = 2
     );
 
     -- ================================================================
