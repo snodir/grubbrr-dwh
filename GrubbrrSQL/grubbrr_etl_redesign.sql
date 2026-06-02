@@ -1,7 +1,7 @@
-SELECT DISTINCT isc.table_schema, isc.table_name
+SELECT DISTINCT isc.table_schema || '.' || isc.table_name as schema_table
 FROM information_schema.columns as isc 
-WHERE isc.table_schema IN ('dim','fact','stg')
-ORDER BY isc.table_schema, isc.table_name--, isc.ordinal_position
+WHERE isc.table_schema IN ('stg')
+ORDER BY schema_table-- isc.table_schema, isc.table_name--, isc.ordinal_position
 
 SELECT *
 FROM dim.businessdate

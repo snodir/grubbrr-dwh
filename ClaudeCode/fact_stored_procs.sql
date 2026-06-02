@@ -775,7 +775,7 @@ BEGIN
     -- ----------------------------------------------------------
 
         UPDATE fact.watermarktable
-        SET    watermarkvalue = (SELECT COALESCE(MAX(lasteventtime), '1970-01-01 00:00:00'::TIMESTAMP) FROM fact.devicestate),
+        SET    watermarkvalue = (SELECT COALESCE(MAX(lasteventtime) - INTERVAL '10 seconds', '1970-01-01 00:00:00'::TIMESTAMP) FROM fact.devicestate),
                sysupdatetime  = NOW() :: TIMESTAMP
         WHERE  watermarktablename = 'fact.devicestate'
           AND  source             = 'gsh';
@@ -906,7 +906,7 @@ BEGIN
     -- ----------------------------------------------------------
     UPDATE fact.watermarktable
     SET    watermarkvalue = (
-               SELECT LEAST(MAX(cputimestamp), MAX(memorytimestamp))
+               SELECT LEAST(MAX(cputimestamp), MAX(memorytimestamp)) - INTERVAL '10 seconds'
                FROM   fact.devicetelemetry
            ),
            sysupdatetime = NOW() :: TIMESTAMP
@@ -4151,14 +4151,14 @@ BEGIN
     WHERE EXISTS (
             SELECT 1
             FROM fact.transactionheader AS th
-            WHERE th.locationid          = r.locationid
-              AND th.transactionheaderid = r.transactionheaderid
+            WHERE th.locationid          = delta.locationid
+              AND th.transactionheaderid = delta.transactionheaderid
     )
     AND NOT EXISTS (
             SELECT 1
             FROM fact.transactionpayment AS tp
-            WHERE tp.locationid          = r.locationid
-              AND tp.transactionheaderid = r.transactionheaderid
+            WHERE tp.locationid          = delta.locationid
+              AND tp.transactionheaderid = delta.transactionheaderid
     );
     --ON CONFLICT (locationid, transactionheaderid, paymentintegrationid, paymentid)
     --DO NOTHING;  -- payments are immutable once recorded

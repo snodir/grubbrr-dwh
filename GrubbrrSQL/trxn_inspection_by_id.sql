@@ -1,11 +1,20 @@
 SELECT *--count(*)
 FROM fact.transactionheader as th 
-WHERE 1=1 AND th.locationid = 'loc-0be64e65-c6e8-460f-bc14-6c5558eef57e'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
-AND th.transactionheaderid = 'ordevt-bcgbi2qnx2' --IN ('ordevt-OZQ8NI5X4UF8D3WZ','ordevt-T59U5WOBY00GZYMA','ordevt-BPYP5JNK05IZ0P6W')
+WHERE 1=1 AND th.locationid = 'loc-bf92520f-bd20-4316-8f12-d1d4406b201d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+AND th.transactionheaderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-KPMXKSRVLP86J2YR','ordevt-NMN4RZR6NQ31W8HW','ordevt-2MUIURL3MQPSDTWN')
 AND th.orderstatus = 'order-placed'
 --AND th.businessdate = '2026-05-21'
 ORDER BY th.orderdatelocal DESC
 LIMIT 100;
+
+
+SELECT ol.organizationname, ol.locationname, os.*--count(*)
+FROM fact.occasionsurveydetail as os 
+INNER JOIN dim.organizationlocation as ol
+        ON ol.locationid       = os.locationid
+       AND ol.organizationtype = 0
+WHERE 1=1 AND os.locationid = 'loc-bf92520f-bd20-4316-8f12-d1d4406b201d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+AND os.orderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-KPMXKSRVLP86J2YR','ordevt-NMN4RZR6NQ31W8HW','ordevt-2MUIURL3MQPSDTWN')
 
 SELECT * FROM fact.recommendations
 WHERE 1=1 AND locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
