@@ -6,7 +6,15 @@ WHERE sysinserttime IS NOT NULL
 ORDER BY sysinserttime DESC
 LIMIT 1000;
 
+ALTER TABLE IF EXISTS fact.ordertiming
+    ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
+
 --DELETE FROM fact.ordertiming WHERE sysinserttime = (SELECT max(sysinserttime) FROM fact.ordertiming)
+
+-- Table: fact.ordertiming
+
+-- DROP TABLE IF EXISTS fact.ordertiming;
 
 -- Table: fact.ordertiming
 
@@ -14,7 +22,7 @@ LIMIT 1000;
 
 CREATE TABLE IF NOT EXISTS fact.ordertiming
 (
-    id bigint NOT NULL,
+    id bigint NOT NULL DEFAULT nextval('fact.ordertiming_id_seq'::regclass),
     companyid text COLLATE pg_catalog."default",
     locationid text COLLATE pg_catalog."default",
     eventtoken text COLLATE pg_catalog."default",
@@ -38,13 +46,17 @@ CREATE TABLE IF NOT EXISTS fact.ordertiming
     totalordertime numeric(7,3),
     sysinserttime timestamp without time zone,
     syscosmosts bigint,
-    CONSTRAINT ordertiming_pkey PRIMARY KEY (id)
+    sysupdatetime TIMESTAMP,
+    CONSTRAINT ordertiming_pkey PRIMARY KEY (id),
+    CONSTRAINT locationid_eventtoken_unq UNIQUE (locationid, eventtoken)
 )
 
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS fact.ordertiming
     OWNER to citus;
+
+
 
 -- Table: stg.silver_kiosk_events
 

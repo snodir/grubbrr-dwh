@@ -54,10 +54,10 @@ CREATE SEQUENCE IF NOT EXISTS fact.userbehaviour_id_seq;
 
 SELECT setval(
     'fact.userbehaviour_id_seq',
-    COALESCE((SELECT MAX(id) FROM fact.userbehaviour), 0)
+    (SELECT COALESCE(MAX(id), 0) FROM fact.userbehaviour)
 );
 
-ALTER TABLE fact.userbehaviour
+ALTER TABLE IF EXISTS fact.userbehaviour
     ALTER COLUMN id SET DEFAULT nextval('fact.userbehaviour_id_seq');
 
 

@@ -32,7 +32,7 @@ SET row_security = off;
 -- Name: dim; Type: SCHEMA; Schema: -; Owner: citus
 --
 
-CREATE SCHEMA dim;
+CREATE SCHEMA IF NOT EXISTS dim;
 
 
 ALTER SCHEMA dim OWNER TO citus;
@@ -42,7 +42,7 @@ ALTER SCHEMA dim OWNER TO citus;
 -- Name: etl; Type: SCHEMA; Schema: -; Owner: citus
 --
 
-CREATE SCHEMA etl;
+CREATE SCHEMA IF NOT EXISTS etl;
 
 
 ALTER SCHEMA etl OWNER TO citus;
@@ -52,7 +52,7 @@ ALTER SCHEMA etl OWNER TO citus;
 -- Name: fact; Type: SCHEMA; Schema: -; Owner: citus
 --
 
-CREATE SCHEMA fact;
+CREATE SCHEMA IF NOT EXISTS fact;
 
 
 ALTER SCHEMA fact OWNER TO citus;
@@ -62,7 +62,7 @@ ALTER SCHEMA fact OWNER TO citus;
 -- Name: ml; Type: SCHEMA; Schema: -; Owner: citus
 --
 
-CREATE SCHEMA ml;
+CREATE SCHEMA IF NOT EXISTS ml;
 
 
 ALTER SCHEMA ml OWNER TO citus;
@@ -72,10 +72,10 @@ ALTER SCHEMA ml OWNER TO citus;
 -- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
-CREATE SCHEMA public;
+CREATE SCHEMA IF NOT EXISTS public;
 
 
-ALTER SCHEMA public OWNER TO postgres;
+--ALTER SCHEMA public OWNER TO postgres;
 
 --
 -- TOC entry 6561 (class 0 OID 0)
@@ -83,7 +83,7 @@ ALTER SCHEMA public OWNER TO postgres;
 -- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
 --
 
-COMMENT ON SCHEMA public IS 'standard public schema';
+--COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
@@ -91,7 +91,7 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 -- Name: stg; Type: SCHEMA; Schema: -; Owner: citus
 --
 
-CREATE SCHEMA stg;
+CREATE SCHEMA IF NOT EXISTS stg;
 
 
 ALTER SCHEMA stg OWNER TO citus;
@@ -102,7 +102,7 @@ ALTER SCHEMA stg OWNER TO citus;
 -- Name: array_to_text(jsonb); Type: FUNCTION; Schema: dim; Owner: citus
 --
 
-CREATE FUNCTION dim.array_to_text(a jsonb) RETURNS text
+CREATE OR REPLACE FUNCTION dim.array_to_text(a jsonb) RETURNS text
     LANGUAGE sql IMMUTABLE STRICT
     AS $$
     SELECT initcap(replace(replace(replace(a::text, '[', ''), ']', ''), '"', ''));
@@ -116,7 +116,7 @@ ALTER FUNCTION dim.array_to_text(a jsonb) OWNER TO citus;
 -- Name: is_valid_jsonb(text); Type: FUNCTION; Schema: dim; Owner: citus
 --
 
-CREATE FUNCTION dim.is_valid_jsonb(input text) RETURNS boolean
+CREATE OR REPLACE FUNCTION dim.is_valid_jsonb(input text) RETURNS boolean
     LANGUAGE plpgsql IMMUTABLE STRICT
     AS $$
 BEGIN
@@ -135,7 +135,7 @@ ALTER FUNCTION dim.is_valid_jsonb(input text) OWNER TO citus;
 -- Name: parse_iso_timestamp(text); Type: FUNCTION; Schema: fact; Owner: citus
 --
 
-CREATE FUNCTION fact.parse_iso_timestamp(ts_string text) RETURNS text
+CREATE OR REPLACE FUNCTION fact.parse_iso_timestamp(ts_string text) RETURNS text
     LANGUAGE sql IMMUTABLE STRICT
     AS $$
     SELECT CASE WHEN substring(ts_string, 20, 1) = '.'
@@ -440,7 +440,7 @@ ALTER TABLE IF EXISTS dim.duplicate_items_master
 -- Name: element_id_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE dim.element_id_seq
+CREATE SEQUENCE IF NOT EXISTS dim.element_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -487,7 +487,7 @@ ALTER TABLE IF EXISTS dim.experiment OWNER TO citus;
 -- Name: experiment_dimkey_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE dim.experiment_dimkey_seq
+CREATE SEQUENCE IF NOT EXISTS dim.experiment_dimkey_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -538,7 +538,7 @@ ALTER TABLE IF EXISTS dim.feedbackstatus OWNER TO citus;
 -- Name: frequentcustomer_customerkey_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE dim.frequentcustomer_customerkey_seq
+CREATE SEQUENCE IF NOT EXISTS dim.frequentcustomer_customerkey_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -689,7 +689,7 @@ ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 -- Name: itemcategory_id_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE dim.itemcategory_id_seq
+CREATE SEQUENCE IF NOT EXISTS dim.itemcategory_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -745,6 +745,7 @@ ADD COLUMN IF NOT EXISTS number_of_sub_categories SMALLINT,
 ADD COLUMN IF NOT EXISTS number_of_item_variations SMALLINT,
 ADD COLUMN IF NOT EXISTS number_of_combos SMALLINT,
 ADD COLUMN IF NOT EXISTS number_of_combo_families SMALLINT;
+
 ALTER TABLE IF EXISTS dim.itemcategory
     ALTER COLUMN id SET DEFAULT nextval('dim.itemcategory_id_seq');
 
@@ -789,7 +790,7 @@ ALTER TABLE IF EXISTS dim.itemcategorymapping OWNER TO citus;
 -- Name: kiosk_id_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE dim.kiosk_id_seq
+CREATE SEQUENCE IF NOT EXISTS dim.kiosk_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1002,7 +1003,7 @@ ALTER TABLE IF EXISTS dim.menuentities OWNER TO citus;
 -- Name: menuitem_id_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE dim.menuitem_id_seq
+CREATE SEQUENCE IF NOT EXISTS dim.menuitem_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1187,7 +1188,7 @@ ALTER TABLE IF EXISTS dim.modifier_group_mapping
 -- Name: occasionsurvey_surveykey_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE dim.occasionsurvey_surveykey_seq
+CREATE SEQUENCE IF NOT EXISTS dim.occasionsurvey_surveykey_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1243,7 +1244,7 @@ ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 -- Name: ordertype_id_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE dim.ordertype_id_seq
+CREATE SEQUENCE IF NOT EXISTS dim.ordertype_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1432,7 +1433,7 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE;
 -- Name: view_id_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE dim.view_id_seq
+CREATE SEQUENCE IF NOT EXISTS dim.view_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1460,6 +1461,10 @@ ALTER TABLE IF EXISTS dim.view OWNER TO citus;
 ALTER TABLE IF EXISTS dim.view
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
+
+
+ALTER TABLE IF EXISTS dim.view
+    ALTER COLUMN viewid SET DEFAULT nextval('dim.view_id_seq');
 
 
 --
@@ -2205,7 +2210,7 @@ ALTER TABLE IF EXISTS fact.devicehealth OWNER TO citus;
 -- Name: devicestate_id_seq; Type: SEQUENCE; Schema: fact; Owner: citus
 --
 
-CREATE SEQUENCE fact.devicestate_id_seq
+CREATE SEQUENCE IF NOT EXISTS fact.devicestate_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2554,7 +2559,7 @@ ADD COLUMN IF NOT EXISTS ordersessionid TEXT COLLATE pg_catalog."default";
 -- Name: ordertiming_id_seq; Type: SEQUENCE; Schema: fact; Owner: citus
 --
 
-CREATE SEQUENCE fact.ordertiming_id_seq
+CREATE SEQUENCE IF NOT EXISTS fact.ordertiming_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2665,7 +2670,7 @@ ALTER TABLE IF EXISTS fact.pipelinerunstatus OWNER TO citus;
 -- TOC entry 442 (class 1259 OID 888761)
 -- Name: pos_sales_details; Type: TABLE; Schema: fact; Owner: citus
 --
-
+/*
 CREATE TABLE IF NOT EXISTS fact.pos_sales_details (
     id bigint NOT NULL,
     businessdate date NOT NULL,
@@ -2688,16 +2693,20 @@ ALTER TABLE IF EXISTS fact.pos_sales_details OWNER TO citus;
 -- Name: pos_sales_details_id_seq; Type: SEQUENCE; Schema: fact; Owner: citus
 --
 
-ALTER TABLE IF EXISTS fact.pos_sales_details ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME fact.pos_sales_details_id_seq
+CREATE SEQUENCE IF NOT EXISTS fact.pos_sales_details_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
-    CACHE 1
-);
+    CACHE 1;
 
 
+ALTER SEQUENCE fact.pos_sales_details_id_seq OWNER TO citus;
+
+ALTER TABLE IF EXISTS fact.pos_sales_details
+
+    ALTER COLUMN id SET DEFAULT nextval('fact.pos_sales_details_id_seq');
+*/
 --
 -- TOC entry 424 (class 1259 OID 454561)
 -- Name: recommendations; Type: TABLE; Schema: fact; Owner: citus
@@ -2781,7 +2790,7 @@ ALTER TABLE IF EXISTS fact.timingsdatalake OWNER TO citus;
 -- Name: transactionheader_id_seq; Type: SEQUENCE; Schema: fact; Owner: citus
 --
 
-CREATE SEQUENCE fact.transactionheader_id_seq
+CREATE SEQUENCE IF NOT EXISTS fact.transactionheader_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2984,7 +2993,7 @@ ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
 -- Name: userbehaviour_id_seq; Type: SEQUENCE; Schema: fact; Owner: citus
 --
 
-CREATE SEQUENCE fact.userbehaviour_id_seq
+CREATE SEQUENCE IF NOT EXISTS fact.userbehaviour_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -4864,7 +4873,7 @@ ALTER TABLE ONLY dim.experiment ALTER COLUMN dimkey SET DEFAULT nextval('dim.exp
 -- TOC entry 6306 (class 2606 OID 2178868)
 -- Name: catalog catalog_pkey; Type: CONSTRAINT; Schema: dim; Owner: citus
 --
-
+/*
 ALTER TABLE ONLY dim.catalog
     ADD CONSTRAINT catalog_pkey PRIMARY KEY (catalogid);
 
@@ -5497,29 +5506,10 @@ ALTER TABLE ONLY stg.recommendations
 -- Name: IX_dateid_datets; Type: INDEX; Schema: dim; Owner: citus
 --
 
+*/
 
--- Sequence sync from schema evolution file
-CREATE SEQUENCE IF NOT EXISTS dim.frequentcustomer_customerkey_seq;
 
--- Sync to current max to avoid collisions with existing data
-SELECT setval(
-    'dim.frequentcustomer_customerkey_seq',
-    COALESCE((SELECT MAX(customerkey) FROM dim.frequentcustomer), 0)
-);
-CREATE SEQUENCE IF NOT EXISTS dim.menuitem_id_seq;
-
-SELECT setval(
-    'dim.menuitem_id_seq',
-    COALESCE((SELECT MAX(id) FROM dim.menuitem), 0)
-);
-CREATE SEQUENCE IF NOT EXISTS dim.itemcategory_id_seq;
-
-SELECT setval(
-    'dim.itemcategory_id_seq',
-    COALESCE((SELECT MAX(id) FROM dim.itemcategory), 0)
-);
-
-CREATE INDEX "IX_dateid_datets" ON dim.datedim USING btree (dateid, datets);
+CREATE INDEX IF NOT EXISTS "IX_dateid_datets" ON dim.datedim USING btree (dateid, datets);
 
 
 --
@@ -5527,7 +5517,7 @@ CREATE INDEX "IX_dateid_datets" ON dim.datedim USING btree (dateid, datets);
 -- Name: IX_organizationid_locationid; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX "IX_organizationid_locationid" ON dim.organizationlocation USING btree (organizationid, locationid) INCLUDE (organizationname, locationname);
+CREATE INDEX IF NOT EXISTS "IX_organizationid_locationid" ON dim.organizationlocation USING btree (organizationid, locationid) INCLUDE (organizationname, locationname);
 
 
 --
@@ -5535,7 +5525,7 @@ CREATE INDEX "IX_organizationid_locationid" ON dim.organizationlocation USING bt
 -- Name: company_id_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX company_id_idx ON dim.company USING btree (companyid);
+CREATE INDEX IF NOT EXISTS company_id_idx ON dim.company USING btree (companyid);
 
 
 --
@@ -5543,7 +5533,7 @@ CREATE INDEX company_id_idx ON dim.company USING btree (companyid);
 -- Name: deviceid_locationid_companyid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX deviceid_locationid_companyid_idx ON dim.device USING btree (deviceid, locationid, companyid) INCLUDE (devicetype, state, testmode);
+CREATE INDEX IF NOT EXISTS deviceid_locationid_companyid_idx ON dim.device USING btree (deviceid, locationid, companyid) INCLUDE (devicetype, state, testmode);
 
 
 --
@@ -5551,7 +5541,7 @@ CREATE INDEX deviceid_locationid_companyid_idx ON dim.device USING btree (device
 -- Name: dim_location_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX dim_location_idx ON dim.location USING btree (locationid);
+CREATE INDEX IF NOT EXISTS dim_location_idx ON dim.location USING btree (locationid);
 
 
 --
@@ -5559,7 +5549,7 @@ CREATE INDEX dim_location_idx ON dim.location USING btree (locationid);
 -- Name: idx_datedim_dateid; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_datedim_dateid ON dim.datedim USING btree (dateid);
+CREATE INDEX IF NOT EXISTS idx_datedim_dateid ON dim.datedim USING btree (dateid);
 
 
 --
@@ -5567,7 +5557,7 @@ CREATE INDEX idx_datedim_dateid ON dim.datedim USING btree (dateid);
 -- Name: idx_datedim_datets; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_datedim_datets ON dim.datedim USING btree (datets);
+CREATE INDEX IF NOT EXISTS idx_datedim_datets ON dim.datedim USING btree (datets);
 
 
 --
@@ -5575,7 +5565,7 @@ CREATE INDEX idx_datedim_datets ON dim.datedim USING btree (datets);
 -- Name: idx_device_id; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_device_id ON dim.device USING btree (deviceid);
+CREATE INDEX IF NOT EXISTS idx_device_id ON dim.device USING btree (deviceid);
 
 
 --
@@ -5583,7 +5573,7 @@ CREATE INDEX idx_device_id ON dim.device USING btree (deviceid);
 -- Name: idx_device_location_id; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_device_location_id ON dim.device USING btree (locationid);
+CREATE INDEX IF NOT EXISTS idx_device_location_id ON dim.device USING btree (locationid);
 
 
 --
@@ -5591,7 +5581,7 @@ CREATE INDEX idx_device_location_id ON dim.device USING btree (locationid);
 -- Name: idx_device_state; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_device_state ON dim.device USING btree (state);
+CREATE INDEX IF NOT EXISTS idx_device_state ON dim.device USING btree (state);
 
 
 --
@@ -5599,7 +5589,7 @@ CREATE INDEX idx_device_state ON dim.device USING btree (state);
 -- Name: idx_device_testmode; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_device_testmode ON dim.device USING btree (testmode);
+CREATE INDEX IF NOT EXISTS idx_device_testmode ON dim.device USING btree (testmode);
 
 
 --
@@ -5607,7 +5597,7 @@ CREATE INDEX idx_device_testmode ON dim.device USING btree (testmode);
 -- Name: idx_menuentities_catalog; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_menuentities_catalog ON dim.menuentities USING btree (catalogid);
+CREATE INDEX IF NOT EXISTS idx_menuentities_catalog ON dim.menuentities USING btree (catalogid);
 
 
 --
@@ -5615,7 +5605,7 @@ CREATE INDEX idx_menuentities_catalog ON dim.menuentities USING btree (catalogid
 -- Name: idx_menuentities_mealavail; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_menuentities_mealavail ON dim.menuentities USING gin (mealavailability);
+CREATE INDEX IF NOT EXISTS idx_menuentities_mealavail ON dim.menuentities USING gin (mealavailability);
 
 
 --
@@ -5623,7 +5613,7 @@ CREATE INDEX idx_menuentities_mealavail ON dim.menuentities USING gin (mealavail
 -- Name: idx_menuentities_tags; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_menuentities_tags ON dim.menuentities USING gin (tags);
+CREATE INDEX IF NOT EXISTS idx_menuentities_tags ON dim.menuentities USING gin (tags);
 
 
 --
@@ -5631,7 +5621,7 @@ CREATE INDEX idx_menuentities_tags ON dim.menuentities USING gin (tags);
 -- Name: idx_organizationlocation_locationid; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_organizationlocation_locationid ON dim.organizationlocation USING btree (locationid);
+CREATE INDEX IF NOT EXISTS idx_organizationlocation_locationid ON dim.organizationlocation USING btree (locationid);
 
 
 --
@@ -5639,7 +5629,7 @@ CREATE INDEX idx_organizationlocation_locationid ON dim.organizationlocation USI
 -- Name: idx_organizationlocation_organizationid; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_organizationlocation_organizationid ON dim.organizationlocation USING btree (organizationid);
+CREATE INDEX IF NOT EXISTS idx_organizationlocation_organizationid ON dim.organizationlocation USING btree (organizationid);
 
 
 --
@@ -5647,7 +5637,7 @@ CREATE INDEX idx_organizationlocation_organizationid ON dim.organizationlocation
 -- Name: idx_view_viewid; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX idx_view_viewid ON dim.view USING btree (viewid);
+CREATE INDEX IF NOT EXISTS idx_view_viewid ON dim.view USING btree (viewid);
 
 
 --
@@ -5655,7 +5645,7 @@ CREATE INDEX idx_view_viewid ON dim.view USING btree (viewid);
 -- Name: itemcategory_bkp_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE UNIQUE INDEX itemcategory_bkp_idx ON dim.itemcategory_bkp USING btree (locationid, categoryid);
+CREATE UNIQUE INDEX IF NOT EXISTS itemcategory_bkp_idx ON dim.itemcategory_bkp USING btree (locationid, categoryid);
 
 
 --
@@ -5663,7 +5653,7 @@ CREATE UNIQUE INDEX itemcategory_bkp_idx ON dim.itemcategory_bkp USING btree (lo
 -- Name: itemcategory_bkp_locationid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX itemcategory_bkp_locationid_idx ON dim.itemcategory_bkp USING btree (locationid) INCLUDE (categoryid, isactive);
+CREATE INDEX IF NOT EXISTS itemcategory_bkp_locationid_idx ON dim.itemcategory_bkp USING btree (locationid) INCLUDE (categoryid, isactive);
 
 
 --
@@ -5671,7 +5661,7 @@ CREATE INDEX itemcategory_bkp_locationid_idx ON dim.itemcategory_bkp USING btree
 -- Name: itemcategory_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE UNIQUE INDEX itemcategory_idx ON dim.itemcategory USING btree (locationid, categoryid);
+CREATE UNIQUE INDEX IF NOT EXISTS itemcategory_idx ON dim.itemcategory USING btree (locationid, categoryid);
 
 
 --
@@ -5679,7 +5669,7 @@ CREATE UNIQUE INDEX itemcategory_idx ON dim.itemcategory USING btree (locationid
 -- Name: itemcategory_locationid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX itemcategory_locationid_idx ON dim.itemcategory USING btree (locationid) INCLUDE (categoryid, isactive);
+CREATE INDEX IF NOT EXISTS itemcategory_locationid_idx ON dim.itemcategory USING btree (locationid) INCLUDE (categoryid, isactive);
 
 
 --
@@ -5687,7 +5677,7 @@ CREATE INDEX itemcategory_locationid_idx ON dim.itemcategory USING btree (locati
 -- Name: ix_dim_menuitem_catalogid; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX ix_dim_menuitem_catalogid ON dim.menuitem USING btree (catalogid);
+CREATE INDEX IF NOT EXISTS ix_dim_menuitem_catalogid ON dim.menuitem USING btree (catalogid);
 
 
 --
@@ -5695,7 +5685,7 @@ CREATE INDEX ix_dim_menuitem_catalogid ON dim.menuitem USING btree (catalogid);
 -- Name: ix_dim_modifier_catalogid; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX ix_dim_modifier_catalogid ON dim.modifier USING btree (catalogid);
+CREATE INDEX IF NOT EXISTS ix_dim_modifier_catalogid ON dim.modifier USING btree (catalogid);
 
 
 --
@@ -5703,7 +5693,7 @@ CREATE INDEX ix_dim_modifier_catalogid ON dim.modifier USING btree (catalogid);
 -- Name: ix_dim_modifiergroup_catalogid; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX ix_dim_modifiergroup_catalogid ON dim.modifier_group USING btree (catalogid);
+CREATE INDEX IF NOT EXISTS ix_dim_modifiergroup_catalogid ON dim.modifier_group USING btree (catalogid);
 
 
 --
@@ -5711,7 +5701,7 @@ CREATE INDEX ix_dim_modifiergroup_catalogid ON dim.modifier_group USING btree (c
 -- Name: locationgroupid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX locationgroupid_idx ON dim.location USING btree (locationgroupid);
+CREATE INDEX IF NOT EXISTS locationgroupid_idx ON dim.location USING btree (locationgroupid);
 
 
 --
@@ -5719,7 +5709,7 @@ CREATE INDEX locationgroupid_idx ON dim.location USING btree (locationgroupid);
 -- Name: order_type_uidx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE UNIQUE INDEX order_type_uidx ON dim.ordertype USING btree (locationid, kioskid, ordertypeid);
+CREATE UNIQUE INDEX IF NOT EXISTS order_type_uidx ON dim.ordertype USING btree (locationid, kioskid, ordertypeid);
 
 
 --
@@ -5727,7 +5717,7 @@ CREATE UNIQUE INDEX order_type_uidx ON dim.ordertype USING btree (locationid, ki
 -- Name: peripheral_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX peripheral_idx ON dim.peripheral USING btree (deviceid, peripheralid) INCLUDE (peripheraltype, state, statechangedate);
+CREATE INDEX IF NOT EXISTS peripheral_idx ON dim.peripheral USING btree (deviceid, peripheralid) INCLUDE (peripheraltype, state, statechangedate);
 
 
 --
@@ -5735,7 +5725,7 @@ CREATE INDEX peripheral_idx ON dim.peripheral USING btree (deviceid, peripherali
 -- Name: rating_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX rating_idx ON dim.feedbackrating USING btree (rating) INCLUDE (ratingdesc);
+CREATE INDEX IF NOT EXISTS rating_idx ON dim.feedbackrating USING btree (rating) INCLUDE (ratingdesc);
 
 
 --
@@ -5743,7 +5733,7 @@ CREATE INDEX rating_idx ON dim.feedbackrating USING btree (rating) INCLUDE (rati
 -- Name: surveytransstatus_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX surveytransstatus_idx ON dim.feedbackstatus USING btree (surveytransstatus) INCLUDE (statusdesc);
+CREATE INDEX IF NOT EXISTS surveytransstatus_idx ON dim.feedbackstatus USING btree (surveytransstatus) INCLUDE (statusdesc);
 
 
 --
@@ -5751,7 +5741,7 @@ CREATE INDEX surveytransstatus_idx ON dim.feedbackstatus USING btree (surveytran
 -- Name: deviceeventidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX deviceeventidx ON fact.deviceevent USING btree (companyid, locationid);
+CREATE INDEX IF NOT EXISTS deviceeventidx ON fact.deviceevent USING btree (companyid, locationid);
 
 
 --
@@ -5759,7 +5749,7 @@ CREATE INDEX deviceeventidx ON fact.deviceevent USING btree (companyid, location
 -- Name: deviceeventuidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX deviceeventuidx ON fact.deviceevent USING btree (application, companyid, locationid, moduleid, eventtoken, datacategory, actiontype, eventinstant);
+CREATE INDEX IF NOT EXISTS deviceeventuidx ON fact.deviceevent USING btree (application, companyid, locationid, moduleid, eventtoken, datacategory, actiontype, eventinstant);
 
 
 --
@@ -5767,7 +5757,7 @@ CREATE INDEX deviceeventuidx ON fact.deviceevent USING btree (application, compa
 -- Name: devicehealth_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX devicehealth_idx ON fact.devicehealth USING btree (deviceid, locationid, companyid) INCLUDE (devicetype, status, healthdatatype, healthdatatime, statuschangetime);
+CREATE INDEX IF NOT EXISTS devicehealth_idx ON fact.devicehealth USING btree (deviceid, locationid, companyid) INCLUDE (devicetype, status, healthdatatype, healthdatatime, statuschangetime);
 
 
 --
@@ -5775,7 +5765,7 @@ CREATE INDEX devicehealth_idx ON fact.devicehealth USING btree (deviceid, locati
 -- Name: deviceid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX deviceid_idx ON fact.devicehealth USING btree (deviceid);
+CREATE INDEX IF NOT EXISTS deviceid_idx ON fact.devicehealth USING btree (deviceid);
 
 
 --
@@ -5783,7 +5773,7 @@ CREATE INDEX deviceid_idx ON fact.devicehealth USING btree (deviceid);
 -- Name: idx_devicehealth_deviceid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_devicehealth_deviceid ON fact.devicehealth USING btree (deviceid);
+CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid ON fact.devicehealth USING btree (deviceid);
 
 
 --
@@ -5791,7 +5781,7 @@ CREATE INDEX idx_devicehealth_deviceid ON fact.devicehealth USING btree (devicei
 -- Name: idx_devicehealth_deviceid_status_time; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_devicehealth_deviceid_status_time ON fact.devicehealth USING btree (deviceid, status, healthdatatime DESC);
+CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid_status_time ON fact.devicehealth USING btree (deviceid, status, healthdatatime DESC);
 
 
 --
@@ -5799,7 +5789,7 @@ CREATE INDEX idx_devicehealth_deviceid_status_time ON fact.devicehealth USING bt
 -- Name: idx_devicehealth_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_devicehealth_locationid ON fact.devicehealth USING btree (locationid);
+CREATE INDEX IF NOT EXISTS idx_devicehealth_locationid ON fact.devicehealth USING btree (locationid);
 
 
 --
@@ -5807,7 +5797,7 @@ CREATE INDEX idx_devicehealth_locationid ON fact.devicehealth USING btree (locat
 -- Name: idx_devicestate; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_devicestate ON fact.devicestate USING btree (locationid, companyid, deviceid) WITH (deduplicate_items='true');
+CREATE INDEX IF NOT EXISTS idx_devicestate ON fact.devicestate USING btree (locationid, companyid, deviceid) WITH (deduplicate_items='true');
 
 
 --
@@ -5815,7 +5805,7 @@ CREATE INDEX idx_devicestate ON fact.devicestate USING btree (locationid, compan
 -- Name: idx_devicestate_dateid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_devicestate_dateid ON fact.devicestate USING btree (dateid);
+CREATE INDEX IF NOT EXISTS idx_devicestate_dateid ON fact.devicestate USING btree (dateid);
 
 
 --
@@ -5823,7 +5813,7 @@ CREATE INDEX idx_devicestate_dateid ON fact.devicestate USING btree (dateid);
 -- Name: idx_devicestate_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_devicestate_locationid ON fact.devicestate USING btree (locationid);
+CREATE INDEX IF NOT EXISTS idx_devicestate_locationid ON fact.devicestate USING btree (locationid);
 
 
 --
@@ -5831,7 +5821,7 @@ CREATE INDEX idx_devicestate_locationid ON fact.devicestate USING btree (locatio
 -- Name: idx_devicetelemetry; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_devicetelemetry ON fact.devicetelemetry USING btree (locationid, deviceid);
+CREATE INDEX IF NOT EXISTS idx_devicetelemetry ON fact.devicetelemetry USING btree (locationid, deviceid);
 
 
 --
@@ -5839,7 +5829,7 @@ CREATE INDEX idx_devicetelemetry ON fact.devicetelemetry USING btree (locationid
 -- Name: idx_devicetelemetry_dateid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_devicetelemetry_dateid ON fact.devicetelemetry USING btree (dateid);
+CREATE INDEX IF NOT EXISTS idx_devicetelemetry_dateid ON fact.devicetelemetry USING btree (dateid);
 
 
 --
@@ -5847,7 +5837,7 @@ CREATE INDEX idx_devicetelemetry_dateid ON fact.devicetelemetry USING btree (dat
 -- Name: idx_devicetelemetry_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_devicetelemetry_locationid ON fact.devicetelemetry USING btree (locationid);
+CREATE INDEX IF NOT EXISTS idx_devicetelemetry_locationid ON fact.devicetelemetry USING btree (locationid);
 
 
 --
@@ -5855,7 +5845,7 @@ CREATE INDEX idx_devicetelemetry_locationid ON fact.devicetelemetry USING btree 
 -- Name: idx_fact_itemmodifier_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_fact_itemmodifier_locationid ON fact.itemmodifier USING btree (locationid);
+CREATE INDEX IF NOT EXISTS idx_fact_itemmodifier_locationid ON fact.itemmodifier USING btree (locationid);
 
 
 --
@@ -5863,7 +5853,7 @@ CREATE INDEX idx_fact_itemmodifier_locationid ON fact.itemmodifier USING btree (
 -- Name: idx_fact_pipelinerunstatus_correlationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_fact_pipelinerunstatus_correlationid ON fact.pipelinerunstatus USING btree (correlationid) INCLUDE (pipelinestatus);
+CREATE INDEX IF NOT EXISTS idx_fact_pipelinerunstatus_correlationid ON fact.pipelinerunstatus USING btree (correlationid) INCLUDE (pipelinestatus);
 
 
 --
@@ -5871,7 +5861,7 @@ CREATE INDEX idx_fact_pipelinerunstatus_correlationid ON fact.pipelinerunstatus 
 -- Name: idx_fact_transactionitem_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_fact_transactionitem_locationid ON fact.transactionitem USING btree (locationid);
+CREATE INDEX IF NOT EXISTS idx_fact_transactionitem_locationid ON fact.transactionitem USING btree (locationid);
 
 
 --
@@ -5879,7 +5869,7 @@ CREATE INDEX idx_fact_transactionitem_locationid ON fact.transactionitem USING b
 -- Name: idx_fact_transactionpayment_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_fact_transactionpayment_locationid ON fact.transactionpayment USING btree (locationid);
+CREATE INDEX IF NOT EXISTS idx_fact_transactionpayment_locationid ON fact.transactionpayment USING btree (locationid);
 
 
 --
@@ -5887,7 +5877,7 @@ CREATE INDEX idx_fact_transactionpayment_locationid ON fact.transactionpayment U
 -- Name: idx_transactionrefunds_headerid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX idx_transactionrefunds_headerid ON fact.transactionrefunds USING btree (transactionheaderid);
+CREATE INDEX IF NOT EXISTS idx_transactionrefunds_headerid ON fact.transactionrefunds USING btree (transactionheaderid);
 
 
 --
@@ -5903,7 +5893,7 @@ CREATE INDEX itemmodifieridx ON fact.itemmodifier USING btree (itemid);
 -- Name: ix_deviceevent_journey_lookup; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX ix_deviceevent_journey_lookup ON fact.deviceevent USING btree (locationid, dateid, datacategory, eventtoken) WHERE ((datacategory = 'insight'::text) AND (actiontype = ANY (ARRAY['CategorySelected'::text, 'SubCategorySelected'::text, 'RegularItemSelected'::text, 'ItemRemoved'::text, 'ModifierGroupSelected'::text, 'ModifierSelected'::text, 'ModifierUnselected'::text])));
+CREATE INDEX IF NOT EXISTS ix_deviceevent_journey_lookup ON fact.deviceevent USING btree (locationid, dateid, datacategory, eventtoken) WHERE ((datacategory = 'insight'::text) AND (actiontype = ANY (ARRAY['CategorySelected'::text, 'SubCategorySelected'::text, 'RegularItemSelected'::text, 'ItemRemoved'::text, 'ModifierGroupSelected'::text, 'ModifierSelected'::text, 'ModifierUnselected'::text])));
 
 
 --
@@ -5911,7 +5901,7 @@ CREATE INDEX ix_deviceevent_journey_lookup ON fact.deviceevent USING btree (loca
 -- Name: ix_deviceevent_syscosmosts_brin; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX ix_deviceevent_syscosmosts_brin ON fact.deviceevent USING brin (syscosmosts) WITH (pages_per_range='128');
+CREATE INDEX IF NOT EXISTS ix_deviceevent_syscosmosts_brin ON fact.deviceevent USING brin (syscosmosts) WITH (pages_per_range='128');
 
 
 --
@@ -5919,7 +5909,7 @@ CREATE INDEX ix_deviceevent_syscosmosts_brin ON fact.deviceevent USING brin (sys
 -- Name: ix_transactionheader_syscosmosts_brin; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX ix_transactionheader_syscosmosts_brin ON fact.transactionheader USING brin (syscosmosts) WITH (pages_per_range='128');
+CREATE INDEX IF NOT EXISTS ix_transactionheader_syscosmosts_brin ON fact.transactionheader USING brin (syscosmosts) WITH (pages_per_range='128');
 
 
 --
@@ -5927,7 +5917,7 @@ CREATE INDEX ix_transactionheader_syscosmosts_brin ON fact.transactionheader USI
 -- Name: ix_userbehaviour_syscosmosts_brin; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX ix_userbehaviour_syscosmosts_brin ON fact.userbehaviour USING brin (syscosmosts) WITH (pages_per_range='128');
+CREATE INDEX IF NOT EXISTS ix_userbehaviour_syscosmosts_brin ON fact.userbehaviour USING brin (syscosmosts) WITH (pages_per_range='128');
 
 
 --
@@ -5935,7 +5925,7 @@ CREATE INDEX ix_userbehaviour_syscosmosts_brin ON fact.userbehaviour USING brin 
 -- Name: locationid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX locationid_idx ON fact.vw_offer_analysis USING btree (locationid);
+CREATE INDEX IF NOT EXISTS locationid_idx ON fact.vw_offer_analysis USING btree (locationid);
 
 
 --
@@ -5943,7 +5933,7 @@ CREATE INDEX locationid_idx ON fact.vw_offer_analysis USING btree (locationid);
 -- Name: peripheralhealth_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX peripheralhealth_idx ON fact.peripheralhealth USING btree (healthdataid, peripheralid) INCLUDE (peripheraltype, status);
+--CREATE INDEX IF NOT EXISTS peripheralhealth_idx ON fact.peripheralhealth USING btree (healthdataid, peripheralid) INCLUDE (peripheraltype, status);
 
 
 --
@@ -5951,7 +5941,7 @@ CREATE INDEX peripheralhealth_idx ON fact.peripheralhealth USING btree (healthda
 -- Name: peripheralstate_uidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE UNIQUE INDEX peripheralstate_uidx ON fact.peripheralstate USING btree (deviceid, peripheralid, state, statestart);
+--CREATE UNIQUE INDEX peripheralstate_uidx ON fact.peripheralstate USING btree (deviceid, peripheralid, state, statestart);
 
 
 --
@@ -5959,7 +5949,7 @@ CREATE UNIQUE INDEX peripheralstate_uidx ON fact.peripheralstate USING btree (de
 -- Name: transactionheader_locationid_dateid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX transactionheader_locationid_dateid_idx ON fact.transactionheader USING btree (locationid, dateid) INCLUDE (orderstatus, ordertype, businessdate);
+CREATE INDEX IF NOT EXISTS transactionheader_locationid_dateid_idx ON fact.transactionheader USING btree (locationid, dateid) INCLUDE (orderstatus, ordertype, businessdate);
 
 
 --
@@ -5967,7 +5957,7 @@ CREATE INDEX transactionheader_locationid_dateid_idx ON fact.transactionheader U
 -- Name: transactionheaderid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX transactionheaderid_idx ON fact.itemmodifier USING btree (transactionheaderid);
+CREATE INDEX IF NOT EXISTS transactionheaderid_idx ON fact.itemmodifier USING btree (transactionheaderid);
 
 
 --
@@ -5975,7 +5965,7 @@ CREATE INDEX transactionheaderid_idx ON fact.itemmodifier USING btree (transacti
 -- Name: transactionpaymentuidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX transactionpaymentuidx ON fact.transactionpayment USING btree (transactionheaderid, paymentintegrationid, paymentid);
+CREATE INDEX IF NOT EXISTS transactionpaymentuidx ON fact.transactionpayment USING btree (transactionheaderid, paymentintegrationid, paymentid);
 
 
 --
@@ -5983,7 +5973,7 @@ CREATE INDEX transactionpaymentuidx ON fact.transactionpayment USING btree (tran
 -- Name: userbehaviour_locationid_dateid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX userbehaviour_locationid_dateid_idx ON fact.userbehaviour USING btree (locationid, dateid) INCLUDE (ordersessionidentifier, viewidentifier, itemsessionidentifier, elementidentifier);
+CREATE INDEX IF NOT EXISTS userbehaviour_locationid_dateid_idx ON fact.userbehaviour USING btree (locationid, dateid) INCLUDE (ordersessionidentifier, viewidentifier, itemsessionidentifier, elementidentifier);
 
 
 --
@@ -5991,7 +5981,7 @@ CREATE INDEX userbehaviour_locationid_dateid_idx ON fact.userbehaviour USING btr
 -- Name: ix_ml_imm_locationid; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_imm_locationid ON ml.item_modifiergroup_modifier_mapping USING btree (locationid);
+CREATE INDEX IF NOT EXISTS ix_ml_imm_locationid ON ml.item_modifiergroup_modifier_mapping USING btree (locationid);
 
 
 --
@@ -5999,7 +5989,7 @@ CREATE INDEX ix_ml_imm_locationid ON ml.item_modifiergroup_modifier_mapping USIN
 -- Name: ix_ml_me_locationid; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_me_locationid ON ml.menu_entities USING btree (locationid);
+CREATE INDEX IF NOT EXISTS ix_ml_me_locationid ON ml.menu_entities USING btree (locationid);
 
 
 --
@@ -6007,7 +5997,7 @@ CREATE INDEX ix_ml_me_locationid ON ml.menu_entities USING btree (locationid);
 -- Name: ix_ml_me_menuitemid; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_me_menuitemid ON ml.menu_entities USING btree (menuitemid);
+CREATE INDEX IF NOT EXISTS ix_ml_me_menuitemid ON ml.menu_entities USING btree (menuitemid);
 
 
 --
@@ -6015,7 +6005,7 @@ CREATE INDEX ix_ml_me_menuitemid ON ml.menu_entities USING btree (menuitemid);
 -- Name: ix_ml_mi_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_mi_locid_yyyy_ww ON ml.modifier_interactions USING btree (locationid, yyyy, ww);
+CREATE INDEX IF NOT EXISTS ix_ml_mi_locid_yyyy_ww ON ml.modifier_interactions USING btree (locationid, yyyy, ww);
 
 
 --
@@ -6023,7 +6013,7 @@ CREATE INDEX ix_ml_mi_locid_yyyy_ww ON ml.modifier_interactions USING btree (loc
 -- Name: ix_ml_mimp_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_mimp_locid_yyyy_ww ON ml.modifier_impressions USING btree (locationid, yyyy, ww);
+CREATE INDEX IF NOT EXISTS ix_ml_mimp_locid_yyyy_ww ON ml.modifier_impressions USING btree (locationid, yyyy, ww);
 
 
 --
@@ -6031,7 +6021,7 @@ CREATE INDEX ix_ml_mimp_locid_yyyy_ww ON ml.modifier_impressions USING btree (lo
 -- Name: ix_ml_trx_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_trx_locid_yyyy_ww ON ml.transactions USING btree (locationid, yyyy, ww);
+CREATE INDEX IF NOT EXISTS ix_ml_trx_locid_yyyy_ww ON ml.transactions USING btree (locationid, yyyy, ww);
 
 
 --
@@ -6039,7 +6029,7 @@ CREATE INDEX ix_ml_trx_locid_yyyy_ww ON ml.transactions USING btree (locationid,
 -- Name: ix_ml_ua_businessdate; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_ua_businessdate ON ml.upsell_analysis USING btree (businessdate);
+CREATE INDEX IF NOT EXISTS ix_ml_ua_businessdate ON ml.upsell_analysis USING btree (businessdate);
 
 
 --
@@ -6047,7 +6037,7 @@ CREATE INDEX ix_ml_ua_businessdate ON ml.upsell_analysis USING btree (businessda
 -- Name: ix_ml_ua_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_ua_locid_yyyy_ww ON ml.upsell_analysis USING btree (locationid, yyyy, ww);
+CREATE INDEX IF NOT EXISTS ix_ml_ua_locid_yyyy_ww ON ml.upsell_analysis USING btree (locationid, yyyy, ww);
 
 
 --
@@ -6055,7 +6045,7 @@ CREATE INDEX ix_ml_ua_locid_yyyy_ww ON ml.upsell_analysis USING btree (locationi
 -- Name: ix_ml_ua_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_ua_yyyy_ww ON ml.upsell_analysis USING btree (yyyy, ww);
+CREATE INDEX IF NOT EXISTS ix_ml_ua_yyyy_ww ON ml.upsell_analysis USING btree (yyyy, ww);
 
 
 --
@@ -6063,7 +6053,7 @@ CREATE INDEX ix_ml_ua_yyyy_ww ON ml.upsell_analysis USING btree (yyyy, ww);
 -- Name: ix_ml_wth_locationid_weatherdate_hh; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_wth_locationid_weatherdate_hh ON ml.weather USING btree (locationid, weatherdate, hh);
+CREATE INDEX IF NOT EXISTS ix_ml_wth_locationid_weatherdate_hh ON ml.weather USING btree (locationid, weatherdate, hh);
 
 
 --
@@ -6071,7 +6061,7 @@ CREATE INDEX ix_ml_wth_locationid_weatherdate_hh ON ml.weather USING btree (loca
 -- Name: ix_ml_wth_locid_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_wth_locid_yyyy_ww ON ml.weather USING btree (locationid, yyyy, ww);
+CREATE INDEX IF NOT EXISTS ix_ml_wth_locid_yyyy_ww ON ml.weather USING btree (locationid, yyyy, ww);
 
 
 --
@@ -6079,7 +6069,7 @@ CREATE INDEX ix_ml_wth_locid_yyyy_ww ON ml.weather USING btree (locationid, yyyy
 -- Name: ix_ml_wth_weatherdate; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_wth_weatherdate ON ml.weather USING btree (weatherdate);
+CREATE INDEX IF NOT EXISTS ix_ml_wth_weatherdate ON ml.weather USING btree (weatherdate);
 
 
 --
@@ -6087,7 +6077,7 @@ CREATE INDEX ix_ml_wth_weatherdate ON ml.weather USING btree (weatherdate);
 -- Name: ix_ml_wth_yyyy_ww; Type: INDEX; Schema: ml; Owner: citus
 --
 
-CREATE INDEX ix_ml_wth_yyyy_ww ON ml.weather USING btree (yyyy, ww);
+CREATE INDEX IF NOT EXISTS ix_ml_wth_yyyy_ww ON ml.weather USING btree (yyyy, ww);
 
 
 --
@@ -6095,7 +6085,7 @@ CREATE INDEX ix_ml_wth_yyyy_ww ON ml.weather USING btree (yyyy, ww);
 -- Name: ix_silver_kiosk_events_syscosmosts_brin; Type: INDEX; Schema: stg; Owner: citus
 --
 
-CREATE INDEX ix_silver_kiosk_events_syscosmosts_brin ON stg.silver_kiosk_events USING brin (syscosmosts) WITH (pages_per_range='128');
+CREATE INDEX IF NOT EXISTS ix_silver_kiosk_events_syscosmosts_brin ON stg.silver_kiosk_events USING brin (syscosmosts) WITH (pages_per_range='128');
 
 -- New indexes from schema evolution file
 CREATE INDEX IF NOT EXISTS idx_fact_transactionitem_locationid
@@ -6117,7 +6107,7 @@ CREATE INDEX IF NOT EXISTS ix_dim_modifiergroup_catalogid
 -- TOC entry 6384 (class 2606 OID 3327449)
 -- Name: vw_grubbrrinstallbase_all_devices organizationid_locationid_fk; Type: FK CONSTRAINT; Schema: dim; Owner: citus
 --
-
+/*
 ALTER TABLE ONLY dim.vw_grubbrrinstallbase_all_devices
     ADD CONSTRAINT organizationid_locationid_fk FOREIGN KEY (organization_id, location_id) REFERENCES dim.organizationlocation(organizationid, locationid);
 
@@ -6310,8 +6300,7 @@ ALTER TABLE ONLY fact.occasionsurveydetail
 ALTER TABLE ONLY fact.transactionheader
     ADD CONSTRAINT sourceid_fk FOREIGN KEY (sourceid) REFERENCES dim.grubbrr_source_lookup(id);
 
-
-
+*/
 
 -- TOC entry 6559 (class 0 OID 0)
 -- Dependencies: 64

@@ -1,3 +1,26 @@
+
+WITH dupl AS (
+    SELECT ot.locationid, ot.eventtoken, count(*) AS dupl --> 1
+    FROM fact.ordertiming as ot
+    GROUP BY ot.locationid, ot.eventtoken
+    HAVING count(*) > 1   
+), dupl_detector AS (
+    SELECT *, ROW_NUMBER() OVER(PARTITION BY ot.locationid, ot.eventtoken ORDER BY ot.id DESC) AS rn
+    FROM fact.ordertiming as ot 
+    WHERE EXISTS (SELECT 1 FROM dupl WHERE dupl.locationid = ot.locationid AND dupl.eventtoken = ot.eventtoken)
+)
+DELETE FROM fact.ordertiming as ot WHERE EXISTS (SELECT 1 FROM dupl_detector as dd 
+              WHERE dd.id         = ot.id 
+                AND dd.locationid = ot.locationid 
+                AND dd.eventtoken = ot.eventtoken
+                AND dd.rn         > 1);
+
+ALTER TABLE IF EXISTS fact.ordertiming
+ADD CONSTRAINT locationid_eventtoken_unq UNIQUE (locationid, eventtoken);
+
+ALTER TABLE IF EXISTS fact.ordertiming
+ADD CONSTRAINT locationid_eventtoken_unq UNIQUE (locationid, eventtoken);
+
 create TEMPORARY table dupl (
     transactionheaderid text COLLATE pg_catalog."default",
     orderid text COLLATE pg_catalog."default",

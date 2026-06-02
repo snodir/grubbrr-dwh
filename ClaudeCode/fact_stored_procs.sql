@@ -210,30 +210,20 @@ DECLARE
 
 BEGIN
 
-    -- ----------------------------------------------------------
-    -- Step 1 — Read the current watermark
-    -- ----------------------------------------------------------
     SELECT COALESCE(ts, 1775002010) - 600
     INTO   v_watermark
     FROM   fact.watermarktable
     WHERE  watermarktablename = 'fact.ordertiming'
       AND  source             = 'gem';
 
-    -- ----------------------------------------------------------
-    -- Step 2 — Pivot and insert new sessions into fact.ordertiming
-    -- ----------------------------------------------------------
     WITH new_events AS (
-        -- Filter to the 7 event types needed for ordertiming
-        -- and skip sessions already present in the fact table
-        -- (mirrors ADF negate:true exists on locationid + token)
         SELECT
             stg.locationid,
             stg.companyid,
             stg.token,
             stg.device,
-            -- dateid: mirrors ADF replace(replace(substring(instant,0,13),'-',''),'T','')
-            stg.eventcategory                                       AS eventcategory,
-            stg.eventtype                                           AS eventtype,
+            stg.eventcategory,
+            stg.eventtype,
             fact.parse_iso_timestamp(stg.eventinstant) :: TIMESTAMP AS eventinstant,
             stg.syscosmosts
         FROM  stg.silver_kiosk_events AS stg
@@ -251,34 +241,26 @@ BEGIN
                OR (LOWER(stg.eventcategory) = 'order'    AND LOWER(stg.eventtype) = 'paidinfull')
                OR (LOWER(stg.eventcategory) = 'session'  AND LOWER(stg.eventtype) = 'closed')
           )
-          /*AND NOT EXISTS (
-                  SELECT 1
-                  FROM   fact.ordertiming AS f
-                  WHERE  f.locationid  = stg.locationid
-                    AND  f.eventtoken  = stg.token
-              )*/
     ),
 
     aggregated AS (
-        -- Pivot 7 event types into one row per session
-        -- mirrors ADF aggregate() transformation
         SELECT
             locationid,
             companyid,
-            token                                                                                                        AS eventtoken,
-            device                                                                                                       AS deviceid,
-            MIN(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'started'     
-                     THEN REPLACE(REPLACE(SUBSTRING(eventinstant, 1, 13), '-', ''), 'T', '') :: INTEGER END)             AS dateid,
-            MIN(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'started'      THEN eventinstant END) AS sessionstart,
-            MIN(CASE WHEN LOWER(eventcategory) = 'service'  AND LOWER(eventtype) = 'select'       THEN eventinstant END) AS menustart,
-            MIN(CASE WHEN LOWER(eventcategory) = 'item'     AND LOWER(eventtype) = 'selected'     THEN eventinstant END) AS itemstart,
-            MAX(CASE WHEN LOWER(eventcategory) = 'checkout' AND LOWER(eventtype) = 'viewed'       THEN eventinstant END) AS checkoutstart,
-            MIN(CASE WHEN LOWER(eventcategory) = 'payment'  AND LOWER(eventtype) = 'create'       THEN eventinstant END) AS paymentstart,
-            MAX(CASE WHEN LOWER(eventcategory) = 'order'    AND LOWER(eventtype) = 'paidinfull'   THEN eventinstant END) AS paymentend,
-            MAX(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'closed'       THEN eventinstant END) AS orderend,
-            MAX(syscosmosts)                                                                                             AS syscosmosts
+            token                                                                                AS eventtoken,
+            device                                                                               AS deviceid,
+            MIN(CASE WHEN LOWER(eventcategory) = 'session' AND LOWER(eventtype) = 'started'
+                     THEN TO_CHAR(eventinstant, 'YYYYMMDDHH24') :: INTEGER END)                  AS dateid,
+            MIN(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'started'    THEN eventinstant END) AS sessionstart,
+            MIN(CASE WHEN LOWER(eventcategory) = 'service'  AND LOWER(eventtype) = 'select'     THEN eventinstant END) AS menustart,
+            MIN(CASE WHEN LOWER(eventcategory) = 'item'     AND LOWER(eventtype) = 'selected'   THEN eventinstant END) AS itemstart,
+            MAX(CASE WHEN LOWER(eventcategory) = 'checkout' AND LOWER(eventtype) = 'viewed'     THEN eventinstant END) AS checkoutstart,
+            MIN(CASE WHEN LOWER(eventcategory) = 'payment'  AND LOWER(eventtype) = 'create'     THEN eventinstant END) AS paymentstart,
+            MAX(CASE WHEN LOWER(eventcategory) = 'order'    AND LOWER(eventtype) = 'paidinfull' THEN eventinstant END) AS paymentend,
+            MAX(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'closed'     THEN eventinstant END) AS orderend,
+            MAX(syscosmosts)                                                                     AS syscosmosts
         FROM  new_events
-        GROUP BY locationid, companyid, token, device--, dateid
+        GROUP BY locationid, companyid, token, device
     )
 
     INSERT INTO fact.ordertiming (
@@ -295,8 +277,6 @@ BEGIN
         paymentstart,
         paymentend,
         orderend,
-        -- Durations in seconds (EXTRACT(EPOCH) returns seconds directly)
-        -- COALESCE to 0 mirrors ADF iifNull(..., 0)
         starttomenu,
         menutoitem,
         itemtocheckout,
@@ -308,10 +288,9 @@ BEGIN
         totalordertime,
         sysinserttime,
         syscosmosts
-        -- id: DEFAULT NEXTVAL('fact.ordertiming_id_seq')
     )
     SELECT
-        nextval('fact.ordertiming_id_seq') as id,
+        nextval('fact.ordertiming_id_seq')                                                       AS id,
         companyid,
         locationid,
         eventtoken,
@@ -324,24 +303,85 @@ BEGIN
         paymentstart,
         paymentend,
         orderend,
-        COALESCE(ROUND(EXTRACT(EPOCH FROM (menustart     - sessionstart )) :: NUMERIC, 3), 0) AS starttomenu,
-        COALESCE(ROUND(EXTRACT(EPOCH FROM (itemstart     - menustart    )) :: NUMERIC, 3), 0) AS menutoitem,
-        COALESCE(ROUND(EXTRACT(EPOCH FROM (checkoutstart - itemstart    )) :: NUMERIC, 3), 0) AS itemtocheckout,
-        COALESCE(ROUND(EXTRACT(EPOCH FROM (paymentstart  - checkoutstart)) :: NUMERIC, 3), 0) AS checkouttopayment,
-        COALESCE(ROUND(EXTRACT(EPOCH FROM (paymentend    - paymentstart )) :: NUMERIC, 3), 0) AS paytopaid,
-        COALESCE(ROUND(EXTRACT(EPOCH FROM (orderend      - paymentend   )) :: NUMERIC, 3), 0) AS payendtoend,
-        COALESCE(ROUND(EXTRACT(EPOCH FROM (checkoutstart - sessionstart )) :: NUMERIC, 3), 0) AS starttocheckout,
-        COALESCE(ROUND(EXTRACT(EPOCH FROM (orderend      - checkoutstart)) :: NUMERIC, 3), 0) AS checkouttoend,
-        COALESCE(ROUND(EXTRACT(EPOCH FROM (orderend      - sessionstart )) :: NUMERIC, 3), 0) AS totalordertime,
-        NOW()::timestamp                                                                     AS sysinserttime,
+        COALESCE(ROUND(EXTRACT(EPOCH FROM (menustart     - sessionstart )) :: NUMERIC, 3), 0)   AS starttomenu,
+        COALESCE(ROUND(EXTRACT(EPOCH FROM (itemstart     - menustart    )) :: NUMERIC, 3), 0)   AS menutoitem,
+        COALESCE(ROUND(EXTRACT(EPOCH FROM (checkoutstart - itemstart    )) :: NUMERIC, 3), 0)   AS itemtocheckout,
+        COALESCE(ROUND(EXTRACT(EPOCH FROM (paymentstart  - checkoutstart)) :: NUMERIC, 3), 0)   AS checkouttopayment,
+        COALESCE(ROUND(EXTRACT(EPOCH FROM (paymentend    - paymentstart )) :: NUMERIC, 3), 0)   AS paytopaid,
+        COALESCE(ROUND(EXTRACT(EPOCH FROM (orderend      - paymentend   )) :: NUMERIC, 3), 0)   AS payendtoend,
+        COALESCE(ROUND(EXTRACT(EPOCH FROM (checkoutstart - sessionstart )) :: NUMERIC, 3), 0)   AS starttocheckout,
+        COALESCE(ROUND(EXTRACT(EPOCH FROM (orderend      - checkoutstart)) :: NUMERIC, 3), 0)   AS checkouttoend,
+        COALESCE(ROUND(EXTRACT(EPOCH FROM (orderend      - sessionstart )) :: NUMERIC, 3), 0)   AS totalordertime,
+        NOW() :: TIMESTAMP                                                                       AS sysinserttime,
         syscosmosts
-    FROM aggregated;
-    --ON CONFLICT DO UPDATE SET;
+    FROM aggregated                          -- ← no semicolon here, INSERT continues below
 
-    -- ----------------------------------------------------------
-    -- Step 3 — Advance the watermark
-    -- Mirrors ADF: MaxCosmosTs reads MAX(syscosmosts) from fact.ordertiming
-    -- ----------------------------------------------------------
+    ON CONFLICT (locationid, eventtoken)
+    DO UPDATE SET
+        -- Fill NULL timing fields with newly arrived event timestamps
+        sessionstart      = COALESCE(fact.ordertiming.sessionstart,  EXCLUDED.sessionstart),
+        menustart         = COALESCE(fact.ordertiming.menustart,     EXCLUDED.menustart),
+        itemstart         = COALESCE(fact.ordertiming.itemstart,     EXCLUDED.itemstart),
+        checkoutstart     = COALESCE(fact.ordertiming.checkoutstart, EXCLUDED.checkoutstart),
+        paymentstart      = COALESCE(fact.ordertiming.paymentstart,  EXCLUDED.paymentstart),
+        paymentend        = COALESCE(fact.ordertiming.paymentend,    EXCLUDED.paymentend),
+        orderend          = COALESCE(fact.ordertiming.orderend,      EXCLUDED.orderend),
+
+        -- Recalculate durations using merged (best available) timestamps
+        -- If existing row had sessionstart=NULL but new batch has it,
+        -- we now have both ends and can compute the real duration
+        starttomenu       = COALESCE(ROUND(EXTRACT(EPOCH FROM (
+                                COALESCE(fact.ordertiming.menustart,     EXCLUDED.menustart) -
+                                COALESCE(fact.ordertiming.sessionstart,  EXCLUDED.sessionstart)
+                            )) :: NUMERIC, 3), 0),
+        menutoitem        = COALESCE(ROUND(EXTRACT(EPOCH FROM (
+                                COALESCE(fact.ordertiming.itemstart,     EXCLUDED.itemstart) -
+                                COALESCE(fact.ordertiming.menustart,     EXCLUDED.menustart)
+                            )) :: NUMERIC, 3), 0),
+        itemtocheckout    = COALESCE(ROUND(EXTRACT(EPOCH FROM (
+                                COALESCE(fact.ordertiming.checkoutstart, EXCLUDED.checkoutstart) -
+                                COALESCE(fact.ordertiming.itemstart,     EXCLUDED.itemstart)
+                            )) :: NUMERIC, 3), 0),
+        checkouttopayment = COALESCE(ROUND(EXTRACT(EPOCH FROM (
+                                COALESCE(fact.ordertiming.paymentstart,  EXCLUDED.paymentstart) -
+                                COALESCE(fact.ordertiming.checkoutstart, EXCLUDED.checkoutstart)
+                            )) :: NUMERIC, 3), 0),
+        paytopaid         = COALESCE(ROUND(EXTRACT(EPOCH FROM (
+                                COALESCE(fact.ordertiming.paymentend,    EXCLUDED.paymentend) -
+                                COALESCE(fact.ordertiming.paymentstart,  EXCLUDED.paymentstart)
+                            )) :: NUMERIC, 3), 0),
+        payendtoend       = COALESCE(ROUND(EXTRACT(EPOCH FROM (
+                                COALESCE(fact.ordertiming.orderend,      EXCLUDED.orderend) -
+                                COALESCE(fact.ordertiming.paymentend,    EXCLUDED.paymentend)
+                            )) :: NUMERIC, 3), 0),
+        starttocheckout   = COALESCE(ROUND(EXTRACT(EPOCH FROM (
+                                COALESCE(fact.ordertiming.checkoutstart, EXCLUDED.checkoutstart) -
+                                COALESCE(fact.ordertiming.sessionstart,  EXCLUDED.sessionstart)
+                            )) :: NUMERIC, 3), 0),
+        checkouttoend     = COALESCE(ROUND(EXTRACT(EPOCH FROM (
+                                COALESCE(fact.ordertiming.orderend,      EXCLUDED.orderend) -
+                                COALESCE(fact.ordertiming.checkoutstart, EXCLUDED.checkoutstart)
+                            )) :: NUMERIC, 3), 0),
+        totalordertime    = COALESCE(ROUND(EXTRACT(EPOCH FROM (
+                                COALESCE(fact.ordertiming.orderend,      EXCLUDED.orderend) -
+                                COALESCE(fact.ordertiming.sessionstart,  EXCLUDED.sessionstart)
+                            )) :: NUMERIC, 3), 0),
+
+        -- Always advance to latest known syscosmosts
+        syscosmosts       = GREATEST(fact.ordertiming.syscosmosts, EXCLUDED.syscosmosts),
+        sysupdatetime     = NOW() :: TIMESTAMP
+
+    -- Only update if at least one timing field can be filled in
+    WHERE (
+        (fact.ordertiming.sessionstart  IS NULL AND EXCLUDED.sessionstart  IS NOT NULL) OR
+        (fact.ordertiming.menustart     IS NULL AND EXCLUDED.menustart     IS NOT NULL) OR
+        (fact.ordertiming.itemstart     IS NULL AND EXCLUDED.itemstart     IS NOT NULL) OR
+        (fact.ordertiming.checkoutstart IS NULL AND EXCLUDED.checkoutstart IS NOT NULL) OR
+        (fact.ordertiming.paymentstart  IS NULL AND EXCLUDED.paymentstart  IS NOT NULL) OR
+        (fact.ordertiming.paymentend    IS NULL AND EXCLUDED.paymentend    IS NOT NULL) OR
+        (fact.ordertiming.orderend      IS NULL AND EXCLUDED.orderend      IS NOT NULL)
+    );
+
     UPDATE fact.watermarktable
     SET    ts = (SELECT COALESCE(MAX(syscosmosts), 1720000300) FROM fact.ordertiming),
            sysupdatetime = NOW() :: TIMESTAMP
@@ -351,9 +391,7 @@ BEGIN
 END;
 $BODY$;
 
-
 ALTER PROCEDURE fact.usp_gem_ordertiming_to_fact_ordertiming() OWNER TO citus;
-
 --
 -- TOC entry 1083 (class 1255 OID 2984304)
 -- Name: usp_gem_sent_surveys_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
@@ -2116,6 +2154,11 @@ BEGIN
           AND its.orderid        = tds.transactionheaderid
           AND its.surveyid       = tds.surveyid
           AND its.itemid         = tds.itemid
+    )
+      AND EXISTS (
+        SELECT 1 FROM fact.transactionheader AS th
+        WHERE th.locationid          = tds.locationid
+          AND th.transactionheaderid = tds.transactionheaderid
     );
 
     UPDATE fact.watermarktable
@@ -2134,6 +2177,8 @@ ALTER PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey() OWNER TO citus;
 -- TOC entry 1106 (class 1255 OID 3618756)
 -- Name: usp_silver_aborted_orders_and_items_to_fact(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
+
+--CALL fact.usp_silver_aborted_orders_and_items_to_fact();
 
 CREATE OR REPLACE PROCEDURE fact.usp_silver_aborted_orders_and_items_to_fact()
     LANGUAGE plpgsql
@@ -2666,9 +2711,11 @@ BEGIN
 
     -- Capture watermark once upfront
     -- -10 buffer mirrors transactionheader pattern to catch late-arriving events
-    SELECT COALESCE(MAX(syscosmosts) - 10, 0)
+    SELECT COALESCE(ts, 1775002010) - 600
     INTO v_max_syscosmosts
-    FROM fact.userbehaviour;
+    FROM fact.watermarktable
+    WHERE watermarktablename = 'fact.userbehaviour'
+      AND source             = 'gem';
 
 
     WITH new_events AS (
@@ -3921,9 +3968,9 @@ BEGIN
         -- to avoid a full scan of fact.userbehaviour
         SELECT
             ub.locationid,
-            ub.ordersessionidentifier,
+            ub.token,
             ub.eventtype,
-            busdate AS eventtime
+            fact.parse_iso_timestamp(eventinstant) :: TIMESTAMP AS eventtime
         FROM stg.silver_kiosk_events ub
         WHERE ub.eventtype IN (
             'ItemCustomizeClicked', 'CustomizeItemSelected', 'ComboCustomizeClicked',
@@ -3933,7 +3980,7 @@ BEGIN
           AND EXISTS (
               SELECT 1
               FROM resolved r
-              WHERE r.ordersessionid = ub.ordersessionidentifier
+              WHERE r.ordersessionid = ub.token
                 AND r.locationid     = ub.locationid
           )
 
@@ -3959,7 +4006,7 @@ BEGIN
                 THEN 1 ELSE 0 END)                                                 AS upgrade_count
         FROM resolved r
         LEFT JOIN gem_events ge
-            ON  ge.ordersessionidentifier = r.ordersessionid
+            ON  ge.token = r.ordersessionid
             AND ge.locationid             = r.locationid
         GROUP BY
             r.transactionheaderid, r.itemid, r.itemname,

@@ -1,3 +1,7 @@
+CALL fact.usp_gem_sent_surveys_to_fact();
+CALL fact.usp_sent_surveys_to_fact_itemssurvey();
+CALL fact.usp_nge_update_itemssurvey();
+CALL fact.usp_update_occasion_survey_datetime_fields();
 -- Table: fact.itemssurvey
 
 -- DROP TABLE IF EXISTS fact.itemssurvey;
