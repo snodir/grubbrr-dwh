@@ -2598,7 +2598,11 @@ CREATE TABLE IF NOT EXISTS fact.ordertiming (
     checkouttoend numeric(7,3),
     totalordertime numeric(7,3),
     sysinserttime timestamp without time zone,
-    syscosmosts bigint
+    syscosmosts bigint,
+    sysupdatetime TIMESTAMP,
+    CONSTRAINT ordertiming_pkey PRIMARY KEY (id),    
+    CONSTRAINT locationid_eventtoken_unq UNIQUE (locationid, eventtoken)
+
 );
 
 
