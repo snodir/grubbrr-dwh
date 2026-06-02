@@ -1,0 +1,1561 @@
+[
+    {
+        "kioskSessionId": "P5LOYP1V6SCAK6FP",
+        "totals": {
+            "subTotal": 124.8,
+            "tax": 10.11,
+            "tip": 18.72,
+            "total": 153.63,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "totalsCents": {
+            "subTotal": 12480,
+            "tax": 1011,
+            "tip": 1872,
+            "total": 15363,
+            "discount": 0,
+            "reward": 0,
+            "serviceCharge": 0,
+            "charityAmount": 0,
+            "fees": [],
+            "taxes": []
+        },
+        "localCurrencyDetails": null,
+        "items": [
+            {
+                "orderItemId": "orditm-pVH4FDEptm",
+                "categoryId": "cat-52de5818-42dd-4d20-b632-7dbe85fd690f",
+                "categoryName": "Sandwich and Tenders",
+                "categoryPosId": "cae6fc88-5408-4d6d-bfc0-7eb1ebcba8f8",
+                "menuItemId": "itm-76e6276d-73b3-4b84-b1ef-009fb8701877",
+                "name": "Tenders & Waffle",
+                "menuItemPosId": "354c0dc8-bda2-4332-a3dd-4bc41acf897d",
+                "localizedName": {
+                    "translations": {
+                        "en": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-889b428f-02a7-422a-be34-e0a91c2960bf",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-d54ded58-7896-4954-aab4-e4dc93221e23",
+                        "modifierPosId": null,
+                        "name": "Medium (Tender)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Tender Spice Level (Tender 1)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-ea672ff8-47c4-40ac-bfec-af1f45d96ee8",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-d54ded58-7896-4954-aab4-e4dc93221e23",
+                        "modifierPosId": null,
+                        "name": "Medium (Tender)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Tender Spice Level (Tender 2)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-afb8866a-b015-43fb-934c-1648d6428db4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-bfb46e43-bc64-4977-8713-94a830735f94",
+                        "modifierPosId": null,
+                        "name": "Regular Fountain Drink",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 2.99,
+                        "totalPrice": 2.99,
+                        "unitPriceCents": 299,
+                        "totalPriceCents": 299,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-6807f797-877e-4313-a6a4-34c679c188b2",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-41b4cce2-2e84-43db-b9c3-bdde8a5f8578",
+                                "modifierPosId": null,
+                                "name": "*Self Serve",
+                                "localizedName": {
+                                    "translations": {}
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Drink Flavor",
+                                "localizedModifierGroupName": {
+                                    "translations": {}
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Drink Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-c3db7ee0-4ac3-4227-90e8-55c28a8096fd",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-8b9bee72-1760-4a15-bf76-dd45215275d9",
+                        "modifierPosId": null,
+                        "name": "Fries",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Side Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-58609882-d63b-4bf3-a6c9-eeb2c47619a1",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-1ba39fec-47e4-4ec9-bb2e-fef3fc38ec31",
+                        "modifierPosId": null,
+                        "name": "Ranch (2 oz)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Dipping Sauce Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-10856550-1767-496d-8e94-f7396fe4d23c",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-0afbd7a1-d695-4ee4-96dd-6be3fcc84f7e",
+                        "modifierPosId": null,
+                        "name": "House Sauce (2 oz)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Syrup or Extra Sauce?",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    }
+                ],
+                "itemPrice": 12.99,
+                "unitPrice": 15.98,
+                "totalPrice": 15.98,
+                "unitPriceCents": 1598,
+                "totalPriceCents": 1598,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "eHu90G5FqfWERTEPNtHtP",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            },
+            {
+                "orderItemId": "orditm-u6Y2qIDvpj",
+                "categoryId": "cat-52de5818-42dd-4d20-b632-7dbe85fd690f",
+                "categoryName": "Sandwich and Tenders",
+                "categoryPosId": "cae6fc88-5408-4d6d-bfc0-7eb1ebcba8f8",
+                "menuItemId": "itm-dd091cf4-727e-4da0-be99-d2b05ce4f35a",
+                "name": "2 Tenders Meal",
+                "menuItemPosId": "4acc1358-6d89-4ef6-aac2-8c2bfb4197e5",
+                "localizedName": {
+                    "translations": {
+                        "en": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-889b428f-02a7-422a-be34-e0a91c2960bf",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-fe144c35-1837-479b-9c9b-fa349212e12d",
+                        "modifierPosId": null,
+                        "name": "Honey Rub (Tender)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Tender Spice Level (Tender 1)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-ea672ff8-47c4-40ac-bfec-af1f45d96ee8",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-fe144c35-1837-479b-9c9b-fa349212e12d",
+                        "modifierPosId": null,
+                        "name": "Honey Rub (Tender)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Tender Spice Level (Tender 2)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-afb8866a-b015-43fb-934c-1648d6428db4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-89719ed3-db0e-443f-ad17-bad5c7b68b06",
+                        "modifierPosId": null,
+                        "name": "Frozen Strawberry Hibiscus Lemonade",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 5.99,
+                        "totalPrice": 5.99,
+                        "unitPriceCents": 599,
+                        "totalPriceCents": 599,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-6059ad6d-6d10-4684-a7ea-0853a8a41192",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-b231f622-6fc2-4d3a-b193-83ecdf1e4dd7",
+                                "modifierPosId": null,
+                                "name": "Regular Frozen Strawberry Hibiscus Lemonade",
+                                "localizedName": {
+                                    "translations": {}
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Frozen Strawberry Hibiscus Lemonade Sizes",
+                                "localizedModifierGroupName": {
+                                    "translations": {}
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Drink Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-c3db7ee0-4ac3-4227-90e8-55c28a8096fd",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-8b9bee72-1760-4a15-bf76-dd45215275d9",
+                        "modifierPosId": null,
+                        "name": "Fries",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Side Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-078b1c10-e738-4768-8aac-ff471fc74d70",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-2295e15a-542a-40fd-aef6-c58da13cccdb",
+                        "modifierPosId": null,
+                        "name": "No Pickles",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Modifiers (Tenders)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-58609882-d63b-4bf3-a6c9-eeb2c47619a1",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-b268ccce-b4e3-402e-beed-98389f5bbc2f",
+                        "modifierPosId": null,
+                        "name": "BBQ (2 oz)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Dipping Sauce Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    }
+                ],
+                "itemPrice": 10.99,
+                "unitPrice": 16.98,
+                "totalPrice": 16.98,
+                "unitPriceCents": 1698,
+                "totalPriceCents": 1698,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "bl_GzpOeMg_L48ne2QHuC",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            },
+            {
+                "orderItemId": "orditm-QXnQE3vcGQ",
+                "categoryId": "cat-52de5818-42dd-4d20-b632-7dbe85fd690f",
+                "categoryName": "Sandwich and Tenders",
+                "categoryPosId": "cae6fc88-5408-4d6d-bfc0-7eb1ebcba8f8",
+                "menuItemId": "itm-170b2289-abe6-47c0-be6d-e2444f3db111",
+                "name": "Cheesy Hot Chicken Sandwich",
+                "menuItemPosId": "c51da835-7d5d-47a4-a0cb-b4467dd12215",
+                "localizedName": {
+                    "translations": {
+                        "en": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-9440db79-6d1b-4a05-9553-cf35788dd6db",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-91d508af-2ade-499b-ba43-af6f0b882c83",
+                        "modifierPosId": null,
+                        "name": "Spicy - Habanero (Sandwich)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Sandwich Spice Level",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-afb8866a-b015-43fb-934c-1648d6428db4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-d57c05c7-dea9-47cd-8e2b-7b4a6d6ea7ef",
+                        "modifierPosId": null,
+                        "name": "Chilled Cucumber Watermelon Lemonade",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 4.99,
+                        "totalPrice": 4.99,
+                        "unitPriceCents": 499,
+                        "totalPriceCents": 499,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-7df71668-abf7-4afb-bd16-bd60e7dbda9c",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-d81510e3-02bb-486a-92a4-c717aea45e07",
+                                "modifierPosId": null,
+                                "name": "Regular Chilled Cucumber Watermelon Lemonade",
+                                "localizedName": {
+                                    "translations": {}
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Chilled Cucumber Watermelon Lemonade Sizes",
+                                "localizedModifierGroupName": {
+                                    "translations": {}
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Drink Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-c3db7ee0-4ac3-4227-90e8-55c28a8096fd",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-b9399108-0459-4148-b011-bbdd8194ae41",
+                        "modifierPosId": null,
+                        "name": "Coleslaw (side)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Side Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-3bc780de-bf75-438c-aebe-cabbf4462501",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-c9d637a6-129e-43d2-b50b-e861873c4c51",
+                        "modifierPosId": null,
+                        "name": "Add One Chicken Tender (on side)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 3.99,
+                        "totalPrice": 3.99,
+                        "unitPriceCents": 399,
+                        "totalPriceCents": 399,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-889b428f-02a7-422a-be34-e0a91c2960bf",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-d54ded58-7896-4954-aab4-e4dc93221e23",
+                                "modifierPosId": null,
+                                "name": "Medium (Tender)",
+                                "localizedName": {
+                                    "translations": {}
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Tender Spice Level (Tender 1)",
+                                "localizedModifierGroupName": {
+                                    "translations": {}
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Modifiers (Cheesy Hot Chicken Sandwich)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-58609882-d63b-4bf3-a6c9-eeb2c47619a1",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-0afbd7a1-d695-4ee4-96dd-6be3fcc84f7e",
+                        "modifierPosId": null,
+                        "name": "House Sauce (2 oz)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": true,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Dipping Sauce Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    }
+                ],
+                "itemPrice": 13.99,
+                "unitPrice": 22.97,
+                "totalPrice": 22.97,
+                "unitPriceCents": 2297,
+                "totalPriceCents": 2297,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "kVwCAovFpBteTkgBi5XfO",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            },
+            {
+                "orderItemId": "orditm-kaf3HwqaHn",
+                "categoryId": "cat-52de5818-42dd-4d20-b632-7dbe85fd690f",
+                "categoryName": "Sandwich and Tenders",
+                "categoryPosId": "cae6fc88-5408-4d6d-bfc0-7eb1ebcba8f8",
+                "menuItemId": "itm-dd091cf4-727e-4da0-be99-d2b05ce4f35a",
+                "name": "2 Tenders Meal",
+                "menuItemPosId": "4acc1358-6d89-4ef6-aac2-8c2bfb4197e5",
+                "localizedName": {
+                    "translations": {
+                        "en": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-889b428f-02a7-422a-be34-e0a91c2960bf",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-fe144c35-1837-479b-9c9b-fa349212e12d",
+                        "modifierPosId": null,
+                        "name": "Honey Rub (Tender)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Tender Spice Level (Tender 1)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-ea672ff8-47c4-40ac-bfec-af1f45d96ee8",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-f1efa2e4-e6f4-4bee-8148-b9b6bb8b36dd",
+                        "modifierPosId": null,
+                        "name": "Buffalo (Tender)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Tender Spice Level (Tender 2)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-afb8866a-b015-43fb-934c-1648d6428db4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-76702adf-8633-4921-b2c7-f327c02ad23c",
+                        "modifierPosId": null,
+                        "name": "Frozen Cucumber Watermelon Lemonade",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 5.99,
+                        "totalPrice": 5.99,
+                        "unitPriceCents": 599,
+                        "totalPriceCents": 599,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-96dab9de-9b0a-4627-9b30-769e8e63e8ac",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-a9fc4e19-7eea-4f71-9a5d-8ac736a99546",
+                                "modifierPosId": null,
+                                "name": "Regular Frozen Cucumber Watermelon Lemonade",
+                                "localizedName": {
+                                    "translations": {}
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Frozen Cucumber Watermelon Lemonade Sizes",
+                                "localizedModifierGroupName": {
+                                    "translations": {}
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Drink Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-c3db7ee0-4ac3-4227-90e8-55c28a8096fd",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-8b9bee72-1760-4a15-bf76-dd45215275d9",
+                        "modifierPosId": null,
+                        "name": "Fries",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Side Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-078b1c10-e738-4768-8aac-ff471fc74d70",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-ddfdf54f-bedf-40c3-8a69-061fc73f7a8c",
+                        "modifierPosId": null,
+                        "name": "Pickles (On The Side)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Modifiers (Tenders)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-58609882-d63b-4bf3-a6c9-eeb2c47619a1",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-a11a395a-8df2-4c76-aa93-d56d93d9d861",
+                        "modifierPosId": null,
+                        "name": "Cilantro Ranch (2 oz)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Dipping Sauce Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    }
+                ],
+                "itemPrice": 10.99,
+                "unitPrice": 16.98,
+                "totalPrice": 16.98,
+                "unitPriceCents": 1698,
+                "totalPriceCents": 1698,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "QLcQ0XsEEQ4-5P3N9aVAl",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            },
+            {
+                "orderItemId": "orditm-rxQmJTJKHb",
+                "categoryId": "cat-92a9fefb-b25c-4850-97cb-71841727b110",
+                "categoryName": "Nuggets",
+                "categoryPosId": "94952de3-08fe-425f-9959-3635f7130e8f",
+                "menuItemId": "itm-3ffc7a30-d1c8-4b6d-bf9d-26eeeed44439",
+                "name": "10 pc Nugget Meal",
+                "menuItemPosId": "f87f2580-75c1-4dc2-b465-4a1c096d51db",
+                "localizedName": {
+                    "translations": {
+                        "en": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-9c9f1067-c9cf-4516-895a-e77591bf8187",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-858c86a8-b3b2-4710-8f37-d6c6a0f75780",
+                        "modifierPosId": null,
+                        "name": "Nuggets Buffalo (10 pc)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Nugget Spice Level (10)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-afb8866a-b015-43fb-934c-1648d6428db4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-bfb46e43-bc64-4977-8713-94a830735f94",
+                        "modifierPosId": null,
+                        "name": "Regular Fountain Drink",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 2.99,
+                        "totalPrice": 2.99,
+                        "unitPriceCents": 299,
+                        "totalPriceCents": 299,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-6807f797-877e-4313-a6a4-34c679c188b2",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-41b4cce2-2e84-43db-b9c3-bdde8a5f8578",
+                                "modifierPosId": null,
+                                "name": "*Self Serve",
+                                "localizedName": {
+                                    "translations": {}
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Drink Flavor",
+                                "localizedModifierGroupName": {
+                                    "translations": {}
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Drink Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-c3db7ee0-4ac3-4227-90e8-55c28a8096fd",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-8b9bee72-1760-4a15-bf76-dd45215275d9",
+                        "modifierPosId": null,
+                        "name": "Fries",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Side Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-58609882-d63b-4bf3-a6c9-eeb2c47619a1",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-1ba39fec-47e4-4ec9-bb2e-fef3fc38ec31",
+                        "modifierPosId": null,
+                        "name": "Ranch (2 oz)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Dipping Sauce Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    }
+                ],
+                "itemPrice": 11.99,
+                "unitPrice": 14.98,
+                "totalPrice": 14.98,
+                "unitPriceCents": 1498,
+                "totalPriceCents": 1498,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "cy1j6XTA5vyQfGwHLyS7E",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            },
+            {
+                "orderItemId": "orditm-8Aiczj-k8x",
+                "categoryId": "cat-52de5818-42dd-4d20-b632-7dbe85fd690f",
+                "categoryName": "Sandwich and Tenders",
+                "categoryPosId": "cae6fc88-5408-4d6d-bfc0-7eb1ebcba8f8",
+                "menuItemId": "itm-e191152a-dabc-4688-a4ba-8c1808a836b2",
+                "name": "Sandwich & Tender",
+                "menuItemPosId": "5b6fb935-6684-4c70-984c-32a20e4c088d",
+                "localizedName": {
+                    "translations": {
+                        "en": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-9440db79-6d1b-4a05-9553-cf35788dd6db",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-3c371da2-8fbc-4857-94a9-9f61bb08303d",
+                        "modifierPosId": null,
+                        "name": "Buffalo Sauce (Sandwich)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Sandwich Spice Level",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-889b428f-02a7-422a-be34-e0a91c2960bf",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-f1efa2e4-e6f4-4bee-8148-b9b6bb8b36dd",
+                        "modifierPosId": null,
+                        "name": "Buffalo (Tender)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Tender Spice Level (Tender 1)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-afb8866a-b015-43fb-934c-1648d6428db4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-bfb46e43-bc64-4977-8713-94a830735f94",
+                        "modifierPosId": null,
+                        "name": "Regular Fountain Drink",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 2.99,
+                        "totalPrice": 2.99,
+                        "unitPriceCents": 299,
+                        "totalPriceCents": 299,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-6807f797-877e-4313-a6a4-34c679c188b2",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-41b4cce2-2e84-43db-b9c3-bdde8a5f8578",
+                                "modifierPosId": null,
+                                "name": "*Self Serve",
+                                "localizedName": {
+                                    "translations": {}
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Drink Flavor",
+                                "localizedModifierGroupName": {
+                                    "translations": {}
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Drink Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-c3db7ee0-4ac3-4227-90e8-55c28a8096fd",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-8b9bee72-1760-4a15-bf76-dd45215275d9",
+                        "modifierPosId": null,
+                        "name": "Fries",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Side Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-58609882-d63b-4bf3-a6c9-eeb2c47619a1",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-1ba39fec-47e4-4ec9-bb2e-fef3fc38ec31",
+                        "modifierPosId": null,
+                        "name": "Ranch (2 oz)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Dipping Sauce Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    }
+                ],
+                "itemPrice": 14.99,
+                "unitPrice": 17.98,
+                "totalPrice": 17.98,
+                "unitPriceCents": 1798,
+                "totalPriceCents": 1798,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "ZS09UE71NL1t8CxBxAj5K",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            },
+            {
+                "orderItemId": "orditm-k6hOVMJvXX",
+                "categoryId": "cat-92a9fefb-b25c-4850-97cb-71841727b110",
+                "categoryName": "Nuggets",
+                "categoryPosId": "94952de3-08fe-425f-9959-3635f7130e8f",
+                "menuItemId": "itm-3ffc7a30-d1c8-4b6d-bf9d-26eeeed44439",
+                "name": "10 pc Nugget Meal",
+                "menuItemPosId": "f87f2580-75c1-4dc2-b465-4a1c096d51db",
+                "localizedName": {
+                    "translations": {
+                        "en": ""
+                    }
+                },
+                "options": [
+                    {
+                        "modifierGroupId": "modgrp-9c9f1067-c9cf-4516-895a-e77591bf8187",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-858c86a8-b3b2-4710-8f37-d6c6a0f75780",
+                        "modifierPosId": null,
+                        "name": "Nuggets Buffalo (10 pc)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Nugget Spice Level (10)",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-afb8866a-b015-43fb-934c-1648d6428db4",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-bfb46e43-bc64-4977-8713-94a830735f94",
+                        "modifierPosId": null,
+                        "name": "Regular Fountain Drink",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 2.99,
+                        "totalPrice": 2.99,
+                        "unitPriceCents": 299,
+                        "totalPriceCents": 299,
+                        "options": [
+                            {
+                                "modifierGroupId": "modgrp-6807f797-877e-4313-a6a4-34c679c188b2",
+                                "modifierGroupPosId": null,
+                                "modifierId": "modfr-41b4cce2-2e84-43db-b9c3-bdde8a5f8578",
+                                "modifierPosId": null,
+                                "name": "*Self Serve",
+                                "localizedName": {
+                                    "translations": {}
+                                },
+                                "quantity": 1,
+                                "price": 0,
+                                "totalPrice": 0,
+                                "unitPriceCents": 0,
+                                "totalPriceCents": 0,
+                                "options": [],
+                                "isInvisible": false,
+                                "isDefault": false,
+                                "freeQuantity": 0,
+                                "modifierCode": null,
+                                "modifierGroupName": "Drink Flavor",
+                                "localizedModifierGroupName": {
+                                    "translations": {}
+                                }
+                            }
+                        ],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Drink Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-c3db7ee0-4ac3-4227-90e8-55c28a8096fd",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-8b9bee72-1760-4a15-bf76-dd45215275d9",
+                        "modifierPosId": null,
+                        "name": "Fries",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Side Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    },
+                    {
+                        "modifierGroupId": "modgrp-58609882-d63b-4bf3-a6c9-eeb2c47619a1",
+                        "modifierGroupPosId": null,
+                        "modifierId": "modfr-1ba39fec-47e4-4ec9-bb2e-fef3fc38ec31",
+                        "modifierPosId": null,
+                        "name": "Ranch (2 oz)",
+                        "localizedName": {
+                            "translations": {}
+                        },
+                        "quantity": 1,
+                        "price": 0,
+                        "totalPrice": 0,
+                        "unitPriceCents": 0,
+                        "totalPriceCents": 0,
+                        "options": [],
+                        "isInvisible": false,
+                        "isDefault": false,
+                        "freeQuantity": 0,
+                        "modifierCode": null,
+                        "modifierGroupName": "Dipping Sauce Choice",
+                        "localizedModifierGroupName": {
+                            "translations": {}
+                        }
+                    }
+                ],
+                "itemPrice": 11.99,
+                "unitPrice": 14.98,
+                "totalPrice": 14.98,
+                "unitPriceCents": 1498,
+                "totalPriceCents": 1498,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": null,
+                "rewardSource": null,
+                "itemSessionId": "r0fBVlCxwkgX3nptdis5-",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            },
+            {
+                "orderItemId": "orditm-3egCsgaMOM",
+                "categoryId": "cat-de82da88-b37b-492e-a337-c58965e97eda",
+                "categoryName": "Cookies",
+                "categoryPosId": "",
+                "menuItemId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
+                "name": "Chocolate Chip Wheely",
+                "menuItemPosId": "a22b3c11-44e7-4791-a039-56ea894a93fe",
+                "localizedName": {
+                    "translations": {}
+                },
+                "options": [],
+                "itemPrice": 3.95,
+                "unitPrice": 3.95,
+                "totalPrice": 3.95,
+                "unitPriceCents": 395,
+                "totalPriceCents": 395,
+                "quantity": 1,
+                "specialRequest": "",
+                "upsellSource": {
+                    "upsellId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
+                    "upsellLevelType": "AI-Order",
+                    "upsellPromptItemId": ""
+                },
+                "rewardSource": null,
+                "itemSessionId": "lViDdNQM2gYRNcYemGNbj",
+                "discounts": [],
+                "discountSource": {
+                    "discountId": "",
+                    "isHiddenOnReceipt": false
+                },
+                "conceptId": "",
+                "conceptName": ""
+            }
+        ],
+        "combos": [],
+        "paymentDetails": [
+            {
+                "amount": 153.63,
+                "paymentIntegrationId": "payment-integration-verifone",
+                "transactionId": "3018",
+                "paymentIntegrationLabel": "Credit",
+                "tenderId": "e8037155-eddc-439c-89f0-7a0ea12a28af",
+                "paymentCardName": "AMEX",
+                "paymentCardNumber": "***********4003",
+                "isAmazonOnePayment": false,
+                "paymentMethod": "Card",
+                "tenderInfo": {
+                    "cardInfo": {
+                        "cardType": "AmericanExpress",
+                        "lastFour": "4003",
+                        "zipCode": "00000",
+                        "processorAuthCode": "828129",
+                        "expirationMonth": "03",
+                        "expirationYear": "29",
+                        "maskedCardNumber": "372659*****4003",
+                        "availableBalance": 0
+                    },
+                    "storedValueInfo": null
+                },
+                "status": null,
+                "captureDetails": null,
+                "settlementDetails": null
+            }
+        ],
+        "orderType": "467f4a27-3f52-4a0e-b257-7025f7347d0b",
+        "orderTypeLabel": "Dine In",
+        "orderIdentity": {
+            "orderToken": "40041",
+            "name": "Eben graduation",
+            "phone": null,
+            "phoneCountryCode": null,
+            "email": "",
+            "tableTent": "1",
+            "posOrderToken": "298",
+            "randomlyGeneratedFields": [],
+            "deviceImei": ""
+        },
+        "redeemedRewards": [],
+        "receiptImage": "https://console.grubbrr.com/order-receipt/JjAG9rMd4vGAJ5ioELj-4NLK9rfMhUYkjQ92WdPrAdkkhN8aOoWmurSjcVLYLVtKzIRzNdE9MGWqvLMgcGCZLLz78piSFK4-SJVtTPcLWJly26pMRZluWX-tazDQHpsm",
+        "gusetCheckImageLink": null,
+        "kioskSource": {
+            "kioskId": "ksk-47242486",
+            "name": "Kiosk 1",
+            "kioskMode": 1
+        },
+        "discounts": [],
+        "isFailedToSendToPos": false,
+        "posSubmissionStatus": 1,
+        "channel": 0,
+        "clientIpAddress": "70.166.97.78",
+        "isTestOrder": false,
+        "businessDate": "2026-05-21T00:00:00",
+        "loyaltyUser": null,
+        "guestCount": 5,
+        "upsellInformation": {
+            "upsellPrompt": [
+                {
+                    "promptId": "f0b71f84-8721-42d0-bf2a-e4aa31778a5e",
+                    "offeredItems": [
+                        {
+                            "itemId": "itm-cffb5cd5-2086-41a6-9b7f-8e2123e6aa14",
+                            "upsellGroupId": "",
+                            "upsellLevel": "Item",
+                            "promptItemId": "itm-76e6276d-73b3-4b84-b1ef-009fb8701877"
+                        },
+                        {
+                            "itemId": "itm-1b44e9cc-c651-45e1-8b77-c0d97bda672b",
+                            "upsellGroupId": "",
+                            "upsellLevel": "Item",
+                            "promptItemId": "itm-76e6276d-73b3-4b84-b1ef-009fb8701877"
+                        },
+                        {
+                            "itemId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
+                            "upsellGroupId": "",
+                            "upsellLevel": "Item",
+                            "promptItemId": "itm-76e6276d-73b3-4b84-b1ef-009fb8701877"
+                        },
+                        {
+                            "itemId": "itm-de018b7f-0ea7-4e80-8f1f-b498fc12a3bd",
+                            "upsellGroupId": "",
+                            "upsellLevel": "Item",
+                            "promptItemId": "itm-76e6276d-73b3-4b84-b1ef-009fb8701877"
+                        }
+                    ],
+                    "selectedItems": [],
+                    "promptTime": "2026-05-22T03:38:07Z",
+                    "modalVersion": ""
+                },
+                {
+                    "promptId": "951d5859-e258-4386-9d63-0f9fcfdd4f00",
+                    "offeredItems": [
+                        {
+                            "itemId": "itm-185e8a5b-61f3-459a-9905-dd9ebbb827dc",
+                            "upsellGroupId": "",
+                            "upsellLevel": "Item",
+                            "promptItemId": "itm-dd091cf4-727e-4da0-be99-d2b05ce4f35a"
+                        },
+                        {
+                            "itemId": "itm-28057ab2-675c-466a-8d16-0a24d92a548f",
+                            "upsellGroupId": "",
+                            "upsellLevel": "Item",
+                            "promptItemId": "itm-dd091cf4-727e-4da0-be99-d2b05ce4f35a"
+                        },
+                        {
+                            "itemId": "itm-b42f0252-840d-4a6d-bde5-aea3dc96401b",
+                            "upsellGroupId": "",
+                            "upsellLevel": "Item",
+                            "promptItemId": "itm-dd091cf4-727e-4da0-be99-d2b05ce4f35a"
+                        },
+                        {
+                            "itemId": "itm-76e6276d-73b3-4b84-b1ef-009fb8701877",
+                            "upsellGroupId": "",
+                            "upsellLevel": "Item",
+                            "promptItemId": "itm-dd091cf4-727e-4da0-be99-d2b05ce4f35a"
+                        }
+                    ],
+                    "selectedItems": [],
+                    "promptTime": "2026-05-22T03:39:14Z",
+                    "modalVersion": ""
+                },
+                {
+                    "promptId": "fcc06fb4-2f88-4b9c-b6b8-46fadaf99cfe",
+                    "offeredItems": [
+                        {
+                            "itemId": "itm-185e8a5b-61f3-459a-9905-dd9ebbb827dc",
+                            "upsellGroupId": "",
+                            "upsellLevel": "AI-Order",
+                            "promptItemId": ""
+                        },
+                        {
+                            "itemId": "itm-1b749dcb-f4ff-43ef-b3b5-52cff9a37583",
+                            "upsellGroupId": "",
+                            "upsellLevel": "AI-Order",
+                            "promptItemId": ""
+                        },
+                        {
+                            "itemId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
+                            "upsellGroupId": "",
+                            "upsellLevel": "AI-Order",
+                            "promptItemId": ""
+                        },
+                        {
+                            "itemId": "itm-c7a051df-d97e-4fed-a3b7-273c756b13bf",
+                            "upsellGroupId": "",
+                            "upsellLevel": "AI-Order",
+                            "promptItemId": ""
+                        }
+                    ],
+                    "selectedItems": [
+                        {
+                            "itemId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
+                            "upsellGroupId": "upslg-f2846026-f2cc-4cff-9e02-87cd5c155dcc",
+                            "upsellLevel": "AI-Order",
+                            "promptItemId": "",
+                            "quantity": 1,
+                            "modifiers": []
+                        }
+                    ],
+                    "promptTime": "2026-05-22T03:45:54Z",
+                    "modalVersion": ""
+                }
+            ],
+            "modifierImpressions": [],
+            "modifierInteractions": []
+        },
+        "orderReceiptUrl": "https://console.grubbrr.com/order-receipt/JjAG9rMd4vGAJ5ioELj-4NLK9rfMhUYkjQ92WdPrAdkkhN8aOoWmurSjcVLYLVtKzIRzNdE9MGWqvLMgcGCZLLz78piSFK4-SJVtTPcLWJly26pMRZluWX-tazDQHpsm",
+        "loyaltyProviderTransactionId": "",
+        "loyaltyProviderPaymentTransactionId": "",
+        "orderReceiptPdfUrl": "/location/org-490e23ce-6f23-4d3d-8544-8728f0965cfc/loc-bc017a27-667a-4bcd-b10c-a0e21794d992/484102df-3358-4b35-92b0-5b50ccc52bde/69ce030a7d68ca4c5fc00e87c01560e651f7fc0e8ba1b49c3b75f9b73b36d104.pdf",
+        "receiptDetails": {
+            "orderLanguage": "en",
+            "guestCheckCode": null,
+            "guestCheckCodePrefaceText": "",
+            "genesisFiscalFields": null,
+            "feedBackUrl": null,
+            "loyaltyEarnedPoints": "",
+            "loyaltyHeader": "",
+            "loyaltyFooter": "",
+            "receiptPrintingType": "Barcode",
+            "items": []
+        },
+        "concepts": [],
+        "conceptName": "",
+        "conceptId": "",
+        "orderId": "ord-484102df-3358-4b35-92b0-5b50ccc52bde",
+        "orderDate": "2026-05-22T03:46:44.0515055Z",
+        "locationId": "loc-bc017a27-667a-4bcd-b10c-a0e21794d992",
+        "id": "ordevt-P5LOYP1V6SCAK6FP",
+        "type": "order-placed",
+        "_rid": "agQ4AMToqDtIkw8AAAAABg==",
+        "_self": "dbs/agQ4AA==/colls/agQ4AMToqDs=/docs/agQ4AMToqDtIkw8AAAAABg==/",
+        "_etag": "\"3a00cb54-0000-0100-0000-6a1d75000000\"",
+        "_attachments": "attachments/",
+        "_ts": 1780315392
+    }
+]
