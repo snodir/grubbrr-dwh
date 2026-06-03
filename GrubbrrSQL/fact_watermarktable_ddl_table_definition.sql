@@ -8,7 +8,7 @@
 -- Dumped by pg_dump version 18.3
 
 -- Started on 2026-05-28 11:00:09
-
+/*
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -20,15 +20,20 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+*/
+
+SELECT * FROM fact.watermarktable;
 
 --
 -- TOC entry 6063 (class 0 OID 33011)
 -- Dependencies: 399
 -- Data for Name: watermarktable; Type: TABLE DATA; Schema: fact; Owner: citus
 --
+INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source, sysinserttime) VALUES ('fact.transactionitem', 'syscosmosts', NULL, NULL, 1720000300, 'nge', NOW() :: TIMESTAMP);
+INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source, sysinserttime) VALUES ('fact.transactionpayment', 'syscosmosts', NULL, NULL, 1720000300, 'nge', NOW() :: TIMESTAMP);
+INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source, sysinserttime) VALUES ('fact.usercheckedin', 'syscosmosts', NULL, NULL, 1767225610, 'gem', NOW() :: TIMESTAMP);
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source, sysinserttime) VALUES ('fact.gem_failed_order_job_notifications', 'syscosmosts', NULL, NULL, 1767225610, 'gem-Job', NOW() :: TIMESTAMP);
-INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source, sysinserttime) VALUES ('fact.cep_incidents', 'syscosmosts', NULL, NULL, 1775002010, 'gem', NOW() :: TIMESTAMP);
-INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.usercheckedin', 'syscosmosts', NULL, NULL, 1775002010, 'gem');
+INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source, sysinserttime) VALUES ('fact.cep_incidents', 'syscosmosts', NULL, NULL, 1767225610, 'gem', NOW() :: TIMESTAMP);
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.userbehaviour', 'busdate', '2026-04-02 09:18:34.656', NULL, 1775121514, 'gem');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.deviceevent', 'syscosmosts', '2026-05-21 09:13:32.997', 639149516162368326, 1779354816, 'gem');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.devicestate', 'lasteventtime', '2026-05-21 09:22:16.038379', NULL, 1720000300, 'gsh');
@@ -46,9 +51,6 @@ INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkv
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.sent_surveys', 'gem_syscosmosts', NULL, NULL, 1779287007, 'gem');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.occasionsurveydetail', 'syscosmosts', NULL, NULL, 1778680308, 'nge');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.occasionsurveydetail', 'syscosmosts', NULL, NULL, 1775002010, 'gem');
-INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.transactionitem', 'syscosmosts', NULL, NULL, 1720000300, 'gem');
-INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.transactionitem', 'syscosmosts', NULL, NULL, 1720000300, 'nge');
-INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.transactionpayment', 'syscosmosts', NULL, NULL, 1720000300, 'nge');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.transactionheader', 'syscosmosts', NULL, NULL, 1779395953, 'nge');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.transactionheader', 'syscosmosts', NULL, NULL, 1779480374, 'gem');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.itemmodifier', 'syscosmosts', NULL, NULL, 1779289519, 'nge');

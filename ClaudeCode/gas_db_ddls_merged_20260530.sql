@@ -1224,6 +1224,7 @@ ALTER TABLE IF EXISTS dim.occasionsurvey OWNER TO citus;
 
 
 ALTER TABLE IF EXISTS dim.occasionsurvey
+    ALTER COLUMN surveykey DROP IDENTITY IF EXISTS,
     ALTER COLUMN surveykey SET DEFAULT nextval('dim.occasionsurvey_surveykey_seq');
 
 
@@ -2614,7 +2615,8 @@ ALTER TABLE IF EXISTS fact.ordertiming
 -- Schema evolution: fact.ordertiming
 ALTER TABLE IF EXISTS fact.ordertiming
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
-ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 --
 -- TOC entry 419 (class 1259 OID 413957)
@@ -4868,7 +4870,7 @@ ALTER TABLE stg.transactionheader OWNER TO citus;
 -- Name: experiment dimkey; Type: DEFAULT; Schema: dim; Owner: citus
 --
 
-ALTER TABLE ONLY dim.experiment ALTER COLUMN dimkey SET DEFAULT nextval('dim.experiment_dimkey_seq'::regclass);
+--ALTER TABLE ONLY dim.experiment ALTER COLUMN dimkey SET DEFAULT nextval('dim.experiment_dimkey_seq'::regclass);
 
 
 
@@ -5601,7 +5603,7 @@ CREATE INDEX IF NOT EXISTS idx_device_testmode ON dim.device USING btree (testmo
 -- Name: idx_menuentities_catalog; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS idx_menuentities_catalog ON dim.menuentities USING btree (catalogid);
+--CREATE INDEX IF NOT EXISTS idx_menuentities_catalog ON dim.menuentities USING btree (catalogid);
 
 
 --
@@ -5609,7 +5611,7 @@ CREATE INDEX IF NOT EXISTS idx_menuentities_catalog ON dim.menuentities USING bt
 -- Name: idx_menuentities_mealavail; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS idx_menuentities_mealavail ON dim.menuentities USING gin (mealavailability);
+--CREATE INDEX IF NOT EXISTS idx_menuentities_mealavail ON dim.menuentities USING gin (mealavailability);
 
 
 --
@@ -5617,7 +5619,7 @@ CREATE INDEX IF NOT EXISTS idx_menuentities_mealavail ON dim.menuentities USING 
 -- Name: idx_menuentities_tags; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS idx_menuentities_tags ON dim.menuentities USING gin (tags);
+--CREATE INDEX IF NOT EXISTS idx_menuentities_tags ON dim.menuentities USING gin (tags);
 
 
 --
@@ -5889,7 +5891,7 @@ CREATE INDEX IF NOT EXISTS idx_transactionrefunds_headerid ON fact.transactionre
 -- Name: itemmodifieridx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX itemmodifieridx ON fact.itemmodifier USING btree (itemid);
+--CREATE INDEX IF NOT EXISTS itemmodifieridx ON fact.itemmodifier USING btree (itemid);
 
 
 --

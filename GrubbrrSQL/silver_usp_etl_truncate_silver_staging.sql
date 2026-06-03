@@ -1,4 +1,4 @@
-
+--CALL etl.truncate_silver_staging();
 
 CREATE OR REPLACE PROCEDURE etl.truncate_silver_staging(
 )
