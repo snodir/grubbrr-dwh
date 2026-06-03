@@ -27,15 +27,15 @@ SELECT * FROM dim.element as el ORDER BY el.elementid DESC LIMIT 1000;
 -- SECTION 1 – SEQUENCE SETUP (one-time, safe to re-run)
 -- ============================================================
 
-CREATE SEQUENCE IF NOT EXISTS dim.element_id_seq;
+CREATE SEQUENCE IF NOT EXISTS dim.element_elementid_seq;
 
 SELECT setval(
-    'dim.element_id_seq',
+    'dim.element_elementid_seq',
     COALESCE((SELECT MAX(elementid) FROM dim.element), 0)
 );
 
 ALTER TABLE dim.element
-    ALTER COLUMN elementid SET DEFAULT nextval('dim.element_id_seq');
+    ALTER COLUMN elementid SET DEFAULT nextval('dim.element_elementid_seq');
 
 ALTER TABLE dim.element
     ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,

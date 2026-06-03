@@ -1,6 +1,9 @@
+--CALL dim.usp_refresh_kiosk();
+
+
 ALTER TABLE IF EXISTS dim.kiosk
-    ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
-    ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
 
 
 
@@ -13,7 +16,6 @@ ALTER TABLE IF EXISTS dim.kiosk
 -- Surrogate key: id BIGINT  (sequence-based)
 -- ============================================================
 
---CALL dim.usp_refresh_kiosk();
 
 -- ============================================================
 -- SECTION 1 – STAGING TABLE

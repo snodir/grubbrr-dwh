@@ -50,9 +50,9 @@ SELECT
 FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
   AND dateid >= (SELECT coalesce(max(dateid), 2026060108)
-                FROM etl.bronze_partition_registry 
-                WHERE entity = 'orders' 
-                  AND status IN ('completed','not found'))
+                 FROM etl.bronze_partition_registry 
+                 WHERE entity = 'orders' 
+                   AND status IN ('completed','not found'))
   AND dateid <= TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER
   AND status = 'pending'
 ORDER BY dateid
@@ -81,7 +81,7 @@ WHERE entity = 'events'
 SELECT '@{item().partition_path}' AS partition_path;
 
 
-DROP TABLE IF EXISTS etl.bronze_partition_registry;
+--DROP TABLE IF EXISTS etl.bronze_partition_registry;
 CREATE TABLE IF NOT EXISTS etl.bronze_partition_registry (
     dateid              INTEGER,
     layer               TEXT COLLATE pg_catalog."default",

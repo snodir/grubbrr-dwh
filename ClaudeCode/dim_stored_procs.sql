@@ -1316,7 +1316,7 @@ BEGIN
 
     INSERT INTO dim.element (elementid, sourceelementid, elementname, sysinserttime)
     SELECT
-        nextval('dim.element_id_seq'),
+        nextval('dim.element_elementid_seq'),
         t.sourceelementid,
         t.elementname,
         NOW()::TIMESTAMP
@@ -1358,7 +1358,7 @@ BEGIN
         ordercount,
         syscosmosts
     FROM stg.dim_frequentcustomer
-    ORDER BY frequentcustomerid, sysinserttime DESC NULLS LAST;
+    ORDER BY frequentcustomerid, syscosmosts DESC NULLS LAST;
 
     CREATE INDEX ix_tmp_frequentcustomer_id ON tmp_frequentcustomer (frequentcustomerid);
 

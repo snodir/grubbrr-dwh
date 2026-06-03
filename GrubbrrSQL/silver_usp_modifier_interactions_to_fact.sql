@@ -3,6 +3,9 @@
 SELECT * FROM stg.silver_modifier_interactions;
 SELECT * FROM fact.modifier_interactions;
 
+ALTER TABLE IF EXISTS fact.modifier_interactions
+DROP CONSTRAINT IF EXISTS trxnid_menuitemid_modfrgrpid_modfrid_pk
+
 -- Table: fact.modifier_interactions
 
 -- DROP TABLE IF EXISTS fact.modifier_interactions;

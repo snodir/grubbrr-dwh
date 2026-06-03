@@ -440,7 +440,7 @@ ALTER TABLE IF EXISTS dim.duplicate_items_master
 -- Name: element_id_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE IF NOT EXISTS dim.element_id_seq
+CREATE SEQUENCE IF NOT EXISTS dim.element_elementid_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -448,7 +448,7 @@ CREATE SEQUENCE IF NOT EXISTS dim.element_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE dim.element_id_seq OWNER TO citus;
+ALTER SEQUENCE dim.element_elementid_seq OWNER TO citus;
 
 --
 -- TOC entry 380 (class 1259 OID 32829)
@@ -456,7 +456,7 @@ ALTER SEQUENCE dim.element_id_seq OWNER TO citus;
 --
 
 CREATE TABLE IF NOT EXISTS dim.element (
-    elementid integer DEFAULT nextval('dim.element_id_seq'::regclass) NOT NULL,
+    elementid integer DEFAULT nextval('dim.element_elementid_seq'::regclass) NOT NULL,
     sourceelementid text,
     elementname text,
     sysinserttime timestamp without time zone,
@@ -467,7 +467,12 @@ CREATE TABLE IF NOT EXISTS dim.element (
 ALTER TABLE IF EXISTS dim.element OWNER TO citus;
 
 ALTER TABLE IF EXISTS dim.element
-    ALTER COLUMN elementid SET DEFAULT nextval('dim.element_id_seq');
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
+
+
+ALTER TABLE IF EXISTS dim.element
+    ALTER COLUMN elementid SET DEFAULT nextval('dim.element_elementid_seq');
 
 --
 -- TOC entry 421 (class 1259 OID 419500)
@@ -822,6 +827,10 @@ CREATE TABLE IF NOT EXISTS dim.kiosk (
 
 
 ALTER TABLE IF EXISTS dim.kiosk OWNER TO citus;
+
+ALTER TABLE IF EXISTS dim.kiosk
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
 
 
 ALTER TABLE IF EXISTS dim.kiosk
@@ -1276,6 +1285,10 @@ ALTER TABLE IF EXISTS dim.ordertype OWNER TO citus;
 ALTER TABLE IF EXISTS dim.ordertype
     ALTER COLUMN id SET DEFAULT nextval('dim.ordertype_id_seq');
 
+ALTER TABLE IF EXISTS dim.ordertype
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
 
 --
 -- TOC entry 433 (class 1259 OID 672293)
@@ -1401,7 +1414,7 @@ CREATE TABLE IF NOT EXISTS dim.upsellgrouplookup (
     isactive boolean,
     createdon timestamp without time zone,
     modifiedon timestamp without time zone,
-    catalogid text,
+    catalogid text COLLATE pg_catalog."default",
     sysinserttime timestamp without time zone
 );
 
@@ -1409,7 +1422,9 @@ CREATE TABLE IF NOT EXISTS dim.upsellgrouplookup (
 ALTER TABLE IF EXISTS dim.upsellgrouplookup OWNER TO citus;
 
 ALTER TABLE IF EXISTS dim.upsellgrouplookup
-ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE;
+ADD COLUMN IF NOT EXISTS catalogid text COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+
 
 --
 -- TOC entry 400 (class 1259 OID 103200)
@@ -2486,9 +2501,10 @@ CREATE TABLE IF NOT EXISTS fact.modifier_interactions (
 
 ALTER TABLE IF EXISTS fact.modifier_interactions OWNER TO citus;
 
--- Schema evolution: fact.modifier_interactions
 ALTER TABLE IF EXISTS fact.modifier_interactions
-    OWNER to citus;
+DROP CONSTRAINT IF EXISTS trxnid_menuitemid_modfrgrpid_modfrid_pk;
+
+-- Schema evolution: fact.modifier_interactions
 ALTER TABLE IF EXISTS fact.modifier_interactions
 --DROP COLUMN IF EXISTS source,
 ADD COLUMN IF NOT EXISTS sourceid INTEGER;
@@ -3101,6 +3117,11 @@ CREATE TABLE IF NOT EXISTS fact.usercheckedin (
 
 
 ALTER TABLE IF EXISTS fact.usercheckedin OWNER TO citus;
+
+ALTER TABLE IF EXISTS fact.usercheckedin
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS orderdatelocal TIMESTAMP,
+ADD COLUMN IF NOT EXISTS syscosmosts BIGINT;
 
 --
 -- TOC entry 434 (class 1259 OID 676689)

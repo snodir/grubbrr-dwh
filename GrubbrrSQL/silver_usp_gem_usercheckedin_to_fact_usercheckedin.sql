@@ -14,9 +14,21 @@ HAVING count(*) > 1
 ORDER BY sysinserttime DESC
 LIMIT 100;
 
+SELECT * FROM fact.usercheckedin
+
+
 ALTER TABLE IF EXISTS fact.usercheckedin
+--DROP COLUMN IF EXISTS orderdatelocal,
+--DROP COLUMN IF EXISTS orderdatelocal2,
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+--ADD COLUMN IF NOT EXISTS orderdatelocal2 TIMESTAMP,
+ADD COLUMN IF NOT EXISTS orderdatelocal TIMESTAMP,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
 ADD CONSTRAINT usercheckedin_pkey PRIMARY KEY (locationid, orderid)
+
+--UPDATE fact.usercheckedin SET orderdatelocal2 = orderdatelocal
+--UPDATE fact.usercheckedin SET orderdatelocal = orderdatelocal2
+
 
 -- Table: fact.usercheckedin
 

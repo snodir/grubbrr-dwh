@@ -1,12 +1,20 @@
 SELECT *--count(*)
 FROM fact.transactionheader as th 
-WHERE 1=1 AND th.locationid = 'loc-bf92520f-bd20-4316-8f12-d1d4406b201d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
-AND th.transactionheaderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-KPMXKSRVLP86J2YR','ordevt-NMN4RZR6NQ31W8HW','ordevt-2MUIURL3MQPSDTWN')
+WHERE 1=1 
+--AND th.locationid = 'loc-bf92520f-bd20-4316-8f12-d1d4406b201d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+--AND th.transactionheaderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-KPMXKSRVLP86J2YR','ordevt-NMN4RZR6NQ31W8HW','ordevt-2MUIURL3MQPSDTWN')
 AND th.orderstatus = 'order-placed'
 --AND th.businessdate = '2026-05-21'
 ORDER BY th.orderdatelocal DESC
 LIMIT 100;
 
+SELECT * FROM stg.silver_transaction_header 
+WHERE locationid = 'loc-6f86a91c-8257-4f2c-9af5-0116546fccfd'
+AND transactionheaderid = 'ordevt-XKL8CL81PD512JUQ'
+
+SELECT *
+FROM dim.ordertype
+WHERE locationid = 'loc-6f86a91c-8257-4f2c-9af5-0116546fccfd'
 
 SELECT ol.organizationname, ol.locationname, os.*--count(*)
 FROM fact.occasionsurveydetail as os 
@@ -40,7 +48,11 @@ AND im.transactionheaderid = 'ordevt-N1S9WD4EOAS7DY6V'
 --ORDER BY im.orderdatelocal DESC
 LIMIT 100;
 
-
+SELECT *
+FROM fact.transactionitem
+WHERE syscosmosts IS NOT NULL
+ORDER BY syscosmosts DESC
+LIMIT 100;
 
 SELECT *
 FROM fact.modifier_interactions as mi 

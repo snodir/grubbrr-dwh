@@ -879,7 +879,7 @@ BEGIN
     ),
 
     delta AS (
-        SELECT
+        SELECT DISTINCT ON (stg.locationid, stg.deviceid, stg.dateid)
             stg.deviceid,
             stg.locationid,
             stg.dateid,
@@ -903,6 +903,11 @@ BEGIN
                   WHERE  o.id = stg.locationid
               )
           AND (stg.cputimestamp >= v_watermark OR stg.memorytimestamp >= v_watermark)
+        ORDER BY
+            stg.deviceid,
+            stg.locationid,
+            stg.dateid,
+            GREATEST(stg.cputimestamp, stg.memorytimestamp) DESC  -- latest reading wins
     )
 
     INSERT INTO fact.devicetelemetry (

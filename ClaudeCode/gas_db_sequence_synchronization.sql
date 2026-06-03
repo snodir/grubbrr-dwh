@@ -14,11 +14,11 @@ CREATE SEQUENCE IF NOT EXISTS dim.element_elementid_seq
 
 ALTER SEQUENCE dim.element_elementid_seq OWNER TO citus;
 
-/*
+
 -- Link sequence lifecycle to the column
 ALTER SEQUENCE dim.element_elementid_seq
     OWNED BY dim.element.elementid;
-*/
+
 
 -- Set to current max safely (handles empty table)
 SELECT setval(
@@ -43,6 +43,9 @@ CREATE SEQUENCE IF NOT EXISTS dim.frequentcustomer_customerkey_seq
 
 ALTER SEQUENCE dim.frequentcustomer_customerkey_seq OWNER TO citus;
 
+ALTER SEQUENCE dim.frequentcustomer_customerkey_seq
+    OWNED BY dim.frequentcustomer.customerkey;
+
 -- Set to current max safely (handles empty table)
 SELECT setval(
     'dim.frequentcustomer_customerkey_seq',
@@ -66,6 +69,9 @@ CREATE SEQUENCE IF NOT EXISTS dim.itemcategory_id_seq
 
 ALTER SEQUENCE dim.itemcategory_id_seq OWNER TO citus;
 
+ALTER SEQUENCE dim.itemcategory_id_seq
+    OWNED BY dim.itemcategory.id;
+
 -- Set to current max safely (handles empty table)
 SELECT setval(
     'dim.itemcategory_id_seq',
@@ -87,6 +93,9 @@ CREATE SEQUENCE IF NOT EXISTS dim.kiosk_id_seq
 ALTER SEQUENCE dim.kiosk_id_seq OWNER TO citus;
 
 
+ALTER SEQUENCE dim.kiosk_id_seq
+    OWNED BY dim.kiosk.id;
+
 -- Set to current max safely (handles empty table)
 SELECT setval(
     'dim.kiosk_id_seq',
@@ -107,6 +116,9 @@ CREATE SEQUENCE IF NOT EXISTS dim.menuitem_id_seq
 
 ALTER SEQUENCE dim.menuitem_id_seq OWNER TO citus;
 
+ALTER SEQUENCE dim.menuitem_id_seq
+    OWNED BY dim.menuitem.id;
+
 -- Set to current max safely (handles empty table)
 SELECT setval(
     'dim.menuitem_id_seq',
@@ -126,6 +138,10 @@ CREATE SEQUENCE IF NOT EXISTS dim.occasionsurvey_surveykey_seq
 
 
 ALTER SEQUENCE dim.occasionsurvey_surveykey_seq OWNER TO citus;
+
+
+ALTER SEQUENCE dim.occasionsurvey_surveykey_seq
+    OWNED BY dim.occasionsurvey.surveykey;
 
 -- Set to current max safely (handles empty table)
 SELECT setval(
@@ -148,6 +164,10 @@ CREATE SEQUENCE IF NOT EXISTS dim.ordertype_id_seq
 
 ALTER SEQUENCE dim.ordertype_id_seq OWNER TO citus;
 
+
+ALTER SEQUENCE dim.ordertype_id_seq
+    OWNED BY dim.ordertype.id;
+
 -- Set to current max safely (handles empty table)
 SELECT setval(
     'dim.ordertype_id_seq',
@@ -158,26 +178,6 @@ SELECT setval(
 ALTER TABLE IF EXISTS dim.ordertype
     ALTER COLUMN id SET DEFAULT nextval('dim.ordertype_id_seq');
 
-
-CREATE SEQUENCE IF NOT EXISTS dim.view_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE dim.view_id_seq OWNER TO citus;
-
--- Set to current max safely (handles empty table)
-SELECT setval(
-    'dim.view_id_seq',
-    (SELECT COALESCE(MAX(viewid), 0) FROM dim.view)
-);
-
-
-ALTER TABLE IF EXISTS dim.view
-    ALTER COLUMN viewid SET DEFAULT nextval('dim.view_id_seq');
 
 
 CREATE SEQUENCE IF NOT EXISTS fact.devicestate_id_seq
@@ -190,6 +190,9 @@ CREATE SEQUENCE IF NOT EXISTS fact.devicestate_id_seq
 
 ALTER SEQUENCE fact.devicestate_id_seq OWNER TO citus;
 
+
+ALTER SEQUENCE fact.devicestate_id_seq
+    OWNED BY fact.devicestate.id;
 
 -- Set to current max safely (handles empty table)
 SELECT setval(
@@ -210,6 +213,9 @@ CREATE SEQUENCE IF NOT EXISTS fact.ordertiming_id_seq
 
 
 ALTER SEQUENCE fact.ordertiming_id_seq OWNER TO citus;
+
+ALTER SEQUENCE fact.ordertiming_id_seq
+    OWNED BY fact.ordertiming.id;
 
 
 -- Set to current max safely (handles empty table)
@@ -232,6 +238,9 @@ CREATE SEQUENCE IF NOT EXISTS fact.transactionheader_id_seq
 
 ALTER SEQUENCE fact.transactionheader_id_seq OWNER TO citus;
 
+ALTER SEQUENCE fact.transactionheader_id_seq
+    OWNED BY fact.transactionheader.id;
+
 -- Set to current max safely (handles empty table)
 SELECT setval(
     'fact.transactionheader_id_seq',
@@ -251,6 +260,9 @@ CREATE SEQUENCE IF NOT EXISTS fact.userbehaviour_id_seq
 
 
 ALTER SEQUENCE fact.userbehaviour_id_seq OWNER TO citus;
+
+ALTER SEQUENCE fact.userbehaviour_id_seq
+    OWNED BY fact.userbehaviour.id;
 
 -- Set to current max safely (handles empty table)
 SELECT setval(
