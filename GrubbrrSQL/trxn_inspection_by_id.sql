@@ -22,7 +22,10 @@ ORDER BY syscosmosts DESC
 LIMIT 100;
 
 
-SELECT max(th.syscosmosts) as maxts, 'fact.transactionheader' as watermarktablename, 'nge' as source
+SELECT max(th.syscosmosts) as maxts, 
+    max(th.orderdateutc) as max_orderdateutc,
+    'fact.transactionheader' as watermarktablename, 
+    'nge' as source
 FROM fact.transactionheader as th
 WHERE sourceid = 1 --1780133426	fact.transactionheader	nge
 

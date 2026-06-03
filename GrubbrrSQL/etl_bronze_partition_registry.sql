@@ -41,20 +41,36 @@ SELECT
     entity, 
     partition_path,
     SUBSTRING(partition_path, 1, 21) as partition_date_path,
-    partition_date, 
+    partition_date :: TEXT AS partition_date,
     partition_year, 
     partition_month, 
     partition_day, 
-    partition_hour
+    partition_hour,
+    SUBSTRING(partition_path, 23, 2) as partition_hh
 FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
-  AND dateid >= (SELECT max(dateid) 
-                 FROM etl.bronze_partition_registry 
-                 WHERE entity = 'orders' 
-                   AND status = 'completed')
+  AND dateid >= (SELECT coalesce(max(dateid), 2026060108)
+                FROM etl.bronze_partition_registry 
+                WHERE entity = 'orders' 
+                  AND status IN ('completed','not found'))
+  AND dateid <= TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER
   AND status = 'pending'
 ORDER BY dateid
-LIMIT 6
+LIMIT 50;
+
+SELECT *
+FROM etl.bronze_partition_registry
+WHERE entity = 'orders'
+  AND dateid > (SELECT coalesce(max(dateid), 2026060100)
+                 FROM etl.bronze_partition_registry 
+                 WHERE entity = 'orders' 
+                   AND status IN ('completed','not found'))
+  AND dateid <= TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER
+  AND status = 'pending'
+ORDER BY dateid
+LIMIT 24;
+
+
 
 UPDATE etl.bronze_partition_registry
 SET started_at = NOW() :: TIMESTAMP,

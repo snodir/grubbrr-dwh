@@ -38,6 +38,12 @@
                         "type": "character varying",
                         "precision": 0,
                         "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
                     }
                 ],
                 "typeProperties": {
