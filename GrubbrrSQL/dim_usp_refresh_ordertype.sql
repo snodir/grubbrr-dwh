@@ -1,7 +1,14 @@
 --CALL dim.usp_refresh_ordertype();
 
-SELECT * FROM dim.ordertype ORDER BY id DESC;
+SELECT sth.transactionheaderid, ot.*
+FROM dim.ordertype as ot 
+INNER JOIN stg.silver_transaction_header as sth
+    ON sth.locationid = ot.locationid
+   AND sth.kioskid = ot.kioskid
+   AND CASE WHEN sth.ordertype = '' OR sth.ordertype IS NULL THEN order_type_label ELSE sth.ordertype END = ot.ordertypeid
 
+SELECT * FROM dim.ordertype ORDER BY id DESC;
+SELECT * FROM stg.silver_transaction_header ORDER BY syscosmosts DESC;
 -- Table: dim.ordertype
 
 -- DROP TABLE IF EXISTS dim.ordertype;

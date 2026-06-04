@@ -49,14 +49,16 @@ SELECT
     SUBSTRING(partition_path, 23, 2) as partition_hh
 FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
-  AND dateid >= (SELECT coalesce(max(dateid), 2026060108)
+  AND dateid > (SELECT coalesce(max(dateid), 2026060108)
                  FROM etl.bronze_partition_registry 
                  WHERE entity = 'orders' 
                    AND status IN ('completed','not found'))
-  AND dateid <= TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER
+  AND dateid < TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER
   AND status = 'pending'
 ORDER BY dateid
 LIMIT 50;
+
+
 
 SELECT *
 FROM etl.bronze_partition_registry

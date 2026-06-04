@@ -1893,7 +1893,7 @@ CREATE TABLE IF NOT EXISTS dim.weather (
 );
 
 
-ALTER TABLE IF EXISTS dim.weather OWNER TO citus;
+--ALTER TABLE IF EXISTS dim.weather OWNER TO citus;
 
 --
 -- TOC entry 444 (class 1259 OID 1236960)

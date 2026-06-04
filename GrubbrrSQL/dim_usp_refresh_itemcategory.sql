@@ -1,6 +1,6 @@
 --CALL dim.usp_refresh_itemcategory();
 
-SELECT * FROM dim.itemcategory ORDER BY id ASC limit 1000;
+SELECT * FROM dim.itemcategory ORDER BY id DESC limit 1000;
 
 
 

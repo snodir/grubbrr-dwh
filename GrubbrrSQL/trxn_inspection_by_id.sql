@@ -24,6 +24,8 @@ INNER JOIN dim.organizationlocation as ol
 WHERE 1=1 AND os.locationid = 'loc-bf92520f-bd20-4316-8f12-d1d4406b201d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
 AND os.orderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-KPMXKSRVLP86J2YR','ordevt-NMN4RZR6NQ31W8HW','ordevt-2MUIURL3MQPSDTWN')
 
+SELECT * FROM dim.organizationlocation WHERE organizationid LIKE 'org-1211fa46%'
+
 SELECT * FROM fact.recommendations
 WHERE 1=1 AND locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
 ORDER BY syscosmosts DESC
