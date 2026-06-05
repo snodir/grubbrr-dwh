@@ -12,7 +12,7 @@
 
 CREATE PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(IN p_organizationid text)
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     -- --------------------------------------------------------
@@ -97,7 +97,7 @@ BEGIN
         AND imgm.modifiergroupid = mg.modifiergroupid;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(IN p_organizationid text) OWNER TO citus;
@@ -109,7 +109,7 @@ ALTER PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(IN p_organiza
 
 CREATE PROCEDURE ml.usp_refresh_menu_entities()
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 BEGIN
 
     -- --------------------------------------------------------
@@ -166,7 +166,7 @@ BEGIN
     FROM category_hierarchy AS mi;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE ml.usp_refresh_menu_entities() OWNER TO citus;
@@ -178,7 +178,7 @@ ALTER PROCEDURE ml.usp_refresh_menu_entities() OWNER TO citus;
 
 CREATE PROCEDURE ml.usp_refresh_modifier_impressions(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 DECLARE
     v_max_businessdate DATE;  -- Holds the current max date in the target table;
                               -- used to anchor both the delete and the source filter
@@ -278,7 +278,7 @@ BEGIN
       );
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE ml.usp_refresh_modifier_impressions(IN p_refresh_mode integer) OWNER TO citus;
@@ -290,7 +290,7 @@ ALTER PROCEDURE ml.usp_refresh_modifier_impressions(IN p_refresh_mode integer) O
 
 CREATE PROCEDURE ml.usp_refresh_modifier_interactions(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 DECLARE
     v_max_businessdate DATE;  -- Holds the current max date in the target table;
                               -- used to anchor both the delete and the source filter
@@ -429,7 +429,7 @@ BEGIN
         ON mg.modifiergroupid = mt.modifiergroupid;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE ml.usp_refresh_modifier_interactions(IN p_refresh_mode integer) OWNER TO citus;
@@ -441,7 +441,7 @@ ALTER PROCEDURE ml.usp_refresh_modifier_interactions(IN p_refresh_mode integer) 
 
 CREATE PROCEDURE ml.usp_refresh_transactions(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 DECLARE
     v_max_businessdate DATE;  -- Holds the current max date in the target table;
                               -- used to anchor both the delete and the source filter
@@ -533,7 +533,7 @@ BEGIN
         ON th.ordertype = ot.id;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE ml.usp_refresh_transactions(IN p_refresh_mode integer) OWNER TO citus;
@@ -545,7 +545,7 @@ ALTER PROCEDURE ml.usp_refresh_transactions(IN p_refresh_mode integer) OWNER TO 
 
 CREATE PROCEDURE ml.usp_refresh_upsell_analysis(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 DECLARE
     v_max_businessdate DATE;  -- Holds the current max date in the target table;
                               -- used to anchor both the delete and the source filter
@@ -617,7 +617,7 @@ BEGIN
         ) = mi.menuitemid;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE ml.usp_refresh_upsell_analysis(IN p_refresh_mode integer) OWNER TO citus;
@@ -629,7 +629,7 @@ ALTER PROCEDURE ml.usp_refresh_upsell_analysis(IN p_refresh_mode integer) OWNER 
 
 CREATE PROCEDURE ml.usp_refresh_weather(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
-    AS $$
+    AS $BODY$
 DECLARE
     v_max_weatherdate DATE;
 BEGIN
@@ -726,7 +726,7 @@ BEGIN
         ON cte.locationid = ol.locationid;
 
 END;
-$$;
+$BODY$;
 
 
 ALTER PROCEDURE ml.usp_refresh_weather(IN p_refresh_mode integer) OWNER TO citus;

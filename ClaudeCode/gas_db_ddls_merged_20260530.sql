@@ -921,7 +921,8 @@ ADD COLUMN IF NOT EXISTS preorder_popup_text TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS disclaimer_text TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS order_limit_config TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS menu_behavior_config TEXT COLLATE pg_catalog."default",
-ADD COLUMN IF NOT EXISTS perform_pos_status_check BOOLEAN;
+ADD COLUMN IF NOT EXISTS perform_pos_status_check BOOLEAN,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 --
 -- TOC entry 382 (class 1259 OID 32863)
