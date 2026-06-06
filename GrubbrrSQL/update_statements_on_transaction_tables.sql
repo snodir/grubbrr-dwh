@@ -4,6 +4,36 @@
 --VACUUM ANALYZE fact.transactionitem;
 --VACUUM ANALYZE fact.itemmodifier;
 
+SELECT *
+FROM fact.transactionheader as th
+WHERE th.orderid LIKE 'ord--%'
+ORDER BY createddate DESC
+
+UPDATE fact.transactionheader
+SET orderid = CONCAT(orderid, ordersessionid)
+WHERE orderid         = 'ord-';
+  AND ordersessionid <> '' ;
+
+UPDATE fact.transactionheader
+   SET orderid = CONCAT(orderid, SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
+WHERE orderid        = 'ord-'
+  AND ordersessionid = '' ;
+
+
+
+UPDATE fact.transactionitem
+SET orderid = CONCAT(orderid, ordersessionid)
+WHERE orderid = 'ord-';
+
+
+UPDATE fact.transactionpayment
+SET orderid = th.orderid
+FROM fact.transactionheader as th
+WHERE transactionpayment.locationid          = th.locationid
+  AND transactionpayment.transactionheaderid = th.transactionheaderid
+  AND transactionpayment.orderid = 'ord-';
+
+
 UPDATE fact.vw_offer_analysis
 SET upselltype = 'AI-Order'
 WHERE locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992'

@@ -1,5 +1,39 @@
 --CALL dim.usp_refresh_menuitem();
 
+
+
+SELECT menuitemid, count(*)-- ROW_NUMBER() OVER(PARTITION BY menuitemid ORDER BY gms_modified_on DESC) as rn
+FROM dim.menuitem
+GROUP BY menuitemid
+HAVING count(*) > 1
+
+/*UPDATE fact.transactionitem
+SET menuitemid = mi.id
+FROM dim.menuitem as mi
+WHERE transactionitem.dimmenuitemid = mi.menuitemid*/
+
+
+SELECT *
+FROM fact.transactionitem 
+WHERE comboid IS NOT NULL AND dimmenuitemid IS NOT NULL
+
+--SELECT setval('dim.menuitem_id_seq', 1, FALSE);
+
+
+SELECT count(*) FROM dim.menuitem --540,212
+
+WITH dupls AS (
+    SELECT *, 
+        count(*) OVER(PARTITION BY menuitemid) as is_dupl,
+        ROW_NUMBER() OVER(PARTITION BY menuitemid ORDER BY gms_modified_on DESC) as rn
+    FROM dim.menuitem
+)
+SELECT *
+FROM dupls
+WHERE is_dupl > 1
+AND EXISTS (SELECT 1 FROM fact.transactionitem as ti WHERE ti.menuitemid = dupls.id)
+
+
 SELECT count(*)
 FROM stg.dim_menuitem LIMIT 100; --960,688
 

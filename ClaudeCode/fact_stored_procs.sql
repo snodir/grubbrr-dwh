@@ -3559,7 +3559,10 @@ BEGIN
         -- Keeps the latest version of each transaction per location
         SELECT DISTINCT ON (locationid, transactionheaderid)
             transactionheaderid,
-            orderid,
+            CASE WHEN orderid LIKE 'ord-%' AND LENGTH(orderid) > 4  THEN orderid
+                 WHEN orderid    = 'ord-' AND ordersessionid <> '' THEN CONCAT(orderid, ordersessionid)
+                 ELSE CONCAT('ord-', SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
+            END as orderid,
             locationid,
             kioskid,
             ordersessionid,
@@ -3833,7 +3836,10 @@ BEGIN
                 itemname
             )
                 transactionheaderid,
-                orderid,
+                CASE WHEN orderid LIKE 'ord-%' AND LENGTH(orderid) > 4  THEN orderid
+                     WHEN orderid    = 'ord-' AND ordersessionid <> '' THEN CONCAT(orderid, ordersessionid)
+                     ELSE CONCAT('ord-', SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
+                END as orderid,                
                 locationid,
                 ordersessionid,
                 itemsessionid,
@@ -3870,7 +3876,10 @@ BEGIN
                 combo_name
             )
                 transactionheaderid,
-                orderid,
+                CASE WHEN orderid LIKE 'ord-%' AND LENGTH(orderid) > 4  THEN orderid
+                     WHEN orderid    = 'ord-' AND ordersessionid <> '' THEN CONCAT(orderid, ordersessionid)
+                     ELSE CONCAT('ord-', SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
+                END as orderid,                
                 locationid,
                 ordersessionid,
                 combo_item_session_id                                                AS itemsessionid,
@@ -3907,7 +3916,10 @@ BEGIN
                 component_item_name
             )
                 transactionheaderid,
-                orderid,
+                CASE WHEN orderid LIKE 'ord-%' AND LENGTH(orderid) > 4  THEN orderid
+                     WHEN orderid    = 'ord-' AND ordersessionid <> '' THEN CONCAT(orderid, ordersessionid)
+                     ELSE CONCAT('ord-', SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
+                END as orderid,                
                 locationid,
                 ordersessionid,
                 component_item_session_id                                            AS itemsessionid,
@@ -4187,31 +4199,30 @@ BEGIN
         syscosmosts
     )
     SELECT
-        transactionheaderid,
-        paymentintegrationid,
-        paymentid,
-        paymentamt,
-        orderid,
-        locationid,
-        kioskid,
-        paymentmethod,
-        paymentintegrationlabel,
-        fact.parse_iso_timestamp(orderdateutc)  AS orderdateutc,
-        now() :: TIMESTAMP                      AS sysinserttime,
-        paymentcardtype,
-        syscosmosts
-    FROM delta
-    WHERE EXISTS (
-            SELECT 1
-            FROM fact.transactionheader AS th
-            WHERE th.locationid          = delta.locationid
-              AND th.transactionheaderid = delta.transactionheaderid
-    )
-    AND NOT EXISTS (
+        d.transactionheaderid,
+        d.paymentintegrationid,
+        d.paymentid,
+        d.paymentamt,
+        th.orderid,
+        d.locationid,
+        d.kioskid,
+        d.paymentmethod,
+        d.paymentintegrationlabel,
+        fact.parse_iso_timestamp(d.orderdateutc)  AS orderdateutc,
+        now() :: TIMESTAMP                        AS sysinserttime,
+        d.paymentcardtype,
+        d.syscosmosts
+    FROM delta as d
+    INNER JOIN fact.transactionheader as th
+            ON th.locationid          = d.locationid
+           AND th.transactionheaderid = d.transactionheaderid
+    WHERE NOT EXISTS (
             SELECT 1
             FROM fact.transactionpayment AS tp
-            WHERE tp.locationid          = delta.locationid
-              AND tp.transactionheaderid = delta.transactionheaderid
+            WHERE tp.locationid           = delta.locationid
+              AND tp.transactionheaderid  = delta.transactionheaderid
+              AND tp.paymentid            = delta.paymentid
+              AND tp.paymentintegrationid = delta.paymentintegrationid
     );
     --ON CONFLICT (locationid, transactionheaderid, paymentintegrationid, paymentid)
     --DO NOTHING;  -- payments are immutable once recorded
@@ -4261,14 +4272,12 @@ BEGIN
             refunded_amount                 AS refundamount,
             fact.parse_iso_timestamp(orderdateutc) AS orderdateutc,
             syscosmosts
-        FROM stg.silver_transaction_refunds
+        FROM stg.silver_transaction_refunds as tr
         WHERE syscosmosts > v_watermark
-          -- mirror CosmosDB type filter
-          AND order_completion_status IN ('order-refund-amount', 'order-refund-transaction')
-          -- mirror CosmosDB refundTransactionId <> '' filter
-          AND refund_transaction_id IS NOT NULL
-          AND refund_transaction_id <> ''
-          -- mirror CosmosDB orderDate >= '2024-06-23' hard cutoff
+        AND EXISTS (SELECT 1 FROM fact.transactionpayment as tp 
+                    WHERE tp.locationid = tr.locationid
+                      AND tp.orderid    = tr.orderid
+                      AND )
         ORDER BY locationid, transactionheaderid, syscosmosts DESC
     )
     INSERT INTO fact.transactionrefunds (

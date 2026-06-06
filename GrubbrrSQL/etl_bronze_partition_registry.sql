@@ -85,7 +85,7 @@ SELECT '@{item().partition_path}' AS partition_path;
 
 --DROP TABLE IF EXISTS etl.bronze_partition_registry;
 CREATE TABLE IF NOT EXISTS etl.bronze_partition_registry (
-    dateid              INTEGER,
+    dateid              INTEGER,  --YYYYMMDDHH24
     layer               TEXT COLLATE pg_catalog."default",
     entity              TEXT COLLATE pg_catalog."default",
     partition_path      TEXT COLLATE pg_catalog."default",

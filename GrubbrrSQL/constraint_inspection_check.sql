@@ -1,6 +1,46 @@
-SELECT * FROM dim.ordertype
-SELECT * FROM dim.kiosk ORDER BY id 
-SELECT * FROM dim.element ORDER BY elementid desc LIMIT 100
+SELECT * FROM dim.ordertype ORDER BY id DESC LIMIT 100;
+SELECT * FROM dim.kiosk ORDER BY id DESC LIMIT 100;
+SELECT * FROM dim.menuitem ORDER BY id DESC LIMIT 100;
+SELECT * FROM dim.itemcategory ORDER BY id DESC LIMIT 100;
+SELECT * FROM dim.element ORDER BY elementid DESC LIMIT 100;
+
+SELECT menuitemid, count(*)-- ROW_NUMBER() OVER(PARTITION BY menuitemid ORDER BY gms_modified_on DESC) as rn
+FROM dim.menuitem
+GROUP BY menuitemid
+HAVING count(*) > 1;
+
+SELECT locationid, categoryid, count(*)-- ROW_NUMBER() OVER(PARTITION BY menuitemid ORDER BY gms_modified_on DESC) as rn
+FROM dim.itemcategory
+GROUP BY locationid, categoryid
+HAVING count(*) > 1;
+
+
+SELECT locationid, kioskid, count(*)-- ROW_NUMBER() OVER(PARTITION BY menuitemid ORDER BY gms_modified_on DESC) as rn
+FROM dim.kiosk
+GROUP BY locationid, kioskid
+HAVING count(*) > 1;
+
+SELECT count(*), max(id) FROM dim.menuitem; --533,854	533,854
+SELECT count(*), max(id) FROM dim.itemcategory; --31,559	31,559
+SELECT count(*), max(id) FROM dim.kiosk; --12,205	12,272
+SELECT count(*), max(id) FROM dim.ordertype; --2,257	2,257
+SELECT count(*), max(elementid) FROM dim.element; --27,687	27,687
+
+
+WITH dupls AS (
+    SELECT *, 
+        count(*) OVER(PARTITION BY menuitemid) as is_dupl,
+        ROW_NUMBER() OVER(PARTITION BY menuitemid ORDER BY gms_modified_on DESC) as rn
+    FROM dim.menuitem
+)
+SELECT *
+FROM dupls
+WHERE is_dupl > 1
+AND EXISTS (SELECT 1 FROM fact.transactionitem as ti WHERE ti.menuitemid = dupls.id)
+
+SELECT * FROM fact.transactionitem WHERE transactionheaderid LIKE 'ordevt-%' AND dimmenuitemid IS NULL
+SELECT * FROM dim.menuitem WHERE id = 1796 --cmbmstr-d47e9986-400e-4685-b3a6-6fe89e237c43
+
 
 SELECT count(*), max(createddate), max(updateddate), max(syscosmosts)--, max(th.sysinserttime)
 FROM fact.transactionheader as th --742,385	2025-10-09 18:14:33.529755	2025-10-09 18:17:07.622153	1760033667

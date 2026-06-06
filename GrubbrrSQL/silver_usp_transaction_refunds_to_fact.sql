@@ -1,6 +1,13 @@
 --CALL fact.usp_silver_transaction_refunds_to_fact();
 
 SELECT * FROM stg.silver_transaction_refunds
+SELECT * FROM fact.transactionrefunds ORDER BY syscosmosts DESC
+--ordevt-ukljr1u6n0	ord-	loc-9dbd4815-f50a-4e4f-ac1d-5fd6d9ec728e	1837662	1837661	60.250	FullRefund	2026-05-21 11:48:39.203	2026-05-28 09:44:38.200056	1779364119
+--ordevt-fx1o3vzdgd	ord-759	loc-4ae02cbb-c1b0-4f48-a6ad-b5f2cc95cf5b	01Z6NQ1BNR97U6NNBMQT4TM6ETR31GSO	01Z6NQ1BMS97U6NNBMP05IF98I54FBU9	7.860	FullRefund	2026-04-28 09:01:49.954	2026-04-28 10:38:55.221611	1777366909
+SELECT * FROM fact.transactionpayment 
+WHERE locationid = 'loc-4ae02cbb-c1b0-4f48-a6ad-b5f2cc95cf5b' 
+ORDER BY syscosmosts DESC
+
 SELECT * FROM fact.transactionrefunds
 SELECT * FROM fact.watermarktable
 -- Table: fact.transactionrefunds

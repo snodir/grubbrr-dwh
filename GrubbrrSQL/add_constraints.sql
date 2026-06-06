@@ -1,3 +1,7 @@
+ALTER TABLE IF EXISTS dim.menuitem
+ADD CONSTRAINT menuitemid_unq UNIQUE (menuitemid)
+
+
 ALTER TABLE fact.vw_offer_analysis
 --add CONSTRAINT trxnid_recommendationid_itemid_uidx UNIQUE (transactionheaderid, recommendationid, offereditem),
 DROP CONSTRAINT locationid_trxnid_recommendationid_fk 
@@ -86,8 +90,7 @@ DROP CONSTRAINT categoryid_fk
 FOREIGN KEY (categoryid) REFERENCES dim.itemcategory(id)
 
 ALTER TABLE fact.transactionitem
-DROP CONSTRAINT menuitemid_fk 
-FOREIGN KEY (menuitemid) REFERENCES dim.menuitem(id)
+ADD CONSTRAINT menuitemid_fk FOREIGN KEY (menuitemid) REFERENCES dim.menuitem(id);
 
 ALTER TABLE fact.transactionpayment
 ADD CONSTRAINT payments_locationid_transactionheaderid_pkey PRIMARY KEY (locationid, transactionheaderid)
