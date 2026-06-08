@@ -13,6 +13,13 @@ WHERE entity = 'orders'
 SELECT LENGTH('orders/raw/2026/05/15/23')
 
 
+SELECT *
+FROM etl.bronze_partition_registry
+WHERE 1=1 
+  AND entity = 'orders'
+  AND dateid BETWEEN 2026060807 AND 2026060809 -- 2026060708 AND 2026060807
+ORDER BY dateid
+
 SELECT 
     dateid, 
     layer, 
@@ -67,7 +74,7 @@ WHERE entity = 'orders'
                  FROM etl.bronze_partition_registry 
                  WHERE entity = 'orders' 
                    AND status IN ('completed','not found'))
-  AND dateid <= TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER
+  AND dateid < TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER
   AND status = 'pending'
 ORDER BY dateid
 LIMIT 24;
@@ -115,35 +122,6 @@ INSERT INTO etl.bronze_partition_registry
 SELECT 
     dt.dateid,
     'bronze' AS layer,
-    'events' AS entity,
-    CONCAT('events/raw/', 
-           SUBSTRING(dt.dateid :: TEXT, 1, 4), '/', 
-           SUBSTRING(dt.dateid :: TEXT, 5, 2), '/',
-           SUBSTRING(dt.dateid :: TEXT, 7, 2), '/',
-           SUBSTRING(dt.dateid :: TEXT, 9, 2)
-    ) AS partition_path,
-    dt.dayval,
-    dt.yearval as partition_year,
-    dt.monthval as partition_month,
-    SUBSTRING(dt.dateid :: TEXT, 7, 2) :: INTEGER as partition_day,
-    SUBSTRING(dt.dateid :: TEXT, 9, 2) :: INTEGER as partition_hour,
-    'pending' as status,
-    NULL :: INTEGER AS file_count,
-    NULL :: TIMESTAMP AS started_at,
-    NULL :: TIMESTAMP AS completed_at,
-    NULL :: TEXT AS adf_pipeline_run_id,
-    NULL :: TEXT AS error_message,
-    NOW():: TIMESTAMP as sysinserttime,
-    NULL :: TIMESTAMP as sysupdatetime
-FROM dim.datedim as dt
-WHERE dt.yearval = 2026
-  AND dt.monthval = 6
-
-UNION ALL
-
-SELECT 
-    dt.dateid,
-    'bronze' AS layer,
     'orders' AS entity,
     CONCAT('orders/raw/', 
            SUBSTRING(dt.dateid :: TEXT, 1, 4), '/', 
@@ -165,7 +143,37 @@ SELECT
     NOW():: TIMESTAMP as sysinserttime,
     NULL :: TIMESTAMP as sysupdatetime
 FROM dim.datedim as dt
-WHERE dt.yearval = 2026
-  AND dt.monthval = 6;
+WHERE 1=1
+  --AND dt.yearval = 2026 AND dt.monthval = 6
+  AND dt.dateid BETWEEN 2026060807 AND 2026060809 -- 2026060708 AND 2026060807
 
+UNION ALL
+
+SELECT 
+    dt.dateid,
+    'bronze' AS layer,
+    'events' AS entity,
+    CONCAT('events/raw/', 
+           SUBSTRING(dt.dateid :: TEXT, 1, 4), '/', 
+           SUBSTRING(dt.dateid :: TEXT, 5, 2), '/',
+           SUBSTRING(dt.dateid :: TEXT, 7, 2), '/',
+           SUBSTRING(dt.dateid :: TEXT, 9, 2)
+    ) AS partition_path,
+    dt.dayval,
+    dt.yearval as partition_year,
+    dt.monthval as partition_month,
+    SUBSTRING(dt.dateid :: TEXT, 7, 2) :: INTEGER as partition_day,
+    SUBSTRING(dt.dateid :: TEXT, 9, 2) :: INTEGER as partition_hour,
+    'pending' as status,
+    NULL :: INTEGER AS file_count,
+    NULL :: TIMESTAMP AS started_at,
+    NULL :: TIMESTAMP AS completed_at,
+    NULL :: TEXT AS adf_pipeline_run_id,
+    NULL :: TEXT AS error_message,
+    NOW():: TIMESTAMP as sysinserttime,
+    NULL :: TIMESTAMP as sysupdatetime
+FROM dim.datedim as dt
+WHERE 1=1
+  --AND dt.yearval = 2026 AND dt.monthval = 6
+  AND dt.dateid BETWEEN 2026060708 AND 2026060807;
 --SELECT '01'::INTEGER;

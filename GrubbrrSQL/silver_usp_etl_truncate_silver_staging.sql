@@ -1,5 +1,5 @@
 --CALL etl.truncate_silver_staging();
-
+--SELECT * FROM fact.watermarktable;
 CREATE OR REPLACE PROCEDURE etl.truncate_silver_staging(
 )
 LANGUAGE plpgsql 
@@ -17,7 +17,7 @@ BEGIN
     TRUNCATE TABLE stg.silver_modifier_recommendations;
     TRUNCATE TABLE stg.silver_modifier_interactions;
     TRUNCATE TABLE stg.silver_modifier_impressions;
-    TRUNCATE TABLE stg.silver_transaction_refunds;
+    --TRUNCATE TABLE stg.silver_transaction_refunds; --not a big table to truncate
 
     -- ── Device / infrastructure staging tables: full truncate ──────
     TRUNCATE TABLE stg.fact_devicestate;
@@ -59,4 +59,3 @@ BEGIN
 END;
 $BODY$;
 
-SELECT * FROM fact.watermarktable;

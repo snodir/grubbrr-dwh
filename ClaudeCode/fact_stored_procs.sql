@@ -1288,7 +1288,10 @@ WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename
 SELECT mrc.locationid,
        mrc.transactionheaderid,
        mrc.ordersessionid,
-       mrc.orderid,
+       CASE WHEN mrc.orderid LIKE 'ord-%' AND LENGTH(mrc.orderid) > 4  THEN mrc.orderid
+            WHEN mrc.orderid    = 'ord-'  AND mrc.ordersessionid <> '' THEN CONCAT(mrc.orderid, mrc.ordersessionid)
+            ELSE CONCAT('ord-', SUBSTRING(mrc.transactionheaderid, 8, LENGTH(mrc.transactionheaderid)))
+       END as orderid,                
        outer_elem->>'itemId'                 AS menuitemid,
        rec->>'modifierId'                    AS modifierid,
        outer_elem->>'parentModifierId'       AS parent_modifier_id,
@@ -1351,7 +1354,10 @@ WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename
 SELECT mrc.locationid,
        mrc.transactionheaderid,
        mrc.ordersessionid,
-       mrc.orderid,
+       CASE WHEN mrc.orderid LIKE 'ord-%' AND LENGTH(mrc.orderid) > 4  THEN mrc.orderid
+            WHEN mrc.orderid    = 'ord-'  AND mrc.ordersessionid <> '' THEN CONCAT(mrc.orderid, mrc.ordersessionid)
+            ELSE CONCAT('ord-', SUBSTRING(mrc.transactionheaderid, 8, LENGTH(mrc.transactionheaderid)))
+       END as orderid,                
        outer_elem->>'itemId' as menuitemid,
        outer_elem->>'action' as action,
        outer_elem->>'modifierId' as modifierid,
@@ -1372,7 +1378,10 @@ FROM delta_interactions as mrc,
 SELECT mi.locationid,
        mi.transactionheaderid,
        mi.ordersessionid,
-       mi.orderid,
+       CASE WHEN mi.orderid LIKE 'ord-%' AND LENGTH(mi.orderid) > 4  THEN mrc.orderid
+            WHEN mi.orderid    = 'ord-'  AND mi.ordersessionid <> '' THEN CONCAT(mi.orderid, mi.ordersessionid)
+            ELSE CONCAT('ord-', SUBSTRING(mi.transactionheaderid, 8, LENGTH(mi.transactionheaderid)))
+       END as orderid,                
        imd.itemid as orderitemid,
        mi.menuitemid,
        mi.modifiergroupid,
@@ -1428,7 +1437,7 @@ WHERE locationid LIKE 'loc-%'
 SELECT mt.locationid,
        mt.transactionheaderid,
        ti.ordersessionid,
-       ti.orderid,
+       ti.orderid,                
        ti.itemid as orderitemid,
        ti.dimmenuitemid as menuitemid,
        mt.modifiergroupid,
@@ -1518,7 +1527,10 @@ WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename
 SELECT mrc.locationid,
        mrc.transactionheaderid,
        mrc.ordersessionid,
-       mrc.orderid,
+       CASE WHEN mrc.orderid LIKE 'ord-%' AND LENGTH(mrc.orderid) > 4  THEN mrc.orderid
+            WHEN mrc.orderid    = 'ord-'  AND mrc.ordersessionid <> '' THEN CONCAT(mrc.orderid, mrc.ordersessionid)
+            ELSE CONCAT('ord-', SUBSTRING(mrc.transactionheaderid, 8, LENGTH(mrc.transactionheaderid)))
+       END as orderid,                
        outer_elem->>'itemId'                 AS menuitemid,
        rec->>'modifierId'                    AS modifierid,
        outer_elem->>'parentModifierId'       AS parent_modifier_id,
@@ -1564,7 +1576,10 @@ WHERE syscosmosts > (SELECT ts FROM fact.watermarktable WHERE watermarktablename
 SELECT mrc.locationid,
        mrc.transactionheaderid,
        mrc.ordersessionid,
-       mrc.orderid,
+       CASE WHEN mrc.orderid LIKE 'ord-%' AND LENGTH(mrc.orderid) > 4  THEN mrc.orderid
+            WHEN mrc.orderid    = 'ord-'  AND mrc.ordersessionid <> '' THEN CONCAT(mrc.orderid, mrc.ordersessionid)
+            ELSE CONCAT('ord-', SUBSTRING(mrc.transactionheaderid, 8, LENGTH(mrc.transactionheaderid)))
+       END as orderid,                
        outer_elem->>'itemId' as menuitemid,
        outer_elem->>'action' as action,
        outer_elem->>'modifierId' as modifierid,
@@ -2347,7 +2362,10 @@ BEGIN
     SELECT
         nextval('fact.transactionheader_id_seq')                                        AS id,
         ad.transactionheaderid,
-        ad.orderid,
+        CASE WHEN ad.orderid LIKE 'ord-%' AND LENGTH(ad.orderid) > 4  THEN orderid
+             WHEN ad.orderid    = 'ord-'  AND ad.ordersessionid <> '' THEN CONCAT(ad.orderid, ad.ordersessionid)
+             ELSE CONCAT('ord-', SUBSTRING(ad.transactionheaderid, 7, LENGTH(ad.transactionheaderid)))
+        END AS orderid,
         ad.locationid,
         ad.kioskid,
         ad.ordersessionid,
@@ -2438,7 +2456,10 @@ BEGIN
         0.000 :: NUMERIC(12,3)  AS itemunitprice,
         ''                      AS upselllevel,
         ''                      AS upsellpromptitemid,
-        ad.orderid,
+        CASE WHEN ad.orderid LIKE 'ord-%' AND LENGTH(ad.orderid) > 4  THEN orderid
+             WHEN ad.orderid    = 'ord-'  AND ad.ordersessionid <> '' THEN CONCAT(ad.orderid, ad.ordersessionid)
+             ELSE CONCAT('ord-', SUBSTRING(ad.transactionheaderid, 7, LENGTH(ad.transactionheaderid)))
+        END AS orderid,
         ad.ordersessionid,
         ad.orderdateutc,
         now() :: TIMESTAMP      AS sysinserttime,
@@ -2531,20 +2552,23 @@ BEGIN
         syscosmosts
     )
     SELECT
-        transactionheaderid,
-        orderid,
-        itemid,
-        modifiergroupid,
-        modifierid,
-        modifiername,
-        modifierquantity,
-        modifierprice,
-        freequantity,
+        d.transactionheaderid,
+        ti.orderid,                
+        d.itemid,
+        d.modifiergroupid,
+        d.modifierid,
+        d.modifiername,
+        d.modifierquantity,
+        d.modifierprice,
+        d.freequantity,
         NOW() :: TIMESTAMP  AS sysinserttime,
-        locationid,
-        businessdate,
-        syscosmosts
-    FROM delta
+        d.locationid,
+        d.businessdate,
+        d.syscosmosts
+    FROM delta as d
+    INNER JOIN fact.transactionitem as ti 
+            ON ti.transactionheaderid = d.transactionheaderid
+           AND ti.itemid              = d.itemid
     ON CONFLICT (transactionheaderid, itemid, modifiergroupid, modifierid)
     DO UPDATE SET
         modifiername     = EXCLUDED.modifiername,
@@ -3189,7 +3213,10 @@ BEGIN
         d.locationid,
         d.transactionheaderid,
         d.ordersessionid,
-        d.orderid,
+        CASE WHEN d.orderid LIKE 'ord-%' AND LENGTH(d.orderid) > 4  THEN d.orderid
+             WHEN d.orderid    = 'ord-'  AND d.ordersessionid <> '' THEN CONCAT(d.orderid, d.ordersessionid)
+             ELSE CONCAT('ord-', SUBSTRING(d.transactionheaderid, 8, LENGTH(d.transactionheaderid)))
+        END as orderid,                
         d.menuitemid,
         d.modifierid,
         d.parent_modifier_id,
@@ -3310,7 +3337,10 @@ BEGIN
             di.locationid,
             di.transactionheaderid,
             di.ordersessionid,
-            di.orderid,
+            CASE WHEN di.orderid LIKE 'ord-%' AND LENGTH(di.orderid) > 4  THEN di.orderid
+                 WHEN di.orderid    = 'ord-'  AND di.ordersessionid <> '' THEN CONCAT(di.orderid, di.ordersessionid)
+                 ELSE CONCAT('ord-', SUBSTRING(di.transactionheaderid, 8, LENGTH(di.transactionheaderid)))
+            END as orderid,                
             imd.itemid                              AS orderitemid,
             di.menuitemid,
             di.modifiergroupid,
@@ -3499,7 +3529,7 @@ BEGIN
         d.locationid,
         d.transactionheaderid,
         d.ordersessionid,
-        d.orderid,
+        th.orderid,
         d.modifier_impressions :: JSONB,
         d.modifier_interactions :: JSONB,
         d.businessdate,
@@ -3560,9 +3590,9 @@ BEGIN
         SELECT DISTINCT ON (locationid, transactionheaderid)
             transactionheaderid,
             CASE WHEN orderid LIKE 'ord-%' AND LENGTH(orderid) > 4  THEN orderid
-                 WHEN orderid    = 'ord-' AND ordersessionid <> '' THEN CONCAT(orderid, ordersessionid)
+                 WHEN orderid    = 'ord-'  AND ordersessionid <> '' THEN CONCAT(orderid, ordersessionid)
                  ELSE CONCAT('ord-', SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
-            END as orderid,
+            END as orderid,                
             locationid,
             kioskid,
             ordersessionid,
@@ -3836,10 +3866,7 @@ BEGIN
                 itemname
             )
                 transactionheaderid,
-                CASE WHEN orderid LIKE 'ord-%' AND LENGTH(orderid) > 4  THEN orderid
-                     WHEN orderid    = 'ord-' AND ordersessionid <> '' THEN CONCAT(orderid, ordersessionid)
-                     ELSE CONCAT('ord-', SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
-                END as orderid,                
+                orderid,                
                 locationid,
                 ordersessionid,
                 itemsessionid,
@@ -3876,10 +3903,7 @@ BEGIN
                 combo_name
             )
                 transactionheaderid,
-                CASE WHEN orderid LIKE 'ord-%' AND LENGTH(orderid) > 4  THEN orderid
-                     WHEN orderid    = 'ord-' AND ordersessionid <> '' THEN CONCAT(orderid, ordersessionid)
-                     ELSE CONCAT('ord-', SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
-                END as orderid,                
+                orderid,                
                 locationid,
                 ordersessionid,
                 combo_item_session_id                                                AS itemsessionid,
@@ -3916,10 +3940,7 @@ BEGIN
                 component_item_name
             )
                 transactionheaderid,
-                CASE WHEN orderid LIKE 'ord-%' AND LENGTH(orderid) > 4  THEN orderid
-                     WHEN orderid    = 'ord-' AND ordersessionid <> '' THEN CONCAT(orderid, ordersessionid)
-                     ELSE CONCAT('ord-', SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
-                END as orderid,                
+                orderid,                
                 locationid,
                 ordersessionid,
                 component_item_session_id                                            AS itemsessionid,
@@ -4074,7 +4095,7 @@ BEGIN
         r.itemunitprice,
         r.upselllevel,
         r.upsellpromptitemid,
-        r.orderid,
+        th.orderid,
         r.itemtype,
         COALESCE(t.customize_count, 0) >= 1                                         AS customize,
         COALESCE(t.upgrade_count,   0) >= 1                                         AS upgrade,
@@ -4219,10 +4240,10 @@ BEGIN
     WHERE NOT EXISTS (
             SELECT 1
             FROM fact.transactionpayment AS tp
-            WHERE tp.locationid           = delta.locationid
-              AND tp.transactionheaderid  = delta.transactionheaderid
-              AND tp.paymentid            = delta.paymentid
-              AND tp.paymentintegrationid = delta.paymentintegrationid
+            WHERE tp.locationid           = d.locationid
+              AND tp.transactionheaderid  = d.transactionheaderid
+              AND tp.paymentid            = d.paymentid
+              AND tp.paymentintegrationid = d.paymentintegrationid
     );
     --ON CONFLICT (locationid, transactionheaderid, paymentintegrationid, paymentid)
     --DO NOTHING;  -- payments are immutable once recorded
@@ -4277,7 +4298,7 @@ BEGIN
         AND EXISTS (SELECT 1 FROM fact.transactionpayment as tp 
                     WHERE tp.locationid = tr.locationid
                       AND tp.orderid    = tr.orderid
-                      AND )
+                    )
         ORDER BY locationid, transactionheaderid, syscosmosts DESC
     )
     INSERT INTO fact.transactionrefunds (

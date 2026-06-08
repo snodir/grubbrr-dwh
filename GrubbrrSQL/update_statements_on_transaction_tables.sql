@@ -6,24 +6,33 @@
 
 SELECT *
 FROM fact.transactionheader as th
-WHERE th.orderid LIKE 'ord--%'
+WHERE th.orderid = 'ord-'
 ORDER BY createddate DESC
 
 UPDATE fact.transactionheader
 SET orderid = CONCAT(orderid, ordersessionid)
-WHERE orderid         = 'ord-';
-  AND ordersessionid <> '' ;
+WHERE orderid         = 'ord-'
+  AND ordersessionid <> '';
+
 
 UPDATE fact.transactionheader
    SET orderid = CONCAT(orderid, SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
 WHERE orderid        = 'ord-'
-  AND ordersessionid = '' ;
+  AND ordersessionid = '' 
+  AND orderstatus    = 'order-placed';
 
 
+UPDATE fact.transactionheader
+   SET orderid = CONCAT(orderid, SUBSTRING(transactionheaderid, 7, LENGTH(transactionheaderid)))
+WHERE orderid        = 'ord-'
+  AND ordersessionid = '' 
+  AND orderstatus   <> 'order-placed';
 
 UPDATE fact.transactionitem
 SET orderid = CONCAT(orderid, ordersessionid)
-WHERE orderid = 'ord-';
+WHERE orderid                = 'ord-'
+  AND transactionheaderid LIKE 'ordevt-%'
+  AND ordersessionid        <> '';
 
 
 UPDATE fact.transactionpayment

@@ -1,3 +1,6 @@
+SELECT * FROM fact.prod_to_stage_migration_audit
+
+
 CREATE TABLE if NOT EXISTS fact.prod_to_stage_migration_audit (
 table_schema text COLLATE pg_catalog."default",
 table_name text COLLATE pg_catalog."default",
