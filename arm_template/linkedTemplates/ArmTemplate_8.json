@@ -13,6 +13,1751 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/mlTransactionsAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "frequentcustomerid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kioskid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "transactionheaderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordersessionid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderitemid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itemname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "upselllevel",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_class_type",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itemquantity",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "itemunitprice",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 4
+                    },
+                    {
+                        "name": "paymentstatus",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "numberofitems",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "numberofpayments",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordertotal",
+                        "type": "numeric",
+                        "precision": 14,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ordersubtotal",
+                        "type": "numeric",
+                        "precision": 14,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ordertip",
+                        "type": "numeric",
+                        "precision": 14,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ordertax",
+                        "type": "numeric",
+                        "precision": 14,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ordertypelabel",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderdatelocal",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "businessdate",
+                        "type": "date",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "weatherhumidity",
+                        "type": "numeric",
+                        "precision": 7,
+                        "scale": 2
+                    },
+                    {
+                        "name": "weathercondition",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "temperatureincelcius",
+                        "type": "numeric",
+                        "precision": 7,
+                        "scale": 2
+                    },
+                    {
+                        "name": "yyyy",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "mm",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "dd",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "hh",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ww",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "ml",
+                    "table": "transactions"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ngOrdersFeedback')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersCosmosNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "CosmosDbSqlApiCollection",
+                "schema": {},
+                "typeProperties": {
+                    "collectionName": "orders-feedback"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ngeFrequentCustomer')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "CosmosNGEGrubbrrLoyalty",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "CosmosDbSqlApiCollection",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "isDeleted": {
+                            "type": "boolean"
+                        },
+                        "organizationId": {
+                            "type": "string"
+                        },
+                        "affiliate": {
+                            "type": "string"
+                        },
+                        "firstName": {
+                            "type": "string"
+                        },
+                        "lastName": {
+                            "type": "string"
+                        },
+                        "birthMonth": {
+                            "type": "integer"
+                        },
+                        "email": {
+                            "type": "string"
+                        },
+                        "phone": {
+                            "type": "string"
+                        },
+                        "otp": {
+                            "type": "string"
+                        },
+                        "changedBy": {
+                            "type": "string"
+                        },
+                        "dateCreated": {
+                            "type": "string"
+                        },
+                        "dateChanged": {
+                            "type": "string"
+                        },
+                        "dateRequested": {
+                            "type": "string"
+                        },
+                        "dateConfirmed": {
+                            "type": "null"
+                        },
+                        "dateLastOrder": {
+                            "type": "string"
+                        },
+                        "countOrders": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "typeProperties": {
+                    "collectionName": "frequent-customer"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ngeLocationsToBronzeADLSjson')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": "grubbrr-nge/locations",
+                        "fileSystem": "bronze"
+                    },
+                    "compression": {
+                        "type": "snappy",
+                        "level": "Optimal"
+                    }
+                },
+                "schema": {}
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/ngeLoyaltyConfigurations')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersCosmosNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "CosmosDbSqlApiCollection",
+                "schema": {},
+                "typeProperties": {
+                    "collectionName": "loyalty-configuration"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/publicItemMasterGMS')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "PostgresGMS",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "name",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "name_localized",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "display_name",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "display_name_localized",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalog_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "short_description",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "short_description_localized",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "description",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "description_localized",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "calories",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "upc",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sku",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_alcoholic",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "concrete_model_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "taxgroup_master_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "media",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "pos_linked_entity_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "pos_overrided_fields",
+                        "type": "ARRAY",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "transform_rules_metadata",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kiosk_display_metadata",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "display_info",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "availability_schedule",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "promotional_details",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "domain_specific_attributes",
+                        "type": "json",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "channels",
+                        "type": "ARRAY",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "clone_from_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "avg_rating",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "feedback_count",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "pct_response",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_quick_modifier_mode",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "bar_codes",
+                        "type": "ARRAY",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "has_upsell",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "custom_bar_codes",
+                        "type": "ARRAY",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "source",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "max_qty_per_cart",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "hide_price",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "multi_media",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_class_type",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "public",
+                    "table": "item_master"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/publicUpsellGroupGMS')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "PostgresGMS",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "upsell_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "name",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "upsell_conditions",
+                        "type": "jsonb",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_by",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "pos_linked_entity_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_upsell_type",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "replacement_display_name",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "public",
+                    "table": "upsell_group"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/public_vw_organizationlocation')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "PostgresGOU",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Dimensions-GAS/AnalyticsDbDim"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "organizationid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationname",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationtype",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationname",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "public",
+                    "table": "vw_organizationlocation"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgDimCEPSubscriptionsAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "cep_subscriptions",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "dim_cep_subscriptions"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgDimCatalogAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "catalogid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogname",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_catalog_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalog_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalog_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_company_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gem_location_id",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_sync_in_progress",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_standalone",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_master",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_ecm_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "dim_catalog"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgDimCategoryHierarchyAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "mapping_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "mapping_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_mapping_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_mapping_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalog_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalog_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_catalog_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_catalog_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "category_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "category_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_category_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_category_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "menuitemid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "entitytype",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_class_type",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "menuitemname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_item_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_item_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "dim_category_hierarchy"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgDimFrequentCustomerAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "frequentcustomerid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "firstname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "lastname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "email",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "phone",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "source",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "organizationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "createddate",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "lastorderdate",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ordercount",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "dim_frequentcustomer"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgDimItemCategoryAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "categoryname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "catalogid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_category_active",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_category_deleted",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "category_created_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "category_modified_on",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "is_alcoholic",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "number_of_items",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "number_of_sub_categories",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "number_of_item_variations",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "number_of_combos",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "number_of_combo_families",
+                        "type": "smallint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "dim_itemcategory"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgDimKioskAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kioskid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kioskname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "appversion",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "istestkiosk",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "devicetype",
+                        "type": "character varying",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "devicecreatedon",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "devicedeletedon",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "dim_kiosk"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgDimKioskAppearanceAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kiosk_receipt_settings",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kiosk_fonts",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kiosk_appearance_text_overrides",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kiosk_appearance_style_options",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "dim_kiosk_appearance"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgDimKioskConfigAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "scanners",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "item_special_request",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "legal_copy_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "ada_configuration",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "calculate_default_modifier_price",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "track_kiosk_user_behavior",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "loyalty_feature",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "pickup_flow",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "pos_auto_applied_discount",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "search_functionality_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "recent_orders_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "play_card_config",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "round_up_for_charity",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "calories_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "scan_and_go_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "age_verification",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "tips_settings",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "business_hours_config",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "order_types",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "localization",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "loyalty_display_settings",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "preorder_popup_enabled",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "preorder_popup_text",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "disclaimer_text",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "order_limit_config",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "menu_behavior_config",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "perform_pos_status_check",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "dim_kiosk_config"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgDimLocationKiosksAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "companyid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "devicetype",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syncversion",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kiosks",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "dim_location_kiosks"
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/stgDimLoyaltyConfigurationAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -332,1942 +2077,6 @@
                 "typeProperties": {
                     "schema": "stg",
                     "table": "dim_modifier"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgDimModifierGroupAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "modifiergroupid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifiergroupname",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "catalogid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "max_selection",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "min_selection",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "free_count",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "pos_linked_entity_id",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_active",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_deleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "created_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modified_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "negative_modifier_behavior",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "created_by",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modified_by",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "max_aggregate_count",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "min_aggregate_count",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "increment_step",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "slider_mode",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "slider_mode_modifier",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "dim_modifiergroup"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgDimModifierGroupModifierMappingAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "modifier_mapping_id",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifierid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifiergroupid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "catalogid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_mapping_active",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_mapping_deleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "mapping_created_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "mapping_modified_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_default",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "default_quantity",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "allow_quantity_increment",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "increment_step",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "min_quantity",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "max_quantity",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "calories_text",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_invisible",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "dim_modifiergroup_modifier_mapping"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgDimOccasionSurveyAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "organizationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveyid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveyname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveytype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "question_type",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "selection_type",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "survey_status",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_deleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "created_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modified_on",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "dim_occasionsurvey"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgDimOrganizationAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "id",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "name",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "address1",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "address2",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "city",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "state",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "zipcode",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "country",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "organizationtype",
-                        "type": "smallint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "status",
-                        "type": "smallint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "phonenumber",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "email",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "isdeleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "createdon",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "createdby",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifiedon",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifiedby",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "active",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "timezone",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "coordinates",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "dayofweek",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "hour",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "minutes",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "roundupforcharity",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_ecm_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_cep_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_concessionaire_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_smart_upsells_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_feedback_survey_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_digital_menu_board_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_digital_menu_default_format_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "cep_subscriptions",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "dim_organization"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgDimOrganizationLocationAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "organizationid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "organizationname",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationname",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "organizationtype",
-                        "type": "smallint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "dim_organizationlocation"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgDimPaymentProviderAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "payment_provider",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "dim_payment_provider"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgDimPosProviderAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "pos_provider",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "dim_pos_provider"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgFactDeviceStateAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "id",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "healthdatatype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "companyid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "deviceid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "devicetype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "status",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "statusmessage",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "healthdatatime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "statuschangetime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "inserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "version",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "devicedatatime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "fact_devicestate"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgFactDeviceTelemetry')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "deviceid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "dateid",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "cpuvalue",
-                        "type": "numeric",
-                        "precision": 10,
-                        "scale": 5
-                    },
-                    {
-                        "name": "memoryvalue",
-                        "type": "numeric",
-                        "precision": 10,
-                        "scale": 5
-                    },
-                    {
-                        "name": "cputimestamp",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "memorytimestamp",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "fact_devicetelemetry"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgFactItemsSurveyAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "dateid",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveyid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveytransid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemrating",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveytransstatus",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveyissuedtimestamp",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveycompletedtimestamp",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveylocaltimestamp",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "nge_syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sourceid",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "fact_itemssurvey"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgFactOccasionSurveyDetailAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "dateid",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveyid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveytransid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveyrating",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveytransstatus",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveyissuedtimestamp",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveycompletedtimestamp",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveylocaltimestamp",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sourceid",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "surveytype",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "fact_occasionsurveydetail"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgGemFailedOrderJobNotifications')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "incidentid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "application",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "organizationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "eventmodule",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "eventcategory",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "eventtype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "eventtoken",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "incidentcount",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "firstoccurred",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "lastoccurred",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "incidenttype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "notificationtypeid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "gem_failed_order_job_notifications"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgModifierRecommendationSessionsAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "transactionheaderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifier_impressions",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifier_interactions",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "businessdate",
-                        "type": "date",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdateutc",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdatelocal",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "frequentcustomerid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysupdatetime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "modifier_recommendation_sessions"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgRecommendationsAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "transactionheaderid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "recommendationid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "offereditems",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "selecteditems",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "prompttimestamp",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "recommendations"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgSentSurveysAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "organizationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_event_category",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_event_type",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "survey_metadata",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_responded",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_event_instant",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gem_syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysupdatetime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "sent_surveys"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgSilverCEPIncidentsAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "application",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "companyid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "eventmodule",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "eventcategory",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "eventtype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "severity",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "token",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "eventinstant",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "username",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "userid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "device",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "devicename",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "summary",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "data",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosticks",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "silver_transform_time",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "silver_folderpath",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "silver_cep_incidents"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/stgSilverItemModifiersAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "transactionheaderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdateutc",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "businessdate",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kioskid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kiosk_name",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kiosk_mode",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_test_order",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "frequentcustomerid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderitemid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemsessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "menuitemid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "menu_item_pos_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "categoryid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "categoryname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "category_pos_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemquantity",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "usd_itemunitprice",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "usd_total_item_price",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "cents_itemunitprice",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "cents_total_item_price",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "items_discount_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_items_discount_hidden_on_receipt",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "items_discounts",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "items_upsell_source",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "items_reward_source",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "items_special_request",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "items_concept_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "items_concept_name",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "options_modifierid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "options_modifier_pos_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "options_modifiername",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "options_modifier_code",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "options_modifiergroupid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "options_modifiergroupname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "options_modifiergroup_pos_id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "options_modifierquantity",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "options_modifierunitprice",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "options_total_modifierprice",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "modifier_freequantity",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_modifier_invisible",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_modifier_default",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "order_completion_status",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "bronze_filepath",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "silver_transform_time",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "silver_folderpath",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "silver_item_modifiers"
                 }
             },
             "dependsOn": []

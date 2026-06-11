@@ -560,6 +560,26 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_15')]"
             ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_17",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_17.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_16')]"
+            ]
         }
     ]
 }

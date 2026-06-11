@@ -1,0 +1,3675 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "df-gas-test-eastus"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/gshDeviceTelemetryToAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "gshDeviceTelemetryToAnalyticsDb",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "stgDeviceTelemetryToFact",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "gshDeviceTelemetryToAnalyticsDb",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "CPUgshDeviceTelemetry": {},
+                                    "MemorygshDeviceTelemetry": {},
+                                    "factwatermarktable": {},
+                                    "sourcedevicetelemetry": {},
+                                    "LocactionDeviceStatus": {},
+                                    "dimOrganization": {},
+                                    "DeviceTelemetryToAnalyticsDb": {},
+                                    "UpdateWatermark": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "RunSucceeded",
+                        "type": "WebActivity",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "gshDeviceTelemetryToAnalyticsDb",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\":\"Analytics\",\n  \"company\":\"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\":\"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\":\"ADF\",\n  \"category\":\"ETLJob\",\n  \"type\":\"completed\",\n  \"severity\":\"information\",\n  \"token\":\"@{pipeline().RunId}\",\n  \"instant\":\"@{utcNow()}\",\n  \"summary\":\"@{concat(pipeline().Pipeline, ' ran successfully')}\",\n  \"data\": \"\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "RunFailed",
+                        "type": "WebActivity",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"failed\",\n  \"severity\": \"error\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{concat(pipeline().Pipeline, ' failed')}\",\n  \"data\": \"@{json(activity('gshDeviceTelemetryToAnalyticsDb').Error.message).Message}\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "RunStarted",
+                        "type": "WebActivity",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"start\",\n  \"severity\": \"information\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{concat(pipeline().Pipeline, ' has started running')}\",\n  \"data\": \"\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "SuccessStatus",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Completed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = true\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = true,\n    pipelinestatus = 'Completed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "RunSucceeded",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_starttime",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "RunStarted",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_starttime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "gshDeviceTelemetryToAnalyticsDb",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('gshDeviceTelemetryToAnalyticsDb').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime_copy1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime_copy1",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "RunFailed",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "gshDeviceTelemetry",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "LookupMaxValues",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "SELECT\n    COALESCE(cpu.deviceid,   mem.deviceid)   AS deviceid,\n    COALESCE(cpu.locationid, mem.locationid) AS locationid,\n    COALESCE(cpu.dateid,     mem.dateid)     AS dateid,\n    REPLACE(cpu.cpuvalue,    '%', '')        AS cpuvalue,\n    REPLACE(mem.memoryvalue, '%', '')        AS memoryvalue,\n    cpu.cputimestamp,\n    mem.memorytimestamp,\n    NOW()::timestamp                         AS sysinserttime\nFROM (\n    SELECT DISTINCT ON (deviceid, locationid, TO_CHAR(telemetrytime, 'YYYYMMDDHH24'))\n        deviceid,\n        locationid,\n        telemetryvalue                         AS cpuvalue,\n        telemetrytime                          AS cputimestamp,\n        TO_CHAR(telemetrytime, 'YYYYMMDDHH24') AS dateid\n    FROM gsh.devicetelemetry\n    WHERE telemetryname = 'cpu'\n      AND deviceid      <> 'no-serial'\n      AND telemetryvalue NOT LIKE '%null%'\n      AND telemetrytime < NOW()\n      AND telemetrytime > '@{activity('LookupMaxValues').output.firstRow.maxinstant}' :: TIMESTAMP\n    ORDER BY deviceid, locationid, TO_CHAR(telemetrytime, 'YYYYMMDDHH24'),\n             telemetryvalue DESC, telemetrytime DESC\n) AS cpu\nFULL OUTER JOIN (\n    SELECT DISTINCT ON (deviceid, locationid, TO_CHAR(telemetrytime, 'YYYYMMDDHH24'))\n        deviceid,\n        locationid,\n        telemetryvalue                         AS memoryvalue,\n        telemetrytime                          AS memorytimestamp,\n        TO_CHAR(telemetrytime, 'YYYYMMDDHH24') AS dateid\n    FROM gsh.devicetelemetry\n    WHERE telemetryname = 'memory'\n      AND deviceid      <> 'no-serial'\n      AND telemetryvalue NOT LIKE '%null%'\n      AND telemetrytime < NOW()\n      AND telemetrytime > '@{activity('LookupMaxValues').output.firstRow.maxinstant}' :: TIMESTAMP\n    ORDER BY deviceid, locationid, TO_CHAR(telemetrytime, 'YYYYMMDDHH24'),\n             telemetryvalue DESC, telemetrytime DESC\n) AS mem\nON  cpu.deviceid   = mem.deviceid\nAND cpu.locationid = mem.locationid \nAND cpu.dateid     = mem.dateid",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "sink": {
+                                "type": "AzurePostgreSqlSink",
+                                "writeBatchSize": 1000000,
+                                "writeBatchTimeout": "00:30:00",
+                                "writeMethod": "CopyCommand"
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "name": "deviceid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "deviceid",
+                                            "type": "String",
+                                            "physicalType": "text"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "locationid",
+                                            "type": "String",
+                                            "physicalType": "character varying"
+                                        },
+                                        "sink": {
+                                            "name": "locationid",
+                                            "type": "String",
+                                            "physicalType": "text"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "dateid",
+                                            "type": "String",
+                                            "physicalType": "text"
+                                        },
+                                        "sink": {
+                                            "name": "dateid",
+                                            "type": "Int32",
+                                            "physicalType": "integer"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "cpuvalue",
+                                            "type": "String",
+                                            "physicalType": "text"
+                                        },
+                                        "sink": {
+                                            "name": "cpuvalue",
+                                            "type": "Decimal",
+                                            "physicalType": "numeric"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "memoryvalue",
+                                            "type": "String",
+                                            "physicalType": "text"
+                                        },
+                                        "sink": {
+                                            "name": "memoryvalue",
+                                            "type": "Decimal",
+                                            "physicalType": "numeric"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "cputimestamp",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        },
+                                        "sink": {
+                                            "name": "cputimestamp",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "memorytimestamp",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        },
+                                        "sink": {
+                                            "name": "memorytimestamp",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "sysinserttime",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        },
+                                        "sink": {
+                                            "name": "sysinserttime",
+                                            "type": "DateTime",
+                                            "physicalType": "timestamp without time zone"
+                                        }
+                                    }
+                                ],
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DeviceTelemetryFromGsh",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "stgFactDeviceTelemetry",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "LookupMaxValues",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_starttime",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "SELECT wt.watermarktablename, wt.source, wt.ts as maxts, wt.ticks as maxticks, watermarkvalue as maxinstant\r\nFROM fact.watermarktable as wt\r\nWHERE wt.watermarktablename = 'fact.devicetelemetry'\r\n  AND wt.source             = 'gsh';",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "factwatermarktable",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "stgDeviceTelemetryToFact",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "gshDeviceTelemetry",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL fact.usp_gsh_devicetelemetry_to_fact_devicetelemetry();\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "DeviceTelemetryAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "variables": {
+                    "v_finishtime": {
+                        "type": "String",
+                        "defaultValue": "1900-01-01 00:01:00"
+                    },
+                    "v_starttime": {
+                        "type": "String",
+                        "defaultValue": "1900-01-01 00:00:00"
+                    },
+                    "v_errormsg": {
+                        "type": "String",
+                        "defaultValue": "error"
+                    }
+                },
+                "folder": {
+                    "name": "Facts"
+                },
+                "annotations": [],
+                "lastPublishTime": "2025-03-14T19:11:42Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/gxsTransactionsToAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "GXSOrderHeadersCosmosToAnalyticsFact",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [
+                            {
+                                "activity": "v_starttime",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "GXSOrderHeadersFromCosmosToAnalyticsDb",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "CosmosOrdersHeaders": {},
+                                    "AnalyticsOrderIDs": {},
+                                    "Locations": {},
+                                    "OrderTypes": {},
+                                    "gxsCosmosOrders": {},
+                                    "GEMSource": {},
+                                    "maxTransactionheaderid": {},
+                                    "WriteToHeaders": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "GXSOrderItemsPayToAnalyticsFacts",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [
+                            {
+                                "activity": "update businessdate",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "GXSgasOrderItemsFromCosmosToAnalyticsDb",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "CosmosOrdersItemsToPG": {},
+                                    "CosmosOrdersPaymentsToPg": {},
+                                    "Menus": {},
+                                    "Categories": {},
+                                    "Modifiers": {},
+                                    "ExistingsOrders": {},
+                                    "ExistingItems": {},
+                                    "ExistingPayments": {},
+                                    "ExistingModifiers": {},
+                                    "sourceOrderCosmos": {},
+                                    "OnlyCombos": {},
+                                    "WriteToPayments": {},
+                                    "WriteToModifiers": {},
+                                    "WriteToItems": {},
+                                    "WriteToCombos": {},
+                                    "WriteOnlyCombos": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "GEMUserBehaviourETL",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [
+                            {
+                                "activity": "GXSOrderItemsPayToAnalyticsFacts",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "GEMUserBehaviourETL",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "AnalyticsDbGEMEvents": {},
+                                    "AnalyticalOrders": {},
+                                    "AnalyticalItems": {},
+                                    "DimElement": {},
+                                    "UpdateItems": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "RunSucceeded",
+                        "type": "WebActivity",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "GEMUserBehaviourETL",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\":\"Analytics\",\n  \"company\":\"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\":\"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\":\"ADF\",\n  \"category\":\"ETLJob\",\n  \"type\":\"completed\",\n  \"severity\":\"information\",\n  \"token\":\"@{pipeline().RunId}\",\n  \"instant\":\"@{utcNow()}\",\n  \"summary\":\"@{concat(pipeline().Pipeline, ' ran successfully')}\",\n  \"data\": \"\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "RunFailed",
+                        "type": "WebActivity",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"failed\",\n  \"severity\": \"error\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{concat(pipeline().Pipeline, ' failed')}\",\n  \"data\": \"@{json(activity('GEMUserBehaviourETL').Error.message).Message}\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "RunStarted",
+                        "type": "WebActivity",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"start\",\n  \"severity\": \"information\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{concat(pipeline().Pipeline, ' has started running')}\",\n  \"data\": \"\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "RunFailed_copy1",
+                        "type": "WebActivity",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg3",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"failed\",\n  \"severity\": \"error\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{concat(pipeline().Pipeline, ' failed')}\",\n  \"data\": \"@{json(activity('GXSOrderHeadersCosmosToAnalyticsFact').Error.message).Message}\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "RunFailed_copy2",
+                        "type": "WebActivity",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "v_error_msg",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json",
+                                "accept": "text/plain",
+                                "x-functions-key": "bIN4eayAY_jUOiIuCW2e1uK-9CI0Etd4-CeVZZSn46XFAzFuWT5RFQ=="
+                            },
+                            "url": "https://func-gem-api-test-eastus.azurewebsites.net/api/PutEventsV2",
+                            "body": {
+                                "value": "{\n  \"application\": \"Analytics\",\n  \"company\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"location\": \"gbr-16B6F3BD-AAB3-4832-93F9-5B4B687A355E\",\n  \"module\": \"ADF\",\n  \"category\": \"ETLJob\",\n  \"type\": \"failed\",\n  \"severity\": \"error\",\n  \"token\": \"@{pipeline().RunId}\",\n  \"instant\": \"@{utcNow()}\",\n  \"summary\": \"@{concat(pipeline().Pipeline, ' failed')}\",\n  \"data\": \"@{json(activity('OrderItemsPayToAnalyticsFacts').Error.message).Message}\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_starttime",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "RunStarted",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_starttime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "SuccessStatus",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Completed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = true\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = true,\n    pipelinestatus = 'Completed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "RunSucceeded",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "GEMUserBehaviourETL",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('GEMUserBehaviourETL').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime_copy1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime_copy1",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "RunFailed",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_error_msg",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "GXSOrderItemsPayToAnalyticsFacts",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('GXSOrderItemsPayToAnalyticsFacts').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus_copy2",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime2",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime2",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "RunFailed_copy2",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg3",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "GXSOrderHeadersCosmosToAnalyticsFact",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('GXSOrderHeadersCosmosToAnalyticsFact').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus3",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime3",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime3",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "RunFailed_copy1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "update businessdate",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "GXSOrderHeadersCosmosToAnalyticsFact",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "update fact.transactionheader\r\nset orderdatelocal = orderdateutc::TIMESTAMPTZ AT TIME ZONE l.timezone\r\nfrom (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone from dim.location) as l\r\nwhere l.locationid = transactionheader.locationid \r\nand transactionheader.orderdatelocal is null;\r\n\r\nupdate fact.transactionheader\r\nset orderdatelocal = orderdateutc::TIMESTAMPTZ AT TIME ZONE 'America/New_York'\r\nwhere orderdatelocal is null;\r\n\r\nupdate fact.transactionheader\r\nset dateid = cast(to_char(orderdatelocal, 'YYYYMMDDHH24') as integer)\r\nwhere dateid is null;\r\n\r\nupdate fact.transactionheader\r\nset businessdate = cast(orderdatelocal as date)\r\nwhere businessdate is null;\r\n\r\nupdate fact.transactionheader\r\nset ABTestID = ABTests.ABTestID\r\nfrom dim.ABTests\r\nwhere ABTests.OrderSessionID = transactionheader.ordersessionid\r\nand transactionheader.ABTestID is null;\r\n\r\nselect 1 as rn;",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "TransactionHeadersAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "variables": {
+                    "v_finishtime": {
+                        "type": "String",
+                        "defaultValue": "1900-01-01 00:01:00"
+                    },
+                    "v_starttime": {
+                        "type": "String",
+                        "defaultValue": "1900-01-01 00:00:00"
+                    },
+                    "v_errormsg": {
+                        "type": "String",
+                        "defaultValue": "error"
+                    }
+                },
+                "folder": {
+                    "name": "Facts"
+                },
+                "annotations": [],
+                "lastPublishTime": "2025-07-16T12:53:33Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/orderHeadersNoItemsToAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "orderHeadersNoItemsToAnalyticsDb",
+                        "type": "ExecuteDataFlow",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "GASOrderHeadersFromCosmosToAnalyticsDb",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "CosmosOrdersHeaders": {},
+                                    "AnalyticsOrderIDs": {},
+                                    "Locations": {},
+                                    "OrderTypes": {},
+                                    "gasCosmosOrders": {},
+                                    "GEMSource": {},
+                                    "maxTransactionheaderid": {},
+                                    "MaxFields": {},
+                                    "WriteToHeaders": {},
+                                    "UpdateWaterMark": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Facts"
+                },
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/RefreshMLTables')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Started",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "RefreshMLTables",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {}
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2026-05-18T08:00:00",
+                        "timeZone": "Eastern Standard Time",
+                        "schedule": {
+                            "hours": [
+                                11
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/BronzeSilverGASMaster')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "BronzeEventsToSilverAndGAS",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "BronzeEventsToSilverAndGAS",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "BronzeOrdersToSilverAndGAS",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "BronzeOrdersToSilverAndGAS",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Master"
+                },
+                "annotations": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CompressedTrainingDataForML')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "OrgsLookup",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "SELECT DISTINCT o.id\nFROM dim.organization as o\nWHERE o.id = '@{pipeline().parameters.organizationId}';",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbOrganizationLocation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "LoopThroughOrgs",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "OrgsLookup",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('OrgsLookup').output.value",
+                                "type": "Expression"
+                            },
+                            "isSequential": true,
+                            "activities": [
+                                {
+                                    "name": "ChildPipTrainingDataML",
+                                    "type": "ExecutePipeline",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "pipeline": {
+                                            "referenceName": "ChildPipCompressedTrainingDataML",
+                                            "type": "PipelineReference"
+                                        },
+                                        "waitOnCompletion": true,
+                                        "parameters": {
+                                            "p_orgid": {
+                                                "value": "@item().id",
+                                                "type": "Expression"
+                                            },
+                                            "p_startdate": {
+                                                "value": "@pipeline().parameters.startDate",
+                                                "type": "Expression"
+                                            },
+                                            "p_enddate": {
+                                                "value": "@pipeline().parameters.endDate",
+                                                "type": "Expression"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "SuccessStatus",
+                                    "type": "WebActivity",
+                                    "state": "Inactive",
+                                    "onInactiveMarkAs": "Succeeded",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "ChildPipTrainingDataML",
+                                            "dependencyConditions": [
+                                                "Succeeded"
+                                            ]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "method": "POST",
+                                        "headers": {},
+                                        "url": {
+                                            "value": "@concat('https://funcx-sus-worker-test-eastus.azurewebsites.net/api/training/',pipeline().parameters.trainingId,'/data-status')",
+                                            "type": "Expression"
+                                        },
+                                        "body": {
+                                            "value": "{\n    \"organizationId\": \"@{pipeline().parameters.organizationId}\",\n    \"status\": \"Succeeded, parquet files are ready for training!\"\n}",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "FailStatus",
+                                    "type": "WebActivity",
+                                    "state": "Inactive",
+                                    "onInactiveMarkAs": "Succeeded",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "ChildPipTrainingDataML",
+                                            "dependencyConditions": [
+                                                "Failed"
+                                            ]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "method": "POST",
+                                        "headers": {},
+                                        "url": {
+                                            "value": "@concat('https://funcx-sus-worker-test-eastus.azurewebsites.net/api/training/',pipeline().parameters.trainingId,'/data-status')",
+                                            "type": "Expression"
+                                        },
+                                        "body": {
+                                            "value": "{\n    \"organizationId\": \"@{pipeline().parameters.organizationId}\",\n    \"status\": \"Failed, an error happened in the ETL process.\"\n}",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "parameters": {
+                    "organizationId": {
+                        "type": "string",
+                        "defaultValue": "com-ijr56b6i0h"
+                    },
+                    "trainingId": {
+                        "type": "string",
+                        "defaultValue": "trn-9516b468-bddf-40d2-866b-70a29515766e"
+                    },
+                    "startDate": {
+                        "type": "string",
+                        "defaultValue": "2025-01-01"
+                    },
+                    "endDate": {
+                        "type": "string",
+                        "defaultValue": "2025-07-15"
+                    }
+                },
+                "folder": {
+                    "name": "Master/ML"
+                },
+                "annotations": [],
+                "lastPublishTime": "2025-08-06T06:46:56Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DimensionMaster')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "DimensionMenuItems",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "DimensionMenuItems",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "DimensionFrequentCustomer",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "DimensionFrequentCustomer",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "DimensionMenuModifiers",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "DimensionMenuItems",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "DimensionMenuModifiers",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "DimensionKiosks",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "DimensionKiosks",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "CopyGOUViewsToGAS",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "CopyGOUViewsToGAS",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Master"
+                },
+                "annotations": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/FactsMaster')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "gasTransactionsToAnalyticsDb",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "dimOrderType",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "gasTransactionsToAnalyticsDb",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "UpsellRecommendationsToGAS",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "gasTransactionsToAnalyticsDb",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "UpsellRecommendationsToGAS",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "ModifierUpsellRecommendationsToGAS",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "UpsellRecommendationsToGAS",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "ModifierUpsellRecommendationsToGAS",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "OccasionSurveyOrdersFeedback",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "AbortedOrdersAndItemsToPG",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "OccasionSurveyOrdersFeedback",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "AbortedOrdersAndItemsToPG",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "ModifierUpsellRecommendationsToGAS",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "AbortedOrdersAndItemsToPG",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "dimOrderType",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL dim.usp_refresh_ordertype();\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbOrderType",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Master"
+                },
+                "annotations": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GEM_GSH_GOU_Master')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "gemEventsToAnalyticsDb",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "CopyGOUViewsToGAS",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "gemEventsToAnalyticsDb",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "gshDeviceTelemetryToAnalyticsDb",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "gshDeviceHealthToAnalyticsDbFactDeviceState",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "gshDeviceTelemetryToAnalyticsDb",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "gshDeviceHealthToAnalyticsDbFactDeviceState",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "GEMUserBehaviourEventsToPG",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "gshDeviceHealthToAnalyticsDbFactDeviceState",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "GEMUserBehaviourEventsToPG",
+                        "type": "ExecutePipeline",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "gemEventsToAnalyticsDb",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "GEMUserBehaviourEventsToPG",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "gemUserCheckedInToPG",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "gemOrderTiming",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "gemUserCheckedInToPG",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "DimensionABTests",
+                        "type": "ExecutePipeline",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "gemUserCheckedInToPG",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "DimensionABTests",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "gemOrderTiming",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "gshDeviceTelemetryToAnalyticsDb",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "gemOrderTimingtoAnalyticsDb",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "CopyGOUViewsToGAS",
+                        "type": "ExecutePipeline",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "dimElement",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "CopyGOUViewsToGAS",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "dimView",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL dim.usp_refresh_view();\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbView",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "dimElement",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "dimView",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL dim.usp_refresh_element();\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbView",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Master"
+                },
+                "annotations": [],
+                "lastPublishTime": "2026-04-02T13:15:41Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/gshDeviceTelemetryToAnalyticsDb')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TrainingDataForML')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "OrgsLookup",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "SELECT DISTINCT o.id, o.name\nFROM dim.organization as o\nWHERE o.id IN (@{concat('''', join(pipeline().parameters.organizationId, ''','''), '''')});",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbOrganizationLocation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "LoopThroughOrgs",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "OrgsLookup",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('OrgsLookup').output.value",
+                                "type": "Expression"
+                            },
+                            "isSequential": true,
+                            "activities": [
+                                {
+                                    "name": "ChildPipTrainingDataML",
+                                    "type": "ExecutePipeline",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "pipeline": {
+                                            "referenceName": "ChildPipTrainingDataML",
+                                            "type": "PipelineReference"
+                                        },
+                                        "waitOnCompletion": true,
+                                        "parameters": {
+                                            "p_orgid": {
+                                                "value": "@item().id",
+                                                "type": "Expression"
+                                            },
+                                            "p_startdate": {
+                                                "value": "@pipeline().parameters.startDate",
+                                                "type": "Expression"
+                                            },
+                                            "p_enddate": {
+                                                "value": "@pipeline().parameters.endDate",
+                                                "type": "Expression"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "SuccessStatus",
+                                    "type": "WebActivity",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "ChildPipTrainingDataML",
+                                            "dependencyConditions": [
+                                                "Succeeded"
+                                            ]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "method": "POST",
+                                        "headers": {
+                                            "x-functions-key": "7XdvN1TcxF8NX9tN9vY7Sg7-aNY268wbI2S8Dp0o9tY-AzFuZH6I5g==",
+                                            "Content-Type": "application/json"
+                                        },
+                                        "url": {
+                                            "value": "@concat('https://app-sus-api-test-eastus.azurewebsites.net/api/web/training/',item().id,'/',pipeline().parameters.trainingId,'/start_training')",
+                                            "type": "Expression"
+                                        },
+                                        "body": {
+                                            "value": "{\n    \"OrganizationId\": \"@{item().id}\",\n    \"status\": \"Succeeded, parquet files are ready for training!\",\n    \"TrainingId\": \"@{pipeline().parameters.trainingId}\"\n}",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "FailStatus",
+                                    "type": "WebActivity",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "ChildPipTrainingDataML",
+                                            "dependencyConditions": [
+                                                "Failed"
+                                            ]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "method": "POST",
+                                        "headers": {
+                                            "x-functions-key": "7XdvN1TcxF8NX9tN9vY7Sg7-aNY268wbI2S8Dp0o9tY-AzFuZH6I5g==",
+                                            "Content-Type": "application/json"
+                                        },
+                                        "url": {
+                                            "value": "@concat('https://app-sus-api-test-eastus.azurewebsites.net/api/web/training/',item().id,'/',pipeline().parameters.trainingId,'/failed_training')",
+                                            "type": "Expression"
+                                        },
+                                        "body": {
+                                            "value": "{\n    \"OrganizationId\": \"@{item().id}\",\n    \"TrainingId\": \"@{pipeline().parameters.trainingId}\"\n}",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "parameters": {
+                    "organizationId": {
+                        "type": "array",
+                        "defaultValue": [
+                            "org-0281beee-a2f2-46fb-ac88-cc20df85fbfc"
+                        ]
+                    },
+                    "trainingId": {
+                        "type": "string",
+                        "defaultValue": "trn-9516b468-bddf-40d2-866b-70a29515766e"
+                    },
+                    "startDate": {
+                        "type": "string",
+                        "defaultValue": "2025-01-01"
+                    },
+                    "endDate": {
+                        "type": "string",
+                        "defaultValue": "2025-12-31"
+                    }
+                },
+                "folder": {
+                    "name": "Master/ML"
+                },
+                "annotations": [],
+                "lastPublishTime": "2026-04-15T09:26:32Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TwiceDaily')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Started",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "GrubbrrInstallBaseDashboard",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {}
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2025-09-11T10:06:00Z",
+                        "timeZone": "UTC",
+                        "schedule": {
+                            "minutes": [
+                                30
+                            ],
+                            "hours": [
+                                2,
+                                14
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DimensionUpdateOrdersToAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "OrderItemCategories",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "DimensionMaster",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "CosmosOrdersItemsCategories",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "OrdersCategoriesFromCosmos": {},
+                                    "maxidDimItemCtg": {},
+                                    "dimItemCategory": {},
+                                    "ngeItemCtg": {},
+                                    "WriteToPG": {},
+                                    "UpdateDimItemCategory": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "Locations",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "OrderItemCategories",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "CosmosLocations",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "IngestLocationFromCosmos": {},
+                                    "IngestLocationDetailsFromCosmos": {},
+                                    "loadLocations": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "NewCosmosOrdersMenus",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "Locations",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "NewCosmosOrdersMenus",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "CosmosOrdersMenus": {},
+                                    "ExistingMenus": {},
+                                    "maxItemid": {},
+                                    "CosmosCombos": {},
+                                    "maxcomboid": {},
+                                    "existingComboMenus": {},
+                                    "ItemClassGMS": {},
+                                    "MenuItemsAndCombosGMS": {},
+                                    "GetMaxComboID": {},
+                                    "WriteToPG": {},
+                                    "writeComboMenuitemid": {},
+                                    "UpdateItemClassType": {},
+                                    "dimMenuItems": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "LoadOrderTypes",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "gshDeviceToDimKiosk",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "CosmosOrderTypes",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "OrderTypes": {},
+                                    "dimOrderType": {},
+                                    "maxIdDimOrderType": {},
+                                    "gemEvents": {},
+                                    "dimOrderType3": {},
+                                    "maxIdDim": {},
+                                    "WriteToOrderTypeTable": {},
+                                    "dimOrderType2": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "FailStatus",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime_copy1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_starttime",
+                        "type": "SetVariable",
+                        "dependsOn": [],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_starttime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "LoadOrderTypes",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "SuccessStatus",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Completed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = true\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = true,\n    pipelinestatus = 'Completed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "LoadOrderTypes",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('LoadOrderTypes').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime_copy1",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg2",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "OrderItemCategories",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('OrderItemCategories').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime2",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg2",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus2",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime2",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg3",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "Locations",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('Locations').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime3",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg3",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus3",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime3",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg4",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "NewCosmosOrdersMenus",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('NewCosmosOrdersMenus').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime4",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg4",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus4",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime4",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg5",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "gshDeviceToDimKiosk",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('gshDeviceToDimKiosk').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime5",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg5",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus5",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime5",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "gshDeviceToDimKiosk",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "NgeCategoryHierarchy",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "gshDeviceToDimKiosk",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "gshDevice": {},
+                                    "CheckDimKiosk": {},
+                                    "GetMaxID": {},
+                                    "GshDeviceExisting": {},
+                                    "dimKiosk": {},
+                                    "UpdateExisting": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "NgeCategoryHierarchy",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "NewCosmosOrdersMenus",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "NgeCategoryHierarchy",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "OrdersCategoriesFromCosmos": {},
+                                    "dimCategoryHierarchy": {},
+                                    "ngeItemCtg": {},
+                                    "WriteToPG": {},
+                                    "UpdateDimCtgHierarchy": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "DimensionMaster",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "v_starttime",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "DimensionMaster",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "variables": {
+                    "v_finishtime": {
+                        "type": "String",
+                        "defaultValue": "1900-01-01 00:01:00"
+                    },
+                    "v_starttime": {
+                        "type": "String",
+                        "defaultValue": "1900-01-01 00:00:00"
+                    },
+                    "v_errormsg": {
+                        "type": "String",
+                        "defaultValue": "error"
+                    }
+                },
+                "folder": {
+                    "name": "Dimensions"
+                },
+                "annotations": [],
+                "lastPublishTime": "2026-02-27T11:58:18Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/DimensionMaster')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GEMEvents')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "description": "Get Events from GEM",
+                "annotations": [],
+                "runtimeState": "Stopped",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "GEM_GSH_GOU_Master",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {}
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2024-07-12T14:00:00",
+                        "timeZone": "Eastern Standard Time",
+                        "schedule": {
+                            "hours": [
+                                5
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/GEM_GSH_GOU_Master')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DimensionsFactsMaster')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Dimensions",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "v_starttime",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "DimensionUpdateOrdersToAnalyticsDb",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Facts",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "BronzeSilverGASMaster",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "FactsMaster",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "SuccessStatus",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Completed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = true\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = true,\n    pipelinestatus = 'Completed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_starttime",
+                        "type": "SetVariable",
+                        "dependsOn": [],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_starttime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "Facts",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime_copy1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime_copy1",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "Dimensions",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('Dimensions').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "FailStatus2",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "v_finishtime2",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_finishtime2",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "v_errormsg2",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_finishtime",
+                            "value": {
+                                "value": "@utcNow()",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "v_errormsg2",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "Facts",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "v_errormsg",
+                            "value": {
+                                "value": "@replace(activity('Facts').error.Message, '''', '\"')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "BronzeSilverGASMaster",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "TruncateStagingTables",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "BronzeSilverGASMaster",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "GEM_GSH_GOU_Master",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "BronzeSilverGASMaster",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "GEM_GSH_GOU_Master",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "TruncateStagingTables",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "Dimensions",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL etl.truncate_silver_staging();\r\nSELECT 1 AS rn;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "etlBronzePartitionRegistryAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "variables": {
+                    "v_finishtime": {
+                        "type": "String",
+                        "defaultValue": "1900-01-01 00:01:00"
+                    },
+                    "v_starttime": {
+                        "type": "String",
+                        "defaultValue": "1900-01-01 00:00:00"
+                    },
+                    "v_errormsg": {
+                        "type": "String",
+                        "defaultValue": "error"
+                    }
+                },
+                "folder": {
+                    "name": "Master"
+                },
+                "annotations": [],
+                "lastPublishTime": "2026-04-21T06:42:29Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/DimensionUpdateOrdersToAnalyticsDb')]",
+                "[concat(variables('factoryId'), '/pipelines/FactsMaster')]",
+                "[concat(variables('factoryId'), '/pipelines/BronzeSilverGASMaster')]",
+                "[concat(variables('factoryId'), '/pipelines/GEM_GSH_GOU_Master')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GASOrders')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Started",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "DimensionsFactsMaster",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {}
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2024-07-12T14:00:00",
+                        "timeZone": "Eastern Standard Time",
+                        "schedule": {
+                            "minutes": [
+                                30
+                            ],
+                            "hours": [
+                                5
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/DimensionsFactsMaster')]"
+            ]
+        }
+    ]
+}

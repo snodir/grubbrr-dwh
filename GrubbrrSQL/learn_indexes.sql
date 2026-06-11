@@ -216,7 +216,7 @@ You can measure this correlation:
 */
 SELECT attname, correlation
 FROM pg_stats
-WHERE tablename = 'your_fact_table'
+WHERE tablename = 'transactionheader' --deviceevent
   AND attname = 'syscosmosts';
 /*```
 

@@ -13,6 +13,64 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/SilverModifierInteractionsJson')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": "orders/modifierinteractions",
+                        "fileSystem": "silver"
+                    }
+                },
+                "schema": {}
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SilverModifierInteractionsParquet')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_date": {
+                        "type": "string",
+                        "defaultValue": "2026-05-15"
+                    },
+                    "p_ds_hour": {
+                        "type": "string",
+                        "defaultValue": "12"
+                    }
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@concat('orders/modifierinteractions/date=', dataset().p_ds_date, '/hour=', dataset().p_ds_hour)",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "silver"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/SilverModifierRecommendationsJson')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -529,19 +587,7 @@
                         "type": "INT32"
                     },
                     {
-                        "name": "businessdate",
-                        "type": "UTF8"
-                    },
-                    {
                         "name": "transactionheaderid",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "ordersessionid",
                         "type": "UTF8"
                     },
                     {
@@ -549,160 +595,28 @@
                         "type": "UTF8"
                     },
                     {
-                        "name": "kioskid",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "kiosk_name",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "kiosk_mode",
-                        "type": "INT32"
-                    },
-                    {
-                        "name": "is_test_order",
-                        "type": "BOOLEAN"
-                    },
-                    {
-                        "name": "categoryid",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "categoryname",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "menuitemid",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "itemname",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "category_pos_id",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "menu_item_pos_id",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "itemsessionid",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "orderitemid",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "options_modifiergroupid",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "options_modifiergroupname",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "options_modifiergroup_pos_id",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "options_modifierid",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "options_modifier_pos_id",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "options_modifiername",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "options_modifierquantity",
-                        "type": "INT32"
-                    },
-                    {
-                        "name": "options_modifierunitprice",
-                        "type": "DOUBLE"
-                    },
-                    {
-                        "name": "options_total_modifierprice",
-                        "type": "DOUBLE"
-                    },
-                    {
-                        "name": "is_modifier_invisible",
-                        "type": "BOOLEAN"
-                    },
-                    {
-                        "name": "is_modifier_default",
-                        "type": "BOOLEAN"
-                    },
-                    {
-                        "name": "modifier_freequantity",
-                        "type": "INT32"
-                    },
-                    {
-                        "name": "options_modifier_code",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "usd_total_item_price",
-                        "type": "DOUBLE"
-                    },
-                    {
-                        "name": "usd_itemunitprice",
-                        "type": "DOUBLE"
-                    },
-                    {
-                        "name": "cents_itemunitprice",
-                        "type": "INT32"
-                    },
-                    {
-                        "name": "cents_total_item_price",
-                        "type": "INT32"
-                    },
-                    {
-                        "name": "itemquantity",
-                        "type": "INT32"
-                    },
-                    {
-                        "name": "items_special_request",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "items_upsell_source",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "items_reward_source",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "items_discounts",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "items_discount_id",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "is_items_discount_hidden_on_receipt",
-                        "type": "BOOLEAN"
-                    },
-                    {
-                        "name": "items_concept_id",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "items_concept_name",
-                        "type": "UTF8"
-                    },
-                    {
                         "name": "orderdateutc",
                         "type": "UTF8"
+                    },
+                    {
+                        "name": "orderid",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "original_transaction_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "refund_transaction_id",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "refund_type",
+                        "type": "UTF8"
+                    },
+                    {
+                        "name": "refunded_amount",
+                        "type": "DOUBLE"
                     },
                     {
                         "name": "order_completion_status",
@@ -718,14 +632,6 @@
                     },
                     {
                         "name": "silver_folderpath",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "date",
-                        "type": "UTF8"
-                    },
-                    {
-                        "name": "hour",
                         "type": "UTF8"
                     }
                 ]
@@ -957,6 +863,144 @@
             "dependsOn": []
         },
         {
+            "name": "[concat(parameters('factoryName'), '/TestBronzeEventsJSON')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_partition_path": {
+                        "type": "string",
+                        "defaultValue": "events/raw/2026/05/12/14"
+                    }
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@dataset().p_ds_partition_path",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "bronze"
+                    }
+                },
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "application": {
+                            "type": "string"
+                        },
+                        "company": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "module": {
+                            "type": "string"
+                        },
+                        "category": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "severity": {
+                            "type": "string"
+                        },
+                        "token": {
+                            "type": "string"
+                        },
+                        "instant": {
+                            "type": "string"
+                        },
+                        "username": {
+                            "type": "string"
+                        },
+                        "userid": {
+                            "type": "string"
+                        },
+                        "device": {
+                            "type": "string"
+                        },
+                        "devicename": {
+                            "type": "string"
+                        },
+                        "summary": {
+                            "type": "string"
+                        },
+                        "data": {
+                            "type": "string"
+                        },
+                        "etc": {
+                            "type": "null"
+                        },
+                        "ticks": {
+                            "type": "string"
+                        },
+                        "_rid": {
+                            "type": "string"
+                        },
+                        "_self": {
+                            "type": "string"
+                        },
+                        "_etag": {
+                            "type": "string"
+                        },
+                        "_attachments": {
+                            "type": "string"
+                        },
+                        "_ts": {
+                            "type": "integer"
+                        },
+                        "_lsn": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TestBronzeOrdersJSON')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_partition_path": {
+                        "type": "string",
+                        "defaultValue": "orders/raw/2026/04/01/11"
+                    }
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@dataset().p_ds_partition_path",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "bronze"
+                    }
+                },
+                "schema": {}
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/TestDeviceHealthFromGshPG')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -1049,816 +1093,25 @@
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/TransactionHeadersAnalyticsDb')]",
+            "name": "[concat(parameters('factoryName'), '/TestSilverAllApplicationEventsParquet')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
             "properties": {
                 "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Orders-GAS/AnalyticsDb"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "id",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "transactionheaderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kioskid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "dateid",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdateutc",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdatelocal",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderstatus",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordertype",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "numberofitems",
-                        "type": "smallint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "numberofpayments",
-                        "type": "smallint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersredeemedrewards",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "ordersubtotal",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "ordertotal",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "ordertax",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "ordertip",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "orderdiscount",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "orderbalance",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "paymentstatus",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sourcefile",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "createddate",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "updateddate",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderstarttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "reviewordertime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "checkouttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "paystarttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sessionendtime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "precheckouttime",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "postcheckouttime",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "menupagetime",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "reviewpagetime",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "paymentpagetime",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "totalordertime",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "businessdate",
-                        "type": "date",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "frequentcustomerid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "abtestid",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "channel",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "guestcount",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "charityamount",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sourceid",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderservicecharge",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "customername",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "fact",
-                    "table": "transactionheader"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/TransactionItemModifiersAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Orders-GAS/AnalyticsDb"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "transactionheaderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifiergroupid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifierid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifiername",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifierquantity",
-                        "type": "smallint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifierprice",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "freequantity",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysupdatetime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "businessdate",
-                        "type": "date",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "fact",
-                    "table": "itemmodifier"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/TransactionItemsAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Orders-GAS/AnalyticsDb"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "transactionheaderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "categoryid",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "menuitemid",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "comboid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemsessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemquantity",
-                        "type": "smallint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemunitprice",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "upselllevel",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "upsellpromptitemid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemtype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "customize",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "upgrade",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "asis",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "itemselectedtime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "addtocarttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "totaltime",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "orderdateutc",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysupdatetime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "dimmenuitemid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdatelocal",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "businessdate",
-                        "type": "date",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "frequentcustomerid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "fact",
-                    "table": "transactionitem"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/TransactionPaymentsAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Orders-GAS/AnalyticsDb"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "transactionheaderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "paymentintegrationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "paymentid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "paymentamt",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kioskid",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "paymentmethod",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "paymentintegrationlabel",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderdateutc",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "paymentcardtype",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysupdatetime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "fact",
-                    "table": "transactionpayment"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/UserCheckedInAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
+                    "referenceName": "ADLSgas",
                     "type": "LinkedServiceReference"
                 },
                 "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "organizationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kioskid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordersessionid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "dateid",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordertimestamp",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "customername",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "customerphone",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderstatus",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ordertotal",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "paymentstatus",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "amountpaid",
-                        "type": "numeric",
-                        "precision": 7,
-                        "scale": 3
-                    },
-                    {
-                        "name": "paymentmethod",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "paymentcardtype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
+                "type": "Parquet",
                 "typeProperties": {
-                    "schema": "fact",
-                    "table": "usercheckedin"
-                }
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": "events/applications",
+                        "fileSystem": "silver"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
             },
             "dependsOn": []
         }

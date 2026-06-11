@@ -9,7 +9,8 @@ ORDER BY th.orderdatelocal DESC
 LIMIT 100;
 
 SELECT * FROM stg.silver_transaction_header 
-WHERE locationid = 'loc-6f86a91c-8257-4f2c-9af5-0116546fccfd'
+WHERE 1=1
+--AND locationid = 'loc-6f86a91c-8257-4f2c-9af5-0116546fccfd'
 AND transactionheaderid = 'ordevt-XKL8CL81PD512JUQ'
 
 SELECT *

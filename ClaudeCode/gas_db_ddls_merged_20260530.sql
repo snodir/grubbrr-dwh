@@ -694,7 +694,7 @@ ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 -- Name: itemcategory_id_seq; Type: SEQUENCE; Schema: dim; Owner: citus
 --
 
-CREATE SEQUENCE IF NOT EXISTS dim.itemcategory_id_seq
+/*CREATE SEQUENCE IF NOT EXISTS dim.itemcategory_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -703,7 +703,7 @@ CREATE SEQUENCE IF NOT EXISTS dim.itemcategory_id_seq
 
 
 ALTER SEQUENCE dim.itemcategory_id_seq OWNER TO citus;
-
+*/
 --
 -- TOC entry 381 (class 1259 OID 32837)
 -- Name: itemcategory; Type: TABLE; Schema: dim; Owner: citus
@@ -751,8 +751,8 @@ ADD COLUMN IF NOT EXISTS number_of_item_variations SMALLINT,
 ADD COLUMN IF NOT EXISTS number_of_combos SMALLINT,
 ADD COLUMN IF NOT EXISTS number_of_combo_families SMALLINT;
 
-ALTER TABLE IF EXISTS dim.itemcategory
-    ALTER COLUMN id SET DEFAULT nextval('dim.itemcategory_id_seq');
+--ALTER TABLE IF EXISTS dim.itemcategory
+--    ALTER COLUMN id SET DEFAULT nextval('dim.itemcategory_id_seq');
 
 --
 -- TOC entry 428 (class 1259 OID 514411)
@@ -833,8 +833,8 @@ ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP WITHOUT TIME ZONE,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE;
 
 
-ALTER TABLE IF EXISTS dim.kiosk
-    ALTER COLUMN id SET DEFAULT nextval('dim.kiosk_id_seq');
+--ALTER TABLE IF EXISTS dim.kiosk
+--    ALTER COLUMN id SET DEFAULT nextval('dim.kiosk_id_seq');
 
 
 --
@@ -1283,8 +1283,8 @@ CREATE TABLE IF NOT EXISTS dim.ordertype (
 
 ALTER TABLE IF EXISTS dim.ordertype OWNER TO citus;
 
-ALTER TABLE IF EXISTS dim.ordertype
-    ALTER COLUMN id SET DEFAULT nextval('dim.ordertype_id_seq');
+--ALTER TABLE IF EXISTS dim.ordertype
+--    ALTER COLUMN id SET DEFAULT nextval('dim.ordertype_id_seq');
 
 ALTER TABLE IF EXISTS dim.ordertype
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
@@ -5553,7 +5553,7 @@ CREATE INDEX IF NOT EXISTS "IX_organizationid_locationid" ON dim.organizationloc
 -- Name: company_id_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS company_id_idx ON dim.company USING btree (companyid);
+-- CREATE INDEX IF NOT EXISTS company_id_idx ON dim.company USING btree (companyid);
 
 
 --
@@ -5673,7 +5673,7 @@ CREATE INDEX IF NOT EXISTS idx_view_viewid ON dim.view USING btree (viewid);
 -- Name: itemcategory_bkp_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE UNIQUE INDEX IF NOT EXISTS itemcategory_bkp_idx ON dim.itemcategory_bkp USING btree (locationid, categoryid);
+-- CREATE UNIQUE INDEX IF NOT EXISTS itemcategory_bkp_idx ON dim.itemcategory_bkp USING btree (locationid, categoryid);
 
 
 --
@@ -5681,7 +5681,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS itemcategory_bkp_idx ON dim.itemcategory_bkp U
 -- Name: itemcategory_bkp_locationid_idx; Type: INDEX; Schema: dim; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS itemcategory_bkp_locationid_idx ON dim.itemcategory_bkp USING btree (locationid) INCLUDE (categoryid, isactive);
+-- CREATE INDEX IF NOT EXISTS itemcategory_bkp_locationid_idx ON dim.itemcategory_bkp USING btree (locationid) INCLUDE (categoryid, isactive);
 
 
 --

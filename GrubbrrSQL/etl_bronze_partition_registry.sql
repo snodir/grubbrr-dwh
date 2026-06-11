@@ -8,9 +8,11 @@ CREATE SCHEMA IF NOT EXISTS etl;
 SELECT *--, dateid, layer, entity, partition_path, partition_date, partition_year, partition_month, partition_day, partition_hour
 FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
+AND status IN ('completed','not found')
   --AND dateid >= TO_CHAR(NOW() - INTERVAL '6 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
   --AND dateid <= TO_CHAR(NOW() - INTERVAL '1 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files
-SELECT LENGTH('orders/raw/2026/05/15/23')
+ORDER BY dateid DESC
+--SELECT LENGTH('orders/raw/2026/05/15/23')
 
 
 SELECT *
@@ -144,8 +146,8 @@ SELECT
     NULL :: TIMESTAMP as sysupdatetime
 FROM dim.datedim as dt
 WHERE 1=1
-  --AND dt.yearval = 2026 AND dt.monthval = 6
-  AND dt.dateid BETWEEN 2026060807 AND 2026060809 -- 2026060708 AND 2026060807
+  AND dt.yearval = 2026 AND dt.monthval IN (5, 6)
+  --AND dt.dateid BETWEEN 2026060807 AND 2026060809 -- 2026060708 AND 2026060807
 
 UNION ALL
 
@@ -174,6 +176,6 @@ SELECT
     NULL :: TIMESTAMP as sysupdatetime
 FROM dim.datedim as dt
 WHERE 1=1
-  --AND dt.yearval = 2026 AND dt.monthval = 6
-  AND dt.dateid BETWEEN 2026060708 AND 2026060807;
+  AND dt.yearval = 2026 AND dt.monthval IN (5, 6);
+  --AND dt.dateid BETWEEN 2026060708 AND 2026060807;
 --SELECT '01'::INTEGER;

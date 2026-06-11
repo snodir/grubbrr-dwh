@@ -887,6 +887,104 @@
             "dependsOn": []
         },
         {
+            "name": "[concat(parameters('factoryName'), '/BronzeEventsJSONPopulation')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": "events/raw",
+                        "fileSystem": "bronze"
+                    }
+                },
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "application": {
+                            "type": "string"
+                        },
+                        "company": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "module": {
+                            "type": "string"
+                        },
+                        "category": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "severity": {
+                            "type": "string"
+                        },
+                        "token": {
+                            "type": "string"
+                        },
+                        "instant": {
+                            "type": "string"
+                        },
+                        "username": {
+                            "type": "string"
+                        },
+                        "userid": {
+                            "type": "string"
+                        },
+                        "device": {
+                            "type": "string"
+                        },
+                        "devicename": {
+                            "type": "string"
+                        },
+                        "summary": {
+                            "type": "string"
+                        },
+                        "data": {
+                            "type": "string"
+                        },
+                        "etc": {
+                            "type": "null"
+                        },
+                        "ticks": {
+                            "type": "string"
+                        },
+                        "_rid": {
+                            "type": "string"
+                        },
+                        "_self": {
+                            "type": "string"
+                        },
+                        "_etag": {
+                            "type": "string"
+                        },
+                        "_attachments": {
+                            "type": "string"
+                        },
+                        "_ts": {
+                            "type": "integer"
+                        },
+                        "_lsn": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/BronzeOrdersJSON')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -910,6 +1008,28 @@
                             "value": "@dataset().p_ds_partition_path",
                             "type": "Expression"
                         },
+                        "fileSystem": "bronze"
+                    }
+                },
+                "schema": {}
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/BronzeOrdersJSONPopulation')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": "orders/raw",
                         "fileSystem": "bronze"
                     }
                 },
@@ -1341,300 +1461,6 @@
                     "schema": "gsh",
                     "table": "devicetelemetry"
                 }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/DimKioskDetailsAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kiosks",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "devicetype",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syncversion",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "syscosmosts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "pos_provider",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "loyalty_provider",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "payment_provider",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "scanners",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "item_special_request",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "legal_copy_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "ada_configuration",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "calculate_default_modifier_price",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "track_kiosk_user_behavior",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "loyalty_feature",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "pickup_flow",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "pos_auto_applied_discount",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "search_functionality_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "recent_orders_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "play_card_config",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "round_up_for_charity",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "calories_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "scan_and_go_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "age_verification",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "tips_settings",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "business_hours_config",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "order_types",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "localization",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kiosk_receipt_settings",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kiosk_fonts",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kiosk_appearance_text_overrides",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kiosk_appearance_style_options",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "loyalty_display_settings",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "preorder_popup_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "preorder_popup_text",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "disclaimer_text",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "order_limit_config",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "menu_behavior_config",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "perform_pos_status_check",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "dim",
-                    "table": "kioskdetails"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/FastPartitionGasTrainingDataParquet')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "ADLSsus",
-                    "type": "LinkedServiceReference"
-                },
-                "parameters": {
-                    "p_ds_orgid": {
-                        "type": "string",
-                        "defaultValue": "org-a4b81610-f019-45d2-8522-2ccee0e85bd7"
-                    }
-                },
-                "annotations": [],
-                "type": "Parquet",
-                "typeProperties": {
-                    "location": {
-                        "type": "AzureBlobFSLocation",
-                        "fileSystem": "ml-training-data"
-                    },
-                    "compressionCodec": "snappy"
-                },
-                "schema": []
             },
             "dependsOn": []
         }

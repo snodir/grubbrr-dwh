@@ -246,9 +246,9 @@ BEGIN
     aggregated AS (
         SELECT
             locationid,
-            companyid,
-            token                                                                                AS eventtoken,
-            device                                                                               AS deviceid,
+            MIN(companyid)                                                                                             AS companyid,
+            token                                                                                                      AS eventtoken,
+            MIN(device)                                                                                                AS deviceid,
             MIN(CASE WHEN LOWER(eventcategory) = 'session' AND LOWER(eventtype) = 'started'
                      THEN TO_CHAR(eventinstant, 'YYYYMMDDHH24') :: INTEGER END)                  AS dateid,
             MIN(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'started'    THEN eventinstant END) AS sessionstart,
@@ -258,9 +258,9 @@ BEGIN
             MIN(CASE WHEN LOWER(eventcategory) = 'payment'  AND LOWER(eventtype) = 'create'     THEN eventinstant END) AS paymentstart,
             MAX(CASE WHEN LOWER(eventcategory) = 'order'    AND LOWER(eventtype) = 'paidinfull' THEN eventinstant END) AS paymentend,
             MAX(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'closed'     THEN eventinstant END) AS orderend,
-            MAX(syscosmosts)                                                                     AS syscosmosts
+            MAX(syscosmosts)                                                                                           AS syscosmosts
         FROM  new_events
-        GROUP BY locationid, companyid, token, device
+        GROUP BY locationid, token
     )
 
     INSERT INTO fact.ordertiming (
