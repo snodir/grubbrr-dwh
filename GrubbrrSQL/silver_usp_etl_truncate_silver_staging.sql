@@ -28,10 +28,10 @@ BEGIN
     TRUNCATE TABLE stg.gem_failed_order_job_notifications;
 
 
-    -- ── Events staging table: 15-minute sliding window ────────────
+    -- ── Events staging table: 10-minute sliding window ────────────
     -- 8 SPs join this table via ordersessionid = token.
-    -- Sessions can start up to 15 minutes before the order completes.
-    -- Kiosk auto-cancels after 15 min → this window covers all cases.
+    -- Sessions can start up to 10 minutes before the order completes.
+    -- Kiosk auto-cancels after 10 min → this window covers all cases.
     DELETE FROM stg.silver_kiosk_events
     WHERE syscosmosts < (SELECT ts - 600         -- 600 seconds = 10 minutes of backup for late-minutes (hh:40 - hh:59)
                          FROM fact.watermarktable 
@@ -42,19 +42,22 @@ BEGIN
     WHERE syscosmosts < (SELECT ts - 600         -- 600 seconds = 10 minutes of backup for late-minutes (hh:40 - hh:59)
                          FROM fact.watermarktable 
                          WHERE watermarktablename = 'fact.transactionheader'
-                           AND source             = 'nge');
+                           AND source             = 'nge')
+       OR is_test_order = TRUE;
 
     DELETE FROM stg.silver_transaction_item
     WHERE syscosmosts < (SELECT ts - 600         -- 600 seconds = 10 minutes of backup for late-minutes (hh:40 - hh:59)
                          FROM fact.watermarktable 
                          WHERE watermarktablename = 'fact.transactionitem'
-                           AND source             = 'nge');
+                           AND source             = 'nge')
+       OR is_test_order = TRUE;
 
     DELETE FROM stg.silver_transaction_combo_items
     WHERE syscosmosts < (SELECT ts - 600         -- 600 seconds = 10 minutes of backup for late-minutes (hh:40 - hh:59)
                          FROM fact.watermarktable 
                          WHERE watermarktablename = 'fact.transactionitem'
-                           AND source             = 'nge');
+                           AND source             = 'nge')
+       OR is_test_order = TRUE;
                            
 END;
 $BODY$;
