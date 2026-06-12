@@ -89,10 +89,10 @@ CREATE INDEX IF NOT EXISTS surveyid_idx
 -- ============================================================
 
 -- Step 1a: drop the identity property, keep existing values
-ALTER TABLE dim.occasionsurvey
+ALTER TABLE IF EXISTS dim.occasionsurvey
     ALTER COLUMN surveykey DROP IDENTITY IF EXISTS;
 
-ALTER TABLE dim.occasionsurvey
+ALTER TABLE IF EXISTS dim.occasionsurvey
     ALTER COLUMN surveytype TYPE INTEGER USING surveytype::INTEGER;
 
 -- Step 1b: create the sequence
