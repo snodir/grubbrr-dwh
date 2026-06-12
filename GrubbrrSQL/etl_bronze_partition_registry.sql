@@ -15,12 +15,14 @@ ORDER BY dateid DESC
 --SELECT LENGTH('orders/raw/2026/05/15/23')
 
 
-SELECT *
+SELECT * DELETE
 FROM etl.bronze_partition_registry
 WHERE 1=1 
   AND entity = 'orders'
-  AND dateid BETWEEN 2026060807 AND 2026060809 -- 2026060708 AND 2026060807
-ORDER BY dateid
+  AND dateid BETWEEN 2026061108 AND 2026061207 -- 2026060708 AND 2026060807
+  AND status IN ('completed', 'not found')
+ORDER BY dateid DESC
+LIMIT 10;
 
 SELECT 
     dateid, 
@@ -146,8 +148,8 @@ SELECT
     NULL :: TIMESTAMP as sysupdatetime
 FROM dim.datedim as dt
 WHERE 1=1
-  AND dt.yearval = 2026 AND dt.monthval IN (5, 6)
-  --AND dt.dateid BETWEEN 2026060807 AND 2026060809 -- 2026060708 AND 2026060807
+  --AND dt.yearval = 2026 AND dt.monthval IN (5, 6)
+  AND dateid BETWEEN 2026061108 AND 2026061207 -- 2026060708 AND 2026060807
 
 UNION ALL
 

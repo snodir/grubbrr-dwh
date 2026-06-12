@@ -1234,6 +1234,7 @@ ALTER TABLE IF EXISTS dim.occasionsurvey OWNER TO citus;
 
 
 ALTER TABLE IF EXISTS dim.occasionsurvey
+    ALTER COLUMN surveytype TYPE INTEGER USING surveytype::INTEGER,
     ALTER COLUMN surveykey DROP IDENTITY IF EXISTS,
     ALTER COLUMN surveykey SET DEFAULT nextval('dim.occasionsurvey_surveykey_seq');
 
@@ -4366,6 +4367,53 @@ CREATE TABLE IF NOT EXISTS stg.silver_kiosk_events (
 
 ALTER TABLE stg.silver_kiosk_events OWNER TO citus;
 
+-- Table: stg.silver_kiosk_events
+
+-- DROP TABLE IF EXISTS stg.silver_kiosk_events;
+
+CREATE TABLE IF NOT EXISTS stg.silver_all_gem_events
+(
+    id text COLLATE pg_catalog."default",
+    application text COLLATE pg_catalog."default",
+    companyid text COLLATE pg_catalog."default",
+    locationid text COLLATE pg_catalog."default",
+    eventmodule text COLLATE pg_catalog."default",
+    eventcategory text COLLATE pg_catalog."default",
+    eventtype text COLLATE pg_catalog."default",
+    severity text COLLATE pg_catalog."default",
+    token text COLLATE pg_catalog."default",
+    eventinstant text COLLATE pg_catalog."default",
+    username text COLLATE pg_catalog."default",
+    userid text COLLATE pg_catalog."default",
+    device text COLLATE pg_catalog."default",
+    devicename text COLLATE pg_catalog."default",
+    summary text COLLATE pg_catalog."default",
+    data text COLLATE pg_catalog."default",
+    syscosmosticks bigint,
+    syscosmosts bigint,
+    silver_transform_time text COLLATE pg_catalog."default",
+    silver_folderpath text COLLATE pg_catalog."default",
+    sysinserttime timestamp without time zone
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.silver_all_gem_events
+    OWNER to citus;
+-- Index: ix_silver_kiosk_events_syscosmosts
+
+-- DROP INDEX IF EXISTS stg.ix_silver_kiosk_events_syscosmosts;
+
+-- Index: ix_silver_kiosk_events_syscosmosts_brin
+
+-- DROP INDEX IF EXISTS stg.ix_silver_kiosk_events_syscosmosts_brin;
+
+CREATE INDEX IF NOT EXISTS ix_silver_all_gem_events_syscosmosts_brin
+    ON stg.silver_all_gem_events USING brin
+    (syscosmosts)
+    WITH (pages_per_range=128)
+    TABLESPACE pg_default;
+
 
 CREATE TABLE IF NOT EXISTS stg.gem_failed_order_job_notifications
 (
@@ -4629,11 +4677,41 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_header (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    discounts_array                             text COLLATE pg_catalog."default",
+    combos_array                                text COLLATE pg_catalog."default",
+    redeemed_rewards_array                      text COLLATE pg_catalog."default",
+    concepts_array                              text COLLATE pg_catalog."default",
+    upsell_prompt_array                         text COLLATE pg_catalog."default",
+    modifier_interactions_array                 text COLLATE pg_catalog."default",
+    modifier_impressions_array                  text COLLATE pg_catalog."default",
+    loyalty_user_object                         text COLLATE pg_catalog."default",
+    receipt_details_object                      text COLLATE pg_catalog."default",
+    kiosk_source_object                         text COLLATE pg_catalog."default",
+    local_currency_details_object               text COLLATE pg_catalog."default",
+    order_identity_object                       text COLLATE pg_catalog."default",
+    totals_object                               text COLLATE pg_catalog."default",
+    totals_cents_object                         text COLLATE pg_catalog."default"
 );
 
 
 ALTER TABLE stg.silver_transaction_header OWNER TO citus;
+
+ALTER TABLE IF EXISTS stg.silver_transaction_header
+    ADD COLUMN IF NOT EXISTS discounts_array                             text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS combos_array                                text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS redeemed_rewards_array                      text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS concepts_array                              text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS upsell_prompt_array                         text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS modifier_interactions_array                 text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS modifier_impressions_array                  text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS loyalty_user_object                         text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS receipt_details_object                      text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS kiosk_source_object                         text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS local_currency_details_object               text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS order_identity_object                       text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS totals_object                               text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS totals_cents_object                         text COLLATE pg_catalog."default";
 
 --
 -- TOC entry 479 (class 1259 OID 3570053)
