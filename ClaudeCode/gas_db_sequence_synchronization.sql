@@ -31,6 +31,32 @@ ALTER TABLE IF EXISTS dim.element
     ALTER COLUMN elementid SET DEFAULT nextval('dim.element_elementid_seq');
 
 
+CREATE SEQUENCE IF NOT EXISTS dim.view_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE dim.view_id_seq OWNER TO citus;
+
+ALTER TABLE IF EXISTS dim.view
+    ALTER COLUMN viewid DROP IDENTITY IF EXISTS;
+
+-- Link sequence lifecycle to the column
+ALTER SEQUENCE dim.view_id_seq
+    OWNED BY dim.view.viewid;
+
+
+-- Set to current max safely (handles empty table)
+SELECT setval(
+    'dim.view_id_seq',
+    (SELECT COALESCE(MAX(viewid), 0) FROM dim.view)
+);
+
+-- Attach as column default
+ALTER TABLE IF EXISTS dim.view
+    ALTER COLUMN viewid SET DEFAULT nextval('dim.view_id_seq');
 
 
 CREATE SEQUENCE IF NOT EXISTS dim.frequentcustomer_customerkey_seq
@@ -69,8 +95,13 @@ CREATE SEQUENCE IF NOT EXISTS dim.itemcategory_id_seq
 
 ALTER SEQUENCE dim.itemcategory_id_seq OWNER TO citus;
 
+ALTER TABLE IF EXISTS dim.itemcategory
+    ALTER COLUMN id DROP IDENTITY IF EXISTS;
+
 ALTER SEQUENCE dim.itemcategory_id_seq
     OWNED BY dim.itemcategory.id;
+
+
 
 -- Set to current max safely (handles empty table)
 SELECT setval(
@@ -92,6 +123,8 @@ CREATE SEQUENCE IF NOT EXISTS dim.kiosk_id_seq
 
 ALTER SEQUENCE dim.kiosk_id_seq OWNER TO citus;
 
+ALTER TABLE IF EXISTS dim.kiosk
+    ALTER COLUMN id DROP IDENTITY IF EXISTS;
 
 ALTER SEQUENCE dim.kiosk_id_seq
     OWNED BY dim.kiosk.id;
@@ -164,6 +197,8 @@ CREATE SEQUENCE IF NOT EXISTS dim.ordertype_id_seq
 
 ALTER SEQUENCE dim.ordertype_id_seq OWNER TO citus;
 
+ALTER TABLE IF EXISTS dim.ordertype
+    ALTER COLUMN id DROP IDENTITY IF EXISTS;
 
 ALTER SEQUENCE dim.ordertype_id_seq
     OWNED BY dim.ordertype.id;
