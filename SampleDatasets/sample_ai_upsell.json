@@ -202,7 +202,7 @@
                 "specialRequest": "",
                 "upsellSource": {
                     "upsellId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
-                    "upsellLevelType": "Order",
+                    "upsellLevelType": "Order", --AI-Order
                     "upsellPromptItemId": ""
                 },
                 "rewardSource": null,
@@ -284,7 +284,7 @@
                         {
                             "itemId": "itm-185e8a5b-61f3-459a-9905-dd9ebbb827dc",
                             "upsellGroupId": "",
-                            "upsellLevel": "AI",
+                            "upsellLevel": "AI", --AI-Order
                             "promptItemId": ""
                         },
                         {
@@ -310,7 +310,7 @@
                         {
                             "itemId": "itm-581515ec-47a9-4abc-aea2-9db4537f87c2",
                             "upsellGroupId": "upslg-f2846026-f2cc-4cff-9e02-87cd5c155dcc",
-                            "upsellLevel": "Order",
+                            "upsellLevel": "Order", --AI-Order
                             "promptItemId": "",
                             "quantity": 1,
                             "modifiers": []

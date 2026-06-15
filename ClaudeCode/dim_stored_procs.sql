@@ -2547,6 +2547,7 @@ BEGIN
     FROM stg.silver_transaction_header
     WHERE (is_test_order = FALSE OR is_test_order IS NULL)
       AND COALESCE(NULLIF(TRIM(ordertype), ''), NULLIF(TRIM(order_type_label), '')) IS NOT NULL
+      AND kioskid IS NOT NULL AND kioskid <> ''
     ORDER BY
         locationid,
         kioskid,

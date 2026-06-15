@@ -2509,6 +2509,7 @@ DROP CONSTRAINT IF EXISTS trxnid_menuitemid_modfrgrpid_modfrid_pk;
 -- Schema evolution: fact.modifier_interactions
 ALTER TABLE IF EXISTS fact.modifier_interactions
 --DROP COLUMN IF EXISTS source,
+ALTER COLUMN menuitemid DROP NOT NULL,
 ADD COLUMN IF NOT EXISTS sourceid INTEGER;
 
 --
@@ -4369,7 +4370,7 @@ ALTER TABLE stg.silver_kiosk_events OWNER TO citus;
 
 -- Table: stg.silver_kiosk_events
 
--- DROP TABLE IF EXISTS stg.silver_kiosk_events;
+-- DROP TABLE IF EXISTS stg.silver_all_gem_events;
 
 CREATE TABLE IF NOT EXISTS stg.silver_all_gem_events
 (
@@ -4391,8 +4392,7 @@ CREATE TABLE IF NOT EXISTS stg.silver_all_gem_events
     data text COLLATE pg_catalog."default",
     syscosmosticks bigint,
     syscosmosts bigint,
-    silver_transform_time text COLLATE pg_catalog."default",
-    silver_folderpath text COLLATE pg_catalog."default",
+    bronze_folderpath text COLLATE pg_catalog."default",
     sysinserttime timestamp without time zone
 )
 
