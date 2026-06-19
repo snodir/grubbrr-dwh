@@ -1,5 +1,8 @@
 --CALL etl.truncate_silver_staging();
 --SELECT * FROM fact.watermarktable;
+SELECT * FROM etl.bronze_partition_registry WHERE status IN ('completed', 'not found')
+
+
 CREATE OR REPLACE PROCEDURE etl.truncate_silver_staging(
 )
 LANGUAGE plpgsql 

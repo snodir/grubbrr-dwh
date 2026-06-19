@@ -137,12 +137,12 @@ ALTER FUNCTION dim.is_valid_jsonb(input text) OWNER TO citus;
 
 CREATE OR REPLACE FUNCTION fact.parse_iso_timestamp(ts_string text) RETURNS text
     LANGUAGE sql IMMUTABLE STRICT
-    AS $$
+    AS $BODY$
     SELECT CASE WHEN substring(ts_string, 20, 1) = '.'
                 THEN replace(replace(substring(ts_string, 1, 23), 'T', ' '), '+', '0')
                 ELSE replace(substring(ts_string, 1, 19), 'T', ' ')
            END;
-$$;
+$BODY$;
 
 
 ALTER FUNCTION fact.parse_iso_timestamp(ts_string text) OWNER TO citus;
@@ -1052,7 +1052,9 @@ CREATE TABLE IF NOT EXISTS dim.menuitem (
     price_changed_on timestamp without time zone,
     sysinserttime timestamp without time zone,
     sysupdatetime timestamp without time zone,
-    catalogid text
+    catalogid text,
+    average_rating NUMERIC(3,2),
+    rating_count INTEGER
 );
 
 
@@ -1080,11 +1082,12 @@ ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN,
 ADD COLUMN IF NOT EXISTS gms_created_on TIMESTAMP,
 ADD COLUMN IF NOT EXISTS gms_modified_on TIMESTAMP,
 ADD COLUMN IF NOT EXISTS itemunitprice NUMERIC(12, 3),
---ALTER COLUMN itemunitprice TYPE NUMERIC(12, 3),
 ADD COLUMN IF NOT EXISTS price_changed_on TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
-ADD COLUMN IF NOT EXISTS catalogid TEXT COLLATE pg_catalog."default";
+ADD COLUMN IF NOT EXISTS catalogid TEXT COLLATE pg_catalog."default",
+ADD COLUMN IF NOT EXISTS average_rating NUMERIC(3,2),
+ADD COLUMN IF NOT EXISTS rating_count INTEGER;
 
 
 --
@@ -2262,7 +2265,11 @@ ALTER TABLE IF EXISTS fact.devicestate OWNER TO citus;
 -- Schema evolution: fact.devicestate
 ALTER TABLE IF EXISTS fact.devicestate
 ALTER COLUMN duration TYPE NUMERIC(10,3),
-ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP;
+ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS status        TEXT,
+ADD COLUMN IF NOT EXISTS statusmessage TEXT,
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+
 
 ALTER TABLE IF EXISTS fact.devicestate
     ALTER COLUMN id SET DEFAULT nextval('fact.devicestate_id_seq');
@@ -3164,7 +3171,9 @@ ADD COLUMN IF NOT EXISTS offered_promptitemid       TEXT,
 ADD COLUMN IF NOT EXISTS offered_upsellgroupid      TEXT,
 ADD COLUMN IF NOT EXISTS selecteditem_upselllevel   TEXT,
 ADD COLUMN IF NOT EXISTS selected_promptitemid      TEXT,
-ADD COLUMN IF NOT EXISTS selected_upsellgroupid     TEXT;
+ADD COLUMN IF NOT EXISTS selected_upsellgroupid     TEXT,
+ADD COLUMN IF NOT EXISTS sysupdatetime              TIMESTAMP;
+
 
 --
 -- TOC entry 399 (class 1259 OID 33011)
@@ -4268,11 +4277,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_cep_incidents (
     syscosmosts bigint,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_cep_incidents OWNER TO citus;
+
+ALTER TABLE stg.silver_cep_incidents
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
 
 --
 -- TOC entry 478 (class 1259 OID 3570048)
@@ -4330,11 +4343,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_item_modifiers (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_item_modifiers OWNER TO citus;
+
+ALTER TABLE IF EXISTS stg.silver_item_modifiers
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
 
 --
 -- TOC entry 471 (class 1259 OID 3499456)
@@ -4362,11 +4379,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_kiosk_events (
     syscosmosts bigint,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_kiosk_events OWNER TO citus;
+
+ALTER TABLE stg.silver_kiosk_events
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
 
 -- Table: stg.silver_kiosk_events
 
@@ -4400,6 +4421,78 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS stg.silver_all_gem_events
     OWNER to citus;
+
+
+--DROP TABLE --IF EXISTS stg.silver_all_transaction_entities;
+CREATE TABLE IF NOT EXISTS stg.silver_all_transaction_entities (
+    -- ── Cosmos / system metadata ──────────────────────────────────────────
+    "_attachments"                        TEXT,
+    "_etag"                               TEXT,
+    "_rid"                                TEXT,
+    "_self"                               TEXT,
+    "_lsn"                                BIGINT,
+    "_ts"                                 BIGINT,
+
+    -- ── Order header scalars ──────────────────────────────────────────────
+    "id"                                  TEXT,
+    "orderId"                             TEXT,
+    "locationId"                          TEXT,
+    "businessDate"                        TEXT,
+    "orderDate"                           TEXT,
+    "orderType"                           TEXT,
+    "orderTypeLabel"                      TEXT,
+    "channel"                             INTEGER,
+    "conceptId"                           TEXT,
+    "conceptName"                         TEXT,
+    "kioskSessionId"                      TEXT,
+    "clientIpAddress"                     TEXT,
+    "guestCount"                          INTEGER,
+    "gusetCheckImageLink"                 TEXT,   -- preserved source typo
+    "isFailedToSendToPos"                 BOOLEAN,
+    "isTestOrder"                         BOOLEAN,
+    "posSubmissionStatus"                 INTEGER,
+    "originalTransactionId"               TEXT,
+    "refundTransactionId"                 TEXT,
+    "refundType"                          TEXT,
+    "refundedAmount"                      NUMERIC(12,3),
+    "rawResponse"                         TEXT,
+    "receiptImage"                        TEXT,
+    "orderReceiptUrl"                     TEXT,
+    "orderReceiptPdfUrl"                  TEXT,
+    "type"                                TEXT,
+
+    -- ── Loyalty scalars ───────────────────────────────────────────────────
+    "loyaltyProviderTransactionId"        TEXT,
+    "loyaltyProviderPaymentTransactionId" TEXT,
+
+    -- ── Complex / nested  →  TEXT ─────────────────────────────────────────
+    "kioskSource"                         TEXT,
+    "orderIdentity"                       TEXT,
+    "loyaltyUser"                         TEXT,
+    "localCurrencyDetails"                TEXT,
+    "totals"                              TEXT,
+    "totalsCents"                         TEXT,
+    "receiptDetails"                      TEXT,
+    "concepts"                            TEXT,
+    "items"                               TEXT,
+    "combos"                              TEXT,
+    "discounts"                           TEXT,
+    "paymentDetails"                      TEXT,
+    "redeemedRewards"                     TEXT,
+    "upsellInformation"                   TEXT,
+
+    --New Fields--
+    "resolvedAt"                          TEXT,
+    "thirdPartyOrderId"                   TEXT,
+    -- ── Pipeline metadata ─────────────────────────────────────────────────
+    "bronze_folderpath"                   TEXT,
+    "sysinserttime"                       TEXT
+)
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS stg.silver_all_transaction_entities
+    OWNER TO citus;
+
 -- Index: ix_silver_kiosk_events_syscosmosts
 
 -- DROP INDEX IF EXISTS stg.ix_silver_kiosk_events_syscosmosts;
@@ -4473,11 +4566,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_impressions (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_modifier_impressions OWNER TO citus;
+
+ALTER TABLE IF EXISTS stg.silver_modifier_impressions
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
 
 --
 -- TOC entry 482 (class 1259 OID 3571365)
@@ -4509,11 +4606,16 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_interactions (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_modifier_interactions OWNER TO citus;
+
+ALTER TABLE IF EXISTS stg.silver_modifier_interactions
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
+
 
 --
 -- TOC entry 481 (class 1259 OID 3571360)
@@ -4539,11 +4641,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_modifier_recommendations (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_modifier_recommendations OWNER TO citus;
+
+ALTER TABLE IF EXISTS stg.silver_modifier_recommendations
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
 
 --
 -- TOC entry 484 (class 1259 OID 3580160)
@@ -4603,11 +4709,18 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_combo_items (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_transaction_combo_items OWNER TO citus;
+
+ALTER TABLE IF EXISTS stg.silver_transaction_combo_items
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
+
+
+
 
 --
 -- TOC entry 473 (class 1259 OID 3518689)
@@ -4691,11 +4804,13 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_header (
     local_currency_details_object               text COLLATE pg_catalog."default",
     order_identity_object                       text COLLATE pg_catalog."default",
     totals_object                               text COLLATE pg_catalog."default",
-    totals_cents_object                         text COLLATE pg_catalog."default"
+    totals_cents_object                         text COLLATE pg_catalog."default",
+    bronze_folderpath                           text COLLATE pg_catalog."default"
 );
 
 
 ALTER TABLE stg.silver_transaction_header OWNER TO citus;
+
 
 ALTER TABLE IF EXISTS stg.silver_transaction_header
     ADD COLUMN IF NOT EXISTS discounts_array                             text COLLATE pg_catalog."default",
@@ -4711,7 +4826,8 @@ ALTER TABLE IF EXISTS stg.silver_transaction_header
     ADD COLUMN IF NOT EXISTS local_currency_details_object               text COLLATE pg_catalog."default",
     ADD COLUMN IF NOT EXISTS order_identity_object                       text COLLATE pg_catalog."default",
     ADD COLUMN IF NOT EXISTS totals_object                               text COLLATE pg_catalog."default",
-    ADD COLUMN IF NOT EXISTS totals_cents_object                         text COLLATE pg_catalog."default";
+    ADD COLUMN IF NOT EXISTS totals_cents_object                         text COLLATE pg_catalog."default",
+    ADD COLUMN IF NOT EXISTS bronze_folderpath                           text COLLATE pg_catalog."default";
 
 --
 -- TOC entry 479 (class 1259 OID 3570053)
@@ -4757,12 +4873,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_item (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_transaction_item OWNER TO citus;
 
+ALTER TABLE IF EXISTS stg.silver_transaction_item
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
 --
 -- TOC entry 470 (class 1259 OID 3428544)
 -- Name: silver_transaction_payment; Type: TABLE; Schema: stg; Owner: citus
@@ -4804,11 +4923,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_payment (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_transaction_payment OWNER TO citus;
+
+ALTER TABLE IF EXISTS stg.silver_transaction_payment
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
 
 --
 -- TOC entry 475 (class 1259 OID 3531845)
@@ -4829,11 +4952,16 @@ CREATE TABLE IF NOT EXISTS stg.silver_transaction_refunds (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_transaction_refunds OWNER TO citus;
+
+ALTER TABLE IF EXISTS stg.silver_transaction_refunds
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
+
 
 --
 -- TOC entry 480 (class 1259 OID 3571355)
@@ -4862,11 +4990,15 @@ CREATE TABLE IF NOT EXISTS stg.silver_upsell_recommendations (
     bronze_filepath text,
     silver_transform_time text,
     silver_folderpath text,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    bronze_folderpath TEXT
 );
 
 
 ALTER TABLE stg.silver_upsell_recommendations OWNER TO citus;
+
+ALTER TABLE IF EXISTS stg.silver_upsell_recommendations
+    ADD COLUMN IF NOT EXISTS bronze_folderpath TEXT;
 
 --
 -- TOC entry 476 (class 1259 OID 3567138)
@@ -4965,6 +5097,69 @@ CREATE TABLE IF NOT EXISTS stg.transactionheader (
 
 ALTER TABLE stg.transactionheader OWNER TO citus;
 
+
+-- ================================================================
+-- SOURCE TABLES
+-- ================================================================
+
+-- Covers: partition filter + type filter on all 9 sections
+--         + DELETE WHERE bronze_folderpath in FLUSH
+-- Composite wins over single-column because type appears in every WHERE
+CREATE INDEX IF NOT EXISTS idx_stg_silver_all_trxn_ent_folderpath_type
+ON stg.silver_all_transaction_entities ("bronze_folderpath", "type");
+
+-- Covers: partition filter + FLUSH DELETE
+-- LOWER() filters on application/eventmodule are cheap after partition reduces the set
+CREATE INDEX IF NOT EXISTS idx_stg_silver_all_gem_events_folderpath
+ON stg.silver_all_gem_events ("bronze_folderpath");
+
+
+-- ================================================================
+-- TARGET TABLES — NOT EXISTS subquery lookups
+-- usp_distribute_silver_transaction_entities
+-- ================================================================
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_trxn_hdr_txid_loc
+ON stg.silver_transaction_header (locationid, transactionheaderid);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_trxn_pmt_txid_loc
+ON stg.silver_transaction_payment (locationid, transactionheaderid);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_trxn_item_txid_loc
+ON stg.silver_transaction_item (locationid, transactionheaderid);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_item_mod_txid_loc
+ON stg.silver_item_modifiers (locationid, transactionheaderid);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_trxn_combo_txid_loc
+ON stg.silver_transaction_combo_items (locationid, transactionheaderid);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_upsell_rec_txid_loc
+ON stg.silver_upsell_recommendations (locationid, transactionheaderid);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_mod_rec_txid_loc
+ON stg.silver_modifier_recommendations (locationid, transactionheaderid);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_mod_imp_txid_loc
+ON stg.silver_modifier_impressions (locationid, transactionheaderid);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_mod_int_txid_loc
+ON stg.silver_modifier_interactions (locationid, transactionheaderid);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_trxn_ref_txid_loc
+ON stg.silver_transaction_refunds (locationid, transactionheaderid);
+
+
+-- ================================================================
+-- TARGET TABLES — NOT EXISTS subquery lookups
+-- usp_distribute_silver_gem_events
+-- ================================================================
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_kiosk_events_id_loc
+ON stg.silver_kiosk_events (locationid, id);
+
+CREATE INDEX IF NOT EXISTS idx_stg_silver_cep_incidents_id_loc
+ON stg.silver_cep_incidents (locationid, id);
 --
 -- TOC entry 6128 (class 2604 OID 419503)
 -- Name: experiment dimkey; Type: DEFAULT; Schema: dim; Owner: citus

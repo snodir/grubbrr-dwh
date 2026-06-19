@@ -36,10 +36,11 @@ SELECT o.organizationid, o.organizationname,
        loc.createdon, loc.modifiedon, loc.active as is_loc_active,
        CASE loc.status WHEN 0 THEN 'Draft' WHEN 1 THEN 'Onboarding' WHEN 2 THEN 'Live' WHEN 3 THEN 'Cancelled' END as location_status
 FROM (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as o 
-INNER JOIN (SELECT * FROM dim.organization WHERE status <> 2) as loc 
+INNER JOIN (SELECT * FROM dim.organization /*WHERE status = 0*/) as loc 
         ON o.locationid = loc.id
 WHERE 1=1
-  AND active = False
+  --AND o.active = False
+  AND o.organizationname ILIKE 'houston%hot%'
 ORDER by createdon desc;
 
 /*
@@ -48,6 +49,8 @@ WHEN 1 THEN 'Live'
 WHEN 2 THEN 'Demo' 
 WHEN 3 THEN 'Test' 
 END as kiosk_mode,
+org-490e23ce-6f23-4d3d-8544-8728f0965cfc	Houston Hot Chicken	loc-bc017a27-667a-4bcd-b10c-a0e21794d992	Phoenix - Camelback
+org-490e23ce-6f23-4d3d-8544-8728f0965cfc	Houston Hot Chicken	loc-6039d18b-f09e-481e-a934-905ce13eec06	Las Vegas - Blue Diamond
 */
 
 
@@ -110,8 +113,6 @@ SELECT * FROM dim.organization;
 SELECT * FROM dim.location;
 
 select * from dim.organizationlocation
-
-
 WHERE locationid = 'loc-66d85cfc-62f3-40eb-96c3-39afb144b4e3'
 
 alter TABLE dim.organization

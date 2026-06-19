@@ -197,11 +197,133 @@ $BODY$;
 ALTER PROCEDURE fact.usp_customer_menu_preferences() OWNER TO citus;
 
 
+
+
+CREATE OR REPLACE PROCEDURE fact.usp_distribute_silver_gem_events(
+    p_partition_path TEXT DEFAULT NULL
+)
+LANGUAGE plpgsql
+AS $BODY$
+BEGIN
+
+    -- ================================================================
+    -- 1. KIOSK EVENTS
+    -- ================================================================
+    INSERT INTO stg.silver_kiosk_events (
+        id, application, companyid, locationid,
+        eventmodule, eventcategory, eventtype, severity,
+        token, eventinstant, username, userid,
+        device, devicename, summary, data,
+        syscosmosticks, syscosmosts,
+        silver_transform_time, silver_folderpath, bronze_folderpath, sysinserttime
+    )
+    SELECT
+        src.id,
+        src.application,
+        src.companyid,
+        src.locationid,
+        src.eventmodule,
+        src.eventcategory,
+        src.eventtype,
+        src.severity,
+        src.token,
+        src.eventinstant,
+        src.username,
+        src.userid,
+        src.device,
+        src.devicename,
+        src.summary,
+        src.data,
+        src.syscosmosticks,
+        src.syscosmosts,
+        now()::text      AS silver_transform_time,
+        NULL::text       AS silver_folderpath,
+        src.bronze_folderpath,
+        now()::timestamp AS sysinserttime
+    FROM stg.silver_all_gem_events src
+    WHERE (p_partition_path IS NULL OR src.bronze_folderpath = p_partition_path)
+      AND LOWER(src.application) = 'nge'
+      AND LOWER(src.eventmodule) = 'kiosk'
+      AND NOT EXISTS (
+          SELECT 1 FROM stg.silver_kiosk_events ke
+          WHERE ke.id         = src.id
+            AND ke.locationid = src.locationid
+      );
+
+
+    -- ================================================================
+    -- 2. CEP INCIDENTS
+    --    Mirrors DF filter: application='nge' AND eventmodule='connector'
+    --                       AND severity='critical' AND eventcategory='order'
+    --                       AND eventtype='ordersubmitresponse'
+    -- ================================================================
+    INSERT INTO stg.silver_cep_incidents (
+        id, application, companyid, locationid,
+        eventmodule, eventcategory, eventtype, severity,
+        token, eventinstant, username, userid,
+        device, devicename, summary, data,
+        syscosmosticks, syscosmosts,
+        silver_transform_time, silver_folderpath, bronze_folderpath, sysinserttime
+    )
+    SELECT
+        src.id,
+        src.application,
+        src.companyid,
+        src.locationid,
+        src.eventmodule,
+        src.eventcategory,
+        src.eventtype,
+        src.severity,
+        src.token,
+        src.eventinstant,
+        src.username,
+        src.userid,
+        src.device,
+        src.devicename,
+        src.summary,
+        src.data,
+        src.syscosmosticks,
+        src.syscosmosts,
+        now()::text      AS silver_transform_time,
+        NULL::text       AS silver_folderpath,
+        src.bronze_folderpath,
+        now()::timestamp AS sysinserttime
+    FROM stg.silver_all_gem_events src
+    WHERE (p_partition_path IS NULL OR src.bronze_folderpath = p_partition_path)
+      AND LOWER(src.application)   = 'nge'
+      AND LOWER(src.eventmodule)   = 'connector'
+      AND LOWER(src.severity)      = 'critical'
+      AND LOWER(src.eventcategory) = 'order'
+      AND LOWER(src.eventtype)     = 'ordersubmitresponse'
+      AND NOT EXISTS (
+          SELECT 1 FROM stg.silver_cep_incidents ci
+          WHERE ci.id         = src.id
+            AND ci.locationid = src.locationid
+      );
+
+
+    -- ================================================================
+    -- FLUSH
+    -- ================================================================
+    IF p_partition_path IS NULL THEN
+        TRUNCATE TABLE stg.silver_all_gem_events;
+    ELSE
+        DELETE FROM stg.silver_all_gem_events
+        WHERE bronze_folderpath = p_partition_path;
+    END IF;
+
+END;
+$BODY$;
+
+ALTER PROCEDURE fact.usp_distribute_silver_gem_events(TEXT) OWNER TO citus;
+
+
 --CALL fact.usp_distribute_silver_transaction_entities();
 
---TRUNCATE TABLE stg.silver_transaction_header
 
-CREATE OR REPLACE PROCEDURE fact.usp_distribute_silver_transaction_entities()
+CREATE OR REPLACE PROCEDURE fact.usp_distribute_silver_transaction_entities(
+    p_partition_path TEXT DEFAULT NULL
+)
 LANGUAGE plpgsql
 AS $BODY$
 BEGIN
@@ -231,102 +353,169 @@ BEGIN
         loyalty_user_object, receipt_details_object, kiosk_source_object,
         local_currency_details_object, order_identity_object,
         totals_object, totals_cents_object,
-        bronze_filepath, silver_transform_time, silver_folderpath, sysinserttime
+        bronze_filepath, silver_transform_time, silver_folderpath, sysinserttime, bronze_folderpath
     )
     SELECT
-        src.id                                                                    AS transactionheaderid,
-        src.order_id                                                              AS orderid,
-        src.kiosk_session_id                                                      AS ordersessionid,
-        src.order_date                                                            AS orderdateutc,
-        src.business_date                                                         AS businessdate,
-        src.syscosmosts                                                           AS syscosmosts,
-        src.location_id                                                           AS locationid,
-        src.kiosk_source::jsonb->>'kioskId'                                       AS kioskid,
-        src.kiosk_source::jsonb->>'name'                                          AS kiosk_name,
-        (src.kiosk_source::jsonb->>'kioskMode')::integer                          AS kiosk_mode,
-        src.channel                                                               AS channel,
-        src.items                                                                 AS items_array,
-        src.payment_details                                                       AS payments_array,
+        src."id"                                                                   AS transactionheaderid,
+        src."orderId"                                                              AS orderid,
+        src."kioskSessionId"                                                       AS ordersessionid,
+        src."orderDate"                                                            AS orderdateutc,
+        src."businessDate"                                                         AS businessdate,
+        src."_ts"                                                                  AS syscosmosts,
+        src."locationId"                                                           AS locationid,
+        src."kioskSource"::jsonb->>'kioskId'                                       AS kioskid,
+        src."kioskSource"::jsonb->>'name'                                          AS kiosk_name,
+        (src."kioskSource"::jsonb->>'kioskMode')::integer                          AS kiosk_mode,
+        src."channel"                                                              AS channel,
+        src."items"                                                                AS items_array,
+        src."paymentDetails"                                                       AS payments_array,
         CASE
-            WHEN COALESCE(jsonb_array_length(NULLIF(src.items, '')::jsonb), 0) = 0
-            THEN COALESCE(jsonb_array_length(NULLIF(src.combos, '')::jsonb), 0)
-            ELSE jsonb_array_length(NULLIF(src.items, '')::jsonb)
-        END::smallint                                                             AS numberofitems,
-        COALESCE(jsonb_array_length(NULLIF(src.payment_details, '')::jsonb), 0)
-            ::smallint                                                            AS numberofpayments,
-        src.concept_id                                                            AS concept_id,
-        src.concept_name                                                          AS concept_name,
-        src.order_type                                                            AS ordertype,
-        src.order_type_label                                                      AS order_type_label,
-        src.type                                                                  AS order_completion_status,
-        src.pos_submission_status                                                 AS pos_submission_status,
-        src.is_failed_to_send_to_pos                                             AS is_send_to_pos_failed,
-        src.is_test_order                                                         AS is_test_order,
-        src.loyalty_user::jsonb->>'id'                                            AS frequentcustomerid,
-        src.order_identity::jsonb->>'name'                                        AS customername,
-        src.client_ip_address                                                     AS client_ip_address,
-        src.order_identity::jsonb->>'orderToken'                                  AS order_identity_order_token,
-        src.order_identity::jsonb->>'posOrderToken'                               AS order_identity_pos_order_token,
-        src.order_identity::jsonb->>'phone'                                       AS order_identity_phone,
-        src.order_identity::jsonb->>'phoneCountryCode'                            AS order_identity_phone_country_code,
-        src.order_identity::jsonb->>'email'                                       AS order_identity_email,
-        src.order_identity::jsonb->>'tableTent'                                   AS order_identity_table_tent,
-        src.order_identity::jsonb->>'deviceImei'                                  AS order_identity_device_imei,
-        src.guest_count                                                           AS guest_count,
-        src.receipt_details::jsonb->>'guestCheckCode'                             AS guest_check_code,
-        (src.receipt_details::jsonb->'genesisFiscalFields')::text                 AS genesis_fiscal_fields,
-        src.receipt_details::jsonb->>'orderLanguage'                              AS order_language,
-        src.receipt_details::jsonb->>'receiptPrintingType'                        AS receipt_printing_type,
-        src.loyalty_provider_transaction_id                                       AS loyalty_transaction_id,
-        src.loyalty_provider_payment_transaction_id                               AS loyalty_payment_transaction_id,
-        src.receipt_details::jsonb->>'loyaltyEarnedPoints'                        AS loyalty_earned_points,
-        src.local_currency_details::jsonb->>'currencyCode'                        AS local_currency_code,
-        src.local_currency_details::jsonb->>'additionalInfo'                      AS local_currency_additional_info,
-        (src.totals::jsonb->>'total')::numeric(12,3)                              AS usd_amount,
-        (src.totals::jsonb->>'subTotal')::numeric(12,3)                           AS usd_subtotal,
-        (src.totals::jsonb->>'tax')::numeric(12,3)                                AS usd_tax,
-        (src.totals::jsonb->>'tip')::numeric(12,3)                                AS usd_tip,
-        (src.totals::jsonb->>'discount')::numeric(12,3)                           AS usd_discount,
-        (src.totals::jsonb->>'reward')::numeric(12,3)                             AS usd_reward,
-        (src.totals::jsonb->>'serviceCharge')::numeric(12,3)                      AS usd_service_charge,
-        (src.totals::jsonb->>'charityAmount')::numeric(12,3)                      AS usd_charity_amount,
-        (src.totals_cents::jsonb->>'total')::bigint                               AS cents_amount,
-        (src.totals_cents::jsonb->>'subTotal')::bigint                            AS cents_subtotal,
-        (src.totals_cents::jsonb->>'tax')::bigint                                 AS cents_tax,
-        (src.totals_cents::jsonb->>'tip')::bigint                                 AS cents_tip,
-        (src.totals_cents::jsonb->>'discount')::bigint                            AS cents_discount,
-        (src.totals_cents::jsonb->>'reward')::bigint                              AS cents_reward,
-        (src.totals_cents::jsonb->>'serviceCharge')::bigint                       AS cents_service_charge,
-        (src.totals_cents::jsonb->>'charityAmount')::bigint                       AS cents_charity_amount,
-        src.discounts                                                             AS discounts_array,
-        src.combos                                                                AS combos_array,
-        src.redeemed_rewards                                                      AS redeemed_rewards_array,
-        src.concepts                                                              AS concepts_array,
-        (NULLIF(src.upsell_information, '')::jsonb->'upsellPrompt')::text         AS upsell_prompt_array,
-        (NULLIF(src.upsell_information, '')::jsonb->'modifierInteractions')::text AS modifier_interactions_array,
-        (NULLIF(src.upsell_information, '')::jsonb->'modifierImpressions')::text  AS modifier_impressions_array,
-        src.loyalty_user                                                          AS loyalty_user_object,
-        src.receipt_details                                                       AS receipt_details_object,
-        src.kiosk_source                                                          AS kiosk_source_object,
-        src.local_currency_details                                                AS local_currency_details_object,
-        src.order_identity                                                        AS order_identity_object,
-        src.totals                                                                AS totals_object,
-        src.totals_cents                                                          AS totals_cents_object,
-        src.bronze_filepath                                                       AS bronze_filepath,
-        NULL::text                                                                AS silver_transform_time,
-        NULL::text                                                                AS silver_folderpath,
-        now()                                                                     AS sysinserttime
+            WHEN COALESCE(jsonb_array_length(NULLIF(src."items", '')::jsonb), 0) = 0
+            THEN COALESCE(jsonb_array_length(NULLIF(src."combos", '')::jsonb), 0)
+            ELSE jsonb_array_length(NULLIF(src."items", '')::jsonb)
+        END::smallint                                                              AS numberofitems,
+        COALESCE(jsonb_array_length(NULLIF(src."paymentDetails", '')::jsonb), 0)
+            ::smallint                                                             AS numberofpayments,
+        src."conceptId"                                                            AS concept_id,
+        src."conceptName"                                                          AS concept_name,
+        src."orderType"                                                            AS ordertype,
+        src."orderTypeLabel"                                                       AS order_type_label,
+        src."type"                                                                 AS order_completion_status,
+        src."posSubmissionStatus"                                                  AS pos_submission_status,
+        src."isFailedToSendToPos"                                                  AS is_send_to_pos_failed,
+        src."isTestOrder"                                                          AS is_test_order,
+        src."loyaltyUser"::jsonb->>'id'                                            AS frequentcustomerid,
+        src."orderIdentity"::jsonb->>'name'                                        AS customername,
+        src."clientIpAddress"                                                      AS client_ip_address,
+        src."orderIdentity"::jsonb->>'orderToken'                                  AS order_identity_order_token,
+        src."orderIdentity"::jsonb->>'posOrderToken'                               AS order_identity_pos_order_token,
+        src."orderIdentity"::jsonb->>'phone'                                       AS order_identity_phone,
+        src."orderIdentity"::jsonb->>'phoneCountryCode'                            AS order_identity_phone_country_code,
+        src."orderIdentity"::jsonb->>'email'                                       AS order_identity_email,
+        src."orderIdentity"::jsonb->>'tableTent'                                   AS order_identity_table_tent,
+        src."orderIdentity"::jsonb->>'deviceImei'                                  AS order_identity_device_imei,
+        src."guestCount"                                                           AS guest_count,
+        src."receiptDetails"::jsonb->>'guestCheckCode'                             AS guest_check_code,
+        (src."receiptDetails"::jsonb->'genesisFiscalFields')::text                 AS genesis_fiscal_fields,
+        src."receiptDetails"::jsonb->>'orderLanguage'                              AS order_language,
+        src."receiptDetails"::jsonb->>'receiptPrintingType'                        AS receipt_printing_type,
+        src."loyaltyProviderTransactionId"                                         AS loyalty_transaction_id,
+        src."loyaltyProviderPaymentTransactionId"                                  AS loyalty_payment_transaction_id,
+        src."receiptDetails"::jsonb->>'loyaltyEarnedPoints'                        AS loyalty_earned_points,
+        src."localCurrencyDetails"::jsonb->>'currencyCode'                         AS local_currency_code,
+        src."localCurrencyDetails"::jsonb->>'additionalInfo'                       AS local_currency_additional_info,
+        (src."totals"::jsonb->>'total')::numeric(12,3)                             AS usd_amount,
+        (src."totals"::jsonb->>'subTotal')::numeric(12,3)                          AS usd_subtotal,
+        (src."totals"::jsonb->>'tax')::numeric(12,3)                               AS usd_tax,
+        (src."totals"::jsonb->>'tip')::numeric(12,3)                               AS usd_tip,
+        (src."totals"::jsonb->>'discount')::numeric(12,3)                          AS usd_discount,
+        (src."totals"::jsonb->>'reward')::numeric(12,3)                            AS usd_reward,
+        (src."totals"::jsonb->>'serviceCharge')::numeric(12,3)                     AS usd_service_charge,
+        (src."totals"::jsonb->>'charityAmount')::numeric(12,3)                     AS usd_charity_amount,
+        (src."totalsCents"::jsonb->>'total')::bigint                               AS cents_amount,
+        (src."totalsCents"::jsonb->>'subTotal')::bigint                            AS cents_subtotal,
+        (src."totalsCents"::jsonb->>'tax')::bigint                                 AS cents_tax,
+        (src."totalsCents"::jsonb->>'tip')::bigint                                 AS cents_tip,
+        (src."totalsCents"::jsonb->>'discount')::bigint                            AS cents_discount,
+        (src."totalsCents"::jsonb->>'reward')::bigint                              AS cents_reward,
+        (src."totalsCents"::jsonb->>'serviceCharge')::bigint                       AS cents_service_charge,
+        (src."totalsCents"::jsonb->>'charityAmount')::bigint                       AS cents_charity_amount,
+        src."discounts"                                                            AS discounts_array,
+        src."combos"                                                               AS combos_array,
+        src."redeemedRewards"                                                      AS redeemed_rewards_array,
+        src."concepts"                                                             AS concepts_array,
+        (NULLIF(src."upsellInformation", '')::jsonb->'upsellPrompt')::text         AS upsell_prompt_array,
+        (NULLIF(src."upsellInformation", '')::jsonb->'modifierInteractions')::text AS modifier_interactions_array,
+        (NULLIF(src."upsellInformation", '')::jsonb->'modifierImpressions')::text  AS modifier_impressions_array,
+        src."loyaltyUser"                                                          AS loyalty_user_object,
+        src."receiptDetails"                                                       AS receipt_details_object,
+        src."kioskSource"                                                          AS kiosk_source_object,
+        src."localCurrencyDetails"                                                 AS local_currency_details_object,
+        src."orderIdentity"                                                        AS order_identity_object,
+        src."totals"                                                               AS totals_object,
+        src."totalsCents"                                                          AS totals_cents_object,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')               AS bronze_filepath,
+        NULL::text                                                                 AS silver_transform_time,
+        NULL::text                                                                 AS silver_folderpath,
+        now()                                                                      AS sysinserttime,
+        src."bronze_folderpath"                                                    AS bronze_folderpath
     FROM stg.silver_all_transaction_entities src
-    WHERE src.type = 'order-placed'
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" = 'order-placed'
       AND NOT EXISTS (
           SELECT 1 FROM stg.silver_transaction_header h
-          WHERE h.transactionheaderid = src.id
-            AND h.locationid          = src.location_id
+          WHERE h.locationid          = src."locationId"
+            AND h.transactionheaderid = src."id"
       );
 
 
     -- ================================================================
-    -- 2. TRANSACTION ITEMS
+    -- 2. TRANSACTION PAYMENTS
+    -- ================================================================
+    INSERT INTO stg.silver_transaction_payment (
+        transactionheaderid, orderid, ordersessionid, orderdateutc, businessdate,
+        syscosmosts, locationid, kioskid, kiosk_name, kiosk_mode, is_test_order,
+        payment_transactionid, payment_method, payment_status, payment_amount,
+        payment_tender_id, payment_integration_id, payment_integration_label,
+        payment_card_name, payment_card_number, is_amazon_one_payment,
+        card_info_card_type, card_info_last_four, card_info_masked_card_number,
+        card_info_zip_code, card_info_expiration_month, card_info_expiration_year,
+        card_info_processor_auth_code, card_info_available_balance,
+        payment_capture_details, payment_settlement_details,
+        order_completion_status, bronze_filepath, silver_transform_time, silver_folderpath,
+        sysinserttime, bronze_folderpath
+    )
+    SELECT
+        src."id"                                                        AS transactionheaderid,
+        src."orderId"                                                   AS orderid,
+        src."kioskSessionId"                                            AS ordersessionid,
+        src."orderDate"                                                 AS orderdateutc,
+        src."businessDate"                                              AS businessdate,
+        src."_ts"                                                       AS syscosmosts,
+        src."locationId"                                                AS locationid,
+        src."kioskSource"::jsonb->>'kioskId'                            AS kioskid,
+        src."kioskSource"::jsonb->>'name'                               AS kiosk_name,
+        (src."kioskSource"::jsonb->>'kioskMode')::integer               AS kiosk_mode,
+        src."isTestOrder"                                               AS is_test_order,
+        pmt->>'transactionId'                                           AS payment_transactionid,
+        pmt->>'paymentMethod'                                           AS payment_method,
+        pmt->>'status'                                                  AS payment_status,
+        (pmt->>'amount')::numeric(12,3)                                 AS payment_amount,
+        pmt->>'tenderId'                                                AS payment_tender_id,
+        pmt->>'paymentIntegrationId'                                    AS payment_integration_id,
+        pmt->>'paymentIntegrationLabel'                                 AS payment_integration_label,
+        pmt->>'paymentCardName'                                         AS payment_card_name,
+        pmt->>'paymentCardNumber'                                       AS payment_card_number,
+        (pmt->>'isAmazonOnePayment')::boolean                           AS is_amazon_one_payment,
+        pmt->'tenderInfo'->'cardInfo'->>'cardType'                      AS card_info_card_type,
+        pmt->'tenderInfo'->'cardInfo'->>'lastFour'                      AS card_info_last_four,
+        pmt->'tenderInfo'->'cardInfo'->>'maskedCardNumber'              AS card_info_masked_card_number,
+        pmt->'tenderInfo'->'cardInfo'->>'zipCode'                       AS card_info_zip_code,
+        pmt->'tenderInfo'->'cardInfo'->>'expirationMonth'               AS card_info_expiration_month,
+        pmt->'tenderInfo'->'cardInfo'->>'expirationYear'                AS card_info_expiration_year,
+        pmt->'tenderInfo'->'cardInfo'->>'processorAuthCode'             AS card_info_processor_auth_code,
+        (pmt->'tenderInfo'->'cardInfo'->>'availableBalance')::numeric(12,3) AS card_info_available_balance,
+        pmt->>'captureDetails'                                          AS payment_capture_details,
+        pmt->>'settlementDetails'                                       AS payment_settlement_details,
+        src."type"                                                      AS order_completion_status,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')    AS bronze_filepath,
+        NULL::text                                                      AS silver_transform_time,
+        NULL::text                                                      AS silver_folderpath,
+        now()                                                           AS sysinserttime,
+        src."bronze_folderpath"                                         AS bronze_folderpath
+    FROM stg.silver_all_transaction_entities src
+    CROSS JOIN LATERAL jsonb_array_elements(NULLIF(src."paymentDetails", '')::jsonb) AS pmt
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" = 'order-placed'
+      AND NOT EXISTS (
+          SELECT 1 FROM stg.silver_transaction_payment tp
+          WHERE tp.locationid          = src."locationId"
+            AND tp.transactionheaderid = src."id"
+      );
+
+
+    -- ================================================================
+    -- 3. TRANSACTION ITEMS
     -- ================================================================
     INSERT INTO stg.silver_transaction_item (
         transactionheaderid, orderid, ordersessionid, orderdateutc, businessdate,
@@ -339,60 +528,62 @@ BEGIN
         modifier_options, items_discount_id, is_items_discount_hidden_on_receipt,
         items_discounts, items_upsell_source, items_reward_source, items_special_request,
         order_completion_status, bronze_filepath, silver_transform_time, silver_folderpath,
-        sysinserttime
+        sysinserttime, bronze_folderpath
     )
     SELECT
-        src.id                                                   AS transactionheaderid,
-        src.order_id                                             AS orderid,
-        src.kiosk_session_id                                     AS ordersessionid,
-        src.order_date                                           AS orderdateutc,
-        src.business_date                                        AS businessdate,
-        src.syscosmosts                                          AS syscosmosts,
-        src.location_id                                          AS locationid,
-        src.kiosk_source::jsonb->>'kioskId'                      AS kioskid,
-        src.kiosk_source::jsonb->>'name'                         AS kiosk_name,
-        (src.kiosk_source::jsonb->>'kioskMode')::integer         AS kiosk_mode,
-        src.is_test_order                                        AS is_test_order,
-        src.loyalty_user::jsonb->>'id'                           AS frequentcustomerid,
-        item->>'orderItemId'                                     AS orderitemid,
-        item->>'itemSessionId'                                   AS itemsessionid,
-        item->>'menuItemId'                                      AS menuitemid,
-        item->>'menuItemPosId'                                   AS menu_item_pos_id,
-        item->>'name'                                            AS itemname,
-        item->>'categoryId'                                      AS categoryid,
-        item->>'categoryName'                                    AS categoryname,
-        item->>'categoryPosId'                                   AS category_pos_id,
-        item->>'conceptId'                                       AS items_concept_id,
-        item->>'conceptName'                                     AS items_concept_name,
-        (item->>'quantity')::integer                             AS itemquantity,
-        (item->>'unitPrice')::numeric(12,3)                      AS usd_itemunitprice,
-        (item->>'itemPrice')::numeric(12,3)                      AS usd_total_item_price,
-        (item->>'unitPriceCents')::bigint                        AS cents_itemunitprice,
-        (item->>'totalPriceCents')::bigint                       AS cents_total_item_price,
-        (item->'options')::text                                  AS modifier_options,
-        item->'discountSource'->>'discountId'                    AS items_discount_id,
-        (item->'discountSource'->>'isHiddenOnReceipt')::boolean  AS is_items_discount_hidden_on_receipt,
-        (item->'discounts')::text                                AS items_discounts,
-        (item->'upsellSource')::text                             AS items_upsell_source,
-        item->>'rewardSource'                                    AS items_reward_source,
-        item->>'specialRequest'                                  AS items_special_request,
-        src.type                                                 AS order_completion_status,
-        src.bronze_filepath                                      AS bronze_filepath,
-        NULL::text                                               AS silver_transform_time,
-        NULL::text                                               AS silver_folderpath,
-        now()                                                    AS sysinserttime
+        src."id"                                                    AS transactionheaderid,
+        src."orderId"                                               AS orderid,
+        src."kioskSessionId"                                        AS ordersessionid,
+        src."orderDate"                                             AS orderdateutc,
+        src."businessDate"                                          AS businessdate,
+        src."_ts"                                                   AS syscosmosts,
+        src."locationId"                                            AS locationid,
+        src."kioskSource"::jsonb->>'kioskId'                        AS kioskid,
+        src."kioskSource"::jsonb->>'name'                           AS kiosk_name,
+        (src."kioskSource"::jsonb->>'kioskMode')::integer           AS kiosk_mode,
+        src."isTestOrder"                                           AS is_test_order,
+        src."loyaltyUser"::jsonb->>'id'                             AS frequentcustomerid,
+        item->>'orderItemId'                                        AS orderitemid,
+        item->>'itemSessionId'                                      AS itemsessionid,
+        item->>'menuItemId'                                         AS menuitemid,
+        item->>'menuItemPosId'                                      AS menu_item_pos_id,
+        item->>'name'                                               AS itemname,
+        item->>'categoryId'                                         AS categoryid,
+        item->>'categoryName'                                       AS categoryname,
+        item->>'categoryPosId'                                      AS category_pos_id,
+        item->>'conceptId'                                          AS items_concept_id,
+        item->>'conceptName'                                        AS items_concept_name,
+        (item->>'quantity')::integer                                AS itemquantity,
+        (item->>'unitPrice')::numeric(12,3)                         AS usd_itemunitprice,
+        (item->>'itemPrice')::numeric(12,3)                         AS usd_total_item_price,
+        (item->>'unitPriceCents')::bigint                           AS cents_itemunitprice,
+        (item->>'totalPriceCents')::bigint                          AS cents_total_item_price,
+        (item->'options')::text                                     AS modifier_options,
+        item->'discountSource'->>'discountId'                       AS items_discount_id,
+        (item->'discountSource'->>'isHiddenOnReceipt')::boolean     AS is_items_discount_hidden_on_receipt,
+        (item->'discounts')::text                                   AS items_discounts,
+        (item->'upsellSource')::text                                AS items_upsell_source,
+        item->>'rewardSource'                                       AS items_reward_source,
+        item->>'specialRequest'                                     AS items_special_request,
+        src."type"                                                  AS order_completion_status,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')                   AS bronze_filepath,
+        NULL::text                                                                     AS silver_transform_time,
+        NULL::text                                                                     AS silver_folderpath,
+        now()                                                                          AS sysinserttime,
+        src."bronze_folderpath"                                                        AS bronze_folderpath
     FROM stg.silver_all_transaction_entities src
-    CROSS JOIN LATERAL jsonb_array_elements(NULLIF(src.items, '')::jsonb) AS item
-    WHERE src.type = 'order-placed'
+    CROSS JOIN LATERAL jsonb_array_elements(NULLIF(src."items", '')::jsonb) AS item
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" = 'order-placed'
       AND NOT EXISTS (
           SELECT 1 FROM stg.silver_transaction_item ti
-          WHERE ti.transactionheaderid = src.id
-            AND ti.locationid          = src.location_id
+          WHERE ti.locationid          = src."locationId"
+            AND ti.transactionheaderid = src."id"
       );
 
 
     -- ================================================================
-    -- 3. ITEM MODIFIERS
+    -- 4. ITEM MODIFIERS
     -- ================================================================
     INSERT INTO stg.silver_item_modifiers (
         transactionheaderid, orderid, ordersessionid, orderdateutc, businessdate,
@@ -409,73 +600,75 @@ BEGIN
         options_modifierquantity, options_modifierunitprice, options_total_modifierprice,
         modifier_freequantity, is_modifier_invisible, is_modifier_default,
         order_completion_status, bronze_filepath, silver_transform_time, silver_folderpath,
-        sysinserttime
+        sysinserttime, bronze_folderpath
     )
     SELECT
-        src.id                                                   AS transactionheaderid,
-        src.order_id                                             AS orderid,
-        src.kiosk_session_id                                     AS ordersessionid,
-        src.order_date                                           AS orderdateutc,
-        src.business_date                                        AS businessdate,
-        src.syscosmosts                                          AS syscosmosts,
-        src.location_id                                          AS locationid,
-        src.kiosk_source::jsonb->>'kioskId'                      AS kioskid,
-        src.kiosk_source::jsonb->>'name'                         AS kiosk_name,
-        (src.kiosk_source::jsonb->>'kioskMode')::integer         AS kiosk_mode,
-        src.is_test_order                                        AS is_test_order,
-        src.loyalty_user::jsonb->>'id'                           AS frequentcustomerid,
-        item->>'orderItemId'                                     AS orderitemid,
-        item->>'itemSessionId'                                   AS itemsessionid,
-        item->>'menuItemId'                                      AS menuitemid,
-        item->>'menuItemPosId'                                   AS menu_item_pos_id,
-        item->>'name'                                            AS itemname,
-        item->>'categoryId'                                      AS categoryid,
-        item->>'categoryName'                                    AS categoryname,
-        item->>'categoryPosId'                                   AS category_pos_id,
-        (item->>'quantity')::integer                             AS itemquantity,
-        (item->>'unitPrice')::numeric(12,3)                      AS usd_itemunitprice,
-        (item->>'itemPrice')::numeric(12,3)                      AS usd_total_item_price,
-        (item->>'unitPriceCents')::bigint                        AS cents_itemunitprice,
-        (item->>'totalPriceCents')::bigint                       AS cents_total_item_price,
-        item->'discountSource'->>'discountId'                    AS items_discount_id,
-        (item->'discountSource'->>'isHiddenOnReceipt')::boolean  AS is_items_discount_hidden_on_receipt,
-        (item->'discounts')::text                                AS items_discounts,
-        (item->'upsellSource')::text                             AS items_upsell_source,
-        item->>'rewardSource'                                    AS items_reward_source,
-        item->>'specialRequest'                                  AS items_special_request,
-        item->>'conceptId'                                       AS items_concept_id,
-        item->>'conceptName'                                     AS items_concept_name,
-        opt->>'modifierId'                                       AS options_modifierid,
-        opt->>'modifierPosId'                                    AS options_modifier_pos_id,
-        opt->>'name'                                             AS options_modifiername,
-        opt->>'modifierCode'                                     AS options_modifier_code,
-        opt->>'modifierGroupId'                                  AS options_modifiergroupid,
-        opt->>'modifierGroupName'                                AS options_modifiergroupname,
-        opt->>'modifierGroupPosId'                               AS options_modifiergroup_pos_id,
-        (opt->>'quantity')::integer                              AS options_modifierquantity,
-        (opt->>'price')::numeric(12,3)                           AS options_modifierunitprice,
-        (opt->>'totalPrice')::numeric(12,3)                      AS options_total_modifierprice,
-        (opt->>'freeQuantity')::integer                          AS modifier_freequantity,
-        (opt->>'isInvisible')::boolean                           AS is_modifier_invisible,
-        (opt->>'isDefault')::boolean                             AS is_modifier_default,
-        src.type                                                 AS order_completion_status,
-        src.bronze_filepath                                      AS bronze_filepath,
-        NULL::text                                               AS silver_transform_time,
-        NULL::text                                               AS silver_folderpath,
-        now()                                                    AS sysinserttime
+        src."id"                                                    AS transactionheaderid,
+        src."orderId"                                               AS orderid,
+        src."kioskSessionId"                                        AS ordersessionid,
+        src."orderDate"                                             AS orderdateutc,
+        src."businessDate"                                          AS businessdate,
+        src."_ts"                                                   AS syscosmosts,
+        src."locationId"                                            AS locationid,
+        src."kioskSource"::jsonb->>'kioskId'                        AS kioskid,
+        src."kioskSource"::jsonb->>'name'                           AS kiosk_name,
+        (src."kioskSource"::jsonb->>'kioskMode')::integer           AS kiosk_mode,
+        src."isTestOrder"                                           AS is_test_order,
+        src."loyaltyUser"::jsonb->>'id'                             AS frequentcustomerid,
+        item->>'orderItemId'                                        AS orderitemid,
+        item->>'itemSessionId'                                      AS itemsessionid,
+        item->>'menuItemId'                                         AS menuitemid,
+        item->>'menuItemPosId'                                      AS menu_item_pos_id,
+        item->>'name'                                               AS itemname,
+        item->>'categoryId'                                         AS categoryid,
+        item->>'categoryName'                                       AS categoryname,
+        item->>'categoryPosId'                                      AS category_pos_id,
+        (item->>'quantity')::integer                                AS itemquantity,
+        (item->>'unitPrice')::numeric(12,3)                         AS usd_itemunitprice,
+        (item->>'itemPrice')::numeric(12,3)                         AS usd_total_item_price,
+        (item->>'unitPriceCents')::bigint                           AS cents_itemunitprice,
+        (item->>'totalPriceCents')::bigint                          AS cents_total_item_price,
+        item->'discountSource'->>'discountId'                       AS items_discount_id,
+        (item->'discountSource'->>'isHiddenOnReceipt')::boolean     AS is_items_discount_hidden_on_receipt,
+        (item->'discounts')::text                                   AS items_discounts,
+        (item->'upsellSource')::text                                AS items_upsell_source,
+        item->>'rewardSource'                                       AS items_reward_source,
+        item->>'specialRequest'                                     AS items_special_request,
+        item->>'conceptId'                                          AS items_concept_id,
+        item->>'conceptName'                                        AS items_concept_name,
+        opt->>'modifierId'                                          AS options_modifierid,
+        opt->>'modifierPosId'                                       AS options_modifier_pos_id,
+        opt->>'name'                                                AS options_modifiername,
+        opt->>'modifierCode'                                        AS options_modifier_code,
+        opt->>'modifierGroupId'                                     AS options_modifiergroupid,
+        opt->>'modifierGroupName'                                   AS options_modifiergroupname,
+        opt->>'modifierGroupPosId'                                  AS options_modifiergroup_pos_id,
+        (opt->>'quantity')::integer                                 AS options_modifierquantity,
+        (opt->>'price')::numeric(12,3)                              AS options_modifierunitprice,
+        (opt->>'totalPrice')::numeric(12,3)                         AS options_total_modifierprice,
+        (opt->>'freeQuantity')::integer                             AS modifier_freequantity,
+        (opt->>'isInvisible')::boolean                              AS is_modifier_invisible,
+        (opt->>'isDefault')::boolean                                AS is_modifier_default,
+        src."type"                                                  AS order_completion_status,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')                   AS bronze_filepath,
+        NULL::text                                                                     AS silver_transform_time,
+        NULL::text                                                                     AS silver_folderpath,
+        now()                                                                          AS sysinserttime,
+        src."bronze_folderpath"                                                        AS bronze_folderpath
     FROM stg.silver_all_transaction_entities src
-    CROSS JOIN LATERAL jsonb_array_elements(NULLIF(src.items, '')::jsonb) AS item
+    CROSS JOIN LATERAL jsonb_array_elements(NULLIF(src."items", '')::jsonb) AS item
     CROSS JOIN LATERAL jsonb_array_elements(COALESCE(item->'options', '[]'::jsonb)) AS opt
-    WHERE src.type = 'order-placed'
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" = 'order-placed'
       AND NOT EXISTS (
           SELECT 1 FROM stg.silver_item_modifiers im
-          WHERE im.transactionheaderid = src.id
-            AND im.locationid          = src.location_id
+          WHERE im.locationid          = src."locationId"
+            AND im.transactionheaderid = src."id"
       );
 
 
     -- ================================================================
-    -- 4. TRANSACTION COMBO ITEMS
+    -- 5. TRANSACTION COMBO ITEMS
     -- ================================================================
     INSERT INTO stg.silver_transaction_combo_items (
         transactionheaderid, orderid, ordersessionid, orderdateutc, businessdate,
@@ -495,76 +688,77 @@ BEGIN
         component_item_discount_id, is_component_item_discount_hidden_on_receipt,
         component_item_discounts, component_selections_items,
         order_completion_status, bronze_filepath, silver_transform_time, silver_folderpath,
-        sysinserttime
+        sysinserttime, bronze_folderpath
     )
     SELECT
-        src.id                                                              AS transactionheaderid,
-        src.order_id                                                        AS orderid,
-        src.kiosk_session_id                                                AS ordersessionid,
-        src.order_date                                                      AS orderdateutc,
-        src.business_date                                                   AS businessdate,
-        src.syscosmosts                                                     AS syscosmosts,
-        src.location_id                                                     AS locationid,
-        src.kiosk_source::jsonb->>'kioskId'                                 AS kioskid,
-        src.kiosk_source::jsonb->>'name'                                    AS kiosk_name,
-        (src.kiosk_source::jsonb->>'kioskMode')::integer                    AS kiosk_mode,
-        src.is_test_order                                                   AS is_test_order,
-        src.loyalty_user::jsonb->>'id'                                      AS frequentcustomerid,
-        combo->>'comboId'                                                   AS combo_id,
-        combo->>'comboPosId'                                                AS combo_pos_id,
-        combo->>'name'                                                      AS combo_name,
-        combo->>'orderItemId'                                               AS combo_order_item_id,
-        combo->>'itemSessionId'                                             AS combo_item_session_id,
-        combo->>'conceptId'                                                 AS combo_concept_id,
-        combo->>'conceptName'                                               AS combo_concept_name,
-        (combo->>'unitPriceCents')::numeric::bigint                         AS cents_combo_unit_price,
-        (combo->>'totalPriceCents')::numeric::bigint                        AS cents_combo_total_price,
-        (combo->>'quantity')::integer                                       AS combo_quantity,
-        combo->>'specialRequest'                                            AS combo_special_request,
-        (combo->'upsellSource')::text                                       AS combo_upsell_source,
-        combo->>'rewardSource'                                              AS combo_reward_source,
-        cs->>'componentId'                                                  AS component_id,
-        cs->>'componentPosId'                                               AS component_pos_id,
-        cs->>'name'                                                         AS component_name,
-        cs->'item'->>'orderItemId'                                          AS component_item_order_item_id,
-        cs->'item'->>'menuItemId'                                           AS component_item_menu_item_id,
-        cs->'item'->>'name'                                                 AS component_item_name,
-        cs->'item'->>'menuItemPosId'                                        AS component_item_menu_item_pos_id,
-        cs->'item'->>'itemSessionId'                                        AS component_item_session_id,
-        cs->'item'->>'conceptId'                                            AS component_item_concept_id,
-        cs->'item'->>'conceptName'                                          AS component_item_concept_name,
-        (cs->'item'->>'quantity')::integer                                  AS component_item_quantity,
-        (cs->'item'->>'itemPrice')::numeric(12,3)                           AS component_item_price,
-        (cs->'item'->>'unitPrice')::numeric(12,3)                           AS component_item_unit_price,
-        ROUND((cs->'item'->>'unitPrice')::numeric * 100)::bigint            AS component_item_cents_unit_price,
-        (cs->'item'->>'totalPrice')::numeric(12,3)                          AS component_item_total_price,
-        ROUND((cs->'item'->>'totalPrice')::numeric * 100)::bigint           AS component_item_cents_total_price,
-        cs->'item'->>'specialRequest'                                       AS component_item_special_request,
-        (cs->'item'->'upsellSource')::text                                  AS component_item_upsell_source,
-        cs->'item'->>'rewardSource'                                         AS component_item_reward_source,
-        cs->'item'->'discountSource'->>'discountId'                         AS component_item_discount_id,
-        (cs->'item'->'discountSource'->>'isHiddenOnReceipt')::boolean       AS is_component_item_discount_hidden_on_receipt,
-        (cs->'item'->'discounts')::text                                     AS component_item_discounts,
-        (cs->'items')::text                                                 AS component_selections_items,
-        src.type                                                            AS order_completion_status,
-        src.bronze_filepath                                                 AS bronze_filepath,
-        NULL::text                                                          AS silver_transform_time,
-        NULL::text                                                          AS silver_folderpath,
-        now()                                                               AS sysinserttime
+        src."id"                                                              AS transactionheaderid,
+        src."orderId"                                                         AS orderid,
+        src."kioskSessionId"                                                  AS ordersessionid,
+        src."orderDate"                                                       AS orderdateutc,
+        src."businessDate"                                                    AS businessdate,
+        src."_ts"                                                             AS syscosmosts,
+        src."locationId"                                                      AS locationid,
+        src."kioskSource"::jsonb->>'kioskId'                                  AS kioskid,
+        src."kioskSource"::jsonb->>'name'                                     AS kiosk_name,
+        (src."kioskSource"::jsonb->>'kioskMode')::integer                     AS kiosk_mode,
+        src."isTestOrder"                                                     AS is_test_order,
+        src."loyaltyUser"::jsonb->>'id'                                       AS frequentcustomerid,
+        combo->>'comboId'                                                     AS combo_id,
+        combo->>'comboPosId'                                                  AS combo_pos_id,
+        combo->>'name'                                                        AS combo_name,
+        combo->>'orderItemId'                                                 AS combo_order_item_id,
+        combo->>'itemSessionId'                                               AS combo_item_session_id,
+        combo->>'conceptId'                                                   AS combo_concept_id,
+        combo->>'conceptName'                                                 AS combo_concept_name,
+        (combo->>'unitPriceCents')::numeric::bigint                           AS cents_combo_unit_price,
+        (combo->>'totalPriceCents')::numeric::bigint                          AS cents_combo_total_price,
+        (combo->>'quantity')::integer                                         AS combo_quantity,
+        combo->>'specialRequest'                                              AS combo_special_request,
+        (combo->'upsellSource')::text                                         AS combo_upsell_source,
+        combo->>'rewardSource'                                                AS combo_reward_source,
+        cs->>'componentId'                                                    AS component_id,
+        cs->>'componentPosId'                                                 AS component_pos_id,
+        cs->>'name'                                                           AS component_name,
+        cs->'item'->>'orderItemId'                                            AS component_item_order_item_id,
+        cs->'item'->>'menuItemId'                                             AS component_item_menu_item_id,
+        cs->'item'->>'name'                                                   AS component_item_name,
+        cs->'item'->>'menuItemPosId'                                          AS component_item_menu_item_pos_id,
+        cs->'item'->>'itemSessionId'                                          AS component_item_session_id,
+        cs->'item'->>'conceptId'                                              AS component_item_concept_id,
+        cs->'item'->>'conceptName'                                            AS component_item_concept_name,
+        (cs->'item'->>'quantity')::integer                                    AS component_item_quantity,
+        (cs->'item'->>'itemPrice')::numeric(12,3)                             AS component_item_price,
+        (cs->'item'->>'unitPrice')::numeric(12,3)                             AS component_item_unit_price,
+        ROUND((cs->'item'->>'unitPrice')::numeric * 100)::bigint              AS component_item_cents_unit_price,
+        (cs->'item'->>'totalPrice')::numeric(12,3)                            AS component_item_total_price,
+        ROUND((cs->'item'->>'totalPrice')::numeric * 100)::bigint             AS component_item_cents_total_price,
+        cs->'item'->>'specialRequest'                                         AS component_item_special_request,
+        (cs->'item'->'upsellSource')::text                                    AS component_item_upsell_source,
+        cs->'item'->>'rewardSource'                                           AS component_item_reward_source,
+        cs->'item'->'discountSource'->>'discountId'                           AS component_item_discount_id,
+        (cs->'item'->'discountSource'->>'isHiddenOnReceipt')::boolean         AS is_component_item_discount_hidden_on_receipt,
+        (cs->'item'->'discounts')::text                                       AS component_item_discounts,
+        (cs->'items')::text                                                   AS component_selections_items,
+        src."type"                                                            AS order_completion_status,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')                   AS bronze_filepath,
+        NULL::text                                                                     AS silver_transform_time,
+        NULL::text                                                                     AS silver_folderpath,
+        now()                                                                          AS sysinserttime,
+        src."bronze_folderpath"                                                        AS bronze_folderpath
     FROM stg.silver_all_transaction_entities src
-    CROSS JOIN LATERAL jsonb_array_elements(NULLIF(src.combos, '')::jsonb) AS combo
+    CROSS JOIN LATERAL jsonb_array_elements(NULLIF(src."combos", '')::jsonb) AS combo
     CROSS JOIN LATERAL jsonb_array_elements(COALESCE(combo->'componentSelections', '[]'::jsonb)) AS cs
-    WHERE src.type = 'order-placed'
-    AND NOT EXISTS (
-        SELECT 1 FROM stg.silver_transaction_combo_items c
-        WHERE c.transactionheaderid = src.id
-            AND c.locationid          = src.location_id
-    );
-
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" = 'order-placed'
+      AND NOT EXISTS (
+          SELECT 1 FROM stg.silver_transaction_combo_items c
+          WHERE c.locationid          = src."locationId"
+            AND c.transactionheaderid = src."id"
+      );
 
 
     -- ================================================================
-    -- 5. UPSELL RECOMMENDATIONS
+    -- 6. UPSELL RECOMMENDATIONS
     -- ================================================================
     INSERT INTO stg.silver_upsell_recommendations (
         transactionheaderid, orderid, ordersessionid, orderdateutc, businessdate,
@@ -572,84 +766,88 @@ BEGIN
         frequentcustomerid, recommendationid, prompttimestamp, modal_version,
         offered_items, selected_items,
         order_completion_status, bronze_filepath, silver_transform_time, silver_folderpath,
-        sysinserttime
+        sysinserttime, bronze_folderpath
     )
     SELECT
-        src.id                                           AS transactionheaderid,
-        src.order_id                                     AS orderid,
-        src.kiosk_session_id                             AS ordersessionid,
-        src.order_date                                   AS orderdateutc,
-        src.business_date                                AS businessdate,
-        src.syscosmosts                                  AS syscosmosts,
-        src.location_id                                  AS locationid,
-        src.kiosk_source::jsonb->>'kioskId'              AS kioskid,
-        src.kiosk_source::jsonb->>'name'                 AS kiosk_name,
-        (src.kiosk_source::jsonb->>'kioskMode')::integer AS kiosk_mode,
-        src.is_test_order                                AS is_test_order,
-        src.loyalty_user::jsonb->>'id'                   AS frequentcustomerid,
-        prompt->>'promptId'                              AS recommendationid,
-        prompt->>'promptTime'                            AS prompttimestamp,
-        prompt->>'modalVersion'                          AS modal_version,
-        (prompt->'offeredItems')::text                   AS offered_items,
-        (prompt->'selectedItems')::text                  AS selected_items,
-        src.type                                         AS order_completion_status,
-        src.bronze_filepath                              AS bronze_filepath,
-        NULL::text                                       AS silver_transform_time,
-        NULL::text                                       AS silver_folderpath,
-        now()                                            AS sysinserttime
+        src."id"                                            AS transactionheaderid,
+        src."orderId"                                       AS orderid,
+        src."kioskSessionId"                                AS ordersessionid,
+        src."orderDate"                                     AS orderdateutc,
+        src."businessDate"                                  AS businessdate,
+        src."_ts"                                           AS syscosmosts,
+        src."locationId"                                    AS locationid,
+        src."kioskSource"::jsonb->>'kioskId'                AS kioskid,
+        src."kioskSource"::jsonb->>'name'                   AS kiosk_name,
+        (src."kioskSource"::jsonb->>'kioskMode')::integer   AS kiosk_mode,
+        src."isTestOrder"                                   AS is_test_order,
+        src."loyaltyUser"::jsonb->>'id'                     AS frequentcustomerid,
+        prompt->>'promptId'                                 AS recommendationid,
+        prompt->>'promptTime'                               AS prompttimestamp,
+        prompt->>'modalVersion'                             AS modal_version,
+        (prompt->'offeredItems')::text                      AS offered_items,
+        (prompt->'selectedItems')::text                     AS selected_items,
+        src."type"                                          AS order_completion_status,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')                   AS bronze_filepath,
+        NULL::text                                                                     AS silver_transform_time,
+        NULL::text                                                                     AS silver_folderpath,
+        now()                                                                          AS sysinserttime,
+        src."bronze_folderpath"                                                        AS bronze_folderpath
     FROM stg.silver_all_transaction_entities src
     CROSS JOIN LATERAL jsonb_array_elements(
-        COALESCE(NULLIF(src.upsell_information, '')::jsonb->'upsellPrompt', '[]'::jsonb)
+        COALESCE(NULLIF(src."upsellInformation", '')::jsonb->'upsellPrompt', '[]'::jsonb)
     ) AS prompt
-    WHERE src.type = 'order-placed'
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" = 'order-placed'
       AND NOT EXISTS (
           SELECT 1 FROM stg.silver_upsell_recommendations ur
-          WHERE ur.transactionheaderid = src.id
-            AND ur.locationid          = src.location_id
+          WHERE ur.locationid          = src."locationId"
+            AND ur.transactionheaderid = src."id"
       );
 
 
     -- ================================================================
-    -- 6. MODIFIER RECOMMENDATIONS
+    -- 7. MODIFIER RECOMMENDATIONS
     -- ================================================================
     INSERT INTO stg.silver_modifier_recommendations (
         transactionheaderid, orderid, ordersessionid, orderdateutc, businessdate,
         syscosmosts, locationid, kioskid, kiosk_name, kiosk_mode, is_test_order,
         frequentcustomerid, modifier_interactions, modifier_impressions,
         order_completion_status, bronze_filepath, silver_transform_time, silver_folderpath,
-        sysinserttime
+        sysinserttime, bronze_folderpath
     )
     SELECT
-        src.id                                                                    AS transactionheaderid,
-        src.order_id                                                              AS orderid,
-        src.kiosk_session_id                                                      AS ordersessionid,
-        src.order_date                                                            AS orderdateutc,
-        src.business_date                                                         AS businessdate,
-        src.syscosmosts                                                           AS syscosmosts,
-        src.location_id                                                           AS locationid,
-        src.kiosk_source::jsonb->>'kioskId'                                       AS kioskid,
-        src.kiosk_source::jsonb->>'name'                                          AS kiosk_name,
-        (src.kiosk_source::jsonb->>'kioskMode')::integer                          AS kiosk_mode,
-        src.is_test_order                                                         AS is_test_order,
-        src.loyalty_user::jsonb->>'id'                                            AS frequentcustomerid,
-        (NULLIF(src.upsell_information, '')::jsonb->'modifierInteractions')::text AS modifier_interactions,
-        (NULLIF(src.upsell_information, '')::jsonb->'modifierImpressions')::text  AS modifier_impressions,
-        src.type                                                                  AS order_completion_status,
-        src.bronze_filepath                                                       AS bronze_filepath,
-        NULL::text                                                                AS silver_transform_time,
-        NULL::text                                                                AS silver_folderpath,
-        now()                                                                     AS sysinserttime
+        src."id"                                                                     AS transactionheaderid,
+        src."orderId"                                                                AS orderid,
+        src."kioskSessionId"                                                         AS ordersessionid,
+        src."orderDate"                                                              AS orderdateutc,
+        src."businessDate"                                                           AS businessdate,
+        src."_ts"                                                                    AS syscosmosts,
+        src."locationId"                                                             AS locationid,
+        src."kioskSource"::jsonb->>'kioskId'                                         AS kioskid,
+        src."kioskSource"::jsonb->>'name'                                            AS kiosk_name,
+        (src."kioskSource"::jsonb->>'kioskMode')::integer                            AS kiosk_mode,
+        src."isTestOrder"                                                            AS is_test_order,
+        src."loyaltyUser"::jsonb->>'id'                                              AS frequentcustomerid,
+        (NULLIF(src."upsellInformation", '')::jsonb->'modifierInteractions')::text   AS modifier_interactions,
+        (NULLIF(src."upsellInformation", '')::jsonb->'modifierImpressions')::text    AS modifier_impressions,
+        src."type"                                                                   AS order_completion_status,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')                  AS bronze_filepath,
+        NULL::text                                                                   AS silver_transform_time,
+        NULL::text                                                                   AS silver_folderpath,
+        now()                                                                        AS sysinserttime,
+        src."bronze_folderpath"                                                      AS bronze_folderpath
     FROM stg.silver_all_transaction_entities src
-    WHERE src.type = 'order-placed'
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" = 'order-placed'
       AND NOT EXISTS (
           SELECT 1 FROM stg.silver_modifier_recommendations mr
-          WHERE mr.transactionheaderid = src.id
-            AND mr.locationid          = src.location_id
+          WHERE mr.locationid          = src."locationId"
+            AND mr.transactionheaderid = src."id"
       );
 
 
     -- ================================================================
-    -- 7. MODIFIER IMPRESSIONS
+    -- 8. MODIFIER IMPRESSIONS
     -- ================================================================
     INSERT INTO stg.silver_modifier_impressions (
         transactionheaderid, orderid, ordersessionid, orderdateutc, businessdate,
@@ -658,54 +856,56 @@ BEGIN
         modifier_impressions_nesting_depth, modifier_impressions_context, strategy,
         modifierid, score, "position", selected, pre_selected, pre_deselected, confirmed_removed,
         order_completion_status, bronze_filepath, silver_transform_time, silver_folderpath,
-        sysinserttime
+        sysinserttime, bronze_folderpath
     )
     SELECT
-        src.id                                           AS transactionheaderid,
-        src.order_id                                     AS orderid,
-        src.kiosk_session_id                             AS ordersessionid,
-        src.order_date                                   AS orderdateutc,
-        src.business_date                                AS businessdate,
-        src.syscosmosts                                  AS syscosmosts,
-        src.location_id                                  AS locationid,
-        src.kiosk_source::jsonb->>'kioskId'              AS kioskid,
-        src.kiosk_source::jsonb->>'name'                 AS kiosk_name,
-        (src.kiosk_source::jsonb->>'kioskMode')::integer AS kiosk_mode,
-        src.is_test_order                                AS is_test_order,
-        src.loyalty_user::jsonb->>'id'                   AS frequentcustomerid,
-        imp->>'itemId'                                   AS menuitemid,
-        imp->>'parentModifierId'                         AS parentmodifierid,
-        imp->>'selectionType'                            AS selection_type,
-        (imp->>'nestingDepth')::integer                  AS modifier_impressions_nesting_depth,
-        (imp->'context')::text                           AS modifier_impressions_context,
-        imp->>'strategy'                                 AS strategy,
-        rec->>'modifierId'                               AS modifierid,
-        (rec->>'score')::integer                         AS score,
-        (rec->>'position')::integer                      AS "position",
-        (rec->>'selected')::boolean                      AS selected,
-        (rec->>'preSelected')::boolean                   AS pre_selected,
-        (rec->>'preDeselected')::boolean                 AS pre_deselected,
-        (rec->>'confirmedRemoved')::boolean              AS confirmed_removed,
-        src.type                                         AS order_completion_status,
-        src.bronze_filepath                              AS bronze_filepath,
-        NULL::text                                       AS silver_transform_time,
-        NULL::text                                       AS silver_folderpath,
-        now()                                            AS sysinserttime
+        src."id"                                            AS transactionheaderid,
+        src."orderId"                                       AS orderid,
+        src."kioskSessionId"                                AS ordersessionid,
+        src."orderDate"                                     AS orderdateutc,
+        src."businessDate"                                  AS businessdate,
+        src."_ts"                                           AS syscosmosts,
+        src."locationId"                                    AS locationid,
+        src."kioskSource"::jsonb->>'kioskId'                AS kioskid,
+        src."kioskSource"::jsonb->>'name'                   AS kiosk_name,
+        (src."kioskSource"::jsonb->>'kioskMode')::integer   AS kiosk_mode,
+        src."isTestOrder"                                   AS is_test_order,
+        src."loyaltyUser"::jsonb->>'id'                     AS frequentcustomerid,
+        imp->>'itemId'                                      AS menuitemid,
+        imp->>'parentModifierId'                            AS parentmodifierid,
+        imp->>'selectionType'                               AS selection_type,
+        (imp->>'nestingDepth')::integer                     AS modifier_impressions_nesting_depth,
+        (imp->'context')::text                              AS modifier_impressions_context,
+        imp->>'strategy'                                    AS strategy,
+        rec->>'modifierId'                                  AS modifierid,
+        (rec->>'score')::integer                            AS score,
+        (rec->>'position')::integer                         AS "position",
+        (rec->>'selected')::boolean                         AS selected,
+        (rec->>'preSelected')::boolean                      AS pre_selected,
+        (rec->>'preDeselected')::boolean                    AS pre_deselected,
+        (rec->>'confirmedRemoved')::boolean                 AS confirmed_removed,
+        src."type"                                          AS order_completion_status,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')                   AS bronze_filepath,
+        NULL::text                                                                     AS silver_transform_time,
+        NULL::text                                                                     AS silver_folderpath,
+        now()                                                                          AS sysinserttime,
+        src."bronze_folderpath"                                                        AS bronze_folderpath
     FROM stg.silver_all_transaction_entities src
     CROSS JOIN LATERAL jsonb_array_elements(
-        COALESCE(NULLIF(src.upsell_information, '')::jsonb->'modifierImpressions', '[]'::jsonb)
+        COALESCE(NULLIF(src."upsellInformation", '')::jsonb->'modifierImpressions', '[]'::jsonb)
     ) AS imp
     CROSS JOIN LATERAL jsonb_array_elements(COALESCE(imp->'recommendations', '[]'::jsonb)) AS rec
-    WHERE src.type = 'order-placed'
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" = 'order-placed'
       AND NOT EXISTS (
           SELECT 1 FROM stg.silver_modifier_impressions mi
-          WHERE mi.locationid          = src.location_id 
-            AND mi.transactionheaderid = src.id
+          WHERE mi.locationid          = src."locationId"
+            AND mi.transactionheaderid = src."id"
       );
 
 
     -- ================================================================
-    -- 8. MODIFIER INTERACTIONS
+    -- 9. MODIFIER INTERACTIONS
     -- ================================================================
     INSERT INTO stg.silver_modifier_interactions (
         transactionheaderid, orderid, ordersessionid, orderdateutc, businessdate,
@@ -714,88 +914,97 @@ BEGIN
         selection_type, modifier_interactions_action, modifier_interactions_recorded_at,
         modifier_interactions_nesting_depth,
         order_completion_status, bronze_filepath, silver_transform_time, silver_folderpath,
-        sysinserttime
+        sysinserttime, bronze_folderpath
     )
     SELECT
-        src.id                                           AS transactionheaderid,
-        src.order_id                                     AS orderid,
-        src.kiosk_session_id                             AS ordersessionid,
-        src.order_date                                   AS orderdateutc,
-        src.business_date                                AS businessdate,
-        src.syscosmosts                                  AS syscosmosts,
-        src.location_id                                  AS locationid,
-        src.kiosk_source::jsonb->>'kioskId'              AS kioskid,
-        src.kiosk_source::jsonb->>'name'                 AS kiosk_name,
-        (src.kiosk_source::jsonb->>'kioskMode')::integer AS kiosk_mode,
-        src.is_test_order                                AS is_test_order,
-        src.loyalty_user::jsonb->>'id'                   AS frequentcustomerid,
-        interaction->>'itemId'                           AS menuitemid,
-        interaction->>'modifierId'                       AS modifierid,
-        interaction->>'modifierGroupId'                  AS modifiergroupid,
-        interaction->>'parentModifierId'                 AS parent_modifier_id,
-        interaction->>'selectionType'                    AS selection_type,
-        interaction->>'action'                           AS modifier_interactions_action,
-        interaction->>'recordedAt'                       AS modifier_interactions_recorded_at,
-        (interaction->>'nestingDepth')::integer          AS modifier_interactions_nesting_depth,
-        src.type                                         AS order_completion_status,
-        src.bronze_filepath                              AS bronze_filepath,
-        NULL::text                                       AS silver_transform_time,
-        NULL::text                                       AS silver_folderpath,
-        now()                                            AS sysinserttime
+        src."id"                                            AS transactionheaderid,
+        src."orderId"                                       AS orderid,
+        src."kioskSessionId"                                AS ordersessionid,
+        src."orderDate"                                     AS orderdateutc,
+        src."businessDate"                                  AS businessdate,
+        src."_ts"                                           AS syscosmosts,
+        src."locationId"                                    AS locationid,
+        src."kioskSource"::jsonb->>'kioskId'                AS kioskid,
+        src."kioskSource"::jsonb->>'name'                   AS kiosk_name,
+        (src."kioskSource"::jsonb->>'kioskMode')::integer   AS kiosk_mode,
+        src."isTestOrder"                                   AS is_test_order,
+        src."loyaltyUser"::jsonb->>'id'                     AS frequentcustomerid,
+        interaction->>'itemId'                              AS menuitemid,
+        interaction->>'modifierId'                          AS modifierid,
+        interaction->>'modifierGroupId'                     AS modifiergroupid,
+        interaction->>'parentModifierId'                    AS parent_modifier_id,
+        interaction->>'selectionType'                       AS selection_type,
+        interaction->>'action'                              AS modifier_interactions_action,
+        interaction->>'recordedAt'                          AS modifier_interactions_recorded_at,
+        (interaction->>'nestingDepth')::integer             AS modifier_interactions_nesting_depth,
+        src."type"                                          AS order_completion_status,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')                   AS bronze_filepath,
+        NULL::text                                                                     AS silver_transform_time,
+        NULL::text                                                                     AS silver_folderpath,
+        now()                                                                          AS sysinserttime,
+        src."bronze_folderpath"                                                        AS bronze_folderpath
     FROM stg.silver_all_transaction_entities src
     CROSS JOIN LATERAL jsonb_array_elements(
-        COALESCE(NULLIF(src.upsell_information, '')::jsonb->'modifierInteractions', '[]'::jsonb)
+        COALESCE(NULLIF(src."upsellInformation", '')::jsonb->'modifierInteractions', '[]'::jsonb)
     ) AS interaction
-    WHERE src.type = 'order-placed'
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" = 'order-placed'
       AND NOT EXISTS (
           SELECT 1 FROM stg.silver_modifier_interactions mi
-          WHERE mi.locationid          = src.location_id 
-            AND mi.transactionheaderid = src.id
+          WHERE mi.locationid          = src."locationId"
+            AND mi.transactionheaderid = src."id"
       );
 
 
     -- ================================================================
-    -- 9. TRANSACTION REFUNDS
+    -- 10. TRANSACTION REFUNDS
     -- ================================================================
     INSERT INTO stg.silver_transaction_refunds (
         locationid, transactionheaderid, orderid,
         original_transaction_id, refund_transaction_id, refund_type,
         refunded_amount, order_completion_status, orderdateutc, syscosmosts,
-        bronze_filepath, silver_transform_time, silver_folderpath, sysinserttime
+        bronze_filepath, silver_transform_time, silver_folderpath, sysinserttime, bronze_folderpath
     )
     SELECT
-        src.location_id                    AS locationid,
-        src.id                             AS transactionheaderid,
-        src.order_id                       AS orderid,
-        src.original_transaction_id        AS original_transaction_id,
-        src.refund_transaction_id          AS refund_transaction_id,
-        src.refund_type                    AS refund_type,
-        src.refunded_amount::numeric(12,3) AS refunded_amount,
-        src.type                           AS order_completion_status,
-        src.order_date                     AS orderdateutc,
-        src.syscosmosts                    AS syscosmosts,
-        src.bronze_filepath                AS bronze_filepath,
-        NULL::text                         AS silver_transform_time,
-        NULL::text                         AS silver_folderpath,
-        now()                              AS sysinserttime
+        src."locationId"                         AS locationid,
+        src."id"                                 AS transactionheaderid,
+        src."orderId"                            AS orderid,
+        src."originalTransactionId"              AS original_transaction_id,
+        src."refundTransactionId"                AS refund_transaction_id,
+        src."refundType"                         AS refund_type,
+        src."refundedAmount"::numeric(12,3)      AS refunded_amount,
+        src."type"                               AS order_completion_status,
+        src."orderDate"                          AS orderdateutc,
+        src."_ts"                                AS syscosmosts,
+        CONCAT('/', src."bronze_folderpath", '/', src."id", '.json')                   AS bronze_filepath,
+        NULL::text                                                                     AS silver_transform_time,
+        NULL::text                                                                     AS silver_folderpath,
+        now()                                                                          AS sysinserttime,
+        src."bronze_folderpath"                                                        AS bronze_folderpath
     FROM stg.silver_all_transaction_entities src
-    WHERE src.type IN ('order-refund-amount', 'order-refund-transaction')
+    WHERE (p_partition_path IS NULL OR src."bronze_folderpath" = p_partition_path)
+      AND src."type" IN ('order-refund-amount', 'order-refund-transaction')
       AND NOT EXISTS (
           SELECT 1 FROM stg.silver_transaction_refunds r
-          WHERE r.locationid          = src.location_id 
-            AND r.transactionheaderid = src.id
+          WHERE r.locationid          = src."locationId"
+            AND r.transactionheaderid = src."id"
       );
 
 
     -- ================================================================
     -- FLUSH
     -- ================================================================
-    TRUNCATE TABLE stg.silver_all_transaction_entities;
+    IF p_partition_path IS NULL THEN
+        TRUNCATE TABLE stg.silver_all_transaction_entities;
+    ELSE
+        DELETE FROM stg.silver_all_transaction_entities
+        WHERE "bronze_folderpath" = p_partition_path;
+    END IF;
 
 END;
 $BODY$;
 
-ALTER PROCEDURE fact.usp_distribute_silver_transaction_entities() OWNER TO citus;
+ALTER PROCEDURE fact.usp_distribute_silver_transaction_entities(TEXT) OWNER TO citus;
 
 --
 -- TOC entry 870 (class 1255 OID 3654115)
@@ -1366,7 +1575,9 @@ BEGIN
                 WHEN 'Dormant' THEN 'Caution'
                 WHEN 'Unknown' THEN 'Down'
                 ELSE                'PartialUp'
-            END                                                         AS state
+            END                                                         AS state,
+            stg.status,
+            stg.statusmessage
         FROM  stg.fact_devicestate AS stg
         INNER JOIN live_locations  AS ll
                ON  ll.locationid = stg.locationid
@@ -1391,6 +1602,8 @@ BEGIN
         lasteventtime,
         statuschangetime,
         duration,
+        status,
+        statusmessage,
         sysinserttime
     )
     SELECT
@@ -1403,6 +1616,8 @@ BEGIN
         lasteventtime,
         statuschangetime,
         duration,
+        status,
+        statusmessage,
         NOW()::timestamp
     FROM delta;
 
@@ -1979,7 +2194,7 @@ FROM delta_interactions as mrc,
 SELECT mi.locationid,
        mi.transactionheaderid,
        mi.ordersessionid,
-       CASE WHEN mi.orderid LIKE 'ord-%' AND LENGTH(mi.orderid) > 4  THEN mrc.orderid
+       CASE WHEN mi.orderid LIKE 'ord-%' AND LENGTH(mi.orderid) > 4  THEN mi.orderid
             WHEN mi.orderid    = 'ord-'  AND mi.ordersessionid <> '' THEN CONCAT(mi.orderid, mi.ordersessionid)
             ELSE CONCAT('ord-', SUBSTRING(mi.transactionheaderid, 8, LENGTH(mi.transactionheaderid)))
        END as orderid,                
@@ -2383,6 +2598,21 @@ BEGIN
     WHERE watermarktablename = 'fact.itemssurvey'
       AND source             = 'nge';
 
+
+    --Update menu items with survey item ratings
+    WITH agg_rating AS (
+    SELECT its.itemid as menuitemid,
+        COUNT(*) AS x_times_rated,
+        ROUND(AVG(its.itemrating :: INTEGER), 2) AS average_rating
+    FROM fact.itemssurvey as its
+    GROUP BY its.itemid
+    )
+    UPDATE dim.menuitem
+    SET average_rating = ar.average_rating,
+        rating_count   = ar.x_times_rated
+    FROM agg_rating AS ar
+    WHERE menuitem.menuitemid   = ar.menuitemid;
+
 END;
 $BODY$;
 
@@ -2393,7 +2623,7 @@ ALTER PROCEDURE fact.usp_nge_update_itemssurvey() OWNER TO citus;
 -- TOC entry 967 (class 1255 OID 676702)
 -- Name: usp_offer_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
-
+--CALL fact.usp_offer_analysis();
 CREATE OR REPLACE PROCEDURE fact.usp_offer_analysis()
     LANGUAGE plpgsql
     AS $BODY$
@@ -2423,14 +2653,14 @@ WITH delta AS (
             rc.recommendationid,
             rc.offereditems,
             rc.prompttimestamp,
-            rc.prompttimestamp :: TIMESTAMP                                 AS upsellprompttime,
+            rc.prompttimestamp :: TIMESTAMP                            AS upsellprompttime,
             rc.syscosmosts,
-            element.value ->> 'itemId'       :: TEXT                       AS offered_itemid,
-            element.value ->> 'upsellLevel'  :: TEXT                       AS offered_upselllevel,
-            element.value ->> 'promptItemId' :: TEXT                       AS offered_prmpid,
-            element.value ->> 'upsellGroupId':: TEXT                       AS offered_upslgrpid
-        FROM delta AS rc,
-            LATERAL jsonb_array_elements(rc.offereditems) element(value)
+            (arr.obj ->> 'itemId')       :: TEXT                       AS offered_itemid,
+            (arr.obj ->> 'upsellLevel')  :: TEXT                       AS offered_upselllevel,
+            (arr.obj ->> 'promptItemId') :: TEXT                       AS offered_prmpid,
+            (arr.obj ->> 'upsellGroupId'):: TEXT                       AS offered_upslgrpid
+        FROM delta AS rc
+        LEFT JOIN LATERAL jsonb_array_elements(rc.offereditems) AS arr(obj) ON TRUE
 ), selected AS (
         SELECT
             rc.transactionheaderid,
@@ -2438,35 +2668,46 @@ WITH delta AS (
             rc.recommendationid,
             rc.selecteditems,
             rc.prompttimestamp,
-            element.value ->> 'itemId'       :: TEXT                       AS selected_itemid,
-            element.value ->> 'quantity'     :: TEXT                       AS selected_quantity,
-            element.value ->> 'upsellLevel'  :: TEXT                       AS selected_upselllevel,
-            element.value ->> 'promptItemId' :: TEXT                       AS selected_prmpid,
-            element.value ->> 'upsellGroupId':: TEXT                       AS selected_upslgrpid
-        FROM delta AS rc,
-            LATERAL jsonb_array_elements(rc.selecteditems) element(value)
+            (arr.obj ->> 'itemId')       :: TEXT                       AS selected_itemid,
+            (arr.obj ->> 'quantity')     :: TEXT                       AS selected_quantity,
+            (arr.obj ->> 'upsellLevel')  :: TEXT                       AS selected_upselllevel,
+            (arr.obj ->> 'promptItemId') :: TEXT                       AS selected_prmpid,
+            (arr.obj ->> 'upsellGroupId'):: TEXT                       AS selected_upslgrpid
+        FROM delta AS rc
+        LEFT JOIN LATERAL jsonb_array_elements(rc.selecteditems) arr(obj) ON TRUE
 ), item_analysis AS (
         SELECT
             r.locationid,
             r.transactionheaderid,
             r.recommendationid,
             r.offered_itemid                                                AS offereditem,
-            r.offered_upselllevel                                           AS offereditem_upselllevel,
+            CASE
+                WHEN lower(r.offered_upselllevel) = 'item'                         THEN 'Item'
+                WHEN lower(r.offered_upselllevel) = 'order'                        THEN 'Order'
+                WHEN lower(r.offered_upselllevel) IN ('ai-item', 'aiitem')         THEN 'AI-Item'
+                WHEN lower(r.offered_upselllevel) IN ('ai', 'ai-order', 'aiorder') THEN 'AI-Order'
+                ELSE r.offered_upselllevel
+            END                                                             AS offereditem_upselllevel,
             r.offered_prmpid                                                AS offered_promptitemid,
             r.offered_upslgrpid                                             AS offered_upsellgroupid,
             s.selected_itemid                                               AS selecteditem,
-            s.selected_upselllevel                                          AS selecteditem_upselllevel,
+            CASE
+                WHEN lower(s.selected_upselllevel) = 'item'                         THEN 'Item'
+                WHEN lower(s.selected_upselllevel) = 'order'                        THEN 'Order'
+                WHEN lower(s.selected_upselllevel) IN ('ai-item', 'aiitem')         THEN 'AI-Item'
+                WHEN lower(s.selected_upselllevel) IN ('ai', 'ai-order', 'aiorder') THEN 'AI-Order'
+                ELSE s.selected_upselllevel
+            END                                                             AS selecteditem_upselllevel,
             s.selected_prmpid                                               AS selected_promptitemid,
             s.selected_upslgrpid                                            AS selected_upsellgroupid,
             CASE
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'item'     THEN 'Item Level Upsells'
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'order'    THEN 'Order Level Upsells'
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai'       THEN 'Smart Order Upsells'
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai-order' THEN 'Smart Order Upsells'
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai-item'  THEN 'Smart Item Upsells'
-                ELSE NULL
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'item'                         THEN 'Item Level Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'order'                        THEN 'Order Level Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) IN ('ai-item', 'aiitem')         THEN 'Smart Item Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) IN ('ai', 'ai-order', 'aiorder') THEN 'Smart Order Upsells'
+                ELSE COALESCE(s.selected_upselllevel, r.offered_upselllevel)
             END                                                             AS upselltype,
-            COALESCE(s.selected_upslgrpid, r.offered_upslgrpid)            AS upsellgroupid,
+            COALESCE(s.selected_upslgrpid, r.offered_upslgrpid)             AS upsellgroupid,
             ul.upsellgroupname,
             CASE
                 WHEN lower(s.selected_quantity) = ANY (ARRAY['true', '1']) THEN 1
@@ -2477,8 +2718,9 @@ WITH delta AS (
             r.syscosmosts,
             NOW()                                                           AS sysinserttime
         FROM (SELECT * FROM rec WHERE rec.offered_itemid LIKE 'itm-%') AS r
-        LEFT JOIN selected                  AS s
-            ON  s.transactionheaderid :: TEXT = r.transactionheaderid :: TEXT
+        LEFT JOIN selected AS s
+            ON  s.locationid          :: TEXT = r.locationid          :: TEXT
+            AND s.transactionheaderid :: TEXT = r.transactionheaderid :: TEXT
             AND s.recommendationid    :: TEXT = r.recommendationid    :: TEXT
             AND s.selected_itemid     :: TEXT = r.offered_itemid      :: TEXT
         LEFT JOIN dim.upsellgrouplookup     AS ul
@@ -2489,22 +2731,33 @@ WITH delta AS (
             r.transactionheaderid,
             r.recommendationid,
             r.offered_itemid                                                AS offereditem,
-            r.offered_upselllevel                                           AS offereditem_upselllevel,
+            CASE
+                WHEN lower(r.offered_upselllevel) = 'item'                         THEN 'Item'
+                WHEN lower(r.offered_upselllevel) = 'order'                        THEN 'Order'
+                WHEN lower(r.offered_upselllevel) IN ('ai-item', 'aiitem')         THEN 'AI-Item'
+                WHEN lower(r.offered_upselllevel) IN ('ai', 'ai-order', 'aiorder') THEN 'AI-Order'
+                ELSE r.offered_upselllevel
+            END                                                             AS offereditem_upselllevel,
             r.offered_prmpid                                                AS offered_promptitemid,
             r.offered_upslgrpid                                             AS offered_upsellgroupid,
             s.selected_itemid                                               AS selecteditem,
-            s.selected_upselllevel                                          AS selecteditem_upselllevel,
+            CASE
+                WHEN lower(s.selected_upselllevel) = 'item'                         THEN 'Item'
+                WHEN lower(s.selected_upselllevel) = 'order'                        THEN 'Order'
+                WHEN lower(s.selected_upselllevel) IN ('ai-item', 'aiitem')         THEN 'AI-Item'
+                WHEN lower(s.selected_upselllevel) IN ('ai', 'ai-order', 'aiorder') THEN 'AI-Order'
+                ELSE s.selected_upselllevel
+            END                                                             AS selecteditem_upselllevel,
             s.selected_prmpid                                               AS selected_promptitemid,
             s.selected_upslgrpid                                            AS selected_upsellgroupid,
             CASE
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'item'     THEN 'Item Level Upsells'
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'order'    THEN 'Order Level Upsells'
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai'       THEN 'Smart Order Upsells'
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai-order' THEN 'Smart Order Upsells'
-                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'ai-item'  THEN 'Smart Item Upsells'
-                ELSE NULL
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'item'                         THEN 'Item Level Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) = 'order'                        THEN 'Order Level Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) IN ('ai-item', 'aiitem')         THEN 'Smart Item Upsells'
+                WHEN lower(COALESCE(s.selected_upselllevel, r.offered_upselllevel)) IN ('ai', 'ai-order', 'aiorder') THEN 'Smart Order Upsells'
+                ELSE COALESCE(s.selected_upselllevel, r.offered_upselllevel)
             END                                                             AS upselltype,
-            COALESCE(s.selected_upslgrpid, r.offered_upslgrpid)            AS upsellgroupid,
+            COALESCE(s.selected_upslgrpid, r.offered_upslgrpid)             AS upsellgroupid,
             ul.upsellgroupname,
             CASE
                 WHEN lower(s.selected_quantity) = ANY (ARRAY['true', '1']) THEN 1
@@ -2514,22 +2767,83 @@ WITH delta AS (
             r.upsellprompttime,
             r.syscosmosts,
             NOW()                                                           AS sysinserttime
-        FROM (SELECT * FROM rec WHERE rec.offered_itemid LIKE 'cat-%') AS r
+        FROM (SELECT * FROM rec 
+              WHERE rec.offered_itemid LIKE 'cat-%'
+                AND EXISTS 
+                    (SELECT 1 FROM selected
+                     WHERE selected.locationid          = rec.locationid
+                       AND selected.transactionheaderid = rec.transactionheaderid
+                       AND selected.recommendationid    = rec.recommendationid
+                       AND selected.selected_itemid IS NOT NULL)
+                ) AS r
         INNER JOIN dim.category_hierarchy   AS ctg
-            ON  ctg.categoryid = r.offered_itemid
+            ON  ctg.locationid = r.locationid
+            AND ctg.categoryid = r.offered_itemid
         INNER JOIN (
                 SELECT * FROM selected
-                WHERE selected.selected_itemid NOT IN (SELECT offered_itemid FROM rec)
-              )                             AS s
-            ON  s.transactionheaderid :: TEXT = r.transactionheaderid :: TEXT
+                WHERE EXISTS --selected.selected_itemid NOT IN (SELECT offered_itemid FROM rec) 
+                    (SELECT 1 FROM rec
+                     WHERE rec.locationid          = selected.locationid
+                       AND rec.transactionheaderid = selected.transactionheaderid
+                       AND rec.recommendationid    = selected.recommendationid
+                       AND rec.offered_itemid LIKE 'cat-%'
+                       AND selected.selected_itemid IS NOT NULL)
+              ) AS s
+            ON  s.locationid          :: TEXT = r.locationid          :: TEXT
+            AND s.transactionheaderid :: TEXT = r.transactionheaderid :: TEXT
             AND s.recommendationid    :: TEXT = r.recommendationid    :: TEXT
             AND s.selected_itemid             = ctg.menuitemid
         LEFT JOIN dim.upsellgrouplookup     AS ul
             ON  ul.upsellgroupid :: TEXT = COALESCE(s.selected_upslgrpid, r.offered_upslgrpid)
+), unselected_category AS (
+        SELECT
+            r.locationid,
+            r.transactionheaderid,
+            r.recommendationid,
+            r.offered_itemid                                                AS offereditem,
+            CASE
+                WHEN lower(r.offered_upselllevel) = 'item'                         THEN 'Item'
+                WHEN lower(r.offered_upselllevel) = 'order'                        THEN 'Order'
+                WHEN lower(r.offered_upselllevel) IN ('ai-item', 'aiitem')         THEN 'AI-Item'
+                WHEN lower(r.offered_upselllevel) IN ('ai', 'ai-order', 'aiorder') THEN 'AI-Order'
+                ELSE r.offered_upselllevel
+            END                                                             AS offereditem_upselllevel,
+            r.offered_prmpid                                                AS offered_promptitemid,
+            r.offered_upslgrpid                                             AS offered_upsellgroupid,
+            NULL :: TEXT                                                    AS selecteditem,
+            NULL :: TEXT                                                    AS selecteditem_upselllevel,
+            NULL :: TEXT                                                    AS selected_promptitemid,
+            NULL :: TEXT                                                    AS selected_upsellgroupid,
+            CASE
+                WHEN lower(r.offered_upselllevel) = 'item'                         THEN 'Item Level Upsells'
+                WHEN lower(r.offered_upselllevel) = 'order'                        THEN 'Order Level Upsells'
+                WHEN lower(r.offered_upselllevel) IN ('ai-item', 'aiitem')         THEN 'Smart Item Upsells'
+                WHEN lower(r.offered_upselllevel) IN ('ai', 'ai-order', 'aiorder') THEN 'Smart Order Upsells'
+                ELSE r.offered_upselllevel
+            END                                                             AS upselltype,
+            r.offered_upslgrpid                                             AS upsellgroupid,
+            ul.upsellgroupname,
+            NULL :: INTEGER                                                 AS quantity,
+            r.prompttimestamp,
+            r.upsellprompttime,
+            r.syscosmosts,
+            NOW()                                                           AS sysinserttime
+        FROM rec as r
+        LEFT JOIN dim.upsellgrouplookup     AS ul
+               ON ul.upsellgroupid :: TEXT = r.offered_upslgrpid :: TEXT
+        WHERE r.offered_itemid LIKE 'cat-%'
+          AND EXISTS 
+                    (SELECT 1 FROM selected
+                     WHERE selected.locationid          = r.locationid
+                       AND selected.transactionheaderid = r.transactionheaderid
+                       AND selected.recommendationid    = r.recommendationid
+                       AND selected.selected_itemid IS NULL)
 ), total AS (
         SELECT * FROM item_analysis
         UNION
         SELECT * FROM category_analysis
+        UNION
+        SELECT * FROM unselected_category
 )
 INSERT INTO fact.vw_offer_analysis (
     locationid,
@@ -3201,32 +3515,29 @@ CREATE OR REPLACE PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent()
     LANGUAGE plpgsql
     AS $BODY$
 DECLARE
-    v_max_syscosmosts BIGINT;
+    v_watermark_ts    BIGINT;   -- raw ts from watermarktable (no offset)
+    v_max_syscosmosts BIGINT;   -- lookback-adjusted, used in WHERE filter
+    v_new_watermark   BIGINT;   -- derived from inserted batch, written back
 BEGIN
 
-    -- Capture watermark once upfront
-    SELECT COALESCE(ts, 1775002010) - 600
-    INTO v_max_syscosmosts
+    SELECT COALESCE(ts, 1775002010)
+    INTO v_watermark_ts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.deviceevent'
       AND source             = 'gem';
 
+    v_max_syscosmosts := v_watermark_ts - 600;
+
     WITH new_events AS (
 
-        -- ── Source filter + dedup ─────────────────────────────
-        -- DISTINCT ON natural key, latest syscosmosts wins
-        -- NOT EXISTS mirrors ADF negate exists against AnalyticsDbEvents:
-        --   location == locationid
-        --   token    == eventtoken
-        --   category == datacategory
-        --   type     == actiontype
-        --   instant  == eventinstant
-        -- EXISTS dim.organizationlocation mirrors ADF dimOrgLoc exists check
-        --   and aligns with the FK constraint on fact.deviceevent
+        -- COALESCE(token, device) produces a non-NULL effective token for
+        -- device-level events (setup/registered, setup/authorized, etc.)
+        -- that carry no order session token.
+        -- NOT EXISTS removed — ON CONFLICT DO NOTHING handles cross-run dedup atomically.
 
         SELECT DISTINCT ON (
             ske.locationid,
-            ske.token,
+            COALESCE(NULLIF(ske.token, ''), NULLIF(ske.device, ''), ske.syscosmosticks :: TEXT),   -- ← DISTINCT ON key            
             ske.eventcategory,
             ske.eventtype,
             ske.eventinstant
@@ -3238,26 +3549,18 @@ BEGIN
             ske.eventcategory,
             ske.eventtype,
             ske.severity,
-            ske.token,
+            COALESCE(NULLIF(ske.token, ''), NULLIF(ske.device, ''), ske.syscosmosticks :: TEXT) as token,   -- ← DISTINCT ON key            
             ske.eventinstant,
             ske.username,
             ske.userid,
             ske.device,
+            ske.devicename,
             ske.summary,
             ske.data,
             ske.syscosmosticks,
             ske.syscosmosts
         FROM stg.silver_kiosk_events            AS ske
-        WHERE ske.syscosmosts   > v_max_syscosmosts
-          AND NOT EXISTS (
-                SELECT 1
-                FROM fact.deviceevent           AS de
-                WHERE de.locationid   = ske.locationid
-                  AND de.eventtoken   = ske.token
-                  AND de.datacategory = ske.eventcategory
-                  AND de.actiontype   = ske.eventtype
-                  AND de.eventinstant = ske.eventinstant
-              )
+        WHERE ske.syscosmosts > v_max_syscosmosts
           AND EXISTS (
                 SELECT 1
                 FROM dim.organizationlocation   AS ol
@@ -3266,62 +3569,73 @@ BEGIN
               )
         ORDER BY
             ske.locationid,
-            ske.token,
+            COALESCE(NULLIF(ske.token, ''), NULLIF(ske.device, ''), ske.syscosmosticks :: TEXT),         
             ske.eventcategory,
             ske.eventtype,
             ske.eventinstant,
             ske.syscosmosts DESC NULLS LAST
 
+    ),
+    inserted AS (
+
+        INSERT INTO fact.deviceevent (
+            application,
+            companyid,
+            locationid,
+            moduleid,
+            datacategory,
+            actiontype,
+            severity,
+            eventtoken,
+            eventinstant,
+            dateid,
+            username,
+            userid,
+            deviceid,
+            devicename,
+            summary,
+            eventdata,
+            syscosmosticks,
+            sysinserttime,
+            syscosmosts
+        )
+        SELECT
+            application,
+            companyid,
+            locationid,
+            eventmodule                                                         AS moduleid,
+            eventcategory                                                       AS datacategory,
+            eventtype                                                           AS actiontype,
+            severity,
+            token                                                               AS eventtoken,
+            eventinstant,
+            REPLACE(REPLACE(SUBSTRING(eventinstant, 1, 13), '-', ''), 'T', '')
+                :: INTEGER                                                      AS dateid,
+            username,
+            userid,
+            device                                                              AS deviceid,
+            devicename                                                          AS devicename,
+            summary,
+            data                                                                AS eventdata,
+            syscosmosticks,
+            NOW() :: TIMESTAMP                                                  AS sysinserttime,
+            syscosmosts
+        FROM new_events
+        ON CONFLICT (locationid, eventtoken, datacategory, actiontype, eventinstant)
+            DO NOTHING
+        RETURNING syscosmosts
+
     )
-    INSERT INTO fact.deviceevent (
-        application,
-        companyid,
-        locationid,
-        moduleid,
-        datacategory,
-        actiontype,
-        severity,
-        eventtoken,
-        eventinstant,
-        dateid,
-        username,
-        userid,
-        deviceid,
-        devicename,
-        summary,
-        eventdata,
-        syscosmosticks,
-        sysinserttime,
-        syscosmosts
-    )
-    SELECT
-        application,
-        companyid,
-        locationid,
-        eventmodule                                                         AS moduleid,
-        eventcategory                                                       AS datacategory,
-        eventtype                                                           AS actiontype,
-        severity,
-        token                                                               AS eventtoken,
-        eventinstant,
-        REPLACE(REPLACE(SUBSTRING(eventinstant, 1, 13), '-', ''), 'T', '')
-            :: INTEGER                                                      AS dateid,
-        username,
-        userid,
-        device                                                              AS deviceid,
-        device                                                              AS devicename,
-        summary,
-        data                                                                AS eventdata,
-        syscosmosticks,
-        NOW() :: TIMESTAMP                                                  AS sysinserttime,
-        syscosmosts
-    FROM new_events;
+    SELECT COALESCE(MAX(syscosmosts), v_watermark_ts)
+    INTO v_new_watermark
+    FROM inserted;
 
     UPDATE fact.watermarktable
-    SET ts = (SELECT COALESCE(MAX(syscosmosts), 1775002010) FROM fact.deviceevent),
+    SET ts            = v_new_watermark,
         sysupdatetime = NOW() :: TIMESTAMP
     WHERE watermarktablename = 'fact.deviceevent'
       AND source             = 'gem';
+
 END;
 $BODY$;
 
@@ -3389,7 +3703,7 @@ BEGIN
             ske.eventcategory,
             ske.eventtype,
             ske.eventinstant,
-            ske.syscosmosts DESC NULLS LAST
+            ske.syscosmosticks DESC NULLS LAST
 
     ), parsed_events AS (
 
@@ -3484,6 +3798,9 @@ $BODY$;
 
 
 ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour() OWNER TO citus;
+
+
+
 
 
 CREATE OR REPLACE PROCEDURE fact.usp_stg_gem_failed_order_job_notifications_to_fact()

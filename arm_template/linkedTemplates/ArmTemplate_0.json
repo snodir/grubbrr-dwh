@@ -59,6 +59,10 @@
             "type": "secureString",
             "metadata": "Secure string for 'password' of 'ServicesPGNew'"
         },
+        "StgADLSgas_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'StgADLSgas'"
+        },
         "ADLSgas_properties_typeProperties_url": {
             "type": "string",
             "defaultValue": "https://stggastesteastus.dfs.core.windows.net/"
@@ -118,6 +122,10 @@
         "ServicesPGNew_properties_typeProperties_username": {
             "type": "string",
             "defaultValue": "citus"
+        },
+        "StgADLSgas_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://stggasstageeastus.dfs.core.windows.net"
         },
         "kyv_grubbrr_dev_properties_typeProperties_baseUrl": {
             "type": "string",
@@ -477,6 +485,23 @@
             "dependsOn": []
         },
         {
+            "name": "[concat(parameters('factoryName'), '/StgADLSgas')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('StgADLSgas_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('StgADLSgas_accountKey')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/kyv_grubbrr_dev')]",
             "type": "Microsoft.DataFactory/factories/linkedServices",
             "apiVersion": "2018-06-01",
@@ -759,220 +784,6 @@
                 "typeProperties": {
                     "schema": "dim",
                     "table": "element"
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/OrdersPGNew')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/AnalyticsDbDimOrganization')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "id",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "name",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "address1",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "address2",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "city",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "state",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "zipcode",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "country",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "organizationtype",
-                        "type": "smallint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "status",
-                        "type": "smallint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "phonenumber",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "email",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "isdeleted",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "createdon",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "createdby",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifiedon",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "modifiedby",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "active",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "timezone",
-                        "type": "character varying",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "coordinates",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "dayofweek",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "hour",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "minutes",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "roundupforcharity",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_ecm_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_cep_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_concessionaire_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_smart_upsells_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_feedback_survey_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_digital_menu_board_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "is_digital_menu_default_format_enabled",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "cep_subscriptions",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "dim",
-                    "table": "organization"
                 }
             },
             "dependsOn": [

@@ -59,6 +59,10 @@
             "type": "secureString",
             "metadata": "Secure string for 'password' of 'ServicesPGNew'"
         },
+        "StgADLSgas_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'StgADLSgas'"
+        },
         "ADLSgas_properties_typeProperties_url": {
             "type": "string",
             "defaultValue": "https://stggastesteastus.dfs.core.windows.net/"
@@ -118,6 +122,10 @@
         "ServicesPGNew_properties_typeProperties_username": {
             "type": "string",
             "defaultValue": "citus"
+        },
+        "StgADLSgas_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://stggasstageeastus.dfs.core.windows.net"
         },
         "kyv_grubbrr_dev_properties_typeProperties_baseUrl": {
             "type": "string",
@@ -189,6 +197,9 @@
                     "ServicesPGNew_password": {
                         "value": "[parameters('ServicesPGNew_password')]"
                     },
+                    "StgADLSgas_accountKey": {
+                        "value": "[parameters('StgADLSgas_accountKey')]"
+                    },
                     "ADLSgas_properties_typeProperties_url": {
                         "value": "[parameters('ADLSgas_properties_typeProperties_url')]"
                     },
@@ -233,6 +244,9 @@
                     },
                     "ServicesPGNew_properties_typeProperties_username": {
                         "value": "[parameters('ServicesPGNew_properties_typeProperties_username')]"
+                    },
+                    "StgADLSgas_properties_typeProperties_url": {
+                        "value": "[parameters('StgADLSgas_properties_typeProperties_url')]"
                     },
                     "kyv_grubbrr_dev_properties_typeProperties_baseUrl": {
                         "value": "[parameters('kyv_grubbrr_dev_properties_typeProperties_baseUrl')]"
@@ -579,6 +593,26 @@
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_16')]"
+            ]
+        },
+        {
+            "name": "df-gas-test-eastus_ArmTemplate_18",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2024-03-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_18.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'df-gas-test-eastus_ArmTemplate_17')]"
             ]
         }
     ]

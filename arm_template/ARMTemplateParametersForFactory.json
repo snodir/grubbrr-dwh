@@ -44,6 +44,9 @@
         "ServicesPGNew_password": {
             "value": ""
         },
+        "StgADLSgas_accountKey": {
+            "value": ""
+        },
         "ADLSgas_properties_typeProperties_url": {
             "value": "https://stggastesteastus.dfs.core.windows.net/"
         },
@@ -88,6 +91,9 @@
         },
         "ServicesPGNew_properties_typeProperties_username": {
             "value": "citus"
+        },
+        "StgADLSgas_properties_typeProperties_url": {
+            "value": "https://stggasstageeastus.dfs.core.windows.net"
         },
         "kyv_grubbrr_dev_properties_typeProperties_baseUrl": {
             "value": "https://kyv-grubbrr-dev-eastus.vault.azure.net/"

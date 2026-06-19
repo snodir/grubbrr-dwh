@@ -1,3 +1,14 @@
+/*
+CALL fact.usp_modifier_recommendations_stage_to_fact();
+CALL fact.usp_modifier_impression_analysis();
+CALL fact.usp_modifier_interaction_analysis();
+
+SELECT 1 AS rn;
+
+CALL fact.usp_gem_sent_surveys_to_fact();
+CALL fact.usp_sent_surveys_to_fact_itemssurvey();
+*/
+
 --drop table if exists dim.occasionsurvey;
 CREATE TABLE IF NOT EXISTS dim.occasionsurvey
 (
@@ -226,7 +237,7 @@ SELECT * FROM fact.sent_surveys
 SELECT * FROM fact.occasionsurveydetail
 SELECT * FROM fact.itemssurvey
 
-CALL fact.usp_sent_surveys_to_fact_itemssurvey();
+--CALL fact.usp_sent_surveys_to_fact_itemssurvey();
 
 CREATE OR REPLACE PROCEDURE fact.usp_sent_surveys_to_fact_itemssurvey()
 LANGUAGE plpgsql
