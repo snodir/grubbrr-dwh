@@ -1551,7 +1551,8 @@ BEGIN
     ),
 
     delta AS (
-        SELECT
+        SELECT DISTINCT ON (stg.locationid, stg.deviceid, stg.healthdatatime)
+            stg.id,
             stg.companyid,
             stg.locationid,
             stg.deviceid,
@@ -1577,7 +1578,8 @@ BEGIN
                 ELSE                'PartialUp'
             END                                                         AS state,
             stg.status,
-            stg.statusmessage
+            stg.statusmessage,
+            stg.healthdatatype
         FROM  stg.fact_devicestate AS stg
         INNER JOIN live_locations  AS ll
                ON  ll.locationid = stg.locationid
@@ -1586,10 +1588,11 @@ BEGIN
           AND NOT EXISTS (
                   SELECT 1
                   FROM   fact.devicestate AS f
-                  WHERE  f.deviceid      = stg.deviceid
-                    AND  f.locationid    = stg.locationid
+                  WHERE  f.locationid    = stg.locationid 
+                    AND  f.deviceid      = stg.deviceid
                     AND  f.lasteventtime = stg.healthdatatime
               )
+        ORDER BY stg.locationid, stg.deviceid, stg.healthdatatime, stg.statuschangetime DESC
     )
 
     INSERT INTO fact.devicestate (
@@ -1604,10 +1607,11 @@ BEGIN
         duration,
         status,
         statusmessage,
+        healthdatatype,
         sysinserttime
     )
     SELECT
-        NEXTVAL('fact.devicestate_id_seq'),
+        NEXTVAL('fact.devicestate_id_seq') as id,
         companyid,
         locationid,
         deviceid,
@@ -1618,7 +1622,8 @@ BEGIN
         duration,
         status,
         statusmessage,
-        NOW()::timestamp
+        healthdatatype,
+        NOW()::timestamp                  as sysinserttime
     FROM delta;
 
 
@@ -3510,7 +3515,7 @@ ALTER PROCEDURE fact.usp_silver_item_modifiers_to_fact() OWNER TO citus;
 -- TOC entry 1241 (class 1255 OID 3605479)
 -- Name: usp_silver_kiosk_events_to_fact_deviceevent(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
-
+--CALL fact.usp_silver_kiosk_events_to_fact_deviceevent();
 CREATE OR REPLACE PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent()
     LANGUAGE plpgsql
     AS $BODY$
@@ -3553,7 +3558,9 @@ BEGIN
             ske.eventinstant,
             ske.username,
             ske.userid,
-            ske.device,
+            CASE WHEN ske.device LIKE 'ksk-%' OR  ske.device <> '' THEN ske.device 
+                 WHEN ske.devicename LIKE 'ksk-%' THEN ske.devicename 
+                 ELSE ske.device END AS device,
             ske.devicename,
             ske.summary,
             ske.data,
@@ -3573,7 +3580,7 @@ BEGIN
             ske.eventcategory,
             ske.eventtype,
             ske.eventinstant,
-            ske.syscosmosts DESC NULLS LAST
+            ske.syscosmosticks DESC NULLS LAST
 
     ),
     inserted AS (
@@ -3646,66 +3653,65 @@ ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_deviceevent() OWNER TO citu
 -- Name: usp_silver_kiosk_events_to_fact_userbehaviour(); Type: PROCEDURE; Schema: fact; Owner: citus
 --
 
+--CALL fact.usp_silver_kiosk_events_to_fact_userbehaviour();
 CREATE OR REPLACE PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour()
     LANGUAGE plpgsql
     AS $BODY$
 DECLARE
-    v_max_syscosmosts BIGINT;
+    v_watermark_ts    BIGINT;   -- raw ts from watermarktable (no offset)
+    v_max_syscosmosts BIGINT;   -- lookback-adjusted, used in WHERE filter
+    v_new_watermark   BIGINT;   -- derived from inserted batch, written back
 BEGIN
 
-    -- Capture watermark once upfront
-    -- -10 buffer mirrors transactionheader pattern to catch late-arriving events
-    SELECT COALESCE(ts, 1775002010) - 600
-    INTO v_max_syscosmosts
+    SELECT COALESCE(ts, 1775002010)
+    INTO v_watermark_ts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.userbehaviour'
       AND source             = 'gem';
 
+    v_max_syscosmosts := v_watermark_ts - 600;
 
     WITH new_events AS (
 
         SELECT DISTINCT ON (
             ske.locationid,
-            ske.token,
+            COALESCE(NULLIF(ske.token, ''), NULLIF(ske.device, ''), ske.syscosmosticks::TEXT),
             ske.eventcategory,
             ske.eventtype,
             ske.eventinstant
         )
             ske.locationid,
-            ske.token                               AS ordersessionidentifier,
+            COALESCE(NULLIF(ske.token, ''), NULLIF(ske.device, ''), ske.syscosmosticks::TEXT) AS ordersessionidentifier,
             ske.eventcategory,
             ske.eventinstant,
             ske.eventtype,
             ske.data,
-            ske.device,
-            ske.syscosmosts
-        FROM stg.silver_kiosk_events                AS ske
-        WHERE ske.eventmodule      = 'kiosk'
-          AND ske.eventcategory    = 'insight'
-          AND ske.syscosmosts      > v_max_syscosmosts
-          AND NOT EXISTS (
-                SELECT 1
-                FROM fact.userbehaviour             AS ub
-                WHERE ub.locationid             = ske.locationid
-                  AND ub.ordersessionidentifier = ske.token
-                  AND ub.eventcategory          = ske.eventcategory
-                  AND ub.eventtype              = ske.eventtype
-                  AND ub.eventinstant           = ske.eventinstant
-              )
+            CASE WHEN ske.device LIKE 'ksk-%' OR ske.device <> '' THEN ske.device
+                 WHEN ske.devicename LIKE 'ksk-%'                  THEN ske.devicename
+                 ELSE ske.device END AS device,
+            ske.syscosmosts,
+            ske.syscosmosticks
+        FROM stg.silver_kiosk_events AS ske
+        WHERE ske.eventmodule    = 'kiosk'
+          AND ske.eventcategory IN ('insight', 'Order', 'StoreTiming', 'BusinessHours', 'Session')
+          AND ske.syscosmosts    > v_max_syscosmosts
           AND EXISTS (
                 SELECT 1
-                FROM dim.organization               AS o
+                FROM dim.organization AS o
                 WHERE o.id = ske.locationid
               )
         ORDER BY
             ske.locationid,
-            ske.token,
+            COALESCE(NULLIF(ske.token, ''), NULLIF(ske.device, ''), ske.syscosmosticks::TEXT),
             ske.eventcategory,
             ske.eventtype,
             ske.eventinstant,
             ske.syscosmosticks DESC NULLS LAST
 
     ), parsed_events AS (
+
+        -- NOT EXISTS removed: ON CONFLICT DO NOTHING handles cross-run dedup atomically
+        -- now that the unique constraint exists on fact.userbehaviour
 
         SELECT
             ne.locationid,
@@ -3714,16 +3720,16 @@ BEGIN
             ne.eventinstant,
             ne.eventtype,
             ne.syscosmosts,
+            fact.parse_iso_timestamp(ne.eventinstant)                                               AS busdate,
+            REPLACE(REPLACE(SUBSTRING(ne.eventinstant, 1, 13), '-', ''), 'T', '')::INTEGER          AS dateid,
+            NULLIF(TRIM(fact.safe_conversion_to_jsonb(ne.data)::jsonb->>'view'),         '')         AS view_name,
+            COALESCE(NULLIF(TRIM(fact.safe_conversion_to_jsonb(ne.data)::jsonb->>'element'),   ''), 'None') AS element_name,
+            COALESCE(NULLIF(TRIM(fact.safe_conversion_to_jsonb(ne.data)::jsonb->>'elementId'), ''), 'None') AS source_element_id,
+            NULLIF(TRIM(fact.safe_conversion_to_jsonb(ne.data)::jsonb->>'quantity'),     '')::INTEGER AS quantity,
+            NULLIF(TRIM(fact.safe_conversion_to_jsonb(ne.data)::jsonb->>'itemSessionId'), '')         AS itemsessionidentifier,
             ne.device,
-            fact.parse_iso_timestamp(ne.eventinstant)                             AS busdate,
-            REPLACE(REPLACE(SUBSTRING(ne.eventinstant, 1, 13), '-', ''), 'T', '')
-                :: INTEGER                                                         AS dateid,
-            NULLIF(TRIM(ne.data::jsonb->>'view'),         '')                     AS view_name,
-            COALESCE(NULLIF(TRIM(ne.data::jsonb->>'element'),   ''), 'None')      AS element_name,
-            COALESCE(NULLIF(TRIM(ne.data::jsonb->>'elementId'), ''), 'None')      AS source_element_id,
-            NULLIF(TRIM(ne.data::jsonb->>'quantity'), '')::INTEGER                AS quantity,
-            NULLIF(TRIM(ne.data::jsonb->>'itemSessionId'), '')                    AS itemsessionidentifier
-        FROM new_events ne
+            ne.syscosmosticks
+        FROM new_events AS ne
         WHERE ne.data IS NOT NULL
           AND ne.data <> ''
 
@@ -3740,65 +3746,98 @@ BEGIN
             pe.dateid,
             pe.itemsessionidentifier,
             pe.quantity,
-            ot.id                                   AS ordertype,
-            dv.viewid                               AS viewidentifier,
-            de.elementid                            AS elementidentifier,
-            'None'  :: TEXT                         AS daypart,
-            NOW()   :: TIMESTAMP                    AS createddate
-        FROM parsed_events                          AS pe
-        LEFT JOIN dim.ordertype                     AS ot
-            ON  ot.locationid = pe.locationid
-            AND ot.kioskid    = pe.device
-        LEFT JOIN dim.view                          AS dv
-            ON  dv.viewname   = pe.view_name
-        LEFT JOIN dim.element                       AS de
+            ot.id                AS ordertype,
+            dv.viewid            AS viewidentifier,
+            de.elementid         AS elementidentifier,
+            'None'::TEXT         AS daypart,
+            NOW()::TIMESTAMP     AS createddate,
+            pe.device            AS deviceid,
+            pe.syscosmosticks
+        FROM parsed_events AS pe
+        LEFT JOIN (
+            SELECT
+                locationid,
+                ordersessionid,
+                kioskid,
+                orderdateutc,   -- ← was missing comma here
+                CASE WHEN ordertype = '' OR ordertype IS NULL
+                     THEN order_type_label
+                     ELSE ordertype END AS ordertypeid
+            FROM stg.silver_transaction_header
+        ) AS st
+            ON  st.locationid     = pe.locationid
+            AND st.ordersessionid = pe.ordersessionidentifier
+        LEFT JOIN dim.ordertype AS ot
+            ON  ot.locationid  = st.locationid
+            AND ot.kioskid     = st.kioskid
+            AND ot.ordertypeid = st.ordertypeid
+        LEFT JOIN dim.view AS dv
+            ON  dv.viewname        = pe.view_name
+        LEFT JOIN dim.element AS de
             ON  de.elementname     = pe.element_name
             AND de.sourceelementid = pe.source_element_id
 
+    ), inserted AS (
+
+        INSERT INTO fact.userbehaviour (
+            id,
+            busdate,
+            locationid,
+            dateid,
+            daypart,
+            ordertype,
+            eventtype,
+            ordersessionidentifier,
+            viewidentifier,
+            itemsessionidentifier,
+            elementidentifier,
+            quantity,
+            createddate,
+            syscosmosts,
+            eventinstant,
+            eventcategory,
+            deviceid,
+            syscosmosticks
+        )
+        SELECT
+            nextval('fact.userbehaviour_id_seq'),
+            busdate::TIMESTAMP,
+            locationid,
+            dateid,
+            daypart,
+            ordertype,
+            eventtype,
+            ordersessionidentifier,
+            viewidentifier,
+            itemsessionidentifier,
+            elementidentifier,
+            quantity,
+            createddate,
+            syscosmosts,
+            eventinstant,
+            eventcategory,
+            deviceid,
+            syscosmosticks
+        FROM enriched
+        ON CONFLICT (locationid, ordersessionidentifier, eventcategory, eventtype, eventinstant)
+            DO NOTHING
+        RETURNING syscosmosts
+
     )
-    INSERT INTO fact.userbehaviour (
-        id,
-        busdate,
-        locationid,
-        dateid,
-        daypart,
-        ordertype,
-        eventtype,
-        ordersessionidentifier,
-        viewidentifier,
-        itemsessionidentifier,
-        elementidentifier,
-        quantity,
-        createddate,
-        syscosmosts,
-        eventinstant,
-        eventcategory
-    )
-    SELECT
-        nextval('fact.userbehaviour_id_seq'),
-        busdate :: TIMESTAMP AS busdate,
-        locationid,
-        dateid,
-        daypart,
-        ordertype,
-        eventtype,
-        ordersessionidentifier,
-        viewidentifier,
-        itemsessionidentifier,
-        elementidentifier,
-        quantity,
-        createddate,
-        syscosmosts,
-        eventinstant,
-        eventcategory
-    FROM enriched;
+    SELECT COALESCE(MAX(syscosmosts), v_watermark_ts)
+    INTO v_new_watermark
+    FROM inserted;
+
+    UPDATE fact.watermarktable
+    SET ts            = v_new_watermark,
+        sysupdatetime = NOW()::TIMESTAMP
+    WHERE watermarktablename = 'fact.userbehaviour'
+      AND source             = 'gem';
 
 END;
 $BODY$;
 
-
 ALTER PROCEDURE fact.usp_silver_kiosk_events_to_fact_userbehaviour() OWNER TO citus;
-
 
 
 

@@ -4,6 +4,13 @@ SELECT * FROM dim.menuitem ORDER BY id DESC LIMIT 100;
 SELECT * FROM dim.itemcategory ORDER BY id DESC LIMIT 100;
 SELECT * FROM dim.element ORDER BY elementid DESC LIMIT 100;
 
+SELECT locationid, transactionheaderid, paymentintegrationid, paymentid,
+    count(*) as dupl_count
+FROM fact.transactionpayment
+GROUP BY locationid, transactionheaderid, paymentintegrationid, paymentid
+HAVING count(*) > 1
+ORDER BY dupl_count DESC
+
 SELECT menuitemid, count(*)-- ROW_NUMBER() OVER(PARTITION BY menuitemid ORDER BY gms_modified_on DESC) as rn
 FROM dim.menuitem
 GROUP BY menuitemid

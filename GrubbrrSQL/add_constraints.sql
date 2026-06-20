@@ -1,9 +1,12 @@
 ALTER TABLE IF EXISTS dim.menuitem
 ADD CONSTRAINT menuitemid_unq UNIQUE (menuitemid)
 
+ALTER TABLE IF EXISTS fact.devicestate
+ADD CONSTRAINT locationid_deviceid_lasteventtime_pkey PRIMARY KEY (locationid, deviceid, lasteventtime);
+
 
 ALTER TABLE fact.vw_offer_analysis
---add CONSTRAINT trxnid_recommendationid_itemid_uidx UNIQUE (transactionheaderid, recommendationid, offereditem),
+ADD CONSTRAINT trxnid_recommendationid_itemid_uidx UNIQUE (locationid, transactionheaderid, recommendationid, offereditem), --21 seconds
 DROP CONSTRAINT locationid_trxnid_recommendationid_fk 
 FOREIGN KEY (locationid, transactionheaderid, recommendationid) 
 REFERENCES fact.recommendations(locationid, transactionheaderid, recommendationid);

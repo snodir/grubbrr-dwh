@@ -130,6 +130,21 @@ $$;
 
 ALTER FUNCTION dim.is_valid_jsonb(input text) OWNER TO citus;
 
+
+CREATE OR REPLACE FUNCTION fact.safe_conversion_to_jsonb(p_input TEXT)
+RETURNS jsonb
+LANGUAGE plpgsql
+IMMUTABLE
+AS $BODY$
+BEGIN
+    RETURN p_input::jsonb;
+EXCEPTION WHEN OTHERS THEN
+    RETURN NULL;
+END;
+$BODY$;
+
+ALTER FUNCTION fact.safe_conversion_to_jsonb(TEXT) OWNER TO citus;
+
 --
 -- TOC entry 1457 (class 1255 OID 3568570)
 -- Name: parse_iso_timestamp(text); Type: FUNCTION; Schema: fact; Owner: citus
@@ -2248,15 +2263,20 @@ ALTER SEQUENCE fact.devicestate_id_seq OWNER TO citus;
 
 CREATE TABLE IF NOT EXISTS fact.devicestate (
     id bigint DEFAULT nextval('fact.devicestate_id_seq'::regclass) NOT NULL,
-    companyid text,
-    locationid text,
-    deviceid text,
-    dateid integer,
-    state text,
-    lasteventtime timestamp without time zone,
-    statuschangetime timestamp without time zone,
-    duration numeric(10,3),
-    sysinserttime timestamp without time zone
+    companyid      TEXT,
+    locationid     TEXT,
+    deviceid       TEXT,
+    dateid         INTEGER,
+    state          TEXT,
+    lasteventtime  TIMESTAMP,
+    statuschangetime TIMESTAMP,
+    duration       NUMERIC(10,3),
+    sysinserttime  TIMESTAMP,
+    status         TEXT, --added on 2026-06-19 for enhanced System Health Report
+    statusmessage  TEXT, --added on 2026-06-19 for enhanced System Health Report
+    healthdatatype TEXT, --added on 2026-06-19 for enhanced System Health Report
+    sysupdatetime  TIMESTAMP,
+    CONSTRAINT locationid_deviceid_lasteventtime_pkey PRIMARY KEY (locationid, deviceid, lasteventtime)
 );
 
 
@@ -2265,10 +2285,11 @@ ALTER TABLE IF EXISTS fact.devicestate OWNER TO citus;
 -- Schema evolution: fact.devicestate
 ALTER TABLE IF EXISTS fact.devicestate
 ALTER COLUMN duration TYPE NUMERIC(10,3),
-ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
-ADD COLUMN IF NOT EXISTS status        TEXT,
-ADD COLUMN IF NOT EXISTS statusmessage TEXT,
-ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+ADD COLUMN IF NOT EXISTS sysinserttime  TIMESTAMP,
+ADD COLUMN IF NOT EXISTS status         TEXT,  --added on 2026-06-19 for enhanced System Health Report
+ADD COLUMN IF NOT EXISTS statusmessage  TEXT,  --added on 2026-06-19 for enhanced System Health Report
+ADD COLUMN IF NOT EXISTS healthdatatype TEXT,  --added on 2026-06-19 for enhanced System Health Report
+ADD COLUMN IF NOT EXISTS sysupdatetime  TIMESTAMP;
 
 
 ALTER TABLE IF EXISTS fact.devicestate
@@ -2289,7 +2310,8 @@ CREATE TABLE IF NOT EXISTS fact.devicetelemetry (
     cputimestamp timestamp without time zone,
     memorytimestamp timestamp without time zone,
     sysinserttime timestamp without time zone,
-    sysupdatetime timestamp without time zone
+    sysupdatetime timestamp without time zone,
+    CONSTRAINT devicetelemetry_pkey PRIMARY KEY (locationid, deviceid, dateid)
 );
 
 
@@ -3057,7 +3079,10 @@ CREATE TABLE IF NOT EXISTS fact.userbehaviour (
     syscosmosts bigint,
     eventinstant text,
     eventcategory text,
-    sysupdatetime timestamp without time zone
+    sysupdatetime timestamp without time zone,
+    deviceid       TEXT,
+    syscosmosticks BIGINT,
+    eventdata      TEXT
 );
 
 
@@ -3068,7 +3093,10 @@ ALTER TABLE IF EXISTS fact.userbehaviour
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS eventinstant text,
 ADD COLUMN IF NOT EXISTS eventcategory TEXT COLLATE pg_catalog."default",
-ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
+ADD COLUMN IF NOT EXISTS deviceid TEXT,
+ADD COLUMN IF NOT EXISTS syscosmosticks BIGINT,
+ADD COLUMN IF NOT EXISTS eventdata TEXT;
 
 
 ALTER TABLE IF EXISTS fact.userbehaviour

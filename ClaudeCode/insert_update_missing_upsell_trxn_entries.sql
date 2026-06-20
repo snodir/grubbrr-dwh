@@ -1,6 +1,14 @@
-select * from fact.transactionheader where transactionheaderid = 'ordevt-P5LOYP1V6SCAK6FP';
-select * from fact.transactionitem where transactionheaderid = 'ordevt-P5LOYP1V6SCAK6FP';
-select * from fact.recommendations where transactionheaderid = 'ordevt-P5LOYP1V6SCAK6FP';
+SELECT * FROM fact.transactionheader WHERE transactionheaderid = 'ordevt-P5LOYP1V6SCAK6FP';
+SELECT * FROM fact.transactionitem WHERE transactionheaderid = 'ordevt-P5LOYP1V6SCAK6FP';
+SELECT * FROM fact.recommendations WHERE transactionheaderid = 'ordevt-P5LOYP1V6SCAK6FP';
+
+SELECT * 
+FROM fact.vw_offer_analysis 
+WHERE selecteditem IS NOT NULL
+--AND transactionheaderid = 'ordevt-P5LOYP1V6SCAK6FP'
+ORDER BY sysinserttime DESC
+LIMIT 100;
+
 
 ALTER TABLE IF EXISTS fact.vw_offer_analysis
 --DROP CONSTRAINT trxnid_recommendationid_itemid_uidx,-- IF EXISTS,

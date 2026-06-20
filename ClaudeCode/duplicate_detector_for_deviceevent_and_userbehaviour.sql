@@ -2,6 +2,218 @@ SELECT * FROM stg.silver_kiosk_events LIMIT 100;
 
 SELECT *, ctid FROM fact.deviceevent WHERE syscosmosts IS NOT NULL ORDER BY syscosmosts DESC LIMIT 100;
 
+
+
+ALTER TABLE IF EXISTS fact.deviceevent --Total execution time: 00:00:56.279
+ADD CONSTRAINT locationid_eventtoken_datacategory_actiontype_eventinstant_unq UNIQUE (locationid, eventtoken, datacategory, actiontype, eventinstant)
+
+ALTER TABLE IF EXISTS fact.userbehaviour --Total execution time: 00:00:05.004
+ADD CONSTRAINT locationid_eventtoken_eventcategory_eventtype_eventinstant_unq UNIQUE (locationid, ordersessionidentifier, eventcategory, eventtype, eventinstant)
+
+ALTER TABLE IF EXISTS fact.userbehaviour
+ADD COLUMN IF NOT EXISTS deviceid TEXT,
+ADD COLUMN IF NOT EXISTS syscosmosticks BIGINT,
+ADD COLUMN IF NOT EXISTS eventdata TEXT;
+
+--TRUNCATE TABLE fact.userbehaviour
+
+SELECT *-- count(*) --DISTINCT de.datacategory, de.actiontype
+FROM fact.userbehaviour as ub --5,707,284***252,036
+WHERE eventcategory IN ('insight','Order','StoreTiming','BusinessHours','Session') 
+--AND deviceid = ''
+ORDER BY id DESC
+LIMIT 1000;
+
+SELECT count(*) --*--DISTINCT de.datacategory, de.actiontype
+FROM fact.deviceevent as de --6,413,074***1,036,943
+WHERE 1=1--AND de.datacategory IN ('insight','Order','StoreTiming','BusinessHours','Session') --IN ('insight','Order')--
+AND de.eventtoken = ''
+--AND de.deviceid = ''
+--AND (de.eventdata LIKE '%"view"%' OR de.eventdata LIKE '%"element"%' OR de.eventdata LIKE '%"elementId"%')
+LIMIT 100;
+
+SELECT * FROM dim.view ORDER BY viewid DESC
+--SELECT * FROM dim.element LIMIT 100; WHERE sourceelementid = '' OR sourceelementid IS NULL ORDER BY elementid DESC; --0 rows
+
+    
+    DROP TABLE IF EXISTS tmp_view;
+    CREATE TEMP TABLE tmp_view AS --SELECT 286181 Total execution time: 00:00:28.129
+    SELECT DISTINCT
+        NULLIF(TRIM(eventdata::jsonb->>'view'), '') AS viewname
+    FROM (SELECT fact.safe_conversion_to_jsonb(eventdata) as eventdata FROM fact.userbehaviour /*WHERE dim.is_valid_jsonb(eventdata)*/) as ub
+    WHERE NULLIF(TRIM(eventdata::jsonb->>'view'), '') IS NOT NULL;
+
+    CREATE INDEX ix_tmp_view ON tmp_view (viewname);
+    ANALYZE tmp_view;
+
+    SELECT * FROM tmp_view LIMIT 1000;
+
+    --TRUNCATE TABLE dim.view;
+    INSERT INTO dim.view (viewid, viewname, sysinserttime)
+    SELECT
+        ROW_NUMBER() OVER(ORDER BY t.viewname) as new_id, -- nextval('dim.view_id_seq'),
+        t.viewname,
+        NOW()::TIMESTAMP as sysinserttime
+    FROM tmp_view t
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dim.view v
+        WHERE v.viewname = t.viewname
+    );
+
+
+UPDATE fact.deviceevent
+SET deviceid = CASE WHEN deviceid LIKE 'ksk-%' OR  deviceid <> '' THEN deviceid WHEN devicename LIKE 'ksk-%' THEN devicename END
+WHERE deviceid = ''
+
+UPDATE fact.userbehaviour
+SET deviceid = de.deviceid,
+    sysupdatetime = NOW() :: TIMESTAMP
+FROM fact.deviceevent as de
+WHERE userbehaviour.locationid             = de.locationid
+  AND userbehaviour.ordersessionidentifier = de.eventtoken
+  AND userbehaviour.eventcategory          = de.datacategory
+  AND userbehaviour.eventtype              = de.actiontype
+  AND userbehaviour.eventinstant           = de.eventinstant
+  AND userbehaviour.deviceid               = ''
+
+
+WITH ub AS (
+    SELECT id, 
+        fact.safe_conversion_to_jsonb(eventdata) as eventdata,
+        TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'view') as viewname
+    FROM fact.userbehaviour
+    WHERE fact.safe_conversion_to_jsonb(eventdata) IS NOT NULL 
+      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'view'), '') IS NOT NULL
+), ub_view AS (
+    SELECT ub.*, v.viewid
+    FROM ub 
+    INNER JOIN dim.view as v 
+            ON v.viewname = ub.viewname
+)
+UPDATE fact.userbehaviour
+SET viewidentifier = ub.viewid, --UPDATE 625,314, Total execution time: 00:01:19.169
+    sysupdatetime = NOW() :: TIMESTAMP
+FROM ub_view as ub
+WHERE userbehaviour.id = ub.id;
+
+
+WITH ub AS (
+    SELECT id, 
+        fact.safe_conversion_to_jsonb(eventdata) as eventdata,
+        TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'element') as elementname,
+        TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'elementId') as sourceelementid
+    FROM fact.userbehaviour
+    WHERE fact.safe_conversion_to_jsonb(eventdata) IS NOT NULL 
+      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'element'), '')   IS NOT NULL
+      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'elementId'), '') IS NOT NULL
+), ub_element AS (
+    SELECT ub.*, e.elementid
+    FROM ub 
+    INNER JOIN dim.element as e
+            ON e.sourceelementid = ub.sourceelementid
+           AND e.elementname     = ub.elementname
+)
+UPDATE fact.userbehaviour
+SET elementidentifier = ub.elementid, --UPDATE 211,534, Total execution time: 00:00:51.772
+    sysupdatetime = NOW() :: TIMESTAMP
+FROM ub_element as ub
+WHERE userbehaviour.id = ub.id;
+
+UPDATE fact.userbehaviour
+SET ordertype     = th.ordertype,   --UPDATE 548,850, Total execution time: 00:00:41.540
+    sysupdatetime = NOW() :: TIMESTAMP
+FROM fact.transactionheader as th
+WHERE userbehaviour.locationid             = th.locationid
+  AND userbehaviour.ordersessionidentifier = th.ordersessionid;
+
+/*
+INSERT 0 1036943
+Total execution time: 00:01:33.442
+*/
+    WITH parsed_events AS (
+        SELECT
+            fact.parse_iso_timestamp(de.eventinstant)                               AS busdate,
+            de.locationid                                                            AS locationid,
+            REPLACE(REPLACE(SUBSTRING(de.eventinstant, 1, 13), '-', ''), 'T', '')
+                ::INTEGER                                                            AS dateid,
+            'None'                                                                   AS daypart,
+            de.actiontype                                                            AS eventtype,
+            de.eventtoken                                                            AS ordersessionidentifier,
+            -- Parse once; all field extractions below reuse this column
+            fact.safe_conversion_to_jsonb(de.eventdata)                              AS eventdata_json,
+            NOW()::TIMESTAMP                                                         AS createddate,
+            de.syscosmosts,
+            de.eventinstant,
+            de.datacategory                                                          AS eventcategory,
+            de.deviceid,
+            de.syscosmosticks,
+            de.eventdata                                                             AS eventdata
+        FROM fact.deviceevent AS de
+        WHERE de.datacategory IN ('insight', 'Order', 'StoreTiming', 'BusinessHours', 'Session')
+
+    ),
+    extracted AS (
+
+        SELECT
+            busdate,
+            locationid,
+            dateid,
+            daypart,
+            eventtype,
+            ordersessionidentifier,
+            --NULLIF(TRIM(eventdata_json->>'view'),         '')                      AS view_name,
+            --COALESCE(NULLIF(TRIM(eventdata_json->>'element'),   ''), 'None')       AS element_name,
+            --COALESCE(NULLIF(TRIM(eventdata_json->>'elementId'), ''), 'None')       AS source_element_id,
+            NULLIF(TRIM(eventdata_json->>'itemSessionId'), '')                       AS itemsessionidentifier,
+            NULLIF(TRIM(eventdata_json->>'quantity'), '')::INTEGER                   AS quantity,
+            createddate,
+            syscosmosts,
+            eventinstant,
+            eventcategory,
+            deviceid,
+            syscosmosticks,
+            eventdata
+        FROM parsed_events
+
+    )
+    INSERT INTO fact.userbehaviour (
+        id,
+        busdate,
+        locationid,
+        dateid,
+        daypart,
+        eventtype,
+        ordersessionidentifier,
+        itemsessionidentifier,
+        quantity,
+        createddate,
+        syscosmosts,
+        eventinstant,
+        eventcategory,
+        deviceid,
+        syscosmosticks,
+        eventdata
+    )
+    SELECT
+        ROW_NUMBER() OVER (ORDER BY syscosmosticks)  AS id,
+        busdate::TIMESTAMP,
+        locationid,
+        dateid,
+        daypart,
+        eventtype,
+        ordersessionidentifier,
+        itemsessionidentifier,
+        quantity,
+        createddate,
+        syscosmosts,
+        eventinstant,
+        eventcategory,
+        deviceid,
+        syscosmosticks,
+        eventdata
+    FROM extracted;
+
 --639165814406676069	1,780,984,640
 EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
 SELECT DISTINCT ON (
@@ -208,9 +420,7 @@ LIMIT 100
 
 SELECT count(*) FROM fact.deviceevent WHERE moduleid = 'kiosk' AND datacategory = 'insight'
 
-ALTER TABLE IF EXISTS fact.userbehaviour
-ADD COLUMN IF NOT EXISTS deviceid TEXT,
-ADD COLUMN IF NOT EXISTS syscosmosticks BIGINT;
+
 
 UPDATE fact.userbehaviour
 SET deviceid       = de.deviceid,
@@ -259,3 +469,244 @@ WHERE EXISTS (--1,116,953 rows deleted from 7,530,035 record table, however rows
                 AND ub.ctid             >  fact.userbehaviour.ctid)  -- tiebreaker for Type C NULLs
       )
 )
+
+-- Table: fact.userbehaviour
+
+-- DROP TABLE IF EXISTS fact.userbehaviour;
+
+CREATE TABLE IF NOT EXISTS fact.userbehaviour_bkp
+(
+    id bigint NOT NULL,-- DEFAULT nextval('fact.userbehaviour_id_seq'::regclass),
+    busdate timestamp without time zone,
+    locationid text COLLATE pg_catalog."default",
+    dateid integer,
+    daypart text COLLATE pg_catalog."default",
+    ordertype bigint,
+    eventtype text COLLATE pg_catalog."default",
+    ordersessionidentifier text COLLATE pg_catalog."default",
+    viewidentifier integer,
+    itemsessionidentifier text COLLATE pg_catalog."default",
+    elementidentifier integer,
+    quantity integer,
+    createddate timestamp without time zone,
+    syscosmosts bigint,
+    eventinstant text COLLATE pg_catalog."default",
+    eventcategory text COLLATE pg_catalog."default",
+    sysupdatetime timestamp without time zone,
+    deviceid text COLLATE pg_catalog."default",
+    syscosmosticks bigint
+    --CONSTRAINT userbehaviour_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS fact.userbehaviour_bkp
+    OWNER to citus;
+
+
+--INSERT INTO fact.userbehaviour_bkp 
+--SELECT * FROM fact.userbehaviour;
+
+
+/*
+BusinessHours	StoreClosed
+BusinessHours	StoreOpened
+insight	
+insight	AcceptanceOfAlcoholicAgeBySelf
+insight	AcceptanceOfAlcoholicAgeByStaff
+insight	AcceptGuards
+insight	AcceptGuardsClicked
+insight	AddAsIsClicked
+insight	Addasisselected
+insight	AddAsIsSelected
+insight	AddComboAsIsSelected
+insight	AddCustomTipClicked
+insight	AddFromLast5
+insight	AddItemSelected
+insight	AddressSuggestionSelected
+insight	AddTipClicked
+insight	AddToBag
+insight	AddToCart
+insight	AddToCartClicked
+insight	AppySelected
+insight	BackAutoReward
+insight	BackspaceClicked
+insight	BillingDataCollected
+insight	BillingFormSubmitted
+insight	CancelAlcoholicAgeVerificationByStaff
+insight	CancelAlcoholicOrderTypeSwitch
+insight	CancelCharity
+insight	CancellingOrder
+insight	Cancelorder
+insight	CancelOrder
+insight	CancelRefund
+insight	CancelSignInClicked
+insight	CartPreviewBackClicked
+insight	CartPreviewComboClicked
+insight	CartPreviewItemClicked
+insight	CartPreviewNextClicked
+insight	Categoryselected
+insight	CategorySelected
+insight	CategoryTabSelected
+insight	ChangePrimaryModifierClicked
+insight	CheckoutClicked
+insight	ClearClicked
+insight	click
+insight	CloseAlcoholWarningModal
+insight	CloseAutoReward
+insight	CloseClicked
+insight	CloseComboModifierPopup
+insight	CloseCustomizeComboSelected
+insight	CloseCustomizeItemSelected
+insight	CloseDialog
+insight	CloseFreeItemSelected
+insight	CloseMenuAvailabilityModal
+insight	CloseSubtotalZeroWithReward
+insight	ComboComponentChoiceGroupingClicked
+insight	ComboComponentItemSelected
+insight	ComboComponentNavClicked
+insight	ComboComponentSelected
+insight	ComboCustomizeClicked
+insight	ComboItemSelected
+insight	ComboModifierPopupDone
+insight	ComboSizeSelected
+insight	ConcessionaireSelected
+insight	ConfirmAlcoholicOrderTypeSwitch
+insight	ConfirmCancelClicked
+insight	ContinueCharity
+insight	ContinueClicked
+insight	ContinueOrder
+insight	CoverageOptionClicked
+insight	CreateAccountSelected
+insight	Customernameentered
+insight	CustomerNameEntered
+insight	Customerphoneentered
+insight	CustomerPhoneEntered
+insight	CustomizeClicked
+insight	CustomizeComboSelected
+insight	Customizeitemselected
+insight	CustomizeItemSelected
+insight	CustomTipClicked
+insight	DeclineClicked
+insight	DiscountApplied
+insight	DiscountCardClicked
+insight	DiscountClicked
+insight	DiscountRemoved
+insight	EmailReceipt
+insight	ExitClicked
+insight	FeedbackForm
+insight	FinishOrderClicked
+insight	GotItClicked
+insight	GotoPreviousView
+insight	HeaderConceptSelected
+insight	HeaderLogoSelected
+insight	ItemAvailabilityChanged
+insight	ItemCustomizeClicked
+insight	ItemRemoved
+insight	ItemSelected
+insight	ItemSpecialRequestAdd
+insight	ItemSpecialRequestClear
+insight	ItemSpecialRequestOpen
+insight	KeepOrdering
+insight	KeypadPressed
+insight	LandingAssetSelected
+insight	LanguageSelected
+insight	LastFiveOrdersTab
+insight	LoginAttempt
+insight	LoginCompleted
+insight	LoyaltyButtonClicked
+insight	LoyaltySignedIn
+insight	LoyaltySignedOut
+insight	LoyaltySignIn
+insight	MainMenuSearchClicked
+insight	ModalClosed
+insight	ModalOpened
+insight	ModifierAvailabilityChanged
+insight	ModifierCodeSelected
+insight	ModifierCustomizeChanged
+insight	ModifierDescriptionModalClosed
+insight	ModifierGroupSelected
+insight	ModifierGroupViewed
+insight	Modifierselected
+insight	ModifierSelected
+insight	Modifierunselected
+insight	ModifierUnselected
+insight	ModifierUpsellDeclined
+insight	NextCategoryClicked
+insight	NoTipSelected
+insight	Ok
+insight	OrderCancelled
+insight	OrderPostAuth
+insight	OrderRefunded
+insight	OrderTypeChanged
+insight	Ordertypeselected
+insight	OrderTypeSelected
+insight	OTPRequired
+insight	OtpSignUpSelected
+insight	PageViewed
+insight	PayClicked
+insight	PaymentMethodSelected
+insight	Paymentoption
+insight	PaymentOption
+insight	Payment Otp Selected
+insight	PaySubtotalZeroWithReward
+insight	PopupCanceled
+insight	PostAuthAttempted
+insight	PreviousCategoryClicked
+insight	PrintReceiptClicked
+insight	QuantityChanged
+insight	Receipt
+insight	RefundAttempted
+insight	Regularitemselected
+insight	RegularItemSelected
+insight	RemoveItemClicked
+insight	RemoveOtherConceptItemsNo
+insight	RemoveOtherConceptItemsYes
+insight	RemoveSelectedItem
+insight	RemoveSoldOutItems
+insight	ResendOTP
+insight	ReturnToOrderClicked
+insight	ReviewOrderClicked
+insight	RewardAdded
+insight	RewardApplied
+insight	RewardRemoved
+insight	RewardsTab
+insight	SelectLanguage
+insight	SignedInSelected
+insight	SignUpClicked
+insight	SignUpSelected
+insight	SkipClicked
+insight	SkippedSelected
+insight	SkipSelected
+insight	SpecialRequestEntered
+insight	SubCategorySelected
+insight	SubmitClicked
+insight	SubmitPhoneClicked
+insight	TableTentEntered
+insight	TextReceipt
+insight	TipSelected
+insight	ToggleDetailsClicked
+insight	TryAgainClicked
+insight	UpsellCategorySelected
+insight	UpsellCheckout
+insight	UpsellComboSelected
+insight	Upselldeclined
+insight	UpsellDeclined
+insight	UpsellItemSelected
+insight	UpsellItemUnselected
+insight	UpsellViewCart
+insight	ViewLast5Clicked
+insight	ViewRewardsClicked
+insight	VisitMenuClicked
+Order	Checkoutclicked
+Order	CheckoutClicked
+Order	Revieworderclicked
+Order	ReviewOrderClicked
+Session	Started
+Store Timing	Store Closed
+Store Timing	Store Open
+Store Timing	Store Opened
+StoreTiming	StoreClosed
+StoreTiming	Storeopened
+StoreTiming	StoreOpened
+*/

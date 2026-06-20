@@ -1296,15 +1296,15 @@ BEGIN
 
     CREATE TEMP TABLE tmp_element ON COMMIT DROP AS
     SELECT DISTINCT
-        COALESCE(NULLIF(TRIM(data::jsonb->>'element'),   ''), 'None') AS elementname,
-        COALESCE(NULLIF(TRIM(data::jsonb->>'elementId'), ''), 'None') AS sourceelementid
+        COALESCE(NULLIF(TRIM(fact.safe_conversion_to_jsonb(ke.data)::jsonb->>'element'),   ''), 'None') AS elementname,
+        COALESCE(NULLIF(TRIM(fact.safe_conversion_to_jsonb(ke.data)::jsonb->>'elementId'), ''), 'None') AS sourceelementid
     FROM stg.silver_kiosk_events as ke
-    WHERE ke.eventmodule      = 'kiosk'
-      AND ke.eventcategory    = 'insight'
-      AND ke.data             IS NOT NULL
-      AND ke.data             <> ''
+    WHERE ke.eventmodule    = 'kiosk'
+      AND ke.eventcategory IN ('insight', 'Order', 'StoreTiming', 'BusinessHours', 'Session')
+      AND ke.data          IS NOT NULL
+      AND ke.data          <> ''
       -- Mirrors ADF filter1: exclude rows where elementId parsed to NULL
-      AND (ke.data::jsonb)->>'elementId' IS NOT NULL;
+      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(ke.data)::jsonb->>'elementId'), '') IS NOT NULL;
 
     CREATE INDEX ix_tmp_element ON tmp_element (elementname, sourceelementid);
     ANALYZE tmp_element;
@@ -2914,13 +2914,13 @@ BEGIN
 
     CREATE TEMP TABLE tmp_view ON COMMIT DROP AS
     SELECT DISTINCT
-        NULLIF(TRIM(data::jsonb->>'view'), '') AS viewname
+        NULLIF(TRIM(fact.safe_conversion_to_jsonb(ke.data)::jsonb->>'view'), '') AS viewname
     FROM stg.silver_kiosk_events as ke
-    WHERE ke.eventmodule      = 'kiosk'
-      AND ke.eventcategory    = 'insight'
-      AND ke.data             IS NOT NULL
-      AND ke.data             <> ''
-      AND NULLIF(TRIM(data::jsonb->>'view'), '') IS NOT NULL;
+    WHERE ke.eventmodule    = 'kiosk'
+      AND ke.eventcategory IN ('insight', 'Order', 'StoreTiming', 'BusinessHours', 'Session')
+      AND ke.data          IS NOT NULL
+      AND ke.data          <> ''
+      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(ke.data)::jsonb->>'view'), '') IS NOT NULL;
 
     CREATE INDEX ix_tmp_view ON tmp_view (viewname);
     ANALYZE tmp_view;

@@ -1,8 +1,8 @@
 --CALL fact.usp_distribute_silver_gem_events();
 
-SELECT *
-FROM stg.silver_all_gem_events
-LIMIT 100;
+SELECT * FROM stg.silver_all_gem_events LIMIT 100;
+SELECT * FROM stg.silver_kiosk_events LIMIT 100;
+
 
 CREATE TABLE IF NOT EXISTS stg.silver_all_gem_events
 (

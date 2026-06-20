@@ -1,5 +1,6 @@
 --CALL fact.usp_distribute_silver_transaction_entities();
 --SELECT * FROM stg.silver_all_transaction_entities;
+SELECT * FROM stg.silver_transaction_header;
 --TRUNCATE --TABLE stg.silver_all_transaction_entities
 --DROP TABLE --IF EXISTS stg.silver_all_transaction_entities;
 CREATE TABLE IF NOT EXISTS stg.silver_all_transaction_entities (
