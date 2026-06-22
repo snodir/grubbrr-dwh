@@ -13,6 +13,184 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/DevicesAndPeripherals')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Service-GSH"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "DeviceFromGshPG",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gshDevices"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "PeripheralFromGsh",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gshPeripheral"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "dimDeviceAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimDevice"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimPeripheralAnalyticsDb",
+                                "type": "DatasetReference"
+                            },
+                            "name": "dimPeripheral"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "UpsertPolicy"
+                        },
+                        {
+                            "name": "UpsertPolicy2"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          id as long,",
+                        "          deviceid as string,",
+                        "          devicetype as string,",
+                        "          devicename as string,",
+                        "          locationid as string,",
+                        "          companyid as string,",
+                        "          currentversion as string,",
+                        "          ipaddress as string,",
+                        "          state as string,",
+                        "          previousstate as string,",
+                        "          statechangedate as timestamp,",
+                        "          enrollmentdate as timestamp,",
+                        "          disenrollmentdate as timestamp,",
+                        "          disenrollmentreason as string,",
+                        "          testmode as boolean",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> gshDevices",
+                        "source(output(",
+                        "          id as long,",
+                        "          deviceid as long,",
+                        "          peripheralid as string,",
+                        "          peripheraltype as string,",
+                        "          state as string,",
+                        "          previousstate as string,",
+                        "          statechangedate as timestamp,",
+                        "          description as string,",
+                        "          model as string,",
+                        "          serial as string,",
+                        "          ipaddress as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> gshPeripheral",
+                        "gshDevices alterRow(upsertIf(true())) ~> UpsertPolicy",
+                        "gshPeripheral alterRow(upsertIf(true())) ~> UpsertPolicy2",
+                        "UpsertPolicy sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as long,",
+                        "          deviceid as string,",
+                        "          devicetype as string,",
+                        "          devicename as string,",
+                        "          locationid as string,",
+                        "          companyid as string,",
+                        "          currentversion as string,",
+                        "          ipaddress as string,",
+                        "          state as string,",
+                        "          previousstate as string,",
+                        "          statechangedate as timestamp,",
+                        "          enrollmentdate as timestamp,",
+                        "          disenrollmentdate as timestamp,",
+                        "          disenrollmentreason as string,",
+                        "          testmode as boolean",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:false,",
+                        "     upsertable:true,",
+                        "     keys:['deviceid','locationid','companyid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 1,",
+                        "     mapColumn(",
+                        "          id,",
+                        "          deviceid,",
+                        "          devicetype,",
+                        "          devicename,",
+                        "          locationid,",
+                        "          companyid,",
+                        "          currentversion,",
+                        "          ipaddress,",
+                        "          state,",
+                        "          previousstate,",
+                        "          statechangedate,",
+                        "          enrollmentdate,",
+                        "          disenrollmentdate,",
+                        "          disenrollmentreason,",
+                        "          testmode",
+                        "     )) ~> dimDevice",
+                        "UpsertPolicy2 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          id as long,",
+                        "          deviceid as long,",
+                        "          peripheralid as string,",
+                        "          peripheraltype as string,",
+                        "          state as string,",
+                        "          previousstate as string,",
+                        "          statechangedate as timestamp,",
+                        "          description as string,",
+                        "          model as string,",
+                        "          serial as string,",
+                        "          ipaddress as string",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:false,",
+                        "     updateable:false,",
+                        "     upsertable:true,",
+                        "     keys:['deviceid','peripheralid'],",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 2,",
+                        "     mapColumn(",
+                        "          id,",
+                        "          deviceid,",
+                        "          peripheralid,",
+                        "          peripheraltype,",
+                        "          state,",
+                        "          previousstate,",
+                        "          statechangedate,",
+                        "          description,",
+                        "          model,",
+                        "          serial,",
+                        "          ipaddress",
+                        "     )) ~> dimPeripheral"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/DimFrequentCustomer')]",
             "type": "Microsoft.DataFactory/factories/dataflows",
             "apiVersion": "2018-06-01",
@@ -9695,225 +9873,6 @@
                         "          sourceelementid = elementidentifier1,",
                         "          elementname = elementname1",
                         "     )) ~> WriteElement"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/TestBronzeEventsToSilver')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "TestBronzeEventsJSON",
-                                "type": "DatasetReference"
-                            },
-                            "name": "BronzeEvents"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "TestSilverKioskEventsParquet",
-                                "type": "DatasetReference"
-                            },
-                            "name": "SilverKioskEventsParquet"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "TestSilverConnectorEventsParquet",
-                                "type": "DatasetReference"
-                            },
-                            "name": "SilverConnectorEventsParquet"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "TestSilverAllApplicationEventsParquet",
-                                "type": "DatasetReference"
-                            },
-                            "name": "SilverAllApplicationEventsParquet"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "SilverTransformTime1"
-                        },
-                        {
-                            "name": "KioskEvents"
-                        },
-                        {
-                            "name": "ConnectorEvents"
-                        },
-                        {
-                            "name": "SilverTransformTime2"
-                        },
-                        {
-                            "name": "SilverTransformTime3"
-                        },
-                        {
-                            "name": "KeepNecessaryCols3"
-                        },
-                        {
-                            "name": "KeepNecessaryCols2"
-                        },
-                        {
-                            "name": "KeepNecessaryCols1"
-                        }
-                    ],
-                    "scriptLines": [
-                        "parameters{",
-                        "     p_df_partition_path as string ('events/raw/2026/05/15/12'),",
-                        "     p_df_num_of_output_files as integer (1)",
-                        "}",
-                        "source(output(",
-                        "          id as string,",
-                        "          application as string,",
-                        "          company as string,",
-                        "          location as string,",
-                        "          module as string,",
-                        "          category as string,",
-                        "          type as string,",
-                        "          severity as string,",
-                        "          token as string,",
-                        "          instant as string,",
-                        "          username as string,",
-                        "          userid as string,",
-                        "          device as string,",
-                        "          devicename as string,",
-                        "          summary as string,",
-                        "          data as string,",
-                        "          etc as string,",
-                        "          ticks as string,",
-                        "          {_rid} as string,",
-                        "          {_self} as string,",
-                        "          {_etag} as string,",
-                        "          {_attachments} as string,",
-                        "          {_ts} as integer,",
-                        "          {_lsn} as integer",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     ignoreNoFilesFound: true,",
-                        "     documentForm: 'documentPerLine',",
-                        "     wildcardPaths:[(concat($p_df_partition_path, '/*.json'))]) ~> BronzeEvents",
-                        "KioskEvents derive(silver_transform_time = toString(currentTimestamp()),",
-                        "          silver_folderpath = concat('/events/analytics/nge/kiosk/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
-                        "          syscosmosticks = toLong(syscosmosticks)) ~> SilverTransformTime1",
-                        "KeepNecessaryCols1 filter(lower(application) == 'nge' && lower(eventmodule) == 'kiosk') ~> KioskEvents",
-                        "KeepNecessaryCols2 filter(lower(application) == 'nge' && lower(eventmodule) == 'connector' && lower(severity) == 'critical' && lower(eventcategory) == 'order' && lower(eventtype) == 'ordersubmitresponse') ~> ConnectorEvents",
-                        "ConnectorEvents derive(silver_transform_time = toString(currentTimestamp()),",
-                        "          silver_folderpath = concat('/events/analytics/nge/connector/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
-                        "          syscosmosticks = toLong(syscosmosticks)) ~> SilverTransformTime2",
-                        "KeepNecessaryCols3 derive(silver_transform_time = toString(currentTimestamp()),",
-                        "          date = substring(eventinstant, 1, 10),",
-                        "          hour = substring(eventinstant, 12, 2),",
-                        "          syscosmosticks = toLong(syscosmosticks)) ~> SilverTransformTime3",
-                        "BronzeEvents select(mapColumn(",
-                        "          id,",
-                        "          application,",
-                        "          companyid = company,",
-                        "          locationid = location,",
-                        "          eventmodule = module,",
-                        "          eventcategory = category,",
-                        "          eventtype = type,",
-                        "          severity,",
-                        "          token,",
-                        "          eventinstant = instant,",
-                        "          username,",
-                        "          userid,",
-                        "          device,",
-                        "          devicename,",
-                        "          summary,",
-                        "          data,",
-                        "          syscosmosticks = ticks,",
-                        "          syscosmosts = {_ts}",
-                        "     ),",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> KeepNecessaryCols3",
-                        "BronzeEvents select(mapColumn(",
-                        "          id,",
-                        "          application,",
-                        "          companyid = company,",
-                        "          locationid = location,",
-                        "          eventmodule = module,",
-                        "          eventcategory = category,",
-                        "          eventtype = type,",
-                        "          severity,",
-                        "          token,",
-                        "          eventinstant = instant,",
-                        "          username,",
-                        "          userid,",
-                        "          device,",
-                        "          devicename,",
-                        "          summary,",
-                        "          data,",
-                        "          syscosmosticks = ticks,",
-                        "          syscosmosts = {_ts}",
-                        "     ),",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> KeepNecessaryCols2",
-                        "BronzeEvents select(mapColumn(",
-                        "          id,",
-                        "          application,",
-                        "          companyid = company,",
-                        "          locationid = location,",
-                        "          eventmodule = module,",
-                        "          eventcategory = category,",
-                        "          eventtype = type,",
-                        "          severity,",
-                        "          token,",
-                        "          eventinstant = instant,",
-                        "          username,",
-                        "          userid,",
-                        "          device,",
-                        "          devicename,",
-                        "          summary,",
-                        "          data,",
-                        "          syscosmosticks = ticks,",
-                        "          syscosmosts = {_ts}",
-                        "     ),",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true) ~> KeepNecessaryCols1",
-                        "SilverTransformTime1 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     format: 'parquet',",
-                        "     umask: 0022,",
-                        "     preCommands: [],",
-                        "     postCommands: [],",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 1,",
-                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverKioskEventsParquet",
-                        "SilverTransformTime2 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     format: 'parquet',",
-                        "     umask: 0022,",
-                        "     preCommands: [],",
-                        "     postCommands: [],",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 2,",
-                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverConnectorEventsParquet",
-                        "SilverTransformTime3 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     format: 'parquet',",
-                        "     umask: 0022,",
-                        "     preCommands: [],",
-                        "     postCommands: [],",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 3,",
-                        "     partitionBy('key',",
-                        "          0,",
-                        "          application,",
-                        "          date,",
-                        "          hour",
-                        "     )) ~> SilverAllApplicationEventsParquet"
                     ]
                 }
             },

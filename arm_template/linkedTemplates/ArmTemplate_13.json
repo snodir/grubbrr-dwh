@@ -13,6 +13,225 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/TestBronzeEventsToSilver')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "TestBronzeEventsJSON",
+                                "type": "DatasetReference"
+                            },
+                            "name": "BronzeEvents"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "TestSilverKioskEventsParquet",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SilverKioskEventsParquet"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "TestSilverConnectorEventsParquet",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SilverConnectorEventsParquet"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "TestSilverAllApplicationEventsParquet",
+                                "type": "DatasetReference"
+                            },
+                            "name": "SilverAllApplicationEventsParquet"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "SilverTransformTime1"
+                        },
+                        {
+                            "name": "KioskEvents"
+                        },
+                        {
+                            "name": "ConnectorEvents"
+                        },
+                        {
+                            "name": "SilverTransformTime2"
+                        },
+                        {
+                            "name": "SilverTransformTime3"
+                        },
+                        {
+                            "name": "KeepNecessaryCols3"
+                        },
+                        {
+                            "name": "KeepNecessaryCols2"
+                        },
+                        {
+                            "name": "KeepNecessaryCols1"
+                        }
+                    ],
+                    "scriptLines": [
+                        "parameters{",
+                        "     p_df_partition_path as string ('events/raw/2026/05/15/12'),",
+                        "     p_df_num_of_output_files as integer (1)",
+                        "}",
+                        "source(output(",
+                        "          id as string,",
+                        "          application as string,",
+                        "          company as string,",
+                        "          location as string,",
+                        "          module as string,",
+                        "          category as string,",
+                        "          type as string,",
+                        "          severity as string,",
+                        "          token as string,",
+                        "          instant as string,",
+                        "          username as string,",
+                        "          userid as string,",
+                        "          device as string,",
+                        "          devicename as string,",
+                        "          summary as string,",
+                        "          data as string,",
+                        "          etc as string,",
+                        "          ticks as string,",
+                        "          {_rid} as string,",
+                        "          {_self} as string,",
+                        "          {_etag} as string,",
+                        "          {_attachments} as string,",
+                        "          {_ts} as integer,",
+                        "          {_lsn} as integer",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     ignoreNoFilesFound: true,",
+                        "     documentForm: 'documentPerLine',",
+                        "     wildcardPaths:[(concat($p_df_partition_path, '/*.json'))]) ~> BronzeEvents",
+                        "KioskEvents derive(silver_transform_time = toString(currentTimestamp()),",
+                        "          silver_folderpath = concat('/events/analytics/nge/kiosk/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
+                        "          syscosmosticks = toLong(syscosmosticks)) ~> SilverTransformTime1",
+                        "KeepNecessaryCols1 filter(lower(application) == 'nge' && lower(eventmodule) == 'kiosk') ~> KioskEvents",
+                        "KeepNecessaryCols2 filter(lower(application) == 'nge' && lower(eventmodule) == 'connector' && lower(severity) == 'critical' && lower(eventcategory) == 'order' && lower(eventtype) == 'ordersubmitresponse') ~> ConnectorEvents",
+                        "ConnectorEvents derive(silver_transform_time = toString(currentTimestamp()),",
+                        "          silver_folderpath = concat('/events/analytics/nge/connector/date=', replace(substring($p_df_partition_path, 12, 10), '/', '-'), '/hour=', substring($p_df_partition_path, 23, 2), '/'),",
+                        "          syscosmosticks = toLong(syscosmosticks)) ~> SilverTransformTime2",
+                        "KeepNecessaryCols3 derive(silver_transform_time = toString(currentTimestamp()),",
+                        "          date = substring(eventinstant, 1, 10),",
+                        "          hour = substring(eventinstant, 12, 2),",
+                        "          syscosmosticks = toLong(syscosmosticks)) ~> SilverTransformTime3",
+                        "BronzeEvents select(mapColumn(",
+                        "          id,",
+                        "          application,",
+                        "          companyid = company,",
+                        "          locationid = location,",
+                        "          eventmodule = module,",
+                        "          eventcategory = category,",
+                        "          eventtype = type,",
+                        "          severity,",
+                        "          token,",
+                        "          eventinstant = instant,",
+                        "          username,",
+                        "          userid,",
+                        "          device,",
+                        "          devicename,",
+                        "          summary,",
+                        "          data,",
+                        "          syscosmosticks = ticks,",
+                        "          syscosmosts = {_ts}",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> KeepNecessaryCols3",
+                        "BronzeEvents select(mapColumn(",
+                        "          id,",
+                        "          application,",
+                        "          companyid = company,",
+                        "          locationid = location,",
+                        "          eventmodule = module,",
+                        "          eventcategory = category,",
+                        "          eventtype = type,",
+                        "          severity,",
+                        "          token,",
+                        "          eventinstant = instant,",
+                        "          username,",
+                        "          userid,",
+                        "          device,",
+                        "          devicename,",
+                        "          summary,",
+                        "          data,",
+                        "          syscosmosticks = ticks,",
+                        "          syscosmosts = {_ts}",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> KeepNecessaryCols2",
+                        "BronzeEvents select(mapColumn(",
+                        "          id,",
+                        "          application,",
+                        "          companyid = company,",
+                        "          locationid = location,",
+                        "          eventmodule = module,",
+                        "          eventcategory = category,",
+                        "          eventtype = type,",
+                        "          severity,",
+                        "          token,",
+                        "          eventinstant = instant,",
+                        "          username,",
+                        "          userid,",
+                        "          device,",
+                        "          devicename,",
+                        "          summary,",
+                        "          data,",
+                        "          syscosmosticks = ticks,",
+                        "          syscosmosts = {_ts}",
+                        "     ),",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true) ~> KeepNecessaryCols1",
+                        "SilverTransformTime1 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     format: 'parquet',",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 1,",
+                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverKioskEventsParquet",
+                        "SilverTransformTime2 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     format: 'parquet',",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 2,",
+                        "     partitionBy('roundRobin', ($p_df_num_of_output_files))) ~> SilverConnectorEventsParquet",
+                        "SilverTransformTime3 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     format: 'parquet',",
+                        "     umask: 0022,",
+                        "     preCommands: [],",
+                        "     postCommands: [],",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     saveOrder: 3,",
+                        "     partitionBy('key',",
+                        "          0,",
+                        "          application,",
+                        "          date,",
+                        "          hour",
+                        "     )) ~> SilverAllApplicationEventsParquet"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/TestBronzeOrdersToSilver')]",
             "type": "Microsoft.DataFactory/factories/dataflows",
             "apiVersion": "2018-06-01",
@@ -9607,170 +9826,6 @@
                         "          createdon,",
                         "          modifiedon",
                         "     )) ~> dimUpsellGroupLookup"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/dimABTests')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "gemEvent",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gemABTests"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "dimABTestsAnalyticsDB",
-                                "type": "DatasetReference"
-                            },
-                            "name": "CheckDimABTests"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "dimABTestsAnalyticsDB",
-                                "type": "DatasetReference"
-                            },
-                            "name": "maxID"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "dimABTestsAnalyticsDB",
-                                "type": "DatasetReference"
-                            },
-                            "name": "DimABTests"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "NewABTestsOnly"
-                        },
-                        {
-                            "name": "parseData"
-                        },
-                        {
-                            "name": "surrogateKey1"
-                        },
-                        {
-                            "name": "GetMaxID"
-                        },
-                        {
-                            "name": "derivedColumn1"
-                        },
-                        {
-                            "name": "AddMaxID",
-                            "description": "Creates an explicit mapping for each drifted column"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          syscosmosts as integer,",
-                        "          LocationID as string,",
-                        "          data as string,",
-                        "          OrganizationID as string,",
-                        "          OrderSessionID as string,",
-                        "          DeviceName as string,",
-                        "          DeviceID as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     query: 'SELECT distinct\\r\\nc.company as OrganizationID ,\\r\\nc.location as LocationID,\\r\\nc.token as OrderSessionID,\\r\\nc.data,\\r\\nc.device as DeviceID,\\r\\nc.devicename as DeviceName,\\r\\nc._ts as syscosmosts\\r\\nFROM c\\r\\nwhere 1=1\\r\\nand c.category= \\'Session\\'\\r\\nand c.type= \\'Started\\'\\r\\nand (c.data like \\'%experiment%\\' or c.data like \\'%expvar%\\')',",
-                        "     format: 'documentQuery',",
-                        "     systemColumns: false) ~> gemABTests",
-                        "source(output(",
-                        "          abtestid as string,",
-                        "          organizationid as string,",
-                        "          locationid as string,",
-                        "          experimentid as string,",
-                        "          experimentname as string,",
-                        "          variantid as string,",
-                        "          variantname as string,",
-                        "          ordersessionid as string,",
-                        "          deviceid as string,",
-                        "          devicename as string,",
-                        "          syscosmosts as long,",
-                        "          sysinserttime as timestamp",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> CheckDimABTests",
-                        "source(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select coalesce(max(ABTestID), 0) as maxID from dim.ABTests',",
-                        "     format: 'query') ~> maxID",
-                        "parseData, CheckDimABTests exists(gemABTests@LocationID == CheckDimABTests@locationid",
-                        "     && parseData@ExperimentID.experimentId == CheckDimABTests@experimentid,",
-                        "     negate:true,",
-                        "     broadcast: 'auto')~> NewABTestsOnly",
-                        "gemABTests parse(ExperimentID = data ? (experimentId as string),",
-                        "          ExperimentName = data ? (experimentName as string),",
-                        "          VariantID = data ? (variantId as string),",
-                        "          VariantName = data ? (variantName as string),",
-                        "     format: 'json',",
-                        "     documentForm: 'singleDocument') ~> parseData",
-                        "AddMaxID keyGenerate(output(key as long),",
-                        "     startAt: 1L,",
-                        "     stepValue: 1L) ~> surrogateKey1",
-                        "NewABTestsOnly, maxID join(1==1,",
-                        "     joinType:'cross',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> GetMaxID",
-                        "surrogateKey1 derive(ABTestID = maxid + key,",
-                        "          sysinserttime = currentTimestamp()) ~> derivedColumn1",
-                        "GetMaxID derive(maxid = toLong(byName('maxid'))) ~> AddMaxID",
-                        "derivedColumn1 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          abtestid as string,",
-                        "          organizationid as string,",
-                        "          locationid as string,",
-                        "          experimentid as string,",
-                        "          experimentname as string,",
-                        "          variantid as string,",
-                        "          variantname as string,",
-                        "          ordersessionid as string,",
-                        "          deviceid as string,",
-                        "          devicename as string,",
-                        "          syscosmosts as long,",
-                        "          sysinserttime as timestamp",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     mapColumn(",
-                        "          abtestid = ABTestID,",
-                        "          organizationid = OrganizationID,",
-                        "          locationid = LocationID,",
-                        "          experimentid = ExperimentID.experimentId,",
-                        "          experimentname = ExperimentName.experimentName,",
-                        "          variantid = VariantID.variantId,",
-                        "          variantname = VariantName.variantName,",
-                        "          ordersessionid = OrderSessionID,",
-                        "          deviceid = DeviceID,",
-                        "          devicename = DeviceName,",
-                        "          syscosmosts,",
-                        "          sysinserttime",
-                        "     )) ~> DimABTests"
                     ]
                 }
             },

@@ -118,14 +118,14 @@ ALTER FUNCTION dim.array_to_text(a jsonb) OWNER TO citus;
 
 CREATE OR REPLACE FUNCTION dim.is_valid_jsonb(input text) RETURNS boolean
     LANGUAGE plpgsql IMMUTABLE STRICT
-    AS $$
+    AS $BODY$
 BEGIN
     PERFORM input::jsonb;
     RETURN TRUE;
 EXCEPTION WHEN others THEN
     RETURN FALSE;
 END;
-$$;
+$BODY$;
 
 
 ALTER FUNCTION dim.is_valid_jsonb(input text) OWNER TO citus;
@@ -2211,11 +2211,15 @@ CREATE TABLE IF NOT EXISTS fact.deviceevent (
     eventdata text,
     syscosmosticks bigint,
     sysinserttime timestamp without time zone,
-    syscosmosts bigint
+    syscosmosts bigint,
+    sysupdatetime TIMESTAMP
 );
 
 
 ALTER TABLE IF EXISTS fact.deviceevent OWNER TO citus;
+
+ALTER TABLE IF EXISTS fact.deviceevent
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 --
 -- TOC entry 418 (class 1259 OID 413945)
@@ -3298,11 +3302,17 @@ CREATE TABLE IF NOT EXISTS ml.menu_entities (
     is_deleted boolean,
     gms_created_on timestamp without time zone,
     gms_modified_on timestamp without time zone,
-    sysinserttime timestamp without time zone
+    sysinserttime timestamp without time zone,
+    average_rating NUMERIC(3,2),
+    rating_count   INTEGER
 );
 
 
 ALTER TABLE IF EXISTS ml.menu_entities OWNER TO citus;
+
+ALTER TABLE IF EXISTS ml.menu_entities
+ADD COLUMN IF NOT EXISTS average_rating NUMERIC(3,2),
+ADD COLUMN IF NOT EXISTS rating_count   INTEGER;
 
 --
 -- TOC entry 464 (class 1259 OID 3048261)

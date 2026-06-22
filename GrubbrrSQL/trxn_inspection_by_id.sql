@@ -47,13 +47,22 @@ WHERE sourceid = 1 --1780133426	fact.transactionheader	nge
 SELECT DISTINCT orderstatus FROM fact.transactionheader
 
 SELECT *
+FROM ml.menu_entities
+LIMIT 1000;
+
+
+SELECT *
 FROM fact.itemssurvey as its 
 WHERE 1=1 
-AND its.organizationid = 'org-490e23ce-6f23-4d3d-8544-8728f0965cfc'
+--AND its.organizationid = 'org-490e23ce-6f23-4d3d-8544-8728f0965cfc'
 --AND its.transactionheaderid = 'ordevt-N1S9WD4EOAS7DY6V'
---AND im.businessdate = '2026-05-01'
---ORDER BY im.orderdatelocal DESC
-LIMIT 100;
+--AND its.businessdate = '2026-05-01'
+ORDER BY its.sysinserttime DESC
+LIMIT 1000;
+
+SELECT *
+FROM dim.occasionsurvey
+LIMIT 1000;
 
 SELECT *
 FROM fact.itemmodifier as im 

@@ -2614,7 +2614,8 @@ BEGIN
     )
     UPDATE dim.menuitem
     SET average_rating = ar.average_rating,
-        rating_count   = ar.x_times_rated
+        rating_count   = ar.x_times_rated,
+        sysupdatetime  = NOW() :: TIMESTAMP
     FROM agg_rating AS ar
     WHERE menuitem.menuitemid   = ar.menuitemid;
 

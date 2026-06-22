@@ -13,6 +13,253 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/DimensionFrequentCustomer')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "DimFrequentCustomer",
+                        "type": "ExecuteDataFlow",
+                        "state": "Inactive",
+                        "onInactiveMarkAs": "Succeeded",
+                        "dependsOn": [
+                            {
+                                "activity": "FrequentCustomers",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataflow": {
+                                "referenceName": "DimFrequentCustomer",
+                                "type": "DataFlowReference",
+                                "parameters": {},
+                                "datasetParameters": {
+                                    "ngeFrequentCustomer": {},
+                                    "CheckDimFreqCustomer": {},
+                                    "maxIdDimFreqCust": {},
+                                    "dimFreqCustomer": {},
+                                    "updateDimFrequentCustomer": {}
+                                }
+                            },
+                            "staging": {},
+                            "compute": {
+                                "coreCount": 8,
+                                "computeType": "General"
+                            },
+                            "traceLevel": "Fine"
+                        }
+                    },
+                    {
+                        "name": "Update OrderCount and AmtSpent",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "DimFrequentCustomer",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "CALL dim.usp_refresh_frequentcustomer();\nSELECT 1 as rn;",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "dimFrequentCustomerAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    },
+                    {
+                        "name": "FrequentCustomers",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "CosmosDbSqlApiSource",
+                                "query": "SELECT c.id ?? null as frequentcustomerid,\r\n    c.firstName ?? null as firstname,\r\n    c.lastName ?? null as lastname,\r\n    c.email ?? null as email,\r\n    c.phone ?? null as phone,\r\n    c.affiliate ?? null as source,\r\n    c.organizationId ?? null as organizationid,\r\n    c.dateCreated ?? null as createddate,\r\n    c.dateLastOrder ?? null as lastorderdate,\r\n    c.countOrders ?? null as ordercount,\r\n    c._ts as syscosmosts,\r\n    GETCURRENTDATETIME() as sysinserttime\r\nFROM c",
+                                "preferredRegions": []
+                            },
+                            "sink": {
+                                "type": "AzurePostgreSqlSink",
+                                "writeBatchSize": 1000000,
+                                "writeBatchTimeout": "00:30:00",
+                                "preCopyScript": "TRUNCATE TABLE stg.dim_frequentcustomer;",
+                                "writeMethod": "CopyCommand"
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "path": "$['frequentcustomerid']"
+                                        },
+                                        "sink": {
+                                            "name": "frequentcustomerid",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['firstname']"
+                                        },
+                                        "sink": {
+                                            "name": "firstname",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['lastname']"
+                                        },
+                                        "sink": {
+                                            "name": "lastname",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['email']"
+                                        },
+                                        "sink": {
+                                            "name": "email",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['phone']"
+                                        },
+                                        "sink": {
+                                            "name": "phone",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['source']"
+                                        },
+                                        "sink": {
+                                            "name": "source",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['organizationid']"
+                                        },
+                                        "sink": {
+                                            "name": "organizationid",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['createddate']"
+                                        },
+                                        "sink": {
+                                            "name": "createddate",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['lastorderdate']"
+                                        },
+                                        "sink": {
+                                            "name": "lastorderdate",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['ordercount']"
+                                        },
+                                        "sink": {
+                                            "name": "ordercount",
+                                            "type": "Int32"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['syscosmosts']"
+                                        },
+                                        "sink": {
+                                            "name": "syscosmosts",
+                                            "type": "Int64"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "$['sysinserttime']"
+                                        },
+                                        "sink": {
+                                            "name": "sysinserttime",
+                                            "type": "DateTime"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "ngeFrequentCustomer",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "stgDimFrequentCustomerAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "folder": {
+                    "name": "Dimensions"
+                },
+                "annotations": [],
+                "lastPublishTime": "2025-02-21T17:44:14Z"
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/DimensionMasterItemsAndModifiers')]",
             "type": "Microsoft.DataFactory/factories/pipelines",
             "apiVersion": "2018-06-01",
@@ -20172,562 +20419,6 @@
                 },
                 "annotations": [],
                 "lastPublishTime": "2025-05-15T19:18:52Z"
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/UpsellRecommendationsToGAS')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "ngeUpsellRecommendationsToGAS",
-                        "type": "ExecuteDataFlow",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
-                        "dependsOn": [
-                            {
-                                "activity": "Run_uspOfferAnalysis",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "dataflow": {
-                                "referenceName": "ngeUpsellRecommendationsToGAS",
-                                "type": "DataFlowReference",
-                                "parameters": {
-                                    "pdf_ts": {
-                                        "value": "@sub(activity('LookupMaxFields').output.firstRow.maxts, 10)",
-                                        "type": "Expression"
-                                    }
-                                },
-                                "datasetParameters": {
-                                    "ngeOrders": {},
-                                    "factRecommendations": {},
-                                    "factTrxnHeader": {},
-                                    "ToFactRecommendations": {}
-                                }
-                            },
-                            "staging": {},
-                            "compute": {
-                                "coreCount": 8,
-                                "computeType": "General"
-                            },
-                            "traceLevel": "Fine"
-                        }
-                    },
-                    {
-                        "name": "StgToFact",
-                        "type": "Lookup",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
-                        "dependsOn": [
-                            {
-                                "activity": "ngeUpsellRecommendationsToGAS",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL fact.usp_item_recommendations_stage_to_fact();\r\n\r\nSELECT 1 AS rn;",
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "factRecommendationsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "SuccessStatus",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "v_finishtime",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": {
-                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Completed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = true\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = true,\n    pipelinestatus = 'Completed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
-                                    "type": "Expression"
-                                },
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "v_starttime",
-                        "type": "SetVariable",
-                        "dependsOn": [],
-                        "policy": {
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "variableName": "v_starttime",
-                            "value": {
-                                "value": "@utcNow()",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "v_finishtime",
-                        "type": "SetVariable",
-                        "dependsOn": [
-                            {
-                                "activity": "UpdateUpsellRecommendations",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "variableName": "v_finishtime",
-                            "value": {
-                                "value": "@utcNow()",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "FailStatus",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "v_finishtime_copy1",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": {
-                                    "value": "UPDATE fact.pipelinerunstatus \nSET pipelinerunid = '@{pipeline().RunId}', \n    pipelinetriggertime = '@{variables('v_starttime')}',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinestatus = 'Failed',\n    triggeredbyuserid = '@{pipeline().DataFactory}',\n    issuccess = false,\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE pipelinename = '@{pipeline().Pipeline}'\nand correlationid is null;\n\nUPDATE\n    fact.pipelinerunstatus \nSET\n    issuccess = false,\n    pipelinestatus = 'Failed',\n    pipelinecompletedtime = '@{variables('v_finishtime')}',\n    pipelinemessage = '@{variables('v_errormsg')}'\nWHERE\n    pipelinerunid = '@{pipeline().RunId}'\nand correlationid is not null;\n\nSelect 0 as DummyValue",
-                                    "type": "Expression"
-                                },
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "AnalyticsDbFactPipelinerunstatus",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "v_finishtime_copy1",
-                        "type": "SetVariable",
-                        "dependsOn": [
-                            {
-                                "activity": "v_errormsg",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "variableName": "v_finishtime",
-                            "value": {
-                                "value": "@utcNow()",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "v_errormsg",
-                        "type": "SetVariable",
-                        "dependsOn": [
-                            {
-                                "activity": "ngeUpsellRecommendationsToGAS",
-                                "dependencyConditions": [
-                                    "Failed"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "variableName": "v_errormsg",
-                            "value": {
-                                "value": "@replace(activity('ngeUpsellRecommendationsToGAS').error.Message, '''', '\"')",
-                                "type": "Expression"
-                            }
-                        }
-                    },
-                    {
-                        "name": "UpdateUpsellRecommendations",
-                        "type": "ExecuteDataFlow",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
-                        "dependsOn": [
-                            {
-                                "activity": "StgToFact",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "dataflow": {
-                                "referenceName": "UpdateUpsellRecommendations",
-                                "type": "DataFlowReference",
-                                "parameters": {},
-                                "datasetParameters": {
-                                    "UpsellGroups": {},
-                                    "UpsellNamesGMS": {},
-                                    "dimUpsellGroupLookup": {}
-                                }
-                            },
-                            "staging": {},
-                            "compute": {
-                                "coreCount": 8,
-                                "computeType": "General"
-                            },
-                            "traceLevel": "Fine"
-                        }
-                    },
-                    {
-                        "name": "LookupMaxFields",
-                        "type": "Lookup",
-                        "state": "Inactive",
-                        "onInactiveMarkAs": "Succeeded",
-                        "dependsOn": [
-                            {
-                                "activity": "v_starttime",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "SELECT wt.ts as maxts, wt.ticks as maxticks, watermarkvalue as maxinstant\r\nFROM fact.watermarktable as wt\r\nWHERE wt.watermarktablename = 'fact.recommendations';",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "factwatermarktable",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "dimUpsellGroupLookup",
-                        "type": "Copy",
-                        "dependsOn": [
-                            {
-                                "activity": "LookupMaxFields",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "SELECT DISTINCT \r\n       ug.id as upsellgroupid,\r\n       ug.name as upsellgroupname, \r\n       ug.is_active as isactive, \r\n       ug.created_on as createdon, \r\n       ug.modified_on as modifiedon,\r\n       ug.catalog_id as catalogid,\r\n       NOW() :: TIMESTAMP as sysinserttime\r\nFROM public.upsell_group as ug",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "sink": {
-                                "type": "AzurePostgreSqlSink",
-                                "writeBatchSize": 1000000,
-                                "writeBatchTimeout": "00:30:00",
-                                "preCopyScript": "TRUNCATE TABLE dim.upsellgrouplookup;",
-                                "writeMethod": "CopyCommand"
-                            },
-                            "enableStaging": false,
-                            "translator": {
-                                "type": "TabularTranslator",
-                                "mappings": [
-                                    {
-                                        "source": {
-                                            "name": "upsellgroupid",
-                                            "type": "String",
-                                            "physicalType": "character varying"
-                                        },
-                                        "sink": {
-                                            "name": "upsellgroupid",
-                                            "type": "String",
-                                            "physicalType": "character varying"
-                                        }
-                                    },
-                                    {
-                                        "source": {
-                                            "name": "upsellgroupname",
-                                            "type": "String",
-                                            "physicalType": "character varying"
-                                        },
-                                        "sink": {
-                                            "name": "upsellgroupname",
-                                            "type": "String",
-                                            "physicalType": "text"
-                                        }
-                                    },
-                                    {
-                                        "source": {
-                                            "name": "isactive",
-                                            "type": "Boolean",
-                                            "physicalType": "boolean"
-                                        },
-                                        "sink": {
-                                            "name": "isactive",
-                                            "type": "Boolean",
-                                            "physicalType": "boolean"
-                                        }
-                                    },
-                                    {
-                                        "source": {
-                                            "name": "createdon",
-                                            "type": "DateTime",
-                                            "physicalType": "timestamp without time zone"
-                                        },
-                                        "sink": {
-                                            "name": "createdon",
-                                            "type": "DateTime",
-                                            "physicalType": "timestamp without time zone"
-                                        }
-                                    },
-                                    {
-                                        "source": {
-                                            "name": "modifiedon",
-                                            "type": "DateTime",
-                                            "physicalType": "timestamp without time zone"
-                                        },
-                                        "sink": {
-                                            "name": "modifiedon",
-                                            "type": "DateTime",
-                                            "physicalType": "timestamp without time zone"
-                                        }
-                                    },
-                                    {
-                                        "source": {
-                                            "name": "catalogid",
-                                            "type": "String",
-                                            "physicalType": "character varying"
-                                        },
-                                        "sink": {
-                                            "name": "catalogid",
-                                            "type": "String",
-                                            "physicalType": "text"
-                                        }
-                                    },
-                                    {
-                                        "source": {
-                                            "name": "sysinserttime",
-                                            "type": "DateTime",
-                                            "physicalType": "timestamp without time zone"
-                                        },
-                                        "sink": {
-                                            "name": "sysinserttime",
-                                            "type": "DateTime",
-                                            "physicalType": "timestamp without time zone"
-                                        }
-                                    }
-                                ],
-                                "typeConversion": true,
-                                "typeConversionSettings": {
-                                    "allowDataTruncation": true,
-                                    "treatBooleanAsNumber": false
-                                }
-                            }
-                        },
-                        "inputs": [
-                            {
-                                "referenceName": "publicUpsellGroupGMS",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        ],
-                        "outputs": [
-                            {
-                                "referenceName": "dimUpsellGroupLookupAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        ]
-                    },
-                    {
-                        "name": "factUpsellRecommendations",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "dimUpsellGroupLookup",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL fact.usp_silver_upsell_recommendations_to_fact();\nSELECT 1 AS rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "TransactionPaymentsAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    },
-                    {
-                        "name": "Run_uspOfferAnalysis",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "factUpsellRecommendations",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "CALL fact.usp_offer_analysis();\r\nSELECT 1 as rn;",
-                                "partitionOption": "None",
-                                "queryTimeout": "02:00:00"
-                            },
-                            "dataset": {
-                                "referenceName": "vwOfferAnalysisAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "variables": {
-                    "v_finishtime": {
-                        "type": "String",
-                        "defaultValue": "1900-01-01 00:01:00"
-                    },
-                    "v_starttime": {
-                        "type": "String",
-                        "defaultValue": "1900-01-01 00:00:00"
-                    },
-                    "v_errormsg": {
-                        "type": "String",
-                        "defaultValue": "error"
-                    }
-                },
-                "folder": {
-                    "name": "Facts"
-                },
-                "annotations": [],
-                "lastPublishTime": "2026-04-08T10:22:46Z"
             },
             "dependsOn": []
         }

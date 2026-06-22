@@ -1197,6 +1197,1450 @@
             "dependsOn": []
         },
         {
+            "name": "[concat(parameters('factoryName'), '/BronzeOrdersJSON')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_partition_path": {
+                        "type": "string",
+                        "defaultValue": "orders/raw/2026/05/15/11"
+                    }
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@dataset().p_ds_partition_path",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "bronze"
+                    }
+                },
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "_attachments": {
+                            "type": "string"
+                        },
+                        "_etag": {
+                            "type": "string"
+                        },
+                        "_rid": {
+                            "type": "string"
+                        },
+                        "_self": {
+                            "type": "string"
+                        },
+                        "_ts": {
+                            "type": "integer"
+                        },
+                        "businessDate": {
+                            "type": "string"
+                        },
+                        "channel": {
+                            "type": "integer"
+                        },
+                        "clientIpAddress": {
+                            "type": "string"
+                        },
+                        "combos": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "categoryId": {
+                                        "type": "string"
+                                    },
+                                    "categoryName": {
+                                        "type": "string"
+                                    },
+                                    "categoryPosId": {
+                                        "type": "string"
+                                    },
+                                    "comboPosId": {
+                                        "type": "string"
+                                    },
+                                    "comboId": {
+                                        "type": "string"
+                                    },
+                                    "componentSelections": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "componentId": {
+                                                    "type": "string"
+                                                },
+                                                "componentPosId": {
+                                                    "type": "string"
+                                                },
+                                                "item": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "categoryId": {
+                                                            "type": "string"
+                                                        },
+                                                        "categoryName": {
+                                                            "type": "string"
+                                                        },
+                                                        "categoryPosId": {
+                                                            "type": "string"
+                                                        },
+                                                        "conceptId": {
+                                                            "type": "string"
+                                                        },
+                                                        "conceptName": {
+                                                            "type": "string"
+                                                        },
+                                                        "discountSource": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "discountId": {
+                                                                    "type": "string"
+                                                                },
+                                                                "isHiddenOnReceipt": {
+                                                                    "type": "boolean"
+                                                                }
+                                                            }
+                                                        },
+                                                        "discounts": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "itemPrice": {
+                                                            "type": "number"
+                                                        },
+                                                        "itemSessionId": {
+                                                            "type": "string"
+                                                        },
+                                                        "localizedName": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "translations": {
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "menuItemId": {
+                                                            "type": "string"
+                                                        },
+                                                        "menuItemPosId": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "options": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "freeQuantity": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "isDefault": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "isInvisible": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "isScanned": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "modifierCode": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "modifierGroupId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "modifierGroupName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "modifierGroupPosId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "modifierId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "modifierPosId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "options": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "price": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "quantity": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "totalPrice": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "totalPriceCents": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "unitPriceCents": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "orderItemId": {
+                                                            "type": "string"
+                                                        },
+                                                        "quantity": {
+                                                            "type": "integer"
+                                                        },
+                                                        "rewardSource": {
+                                                            "type": "string"
+                                                        },
+                                                        "specialRequest": {
+                                                            "type": "string"
+                                                        },
+                                                        "totalPrice": {
+                                                            "type": "number"
+                                                        },
+                                                        "totalPriceCents": {
+                                                            "type": "integer"
+                                                        },
+                                                        "unitPrice": {
+                                                            "type": "number"
+                                                        },
+                                                        "unitPriceCents": {
+                                                            "type": "integer"
+                                                        },
+                                                        "upsellSource": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "upsellId": {
+                                                                    "type": "string"
+                                                                },
+                                                                "upsellLevelType": {
+                                                                    "type": "string"
+                                                                },
+                                                                "upsellPromptItemId": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "categoryId": {
+                                                                "type": "string"
+                                                            },
+                                                            "categoryName": {
+                                                                "type": "string"
+                                                            },
+                                                            "categoryPosId": {
+                                                                "type": "string"
+                                                            },
+                                                            "conceptId": {
+                                                                "type": "string"
+                                                            },
+                                                            "conceptName": {
+                                                                "type": "string"
+                                                            },
+                                                            "discountSource": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "discountId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "isHiddenOnReceipt": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "discounts": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "itemPrice": {
+                                                                "type": "number"
+                                                            },
+                                                            "itemSessionId": {
+                                                                "type": "string"
+                                                            },
+                                                            "localizedName": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "translations": {
+                                                                        "type": "object"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "menuItemId": {
+                                                                "type": "string"
+                                                            },
+                                                            "menuItemPosId": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "options": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "freeQuantity": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "isDefault": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "isInvisible": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "isScanned": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "modifierCode": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "modifierGroupId": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "modifierGroupName": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "modifierGroupPosId": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "modifierId": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "modifierPosId": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "options": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "price": {
+                                                                            "type": "number"
+                                                                        },
+                                                                        "quantity": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "totalPrice": {
+                                                                            "type": "number"
+                                                                        },
+                                                                        "totalPriceCents": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "unitPriceCents": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "orderItemId": {
+                                                                "type": "string"
+                                                            },
+                                                            "quantity": {
+                                                                "type": "integer"
+                                                            },
+                                                            "rewardSource": {
+                                                                "type": "string"
+                                                            },
+                                                            "specialRequest": {
+                                                                "type": "string"
+                                                            },
+                                                            "totalPrice": {
+                                                                "type": "number"
+                                                            },
+                                                            "totalPriceCents": {
+                                                                "type": "integer"
+                                                            },
+                                                            "unitPrice": {
+                                                                "type": "number"
+                                                            },
+                                                            "unitPriceCents": {
+                                                                "type": "integer"
+                                                            },
+                                                            "upsellSource": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "upsellId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "upsellLevelType": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "upsellPromptItemId": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "localizedName": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "translations": {
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "conceptId": {
+                                        "type": "string"
+                                    },
+                                    "conceptName": {
+                                        "type": "string"
+                                    },
+                                    "itemSessionId": {
+                                        "type": "string"
+                                    },
+                                    "localizedName": {
+                                        "type": "object",
+                                        "properties": {
+                                            "translations": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "orderItemId": {
+                                        "type": "string"
+                                    },
+                                    "quantity": {
+                                        "type": "integer"
+                                    },
+                                    "rewardSource": {
+                                        "type": "string"
+                                    },
+                                    "specialRequest": {
+                                        "type": "string"
+                                    },
+                                    "totalPriceCents": {
+                                        "type": "integer"
+                                    },
+                                    "unitPriceCents": {
+                                        "type": "integer"
+                                    },
+                                    "upsellSource": {
+                                        "type": "object",
+                                        "properties": {
+                                            "upsellId": {
+                                                "type": "string"
+                                            },
+                                            "upsellLevelType": {
+                                                "type": "string"
+                                            },
+                                            "upsellPromptItemId": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "conceptId": {
+                            "type": "string"
+                        },
+                        "conceptName": {
+                            "type": "string"
+                        },
+                        "concepts": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "conceptId": {
+                                        "type": "string"
+                                    },
+                                    "conceptName": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "discounts": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "discountId": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "discountType": {
+                                        "type": "object",
+                                        "properties": {
+                                            "kind": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    },
+                                    "discountLevel": {
+                                        "type": "integer"
+                                    },
+                                    "discountCodes": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "mode": {
+                                        "type": "integer"
+                                    },
+                                    "posDiscountId": {
+                                        "type": "string"
+                                    },
+                                    "discountAmount": {
+                                        "type": "number"
+                                    }
+                                }
+                            }
+                        },
+                        "guestCount": {
+                            "type": "integer"
+                        },
+                        "gusetCheckImageLink": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "isFailedToSendToPos": {
+                            "type": "boolean"
+                        },
+                        "isTestOrder": {
+                            "type": "boolean"
+                        },
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "categoryId": {
+                                        "type": "string"
+                                    },
+                                    "categoryName": {
+                                        "type": "string"
+                                    },
+                                    "categoryPosId": {
+                                        "type": "string"
+                                    },
+                                    "conceptId": {
+                                        "type": "string"
+                                    },
+                                    "conceptName": {
+                                        "type": "string"
+                                    },
+                                    "discountSource": {
+                                        "type": "object",
+                                        "properties": {
+                                            "discountId": {
+                                                "type": "string"
+                                            },
+                                            "isHiddenOnReceipt": {
+                                                "type": "boolean"
+                                            }
+                                        }
+                                    },
+                                    "discounts": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "isScanned": {
+                                        "type": "boolean"
+                                    },
+                                    "itemPrice": {
+                                        "type": "number"
+                                    },
+                                    "itemSessionId": {
+                                        "type": "string"
+                                    },
+                                    "localizedName": {
+                                        "type": "object",
+                                        "properties": {
+                                            "translations": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "menuItemId": {
+                                        "type": "string"
+                                    },
+                                    "menuItemPosId": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "options": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "freeQuantity": {
+                                                    "type": "integer"
+                                                },
+                                                "isDefault": {
+                                                    "type": "boolean"
+                                                },
+                                                "isInvisible": {
+                                                    "type": "boolean"
+                                                },
+                                                "isScanned": {
+                                                    "type": "boolean"
+                                                },
+                                                "localizedModifierGroupName": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "translations": {
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "localizedName": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "translations": {
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "modifierCode": {
+                                                    "type": "string"
+                                                },
+                                                "modifierGroupId": {
+                                                    "type": "string"
+                                                },
+                                                "modifierGroupName": {
+                                                    "type": "string"
+                                                },
+                                                "modifierGroupPosId": {
+                                                    "type": "string"
+                                                },
+                                                "modifierId": {
+                                                    "type": "string"
+                                                },
+                                                "modifierPosId": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "options": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "freeQuantity": {
+                                                                "type": "integer"
+                                                            },
+                                                            "isDefault": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "isInvisible": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "isScanned": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "localizedModifierGroupName": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "translations": {
+                                                                        "type": "object"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "localizedName": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "translations": {
+                                                                        "type": "object"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "modifierCode": {
+                                                                "type": "string"
+                                                            },
+                                                            "modifierGroupId": {
+                                                                "type": "string"
+                                                            },
+                                                            "modifierGroupName": {
+                                                                "type": "string"
+                                                            },
+                                                            "modifierGroupPosId": {
+                                                                "type": "string"
+                                                            },
+                                                            "modifierId": {
+                                                                "type": "string"
+                                                            },
+                                                            "modifierPosId": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "options": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "price": {
+                                                                "type": "number"
+                                                            },
+                                                            "quantity": {
+                                                                "type": "integer"
+                                                            },
+                                                            "totalPrice": {
+                                                                "type": "number"
+                                                            },
+                                                            "totalPriceCents": {
+                                                                "type": "integer"
+                                                            },
+                                                            "unitPriceCents": {
+                                                                "type": "integer"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "price": {
+                                                    "type": "number"
+                                                },
+                                                "quantity": {
+                                                    "type": "integer"
+                                                },
+                                                "totalPrice": {
+                                                    "type": "number"
+                                                },
+                                                "totalPriceCents": {
+                                                    "type": "integer"
+                                                },
+                                                "unitPriceCents": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "orderItemId": {
+                                        "type": "string"
+                                    },
+                                    "quantity": {
+                                        "type": "integer"
+                                    },
+                                    "rewardSource": {
+                                        "type": "string"
+                                    },
+                                    "specialRequest": {
+                                        "type": "string"
+                                    },
+                                    "totalPrice": {
+                                        "type": "number"
+                                    },
+                                    "totalPriceCents": {
+                                        "type": "integer"
+                                    },
+                                    "unitPrice": {
+                                        "type": "number"
+                                    },
+                                    "unitPriceCents": {
+                                        "type": "integer"
+                                    },
+                                    "upsellSource": {
+                                        "type": "object",
+                                        "properties": {
+                                            "upsellId": {
+                                                "type": "string"
+                                            },
+                                            "upsellLevelType": {
+                                                "type": "string"
+                                            },
+                                            "upsellPromptItemId": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "kioskSessionId": {
+                            "type": "string"
+                        },
+                        "kioskSource": {
+                            "type": "object",
+                            "properties": {
+                                "kioskId": {
+                                    "type": "string"
+                                },
+                                "kioskMode": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "localCurrencyDetails": {
+                            "type": "object",
+                            "properties": {
+                                "additionalInfo": {
+                                    "type": "string"
+                                },
+                                "currencyCode": {
+                                    "type": "string"
+                                },
+                                "totals": {
+                                    "type": "number"
+                                },
+                                "totalsCents": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "locationId": {
+                            "type": "string"
+                        },
+                        "loyaltyProviderPaymentTransactionId": {
+                            "type": "string"
+                        },
+                        "loyaltyProviderTransactionId": {
+                            "type": "string"
+                        },
+                        "loyaltyUser": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "externalId": {
+                                    "type": "string"
+                                },
+                                "firstName": {
+                                    "type": "string"
+                                },
+                                "lastName": {
+                                    "type": "string"
+                                },
+                                "email": {
+                                    "type": "string"
+                                },
+                                "phone": {
+                                    "type": "string"
+                                },
+                                "pOSOrderId": {
+                                    "type": "string"
+                                },
+                                "integrationMetadata": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "orderDate": {
+                            "type": "string"
+                        },
+                        "orderId": {
+                            "type": "string"
+                        },
+                        "orderIdentity": {
+                            "type": "object",
+                            "properties": {
+                                "deviceImei": {
+                                    "type": "string"
+                                },
+                                "email": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "orderToken": {
+                                    "type": "string"
+                                },
+                                "phone": {
+                                    "type": "string"
+                                },
+                                "phoneCountryCode": {
+                                    "type": "string"
+                                },
+                                "posOrderToken": {
+                                    "type": "string"
+                                },
+                                "guestOptInToSmsMarketing": {
+                                    "type": "boolean"
+                                },
+                                "randomlyGeneratedFields": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "tableTent": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "orderReceiptPdfUrl": {
+                            "type": "string"
+                        },
+                        "orderReceiptUrl": {
+                            "type": "string"
+                        },
+                        "orderType": {
+                            "type": "string"
+                        },
+                        "orderTypeLabel": {
+                            "type": "string"
+                        },
+                        "originalTransactionId": {
+                            "type": "string"
+                        },
+                        "paymentDetails": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "amount": {
+                                        "type": "number"
+                                    },
+                                    "captureDetails": {
+                                        "type": "string"
+                                    },
+                                    "isAmazonOnePayment": {
+                                        "type": "boolean"
+                                    },
+                                    "paymentCardName": {
+                                        "type": "string"
+                                    },
+                                    "paymentCardNumber": {
+                                        "type": "string"
+                                    },
+                                    "paymentIntegrationId": {
+                                        "type": "string"
+                                    },
+                                    "paymentIntegrationLabel": {
+                                        "type": "string"
+                                    },
+                                    "paymentMethod": {
+                                        "type": "string"
+                                    },
+                                    "settlementDetails": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    },
+                                    "tenderId": {
+                                        "type": "string"
+                                    },
+                                    "tenderInfo": {
+                                        "type": "object",
+                                        "properties": {
+                                            "cardInfo": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "cardType": {
+                                                        "type": "string"
+                                                    },
+                                                    "lastFour": {
+                                                        "type": "string"
+                                                    },
+                                                    "zipCode": {
+                                                        "type": "string"
+                                                    },
+                                                    "processorAuthCode": {
+                                                        "type": "string"
+                                                    },
+                                                    "expirationMonth": {
+                                                        "type": "string"
+                                                    },
+                                                    "expirationYear": {
+                                                        "type": "string"
+                                                    },
+                                                    "maskedCardNumber": {
+                                                        "type": "string"
+                                                    },
+                                                    "availableBalance": {
+                                                        "type": "number"
+                                                    }
+                                                }
+                                            },
+                                            "storedValueInfo": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "transactionId": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "posSubmissionStatus": {
+                            "type": "integer"
+                        },
+                        "rawResponse": {
+                            "type": "string"
+                        },
+                        "receiptDetails": {
+                            "type": "object",
+                            "properties": {
+                                "feedBackUrl": {
+                                    "type": "string"
+                                },
+                                "genesisFiscalFields": {
+                                    "type": "object",
+                                    "properties": {
+                                        "receiptHeader": {
+                                            "type": "string"
+                                        },
+                                        "receiptFooter": {
+                                            "type": "string"
+                                        },
+                                        "serie": {
+                                            "type": "string"
+                                        },
+                                        "fetchTicket": {
+                                            "type": "string"
+                                        },
+                                        "importTax": {
+                                            "type": "string"
+                                        },
+                                        "folieoNumber": {
+                                            "type": "string"
+                                        },
+                                        "orderLookupUrl": {
+                                            "type": "string"
+                                        },
+                                        "locationId": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "guestCheckCode": {
+                                    "type": "string"
+                                },
+                                "guestCheckCodePrefaceText": {
+                                    "type": "string"
+                                },
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "loyaltyEarnedPoints": {
+                                    "type": "string"
+                                },
+                                "loyaltyFooter": {
+                                    "type": "string"
+                                },
+                                "loyaltyHeader": {
+                                    "type": "string"
+                                },
+                                "orderLanguage": {
+                                    "type": "string"
+                                },
+                                "receiptPrintingType": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "receiptImage": {
+                            "type": "string"
+                        },
+                        "redeemedRewards": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "value": {
+                                        "type": "integer"
+                                    },
+                                    "posDiscountId": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "refundedAmount": {
+                            "type": "number"
+                        },
+                        "refundTransactionId": {
+                            "type": "string"
+                        },
+                        "refundType": {
+                            "type": "string"
+                        },
+                        "totals": {
+                            "type": "object",
+                            "properties": {
+                                "charityAmount": {
+                                    "type": "number"
+                                },
+                                "discount": {
+                                    "type": "number"
+                                },
+                                "fees": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "label": {
+                                                "type": "string"
+                                            },
+                                            "amount": {
+                                                "type": "number"
+                                            },
+                                            "feeId": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "reward": {
+                                    "type": "number"
+                                },
+                                "serviceCharge": {
+                                    "type": "number"
+                                },
+                                "subTotal": {
+                                    "type": "number"
+                                },
+                                "tax": {
+                                    "type": "number"
+                                },
+                                "taxes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "label": {
+                                                "type": "string"
+                                            },
+                                            "amount": {
+                                                "type": "number"
+                                            },
+                                            "taxId": {
+                                                "type": "string"
+                                            },
+                                            "total": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
+                                },
+                                "tip": {
+                                    "type": "number"
+                                },
+                                "total": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "totalsCents": {
+                            "type": "object",
+                            "properties": {
+                                "charityAmount": {
+                                    "type": "integer"
+                                },
+                                "discount": {
+                                    "type": "integer"
+                                },
+                                "fees": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "label": {
+                                                "type": "string"
+                                            },
+                                            "amount": {
+                                                "type": "integer"
+                                            },
+                                            "feeId": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "reward": {
+                                    "type": "integer"
+                                },
+                                "serviceCharge": {
+                                    "type": "integer"
+                                },
+                                "subTotal": {
+                                    "type": "integer"
+                                },
+                                "tax": {
+                                    "type": "integer"
+                                },
+                                "taxes": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "label": {
+                                                "type": "string"
+                                            },
+                                            "amount": {
+                                                "type": "integer"
+                                            },
+                                            "taxId": {
+                                                "type": "string"
+                                            },
+                                            "total": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    }
+                                },
+                                "tip": {
+                                    "type": "integer"
+                                },
+                                "total": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "upsellInformation": {
+                            "type": "object",
+                            "properties": {
+                                "upsellPrompt": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "modalVersion": {
+                                                "type": "string"
+                                            },
+                                            "offeredItems": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "itemId": {
+                                                            "type": "string"
+                                                        },
+                                                        "promptItemId": {
+                                                            "type": "string"
+                                                        },
+                                                        "upsellGroupId": {
+                                                            "type": "string"
+                                                        },
+                                                        "upsellLevel": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "promptId": {
+                                                "type": "string"
+                                            },
+                                            "promptTime": {
+                                                "type": "string"
+                                            },
+                                            "selectedItems": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "itemId": {
+                                                            "type": "string"
+                                                        },
+                                                        "modifiers": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "modifierGroupId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "modifierId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "quantity": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        "promptItemId": {
+                                                            "type": "string"
+                                                        },
+                                                        "quantity": {
+                                                            "type": "integer"
+                                                        },
+                                                        "upsellGroupId": {
+                                                            "type": "string"
+                                                        },
+                                                        "upsellLevel": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "modifierImpressions": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "context": {
+                                                "type": "string"
+                                            },
+                                            "itemId": {
+                                                "type": "string"
+                                            },
+                                            "nestingDepth": {
+                                                "type": "integer"
+                                            },
+                                            "parentModifierId": {
+                                                "type": "string"
+                                            },
+                                            "recommendations": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "confirmedRemoved": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "modifierId": {
+                                                            "type": "string"
+                                                        },
+                                                        "position": {
+                                                            "type": "integer"
+                                                        },
+                                                        "preDeselected": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "preSelected": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "score": {
+                                                            "type": "integer"
+                                                        },
+                                                        "selected": {
+                                                            "type": "boolean"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "selectionType": {
+                                                "type": "string"
+                                            },
+                                            "strategy": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "modifierInteractions": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "action": {
+                                                "type": "string"
+                                            },
+                                            "itemId": {
+                                                "type": "string"
+                                            },
+                                            "modifierId": {
+                                                "type": "string"
+                                            },
+                                            "modifierGroupId": {
+                                                "type": "string"
+                                            },
+                                            "nestingDepth": {
+                                                "type": "integer"
+                                            },
+                                            "parentModifierId": {
+                                                "type": "string"
+                                            },
+                                            "recordedAt": {
+                                                "type": "string"
+                                            },
+                                            "selectionType": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "bronzeIngestTime": {
+                            "type": "string"
+                        },
+                        "resolvedAt": {
+                            "type": "string"
+                        },
+                        "thirdPartyOrderId": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/BronzeOrdersJSONPopulation')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -1587,59 +3031,6 @@
                 ],
                 "typeProperties": {
                     "schema": "stg",
-                    "table": "devicetelemetry"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/DeviceTelemetryFromGsh')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "ServicesPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "folder": {
-                    "name": "Service-GSH/GSHPG"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
-                    {
-                        "name": "deviceid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "telemetryname",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "telemetryvalue",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "telemetrytime",
-                        "type": "timestamp without time zone",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "gsh",
                     "table": "devicetelemetry"
                 }
             },

@@ -13,6 +13,59 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/DeviceTelemetryFromGsh')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ServicesPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "folder": {
+                    "name": "Service-GSH/GSHPG"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "deviceid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "telemetryname",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "telemetryvalue",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "telemetrytime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "gsh",
+                    "table": "devicetelemetry"
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/DimKioskDetailsAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -1486,42 +1539,6 @@
                     }
                 },
                 "schema": {}
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/SilverModifierImpressionsParquet')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "ADLSgas",
-                    "type": "LinkedServiceReference"
-                },
-                "parameters": {
-                    "p_ds_date": {
-                        "type": "string",
-                        "defaultValue": "2026-05-15"
-                    },
-                    "p_ds_hour": {
-                        "type": "string",
-                        "defaultValue": "12"
-                    }
-                },
-                "annotations": [],
-                "type": "Parquet",
-                "typeProperties": {
-                    "location": {
-                        "type": "AzureBlobFSLocation",
-                        "folderPath": {
-                            "value": "@concat('orders/modifierimpressions/date=', dataset().p_ds_date, '/hour=', dataset().p_ds_hour)",
-                            "type": "Expression"
-                        },
-                        "fileSystem": "silver"
-                    },
-                    "compressionCodec": "snappy"
-                },
-                "schema": []
             },
             "dependsOn": []
         }

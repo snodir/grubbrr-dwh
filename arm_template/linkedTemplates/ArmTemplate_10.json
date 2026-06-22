@@ -13,6 +13,478 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/stgSilverCaseSensitiveOrderEntitiesAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "_attachments",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "_etag",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "_rid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "_self",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "_lsn",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "_ts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderId",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationId",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "businessDate",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderDate",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderType",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderTypeLabel",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "channel",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "conceptId",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "conceptName",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kioskSessionId",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "clientIpAddress",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "guestCount",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "gusetCheckImageLink",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "isFailedToSendToPos",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "isTestOrder",
+                        "type": "boolean",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "posSubmissionStatus",
+                        "type": "integer",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "originalTransactionId",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "refundTransactionId",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "refundType",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "refundedAmount",
+                        "type": "numeric",
+                        "precision": 12,
+                        "scale": 3
+                    },
+                    {
+                        "name": "rawResponse",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "receiptImage",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderReceiptUrl",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderReceiptPdfUrl",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "type",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "loyaltyProviderTransactionId",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "loyaltyProviderPaymentTransactionId",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "kioskSource",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "orderIdentity",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "loyaltyUser",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "localCurrencyDetails",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "totals",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "totalsCents",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "receiptDetails",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "concepts",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "items",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "combos",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "discounts",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "paymentDetails",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "redeemedRewards",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "upsellInformation",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "resolvedAt",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "thirdPartyOrderId",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "bronze_folderpath",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "silver_order_entities"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/stgSilverGemAllEventsAnalyticsDb')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OrdersPGNew",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzurePostgreSqlTable",
+                "schema": [
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "application",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "companyid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "locationid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventmodule",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventcategory",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventtype",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "severity",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "token",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "eventinstant",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "username",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "userid",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "device",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "devicename",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "summary",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "data",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosticks",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "syscosmosts",
+                        "type": "bigint",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "bronze_folderpath",
+                        "type": "text",
+                        "precision": 0,
+                        "scale": 0
+                    },
+                    {
+                        "name": "sysinserttime",
+                        "type": "timestamp without time zone",
+                        "precision": 0,
+                        "scale": 0
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "stg",
+                    "table": "silver_all_gem_events"
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/stgSilverItemModifiersAnalyticsDb')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -2973,1780 +3445,745 @@
             "dependsOn": []
         },
         {
-            "name": "[concat(parameters('factoryName'), '/stgSilverCaseSensitiveOrderEntitiesAnalyticsDb')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
+            "name": "[concat(parameters('factoryName'), '/BronzeOrdersToGAS')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
             "apiVersion": "2018-06-01",
             "properties": {
-                "linkedServiceName": {
-                    "referenceName": "OrdersPGNew",
-                    "type": "LinkedServiceReference"
-                },
-                "annotations": [],
-                "type": "AzurePostgreSqlTable",
-                "schema": [
+                "activities": [
                     {
-                        "name": "_attachments",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "_etag",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "_rid",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "_self",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "_lsn",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "_ts",
-                        "type": "bigint",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "id",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderId",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "locationId",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "businessDate",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderDate",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderType",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderTypeLabel",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "channel",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "conceptId",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "conceptName",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kioskSessionId",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "clientIpAddress",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "guestCount",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "gusetCheckImageLink",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "isFailedToSendToPos",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "isTestOrder",
-                        "type": "boolean",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "posSubmissionStatus",
-                        "type": "integer",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "originalTransactionId",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "refundTransactionId",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "refundType",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "refundedAmount",
-                        "type": "numeric",
-                        "precision": 12,
-                        "scale": 3
-                    },
-                    {
-                        "name": "rawResponse",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "receiptImage",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderReceiptUrl",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderReceiptPdfUrl",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "type",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "loyaltyProviderTransactionId",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "loyaltyProviderPaymentTransactionId",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "kioskSource",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "orderIdentity",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "loyaltyUser",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "localCurrencyDetails",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "totals",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "totalsCents",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "receiptDetails",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "concepts",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "items",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "combos",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "discounts",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "paymentDetails",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "redeemedRewards",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "upsellInformation",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "resolvedAt",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "thirdPartyOrderId",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "bronze_folderpath",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    },
-                    {
-                        "name": "sysinserttime",
-                        "type": "text",
-                        "precision": 0,
-                        "scale": 0
-                    }
-                ],
-                "typeProperties": {
-                    "schema": "stg",
-                    "table": "silver_order_entities"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/BronzeOrdersJSON')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "ADLSgas",
-                    "type": "LinkedServiceReference"
-                },
-                "parameters": {
-                    "p_ds_partition_path": {
-                        "type": "string",
-                        "defaultValue": "orders/raw/2026/05/15/11"
-                    }
-                },
-                "annotations": [],
-                "type": "Json",
-                "typeProperties": {
-                    "location": {
-                        "type": "AzureBlobFSLocation",
-                        "folderPath": {
-                            "value": "@dataset().p_ds_partition_path",
-                            "type": "Expression"
+                        "name": "PendingPartitions",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
                         },
-                        "fileSystem": "bronze"
-                    }
-                },
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "_attachments": {
-                            "type": "string"
-                        },
-                        "_etag": {
-                            "type": "string"
-                        },
-                        "_rid": {
-                            "type": "string"
-                        },
-                        "_self": {
-                            "type": "string"
-                        },
-                        "_ts": {
-                            "type": "integer"
-                        },
-                        "businessDate": {
-                            "type": "string"
-                        },
-                        "channel": {
-                            "type": "integer"
-                        },
-                        "clientIpAddress": {
-                            "type": "string"
-                        },
-                        "combos": {
-                            "type": "array",
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "SELECT \r\n    dateid, \r\n    layer, \r\n    entity, \r\n    partition_path,\r\n    SUBSTRING(partition_path, 1, 21) as partition_date_path,\r\n    partition_date :: TEXT AS partition_date,\r\n    partition_year, \r\n    partition_month, \r\n    partition_day, \r\n    partition_hour,\r\n    SUBSTRING(partition_path, 23, 2) as partition_hh\r\nFROM etl.bronze_partition_registry\r\nWHERE entity = 'orders'\r\n  AND dateid = 2026061514 --  AND dateid <= 2026060905\r\nORDER BY dateid\r\nLIMIT 50;",
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "etlBronzePartitionRegistryAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "LoopThroughHourPartitions",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "PendingPartitions",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
                             "items": {
-                                "type": "object",
-                                "properties": {
-                                    "categoryId": {
-                                        "type": "string"
+                                "value": "@activity('PendingPartitions').output.value",
+                                "type": "Expression"
+                            },
+                            "isSequential": false,
+                            "batchCount": 50,
+                            "activities": [
+                                {
+                                    "name": "GetHourPartitions",
+                                    "type": "GetMetadata",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
                                     },
-                                    "categoryName": {
-                                        "type": "string"
-                                    },
-                                    "categoryPosId": {
-                                        "type": "string"
-                                    },
-                                    "comboPosId": {
-                                        "type": "string"
-                                    },
-                                    "comboId": {
-                                        "type": "string"
-                                    },
-                                    "componentSelections": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "properties": {
-                                                "componentId": {
-                                                    "type": "string"
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "dataset": {
+                                            "referenceName": "BronzeEventsJSON",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "p_ds_partition_path": {
+                                                    "value": "@item().partition_path",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        },
+                                        "fieldList": [
+                                            "itemType",
+                                            "itemName",
+                                            "exists"
+                                        ],
+                                        "storeSettings": {
+                                            "type": "AzureBlobFSReadSettings",
+                                            "recursive": true,
+                                            "enablePartitionDiscovery": false
+                                        },
+                                        "formatSettings": {
+                                            "type": "JsonReadSettings"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "IfHourPartitionExists",
+                                    "type": "IfCondition",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "GetHourPartitions",
+                                            "dependencyConditions": [
+                                                "Succeeded"
+                                            ]
+                                        }
+                                    ],
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "expression": {
+                                            "value": "@activity('GetHourPartitions').output.exists",
+                                            "type": "Expression"
+                                        },
+                                        "ifFalseActivities": [
+                                            {
+                                                "name": "PartitionNotFound",
+                                                "type": "Lookup",
+                                                "state": "Inactive",
+                                                "onInactiveMarkAs": "Succeeded",
+                                                "dependsOn": [],
+                                                "policy": {
+                                                    "timeout": "0.12:00:00",
+                                                    "retry": 0,
+                                                    "retryIntervalInSeconds": 30,
+                                                    "secureOutput": false,
+                                                    "secureInput": false
                                                 },
-                                                "componentPosId": {
-                                                    "type": "string"
+                                                "userProperties": [],
+                                                "typeProperties": {
+                                                    "source": {
+                                                        "type": "AzurePostgreSqlSource",
+                                                        "query": {
+                                                            "value": "UPDATE etl.bronze_partition_registry\nSET started_at = NOW() :: TIMESTAMP,\n    status = 'not found',\n    adf_pipeline_run_id = '@{pipeline().RunId}' :: TEXT\nWHERE entity = 'events'\n  AND dateid = @{item().dateid};\n\nSELECT '@{item().partition_path}' AS partition_path;",
+                                                            "type": "Expression"
+                                                        },
+                                                        "partitionOption": "None",
+                                                        "queryTimeout": "02:00:00"
+                                                    },
+                                                    "dataset": {
+                                                        "referenceName": "etlBronzePartitionRegistryAnalyticsDb",
+                                                        "type": "DatasetReference",
+                                                        "parameters": {}
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        "ifTrueActivities": [
+                                            {
+                                                "name": "vAvailablePartitions",
+                                                "type": "AppendVariable",
+                                                "dependsOn": [],
+                                                "userProperties": [],
+                                                "typeProperties": {
+                                                    "variableName": "vAvailablePartitions",
+                                                    "value": {
+                                                        "value": "@json(concat('{\"partition_date\": \"', item().partition_date, '\", \"partition_hh\": \"', item().partition_hh, '\"}'))",
+                                                        "type": "Expression"
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "name": "OrdersToGAS",
+                                                "type": "Copy",
+                                                "dependsOn": [
+                                                    {
+                                                        "activity": "vAvailablePartitions",
+                                                        "dependencyConditions": [
+                                                            "Succeeded"
+                                                        ]
+                                                    }
+                                                ],
+                                                "policy": {
+                                                    "timeout": "0.12:00:00",
+                                                    "retry": 0,
+                                                    "retryIntervalInSeconds": 30,
+                                                    "secureOutput": false,
+                                                    "secureInput": false
                                                 },
-                                                "item": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "categoryId": {
-                                                            "type": "string"
+                                                "userProperties": [],
+                                                "typeProperties": {
+                                                    "source": {
+                                                        "type": "JsonSource",
+                                                        "additionalColumns": [
+                                                            {
+                                                                "name": "sysinserttime",
+                                                                "value": {
+                                                                    "value": "@utcNow()",
+                                                                    "type": "Expression"
+                                                                }
+                                                            },
+                                                            {
+                                                                "name": "bronze_folderpath",
+                                                                "value": {
+                                                                    "value": "@item().partition_path",
+                                                                    "type": "Expression"
+                                                                }
+                                                            }
+                                                        ],
+                                                        "storeSettings": {
+                                                            "type": "AzureBlobFSReadSettings",
+                                                            "recursive": true,
+                                                            "wildcardFolderPath": {
+                                                                "value": "@item().partition_path",
+                                                                "type": "Expression"
+                                                            },
+                                                            "wildcardFileName": "*.json",
+                                                            "enablePartitionDiscovery": false
                                                         },
-                                                        "categoryName": {
-                                                            "type": "string"
+                                                        "formatSettings": {
+                                                            "type": "JsonReadSettings"
+                                                        }
+                                                    },
+                                                    "sink": {
+                                                        "type": "AzurePostgreSqlSink",
+                                                        "writeBatchSize": 1000000,
+                                                        "writeBatchTimeout": "00:30:00",
+                                                        "preCopyScript": {
+                                                            "value": "DELETE FROM stg.silver_order_entities WHERE \"bronze_folderpath\" = '@{item().partition_path}';",
+                                                            "type": "Expression"
                                                         },
-                                                        "categoryPosId": {
-                                                            "type": "string"
-                                                        },
-                                                        "conceptId": {
-                                                            "type": "string"
-                                                        },
-                                                        "conceptName": {
-                                                            "type": "string"
-                                                        },
-                                                        "discountSource": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "discountId": {
-                                                                    "type": "string"
+                                                        "writeMethod": "CopyCommand"
+                                                    },
+                                                    "enableStaging": false,
+                                                    "enableSkipIncompatibleRow": true,
+                                                    "translator": {
+                                                        "type": "TabularTranslator",
+                                                        "mappings": [
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['locationId']"
                                                                 },
-                                                                "isHiddenOnReceipt": {
-                                                                    "type": "boolean"
+                                                                "sink": {
+                                                                    "name": "locationId",
+                                                                    "type": "String"
                                                                 }
-                                                            }
-                                                        },
-                                                        "discounts": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "type": "string"
-                                                            }
-                                                        },
-                                                        "itemPrice": {
-                                                            "type": "number"
-                                                        },
-                                                        "itemSessionId": {
-                                                            "type": "string"
-                                                        },
-                                                        "localizedName": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "translations": {
-                                                                    "type": "object"
-                                                                }
-                                                            }
-                                                        },
-                                                        "menuItemId": {
-                                                            "type": "string"
-                                                        },
-                                                        "menuItemPosId": {
-                                                            "type": "string"
-                                                        },
-                                                        "name": {
-                                                            "type": "string"
-                                                        },
-                                                        "options": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "freeQuantity": {
-                                                                        "type": "integer"
-                                                                    },
-                                                                    "isDefault": {
-                                                                        "type": "boolean"
-                                                                    },
-                                                                    "isInvisible": {
-                                                                        "type": "boolean"
-                                                                    },
-                                                                    "isScanned": {
-                                                                        "type": "boolean"
-                                                                    },
-                                                                    "modifierCode": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "modifierGroupId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "modifierGroupName": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "modifierGroupPosId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "modifierId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "modifierPosId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "name": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "options": {
-                                                                        "type": "array",
-                                                                        "items": {
-                                                                            "type": "string"
-                                                                        }
-                                                                    },
-                                                                    "price": {
-                                                                        "type": "number"
-                                                                    },
-                                                                    "quantity": {
-                                                                        "type": "integer"
-                                                                    },
-                                                                    "totalPrice": {
-                                                                        "type": "number"
-                                                                    },
-                                                                    "totalPriceCents": {
-                                                                        "type": "integer"
-                                                                    },
-                                                                    "unitPriceCents": {
-                                                                        "type": "integer"
-                                                                    }
-                                                                }
-                                                            }
-                                                        },
-                                                        "orderItemId": {
-                                                            "type": "string"
-                                                        },
-                                                        "quantity": {
-                                                            "type": "integer"
-                                                        },
-                                                        "rewardSource": {
-                                                            "type": "string"
-                                                        },
-                                                        "specialRequest": {
-                                                            "type": "string"
-                                                        },
-                                                        "totalPrice": {
-                                                            "type": "number"
-                                                        },
-                                                        "totalPriceCents": {
-                                                            "type": "integer"
-                                                        },
-                                                        "unitPrice": {
-                                                            "type": "number"
-                                                        },
-                                                        "unitPriceCents": {
-                                                            "type": "integer"
-                                                        },
-                                                        "upsellSource": {
-                                                            "type": "object",
-                                                            "properties": {
-                                                                "upsellId": {
-                                                                    "type": "string"
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['id']"
                                                                 },
-                                                                "upsellLevelType": {
-                                                                    "type": "string"
+                                                                "sink": {
+                                                                    "name": "id",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['orderId']"
                                                                 },
-                                                                "upsellPromptItemId": {
-                                                                    "type": "string"
+                                                                "sink": {
+                                                                    "name": "orderId",
+                                                                    "type": "String"
                                                                 }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['kioskSessionId']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "kioskSessionId",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['businessDate']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "businessDate",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['isTestOrder']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "isTestOrder",
+                                                                    "type": "Boolean"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['channel']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "channel",
+                                                                    "type": "Int32"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['clientIpAddress']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "clientIpAddress",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['combos']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "combos",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['conceptId']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "conceptId",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['conceptName']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "conceptName",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['concepts']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "concepts",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['discounts']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "discounts",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['guestCount']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "guestCount",
+                                                                    "type": "Int32"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['gusetCheckImageLink']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "gusetCheckImageLink",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['isFailedToSendToPos']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "isFailedToSendToPos",
+                                                                    "type": "Boolean"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['items']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "items",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['kioskSource']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "kioskSource",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['localCurrencyDetails']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "localCurrencyDetails",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['loyaltyProviderPaymentTransactionId']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "loyaltyProviderPaymentTransactionId",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['loyaltyProviderTransactionId']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "loyaltyProviderTransactionId",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['loyaltyUser']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "loyaltyUser",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['orderDate']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "orderDate",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['orderIdentity']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "orderIdentity",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['orderReceiptPdfUrl']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "orderReceiptPdfUrl",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['orderReceiptUrl']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "orderReceiptUrl",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['orderType']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "orderType",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['orderTypeLabel']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "orderTypeLabel",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['originalTransactionId']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "originalTransactionId",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['paymentDetails']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "paymentDetails",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['posSubmissionStatus']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "posSubmissionStatus",
+                                                                    "type": "Int32"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['rawResponse']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "rawResponse",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['receiptDetails']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "receiptDetails",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['receiptImage']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "receiptImage",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['redeemedRewards']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "redeemedRewards",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['refundedAmount']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "refundedAmount",
+                                                                    "type": "Double"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['refundTransactionId']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "refundTransactionId",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['refundType']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "refundType",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['totals']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "totals",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['totalsCents']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "totalsCents",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['type']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "type",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['upsellInformation']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "upsellInformation",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['thirdPartyOrderId']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "thirdPartyOrderId",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['resolvedAt']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "resolvedAt",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['_rid']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "_rid",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['_self']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "_self",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['_etag']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "_etag",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['_attachments']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "_attachments",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['_ts']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "_ts",
+                                                                    "type": "Int64"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['_lsn']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "_lsn",
+                                                                    "type": "Int64"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['sysinserttime']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "sysinserttime",
+                                                                    "type": "String"
+                                                                }
+                                                            },
+                                                            {
+                                                                "source": {
+                                                                    "path": "$['bronze_folderpath']"
+                                                                },
+                                                                "sink": {
+                                                                    "name": "bronze_folderpath",
+                                                                    "type": "String"
+                                                                }
+                                                            }
+                                                        ],
+                                                        "collectionReference": "",
+                                                        "mapComplexValuesToString": true
+                                                    }
+                                                },
+                                                "inputs": [
+                                                    {
+                                                        "referenceName": "BronzeOrdersJSON",
+                                                        "type": "DatasetReference",
+                                                        "parameters": {
+                                                            "p_ds_partition_path": {
+                                                                "value": "@item().partition_path",
+                                                                "type": "Expression"
                                                             }
                                                         }
                                                     }
-                                                },
-                                                "items": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "categoryId": {
-                                                                "type": "string"
-                                                            },
-                                                            "categoryName": {
-                                                                "type": "string"
-                                                            },
-                                                            "categoryPosId": {
-                                                                "type": "string"
-                                                            },
-                                                            "conceptId": {
-                                                                "type": "string"
-                                                            },
-                                                            "conceptName": {
-                                                                "type": "string"
-                                                            },
-                                                            "discountSource": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "discountId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "isHiddenOnReceipt": {
-                                                                        "type": "boolean"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "discounts": {
-                                                                "type": "array",
-                                                                "items": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "itemPrice": {
-                                                                "type": "number"
-                                                            },
-                                                            "itemSessionId": {
-                                                                "type": "string"
-                                                            },
-                                                            "localizedName": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "translations": {
-                                                                        "type": "object"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "menuItemId": {
-                                                                "type": "string"
-                                                            },
-                                                            "menuItemPosId": {
-                                                                "type": "string"
-                                                            },
-                                                            "name": {
-                                                                "type": "string"
-                                                            },
-                                                            "options": {
-                                                                "type": "array",
-                                                                "items": {
-                                                                    "type": "object",
-                                                                    "properties": {
-                                                                        "freeQuantity": {
-                                                                            "type": "integer"
-                                                                        },
-                                                                        "isDefault": {
-                                                                            "type": "boolean"
-                                                                        },
-                                                                        "isInvisible": {
-                                                                            "type": "boolean"
-                                                                        },
-                                                                        "isScanned": {
-                                                                            "type": "boolean"
-                                                                        },
-                                                                        "modifierCode": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "modifierGroupId": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "modifierGroupName": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "modifierGroupPosId": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "modifierId": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "modifierPosId": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "name": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "options": {
-                                                                            "type": "array",
-                                                                            "items": {
-                                                                                "type": "string"
-                                                                            }
-                                                                        },
-                                                                        "price": {
-                                                                            "type": "number"
-                                                                        },
-                                                                        "quantity": {
-                                                                            "type": "integer"
-                                                                        },
-                                                                        "totalPrice": {
-                                                                            "type": "number"
-                                                                        },
-                                                                        "totalPriceCents": {
-                                                                            "type": "integer"
-                                                                        },
-                                                                        "unitPriceCents": {
-                                                                            "type": "integer"
-                                                                        }
-                                                                    }
-                                                                }
-                                                            },
-                                                            "orderItemId": {
-                                                                "type": "string"
-                                                            },
-                                                            "quantity": {
-                                                                "type": "integer"
-                                                            },
-                                                            "rewardSource": {
-                                                                "type": "string"
-                                                            },
-                                                            "specialRequest": {
-                                                                "type": "string"
-                                                            },
-                                                            "totalPrice": {
-                                                                "type": "number"
-                                                            },
-                                                            "totalPriceCents": {
-                                                                "type": "integer"
-                                                            },
-                                                            "unitPrice": {
-                                                                "type": "number"
-                                                            },
-                                                            "unitPriceCents": {
-                                                                "type": "integer"
-                                                            },
-                                                            "upsellSource": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "upsellId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "upsellLevelType": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "upsellPromptItemId": {
-                                                                        "type": "string"
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
+                                                ],
+                                                "outputs": [
+                                                    {
+                                                        "referenceName": "stgSilverCaseSensitiveOrderEntitiesAnalyticsDb",
+                                                        "type": "DatasetReference",
+                                                        "parameters": {}
                                                     }
-                                                },
-                                                "localizedName": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "translations": {
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "name": {
-                                                    "type": "string"
-                                                }
+                                                ]
                                             }
-                                        }
-                                    },
-                                    "conceptId": {
-                                        "type": "string"
-                                    },
-                                    "conceptName": {
-                                        "type": "string"
-                                    },
-                                    "itemSessionId": {
-                                        "type": "string"
-                                    },
-                                    "localizedName": {
-                                        "type": "object",
-                                        "properties": {
-                                            "translations": {
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "orderItemId": {
-                                        "type": "string"
-                                    },
-                                    "quantity": {
-                                        "type": "integer"
-                                    },
-                                    "rewardSource": {
-                                        "type": "string"
-                                    },
-                                    "specialRequest": {
-                                        "type": "string"
-                                    },
-                                    "totalPriceCents": {
-                                        "type": "integer"
-                                    },
-                                    "unitPriceCents": {
-                                        "type": "integer"
-                                    },
-                                    "upsellSource": {
-                                        "type": "object",
-                                        "properties": {
-                                            "upsellId": {
-                                                "type": "string"
-                                            },
-                                            "upsellLevelType": {
-                                                "type": "string"
-                                            },
-                                            "upsellPromptItemId": {
-                                                "type": "string"
-                                            }
-                                        }
+                                        ]
                                     }
                                 }
-                            }
-                        },
-                        "conceptId": {
-                            "type": "string"
-                        },
-                        "conceptName": {
-                            "type": "string"
-                        },
-                        "concepts": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "conceptId": {
-                                        "type": "string"
-                                    },
-                                    "conceptName": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        },
-                        "discounts": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "discountId": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "discountType": {
-                                        "type": "object",
-                                        "properties": {
-                                            "kind": {
-                                                "type": "integer"
-                                            }
-                                        }
-                                    },
-                                    "discountLevel": {
-                                        "type": "integer"
-                                    },
-                                    "discountCodes": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "mode": {
-                                        "type": "integer"
-                                    },
-                                    "posDiscountId": {
-                                        "type": "string"
-                                    },
-                                    "discountAmount": {
-                                        "type": "number"
-                                    }
-                                }
-                            }
-                        },
-                        "guestCount": {
-                            "type": "integer"
-                        },
-                        "gusetCheckImageLink": {
-                            "type": "string"
-                        },
-                        "id": {
-                            "type": "string"
-                        },
-                        "isFailedToSendToPos": {
-                            "type": "boolean"
-                        },
-                        "isTestOrder": {
-                            "type": "boolean"
-                        },
-                        "items": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "categoryId": {
-                                        "type": "string"
-                                    },
-                                    "categoryName": {
-                                        "type": "string"
-                                    },
-                                    "categoryPosId": {
-                                        "type": "string"
-                                    },
-                                    "conceptId": {
-                                        "type": "string"
-                                    },
-                                    "conceptName": {
-                                        "type": "string"
-                                    },
-                                    "discountSource": {
-                                        "type": "object",
-                                        "properties": {
-                                            "discountId": {
-                                                "type": "string"
-                                            },
-                                            "isHiddenOnReceipt": {
-                                                "type": "boolean"
-                                            }
-                                        }
-                                    },
-                                    "discounts": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "isScanned": {
-                                        "type": "boolean"
-                                    },
-                                    "itemPrice": {
-                                        "type": "number"
-                                    },
-                                    "itemSessionId": {
-                                        "type": "string"
-                                    },
-                                    "localizedName": {
-                                        "type": "object",
-                                        "properties": {
-                                            "translations": {
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "menuItemId": {
-                                        "type": "string"
-                                    },
-                                    "menuItemPosId": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "options": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "object",
-                                            "properties": {
-                                                "freeQuantity": {
-                                                    "type": "integer"
-                                                },
-                                                "isDefault": {
-                                                    "type": "boolean"
-                                                },
-                                                "isInvisible": {
-                                                    "type": "boolean"
-                                                },
-                                                "isScanned": {
-                                                    "type": "boolean"
-                                                },
-                                                "localizedModifierGroupName": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "translations": {
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "localizedName": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "translations": {
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "modifierCode": {
-                                                    "type": "string"
-                                                },
-                                                "modifierGroupId": {
-                                                    "type": "string"
-                                                },
-                                                "modifierGroupName": {
-                                                    "type": "string"
-                                                },
-                                                "modifierGroupPosId": {
-                                                    "type": "string"
-                                                },
-                                                "modifierId": {
-                                                    "type": "string"
-                                                },
-                                                "modifierPosId": {
-                                                    "type": "string"
-                                                },
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "options": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "freeQuantity": {
-                                                                "type": "integer"
-                                                            },
-                                                            "isDefault": {
-                                                                "type": "boolean"
-                                                            },
-                                                            "isInvisible": {
-                                                                "type": "boolean"
-                                                            },
-                                                            "isScanned": {
-                                                                "type": "boolean"
-                                                            },
-                                                            "localizedModifierGroupName": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "translations": {
-                                                                        "type": "object"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "localizedName": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "translations": {
-                                                                        "type": "object"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "modifierCode": {
-                                                                "type": "string"
-                                                            },
-                                                            "modifierGroupId": {
-                                                                "type": "string"
-                                                            },
-                                                            "modifierGroupName": {
-                                                                "type": "string"
-                                                            },
-                                                            "modifierGroupPosId": {
-                                                                "type": "string"
-                                                            },
-                                                            "modifierId": {
-                                                                "type": "string"
-                                                            },
-                                                            "modifierPosId": {
-                                                                "type": "string"
-                                                            },
-                                                            "name": {
-                                                                "type": "string"
-                                                            },
-                                                            "options": {
-                                                                "type": "array",
-                                                                "items": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "price": {
-                                                                "type": "number"
-                                                            },
-                                                            "quantity": {
-                                                                "type": "integer"
-                                                            },
-                                                            "totalPrice": {
-                                                                "type": "number"
-                                                            },
-                                                            "totalPriceCents": {
-                                                                "type": "integer"
-                                                            },
-                                                            "unitPriceCents": {
-                                                                "type": "integer"
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                "price": {
-                                                    "type": "number"
-                                                },
-                                                "quantity": {
-                                                    "type": "integer"
-                                                },
-                                                "totalPrice": {
-                                                    "type": "number"
-                                                },
-                                                "totalPriceCents": {
-                                                    "type": "integer"
-                                                },
-                                                "unitPriceCents": {
-                                                    "type": "integer"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "orderItemId": {
-                                        "type": "string"
-                                    },
-                                    "quantity": {
-                                        "type": "integer"
-                                    },
-                                    "rewardSource": {
-                                        "type": "string"
-                                    },
-                                    "specialRequest": {
-                                        "type": "string"
-                                    },
-                                    "totalPrice": {
-                                        "type": "number"
-                                    },
-                                    "totalPriceCents": {
-                                        "type": "integer"
-                                    },
-                                    "unitPrice": {
-                                        "type": "number"
-                                    },
-                                    "unitPriceCents": {
-                                        "type": "integer"
-                                    },
-                                    "upsellSource": {
-                                        "type": "object",
-                                        "properties": {
-                                            "upsellId": {
-                                                "type": "string"
-                                            },
-                                            "upsellLevelType": {
-                                                "type": "string"
-                                            },
-                                            "upsellPromptItemId": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "kioskSessionId": {
-                            "type": "string"
-                        },
-                        "kioskSource": {
-                            "type": "object",
-                            "properties": {
-                                "kioskId": {
-                                    "type": "string"
-                                },
-                                "kioskMode": {
-                                    "type": "integer"
-                                },
-                                "name": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "localCurrencyDetails": {
-                            "type": "object",
-                            "properties": {
-                                "additionalInfo": {
-                                    "type": "string"
-                                },
-                                "currencyCode": {
-                                    "type": "string"
-                                },
-                                "totals": {
-                                    "type": "number"
-                                },
-                                "totalsCents": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "locationId": {
-                            "type": "string"
-                        },
-                        "loyaltyProviderPaymentTransactionId": {
-                            "type": "string"
-                        },
-                        "loyaltyProviderTransactionId": {
-                            "type": "string"
-                        },
-                        "loyaltyUser": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "externalId": {
-                                    "type": "string"
-                                },
-                                "firstName": {
-                                    "type": "string"
-                                },
-                                "lastName": {
-                                    "type": "string"
-                                },
-                                "email": {
-                                    "type": "string"
-                                },
-                                "phone": {
-                                    "type": "string"
-                                },
-                                "pOSOrderId": {
-                                    "type": "string"
-                                },
-                                "integrationMetadata": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "orderDate": {
-                            "type": "string"
-                        },
-                        "orderId": {
-                            "type": "string"
-                        },
-                        "orderIdentity": {
-                            "type": "object",
-                            "properties": {
-                                "deviceImei": {
-                                    "type": "string"
-                                },
-                                "email": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "orderToken": {
-                                    "type": "string"
-                                },
-                                "phone": {
-                                    "type": "string"
-                                },
-                                "phoneCountryCode": {
-                                    "type": "string"
-                                },
-                                "posOrderToken": {
-                                    "type": "string"
-                                },
-                                "guestOptInToSmsMarketing": {
-                                    "type": "boolean"
-                                },
-                                "randomlyGeneratedFields": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "tableTent": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "orderReceiptPdfUrl": {
-                            "type": "string"
-                        },
-                        "orderReceiptUrl": {
-                            "type": "string"
-                        },
-                        "orderType": {
-                            "type": "string"
-                        },
-                        "orderTypeLabel": {
-                            "type": "string"
-                        },
-                        "originalTransactionId": {
-                            "type": "string"
-                        },
-                        "paymentDetails": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "amount": {
-                                        "type": "number"
-                                    },
-                                    "captureDetails": {
-                                        "type": "string"
-                                    },
-                                    "isAmazonOnePayment": {
-                                        "type": "boolean"
-                                    },
-                                    "paymentCardName": {
-                                        "type": "string"
-                                    },
-                                    "paymentCardNumber": {
-                                        "type": "string"
-                                    },
-                                    "paymentIntegrationId": {
-                                        "type": "string"
-                                    },
-                                    "paymentIntegrationLabel": {
-                                        "type": "string"
-                                    },
-                                    "paymentMethod": {
-                                        "type": "string"
-                                    },
-                                    "settlementDetails": {
-                                        "type": "string"
-                                    },
-                                    "status": {
-                                        "type": "string"
-                                    },
-                                    "tenderId": {
-                                        "type": "string"
-                                    },
-                                    "tenderInfo": {
-                                        "type": "object",
-                                        "properties": {
-                                            "cardInfo": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "cardType": {
-                                                        "type": "string"
-                                                    },
-                                                    "lastFour": {
-                                                        "type": "string"
-                                                    },
-                                                    "zipCode": {
-                                                        "type": "string"
-                                                    },
-                                                    "processorAuthCode": {
-                                                        "type": "string"
-                                                    },
-                                                    "expirationMonth": {
-                                                        "type": "string"
-                                                    },
-                                                    "expirationYear": {
-                                                        "type": "string"
-                                                    },
-                                                    "maskedCardNumber": {
-                                                        "type": "string"
-                                                    },
-                                                    "availableBalance": {
-                                                        "type": "number"
-                                                    }
-                                                }
-                                            },
-                                            "storedValueInfo": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    },
-                                    "transactionId": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        },
-                        "posSubmissionStatus": {
-                            "type": "integer"
-                        },
-                        "rawResponse": {
-                            "type": "string"
-                        },
-                        "receiptDetails": {
-                            "type": "object",
-                            "properties": {
-                                "feedBackUrl": {
-                                    "type": "string"
-                                },
-                                "genesisFiscalFields": {
-                                    "type": "object",
-                                    "properties": {
-                                        "receiptHeader": {
-                                            "type": "string"
-                                        },
-                                        "receiptFooter": {
-                                            "type": "string"
-                                        },
-                                        "serie": {
-                                            "type": "string"
-                                        },
-                                        "fetchTicket": {
-                                            "type": "string"
-                                        },
-                                        "importTax": {
-                                            "type": "string"
-                                        },
-                                        "folieoNumber": {
-                                            "type": "string"
-                                        },
-                                        "orderLookupUrl": {
-                                            "type": "string"
-                                        },
-                                        "locationId": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "guestCheckCode": {
-                                    "type": "string"
-                                },
-                                "guestCheckCodePrefaceText": {
-                                    "type": "string"
-                                },
-                                "items": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                },
-                                "loyaltyEarnedPoints": {
-                                    "type": "string"
-                                },
-                                "loyaltyFooter": {
-                                    "type": "string"
-                                },
-                                "loyaltyHeader": {
-                                    "type": "string"
-                                },
-                                "orderLanguage": {
-                                    "type": "string"
-                                },
-                                "receiptPrintingType": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "receiptImage": {
-                            "type": "string"
-                        },
-                        "redeemedRewards": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "value": {
-                                        "type": "integer"
-                                    },
-                                    "posDiscountId": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        },
-                        "refundedAmount": {
-                            "type": "number"
-                        },
-                        "refundTransactionId": {
-                            "type": "string"
-                        },
-                        "refundType": {
-                            "type": "string"
-                        },
-                        "totals": {
-                            "type": "object",
-                            "properties": {
-                                "charityAmount": {
-                                    "type": "number"
-                                },
-                                "discount": {
-                                    "type": "number"
-                                },
-                                "fees": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "label": {
-                                                "type": "string"
-                                            },
-                                            "amount": {
-                                                "type": "number"
-                                            },
-                                            "feeId": {
-                                                "type": "string"
-                                            },
-                                            "type": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                },
-                                "reward": {
-                                    "type": "number"
-                                },
-                                "serviceCharge": {
-                                    "type": "number"
-                                },
-                                "subTotal": {
-                                    "type": "number"
-                                },
-                                "tax": {
-                                    "type": "number"
-                                },
-                                "taxes": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "label": {
-                                                "type": "string"
-                                            },
-                                            "amount": {
-                                                "type": "number"
-                                            },
-                                            "taxId": {
-                                                "type": "string"
-                                            },
-                                            "total": {
-                                                "type": "number"
-                                            }
-                                        }
-                                    }
-                                },
-                                "tip": {
-                                    "type": "number"
-                                },
-                                "total": {
-                                    "type": "number"
-                                }
-                            }
-                        },
-                        "totalsCents": {
-                            "type": "object",
-                            "properties": {
-                                "charityAmount": {
-                                    "type": "integer"
-                                },
-                                "discount": {
-                                    "type": "integer"
-                                },
-                                "fees": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "label": {
-                                                "type": "string"
-                                            },
-                                            "amount": {
-                                                "type": "integer"
-                                            },
-                                            "feeId": {
-                                                "type": "string"
-                                            },
-                                            "type": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                },
-                                "reward": {
-                                    "type": "integer"
-                                },
-                                "serviceCharge": {
-                                    "type": "integer"
-                                },
-                                "subTotal": {
-                                    "type": "integer"
-                                },
-                                "tax": {
-                                    "type": "integer"
-                                },
-                                "taxes": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "label": {
-                                                "type": "string"
-                                            },
-                                            "amount": {
-                                                "type": "integer"
-                                            },
-                                            "taxId": {
-                                                "type": "string"
-                                            },
-                                            "total": {
-                                                "type": "integer"
-                                            }
-                                        }
-                                    }
-                                },
-                                "tip": {
-                                    "type": "integer"
-                                },
-                                "total": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "type": {
-                            "type": "string"
-                        },
-                        "upsellInformation": {
-                            "type": "object",
-                            "properties": {
-                                "upsellPrompt": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "modalVersion": {
-                                                "type": "string"
-                                            },
-                                            "offeredItems": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "itemId": {
-                                                            "type": "string"
-                                                        },
-                                                        "promptItemId": {
-                                                            "type": "string"
-                                                        },
-                                                        "upsellGroupId": {
-                                                            "type": "string"
-                                                        },
-                                                        "upsellLevel": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            "promptId": {
-                                                "type": "string"
-                                            },
-                                            "promptTime": {
-                                                "type": "string"
-                                            },
-                                            "selectedItems": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "itemId": {
-                                                            "type": "string"
-                                                        },
-                                                        "modifiers": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "type": "object",
-                                                                "properties": {
-                                                                    "modifierGroupId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "modifierId": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "quantity": {
-                                                                        "type": "integer"
-                                                                    }
-                                                                }
-                                                            }
-                                                        },
-                                                        "promptItemId": {
-                                                            "type": "string"
-                                                        },
-                                                        "quantity": {
-                                                            "type": "integer"
-                                                        },
-                                                        "upsellGroupId": {
-                                                            "type": "string"
-                                                        },
-                                                        "upsellLevel": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "modifierImpressions": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "context": {
-                                                "type": "string"
-                                            },
-                                            "itemId": {
-                                                "type": "string"
-                                            },
-                                            "nestingDepth": {
-                                                "type": "integer"
-                                            },
-                                            "parentModifierId": {
-                                                "type": "string"
-                                            },
-                                            "recommendations": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "confirmedRemoved": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "modifierId": {
-                                                            "type": "string"
-                                                        },
-                                                        "position": {
-                                                            "type": "integer"
-                                                        },
-                                                        "preDeselected": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "preSelected": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "score": {
-                                                            "type": "integer"
-                                                        },
-                                                        "selected": {
-                                                            "type": "boolean"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            "selectionType": {
-                                                "type": "string"
-                                            },
-                                            "strategy": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                },
-                                "modifierInteractions": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "action": {
-                                                "type": "string"
-                                            },
-                                            "itemId": {
-                                                "type": "string"
-                                            },
-                                            "modifierId": {
-                                                "type": "string"
-                                            },
-                                            "modifierGroupId": {
-                                                "type": "string"
-                                            },
-                                            "nestingDepth": {
-                                                "type": "integer"
-                                            },
-                                            "parentModifierId": {
-                                                "type": "string"
-                                            },
-                                            "recordedAt": {
-                                                "type": "string"
-                                            },
-                                            "selectionType": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "bronzeIngestTime": {
-                            "type": "string"
-                        },
-                        "resolvedAt": {
-                            "type": "string"
-                        },
-                        "thirdPartyOrderId": {
-                            "type": "string"
+                            ]
                         }
                     }
-                }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "variables": {
+                    "vAvailablePartitions": {
+                        "type": "Array",
+                        "defaultValue": []
+                    }
+                },
+                "folder": {
+                    "name": "DWH-Medallion/Gold-Analytics"
+                },
+                "annotations": [],
+                "lastPublishTime": "2026-06-14T05:36:20Z"
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/stgSilverCaseSensitiveOrderEntitiesAnalyticsDb')]"
+            ]
         },
         {
             "name": "[concat(parameters('factoryName'), '/DimensionKiosks')]",
@@ -7780,207 +7217,6 @@
                     "name": "Dimensions"
                 },
                 "annotations": []
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/DimensionWeatherInfo')]",
-            "type": "Microsoft.DataFactory/factories/pipelines",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "activities": [
-                    {
-                        "name": "Locations",
-                        "type": "Lookup",
-                        "dependsOn": [
-                            {
-                                "activity": "InsertLocations",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": "select distinct concat(city, ' ', coalesce(state, '')) as city \r\nfrom dim.location \r\nwhere 1=1\r\nand state = 'Florida'\r\nand city in ('West Palm Beach','Tampa','Fort Lauderdale');",
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "AnalyticsDbLocation",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            },
-                            "firstRowOnly": false
-                        }
-                    },
-                    {
-                        "name": "LoopThroughCities",
-                        "type": "ForEach",
-                        "dependsOn": [
-                            {
-                                "activity": "Locations",
-                                "dependencyConditions": [
-                                    "Succeeded"
-                                ]
-                            }
-                        ],
-                        "userProperties": [],
-                        "typeProperties": {
-                            "items": {
-                                "value": "@activity('Locations').output.value",
-                                "type": "Expression"
-                            },
-                            "isSequential": true,
-                            "activities": [
-                                {
-                                    "name": "Get WeatherInfo",
-                                    "type": "WebActivity",
-                                    "dependsOn": [
-                                        {
-                                            "activity": "v_city",
-                                            "dependencyConditions": [
-                                                "Succeeded"
-                                            ]
-                                        }
-                                    ],
-                                    "policy": {
-                                        "timeout": "0.12:00:00",
-                                        "retry": 0,
-                                        "retryIntervalInSeconds": 30,
-                                        "secureOutput": false,
-                                        "secureInput": false
-                                    },
-                                    "userProperties": [],
-                                    "typeProperties": {
-                                        "method": "GET",
-                                        "headers": {
-                                            "Accept-Language": "en-us",
-                                            "Content-Type": "application/json"
-                                        },
-                                        "url": {
-                                            "value": "@concat('https://api.weatherapi.com/v1/history.json?', 'key=', pipeline().parameters.p_api_key,'&q=',variables('v_city'),'&dt=',substring(addDays(utcNow(), mul(pipeline().parameters.p_days_to_go_back, -1)), 0, 10))",
-                                            "type": "Expression"
-                                        }
-                                    }
-                                },
-                                {
-                                    "name": "UpdateDimWeather",
-                                    "type": "Lookup",
-                                    "dependsOn": [
-                                        {
-                                            "activity": "Get WeatherInfo",
-                                            "dependencyConditions": [
-                                                "Succeeded"
-                                            ]
-                                        }
-                                    ],
-                                    "policy": {
-                                        "timeout": "0.12:00:00",
-                                        "retry": 0,
-                                        "retryIntervalInSeconds": 30,
-                                        "secureOutput": false,
-                                        "secureInput": false
-                                    },
-                                    "userProperties": [],
-                                    "typeProperties": {
-                                        "source": {
-                                            "type": "AzurePostgreSqlSource",
-                                            "query": {
-                                                "value": "@concat('update dim.weather set weatherinfo = ''',  replace(string(activity('Get WeatherInfo').output.forecast.forecastday[0]), '\\',''), ''' :: jsonb, locationinfo = ''',\nreplace(string(activity('Get WeatherInfo').output.location), '\\',''), ''' :: jsonb, timezone = coalesce(timezone, ''', \nactivity('Get WeatherInfo').output.location.tz_id, \n'''), sysupdatetime = now() where city = ''', variables('v_city'), ''' and apicalldate = (current_date - ', string(pipeline().parameters.p_days_to_go_back), \n' * INTERVAL ''1 day'') :: date; select 1 as rn;')",
-                                                "type": "Expression"
-                                            },
-                                            "partitionOption": "None"
-                                        },
-                                        "dataset": {
-                                            "referenceName": "dimWeatherAnalyticsDb",
-                                            "type": "DatasetReference",
-                                            "parameters": {}
-                                        },
-                                        "firstRowOnly": true
-                                    }
-                                },
-                                {
-                                    "name": "v_city",
-                                    "type": "SetVariable",
-                                    "dependsOn": [],
-                                    "policy": {
-                                        "secureOutput": false,
-                                        "secureInput": false
-                                    },
-                                    "userProperties": [],
-                                    "typeProperties": {
-                                        "variableName": "v_city",
-                                        "value": {
-                                            "value": "@item().city",
-                                            "type": "Expression"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "InsertLocations",
-                        "type": "Lookup",
-                        "dependsOn": [],
-                        "policy": {
-                            "timeout": "0.12:00:00",
-                            "retry": 0,
-                            "retryIntervalInSeconds": 30,
-                            "secureOutput": false,
-                            "secureInput": false
-                        },
-                        "userProperties": [],
-                        "typeProperties": {
-                            "source": {
-                                "type": "AzurePostgreSqlSource",
-                                "query": {
-                                    "value": "insert into dim.weather(organizationid,locationid,city,timezone,apicalldate,sysinserttime)\nselect distinct \n       companyid, \n       locationid, \n       concat(city, ' ', coalesce(state, '')) as city,\n       timezone, \n       (current_date - @{pipeline().parameters.p_days_to_go_back} * INTERVAL '1 day') :: date as apicalldate, \n       now() as sysinserttime\nfrom dim.location\nwhere (current_date - (@{pipeline().parameters.p_days_to_go_back} + 1) * INTERVAL '1 day') :: date = (select max(apicalldate) from dim.weather);\n\nselect 1 as rn;",
-                                    "type": "Expression"
-                                },
-                                "partitionOption": "None"
-                            },
-                            "dataset": {
-                                "referenceName": "dimWeatherAnalyticsDb",
-                                "type": "DatasetReference",
-                                "parameters": {}
-                            }
-                        }
-                    }
-                ],
-                "policy": {
-                    "elapsedTimeMetric": {}
-                },
-                "parameters": {
-                    "p_days_to_go_back": {
-                        "type": "int",
-                        "defaultValue": 1
-                    },
-                    "p_api_key": {
-                        "type": "string",
-                        "defaultValue": "9226d12474ac477a92e75611251704"
-                    }
-                },
-                "variables": {
-                    "v_city": {
-                        "type": "String",
-                        "defaultValue": "Boca Raton Florida"
-                    }
-                },
-                "folder": {
-                    "name": "Dimensions"
-                },
-                "annotations": [],
-                "lastPublishTime": "2025-06-25T17:34:45Z"
             },
             "dependsOn": []
         }

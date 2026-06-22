@@ -13,6 +13,170 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/dimABTests')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "folder": {
+                    "name": "Dimensions-GAS"
+                },
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "gemEvent",
+                                "type": "DatasetReference"
+                            },
+                            "name": "gemABTests"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimABTestsAnalyticsDB",
+                                "type": "DatasetReference"
+                            },
+                            "name": "CheckDimABTests"
+                        },
+                        {
+                            "dataset": {
+                                "referenceName": "dimABTestsAnalyticsDB",
+                                "type": "DatasetReference"
+                            },
+                            "name": "maxID"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "dimABTestsAnalyticsDB",
+                                "type": "DatasetReference"
+                            },
+                            "name": "DimABTests"
+                        }
+                    ],
+                    "transformations": [
+                        {
+                            "name": "NewABTestsOnly"
+                        },
+                        {
+                            "name": "parseData"
+                        },
+                        {
+                            "name": "surrogateKey1"
+                        },
+                        {
+                            "name": "GetMaxID"
+                        },
+                        {
+                            "name": "derivedColumn1"
+                        },
+                        {
+                            "name": "AddMaxID",
+                            "description": "Creates an explicit mapping for each drifted column"
+                        }
+                    ],
+                    "scriptLines": [
+                        "source(output(",
+                        "          syscosmosts as integer,",
+                        "          LocationID as string,",
+                        "          data as string,",
+                        "          OrganizationID as string,",
+                        "          OrderSessionID as string,",
+                        "          DeviceName as string,",
+                        "          DeviceID as string",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     query: 'SELECT distinct\\r\\nc.company as OrganizationID ,\\r\\nc.location as LocationID,\\r\\nc.token as OrderSessionID,\\r\\nc.data,\\r\\nc.device as DeviceID,\\r\\nc.devicename as DeviceName,\\r\\nc._ts as syscosmosts\\r\\nFROM c\\r\\nwhere 1=1\\r\\nand c.category= \\'Session\\'\\r\\nand c.type= \\'Started\\'\\r\\nand (c.data like \\'%experiment%\\' or c.data like \\'%expvar%\\')',",
+                        "     format: 'documentQuery',",
+                        "     systemColumns: false) ~> gemABTests",
+                        "source(output(",
+                        "          abtestid as string,",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          experimentid as string,",
+                        "          experimentname as string,",
+                        "          variantid as string,",
+                        "          variantname as string,",
+                        "          ordersessionid as string,",
+                        "          deviceid as string,",
+                        "          devicename as string,",
+                        "          syscosmosts as long,",
+                        "          sysinserttime as timestamp",
+                        "     ),",
+                        "     allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     format: 'table') ~> CheckDimABTests",
+                        "source(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     isolationLevel: 'READ_UNCOMMITTED',",
+                        "     query: 'select coalesce(max(ABTestID), 0) as maxID from dim.ABTests',",
+                        "     format: 'query') ~> maxID",
+                        "parseData, CheckDimABTests exists(gemABTests@LocationID == CheckDimABTests@locationid",
+                        "     && parseData@ExperimentID.experimentId == CheckDimABTests@experimentid,",
+                        "     negate:true,",
+                        "     broadcast: 'auto')~> NewABTestsOnly",
+                        "gemABTests parse(ExperimentID = data ? (experimentId as string),",
+                        "          ExperimentName = data ? (experimentName as string),",
+                        "          VariantID = data ? (variantId as string),",
+                        "          VariantName = data ? (variantName as string),",
+                        "     format: 'json',",
+                        "     documentForm: 'singleDocument') ~> parseData",
+                        "AddMaxID keyGenerate(output(key as long),",
+                        "     startAt: 1L,",
+                        "     stepValue: 1L) ~> surrogateKey1",
+                        "NewABTestsOnly, maxID join(1==1,",
+                        "     joinType:'cross',",
+                        "     matchType:'exact',",
+                        "     ignoreSpaces: false,",
+                        "     broadcast: 'auto')~> GetMaxID",
+                        "surrogateKey1 derive(ABTestID = maxid + key,",
+                        "          sysinserttime = currentTimestamp()) ~> derivedColumn1",
+                        "GetMaxID derive(maxid = toLong(byName('maxid'))) ~> AddMaxID",
+                        "derivedColumn1 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     input(",
+                        "          abtestid as string,",
+                        "          organizationid as string,",
+                        "          locationid as string,",
+                        "          experimentid as string,",
+                        "          experimentname as string,",
+                        "          variantid as string,",
+                        "          variantname as string,",
+                        "          ordersessionid as string,",
+                        "          deviceid as string,",
+                        "          devicename as string,",
+                        "          syscosmosts as long,",
+                        "          sysinserttime as timestamp",
+                        "     ),",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     mapColumn(",
+                        "          abtestid = ABTestID,",
+                        "          organizationid = OrganizationID,",
+                        "          locationid = LocationID,",
+                        "          experimentid = ExperimentID.experimentId,",
+                        "          experimentname = ExperimentName.experimentName,",
+                        "          variantid = VariantID.variantId,",
+                        "          variantname = VariantName.variantName,",
+                        "          ordersessionid = OrderSessionID,",
+                        "          deviceid = DeviceID,",
+                        "          devicename = DeviceName,",
+                        "          syscosmosts,",
+                        "          sysinserttime",
+                        "     )) ~> DimABTests"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/dimLocationCatalog')]",
             "type": "Microsoft.DataFactory/factories/dataflows",
             "apiVersion": "2018-06-01",
@@ -7295,226 +7459,6 @@
                         "          watermarkcolumn,",
                         "          watermarkvalue = telemetrytime",
                         "     )) ~> UpdateWatermark"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/gshDeviceToDimKiosk')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Dimensions-GAS"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "DeviceFromGshPG",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gshDevice"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbKiosk",
-                                "type": "DatasetReference"
-                            },
-                            "name": "CheckDimKiosk"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbKiosk",
-                                "type": "DatasetReference"
-                            },
-                            "name": "GetMaxID"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "DeviceFromGshPG",
-                                "type": "DatasetReference"
-                            },
-                            "name": "GshDeviceExisting"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbKiosk",
-                                "type": "DatasetReference"
-                            },
-                            "name": "dimKiosk"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "AnalyticsDbKiosk",
-                                "type": "DatasetReference"
-                            },
-                            "name": "UpdateExisting"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "NewDevicesOnly"
-                        },
-                        {
-                            "name": "MaxID"
-                        },
-                        {
-                            "name": "IdGenerator"
-                        },
-                        {
-                            "name": "ReadyID"
-                        },
-                        {
-                            "name": "ExistingKiosks"
-                        },
-                        {
-                            "name": "Update"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          kioskname as string,",
-                        "          appversion as string,",
-                        "          istestkiosk as boolean,",
-                        "          devicetype as string,",
-                        "          devicecreatedon as timestamp,",
-                        "          devicedeletedon as timestamp",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select distinct locationid,-- * \\r\\n       deviceid as kioskid,\\r\\n       devicename as kioskname,\\r\\n       currentversion as appversion,\\r\\n       testmode as istestkiosk,\\r\\n       lower(devicetype) as devicetype,\\r\\n       enrollmentdate as devicecreatedon,\\r\\n       disenrollmentdate as devicedeletedon\\r\\nfrom gsh.device',",
-                        "     format: 'query') ~> gshDevice",
-                        "source(output(",
-                        "          id as long,",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          kioskname as string,",
-                        "          serialnumber as string,",
-                        "          appversion as string,",
-                        "          istestkiosk as boolean,",
-                        "          devicetype as string,",
-                        "          devicecreatedon as timestamp,",
-                        "          devicedeletedon as timestamp",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> CheckDimKiosk",
-                        "source(output(",
-                        "          maxid as long",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select coalesce(max(id),0) as maxid from dim.kiosk',",
-                        "     format: 'query') ~> GetMaxID",
-                        "source(output(",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          kioskname as string,",
-                        "          appversion as string,",
-                        "          istestkiosk as boolean,",
-                        "          devicetype as string,",
-                        "          devicecreatedon as timestamp,",
-                        "          devicedeletedon as timestamp",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     query: 'select distinct locationid,-- * \\r\\n       deviceid as kioskid,\\r\\n       devicename as kioskname,\\r\\n       currentversion as appversion,\\r\\n       testmode as istestkiosk,\\r\\n       lower(devicetype) as devicetype,\\r\\n       enrollmentdate as devicecreatedon,\\r\\n       disenrollmentdate as devicedeletedon\\r\\nfrom gsh.device',",
-                        "     format: 'query') ~> GshDeviceExisting",
-                        "gshDevice, CheckDimKiosk exists(gshDevice@locationid == CheckDimKiosk@locationid",
-                        "     && gshDevice@kioskid == CheckDimKiosk@kioskid,",
-                        "     negate:true,",
-                        "     broadcast: 'auto')~> NewDevicesOnly",
-                        "IdGenerator, GetMaxID join(1==1,",
-                        "     joinType:'cross',",
-                        "     matchType:'exact',",
-                        "     ignoreSpaces: false,",
-                        "     broadcast: 'auto')~> MaxID",
-                        "NewDevicesOnly keyGenerate(output(key as long),",
-                        "     startAt: 1L,",
-                        "     stepValue: 1L) ~> IdGenerator",
-                        "MaxID derive(id = maxid + key) ~> ReadyID",
-                        "GshDeviceExisting, CheckDimKiosk exists(GshDeviceExisting@locationid == CheckDimKiosk@locationid",
-                        "     && GshDeviceExisting@kioskid == CheckDimKiosk@kioskid,",
-                        "     negate:false,",
-                        "     broadcast: 'auto')~> ExistingKiosks",
-                        "ExistingKiosks alterRow(updateIf(true())) ~> Update",
-                        "ReadyID sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          id as long,",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          kioskname as string,",
-                        "          serialnumber as string,",
-                        "          appversion as string,",
-                        "          istestkiosk as boolean,",
-                        "          devicetype as string,",
-                        "          devicecreatedon as timestamp,",
-                        "          devicedeletedon as timestamp",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:true,",
-                        "     updateable:false,",
-                        "     upsertable:false,",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 1,",
-                        "     mapColumn(",
-                        "          id,",
-                        "          locationid,",
-                        "          kioskid,",
-                        "          kioskname,",
-                        "          appversion,",
-                        "          istestkiosk,",
-                        "          devicetype,",
-                        "          devicecreatedon,",
-                        "          devicedeletedon",
-                        "     )) ~> dimKiosk",
-                        "Update sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          id as long,",
-                        "          locationid as string,",
-                        "          kioskid as string,",
-                        "          kioskname as string,",
-                        "          serialnumber as string,",
-                        "          appversion as string,",
-                        "          istestkiosk as boolean,",
-                        "          devicetype as string,",
-                        "          devicecreatedon as timestamp,",
-                        "          devicedeletedon as timestamp",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:false,",
-                        "     updateable:true,",
-                        "     upsertable:false,",
-                        "     keys:['locationid','kioskid'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 2,",
-                        "     mapColumn(",
-                        "          locationid,",
-                        "          kioskid,",
-                        "          kioskname,",
-                        "          appversion,",
-                        "          istestkiosk,",
-                        "          devicetype,",
-                        "          devicecreatedon,",
-                        "          devicedeletedon",
-                        "     )) ~> UpdateExisting"
                     ]
                 }
             },

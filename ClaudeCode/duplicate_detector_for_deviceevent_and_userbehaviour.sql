@@ -1,10 +1,12 @@
 SELECT * FROM stg.silver_kiosk_events LIMIT 100;
 
-SELECT *, ctid FROM fact.deviceevent WHERE syscosmosts IS NOT NULL ORDER BY syscosmosts DESC LIMIT 100;
+SELECT *, ctid FROM fact.deviceevent WHERE syscosmosts IS NOT NULL ORDER BY syscosmosts DESC LIMIT 1000;
+SELECT *, ctid FROM fact.userbehaviour /*WHERE syscosmosts IS NOT NULL*/ ORDER BY id DESC LIMIT 100;
 
+ALTER TABLE IF EXISTS fact.deviceevent
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
-
-ALTER TABLE IF EXISTS fact.deviceevent --Total execution time: 00:00:56.279
+ALTER TABLE IF EXISTS fact.deviceevent --Total execution time: 00:00:56.279  R=Total execution time: 00:00:15.928
 ADD CONSTRAINT locationid_eventtoken_datacategory_actiontype_eventinstant_unq UNIQUE (locationid, eventtoken, datacategory, actiontype, eventinstant)
 
 ALTER TABLE IF EXISTS fact.userbehaviour --Total execution time: 00:00:05.004
@@ -15,121 +17,166 @@ ADD COLUMN IF NOT EXISTS deviceid TEXT,
 ADD COLUMN IF NOT EXISTS syscosmosticks BIGINT,
 ADD COLUMN IF NOT EXISTS eventdata TEXT;
 
---TRUNCATE TABLE fact.userbehaviour
+--TRUNCATE TABLE fact.userbehaviour;
 
-SELECT *-- count(*) --DISTINCT de.datacategory, de.actiontype
-FROM fact.userbehaviour as ub --5,707,284***252,036
-WHERE eventcategory IN ('insight','Order','StoreTiming','BusinessHours','Session') 
+SELECT *--count(*) --DISTINCT de.datacategory, de.actiontype
+FROM fact.userbehaviour as ub --5,707,284***252,036---R=2,236,236***163,019
+WHERE 1=1 
+--AND eventcategory IN ('insight','Order','StoreTiming','BusinessHours','Session') 
+AND syscosmosticks IS NOT NULL
 --AND deviceid = ''
 ORDER BY id DESC
 LIMIT 1000;
 
 SELECT count(*) --*--DISTINCT de.datacategory, de.actiontype
-FROM fact.deviceevent as de --6,413,074***1,036,943
-WHERE 1=1--AND de.datacategory IN ('insight','Order','StoreTiming','BusinessHours','Session') --IN ('insight','Order')--
-AND de.eventtoken = ''
---AND de.deviceid = ''
+FROM fact.deviceevent as de --6,413,074***1,036,943---R=2,725,650***473,077
+WHERE 1=1--
+AND de.datacategory IN ('insight','Order','StoreTiming','BusinessHours','Session') --IN ('insight','Order')--
+--AND (de.eventtoken = '' OR de.eventtoken IS NULL) --R=228,727
+AND (de.deviceid = '' OR de.deviceid IS NULL) --R=2,069,735---UPDATE 2,069,735---Total execution time: 00:01:22.617, empty/missing deviceids
 --AND (de.eventdata LIKE '%"view"%' OR de.eventdata LIKE '%"element"%' OR de.eventdata LIKE '%"elementId"%')
 LIMIT 100;
 
-SELECT * FROM dim.view ORDER BY viewid DESC
---SELECT * FROM dim.element LIMIT 100; WHERE sourceelementid = '' OR sourceelementid IS NULL ORDER BY elementid DESC; --0 rows
-
-    
-    DROP TABLE IF EXISTS tmp_view;
-    CREATE TEMP TABLE tmp_view AS --SELECT 286181 Total execution time: 00:00:28.129
-    SELECT DISTINCT
-        NULLIF(TRIM(eventdata::jsonb->>'view'), '') AS viewname
-    FROM (SELECT fact.safe_conversion_to_jsonb(eventdata) as eventdata FROM fact.userbehaviour /*WHERE dim.is_valid_jsonb(eventdata)*/) as ub
-    WHERE NULLIF(TRIM(eventdata::jsonb->>'view'), '') IS NOT NULL;
-
-    CREATE INDEX ix_tmp_view ON tmp_view (viewname);
-    ANALYZE tmp_view;
-
-    SELECT * FROM tmp_view LIMIT 1000;
-
-    --TRUNCATE TABLE dim.view;
-    INSERT INTO dim.view (viewid, viewname, sysinserttime)
-    SELECT
-        ROW_NUMBER() OVER(ORDER BY t.viewname) as new_id, -- nextval('dim.view_id_seq'),
-        t.viewname,
-        NOW()::TIMESTAMP as sysinserttime
-    FROM tmp_view t
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM dim.view v
-        WHERE v.viewname = t.viewname
-    );
 
 
 UPDATE fact.deviceevent
-SET deviceid = CASE WHEN deviceid LIKE 'ksk-%' OR  deviceid <> '' THEN deviceid WHEN devicename LIKE 'ksk-%' THEN devicename END
-WHERE deviceid = ''
+SET deviceid = CASE WHEN deviceid LIKE 'ksk-%' OR  deviceid <> '' THEN deviceid WHEN devicename LIKE 'ksk-%' THEN devicename ELSE deviceid END
+WHERE deviceid = '';
 
-UPDATE fact.userbehaviour
-SET deviceid = de.deviceid,
+UPDATE fact.deviceevent
+SET eventtoken = COALESCE(NULLIF(eventtoken, ''), deviceid),   -- ← DISTINCT ON key
     sysupdatetime = NOW() :: TIMESTAMP
+WHERE eventtoken IS NULL OR eventtoken = '';
+-- 1,335 rows
+
+
+
+WITH dupl_records AS (
+SELECT locationid, coalesce(eventtoken, deviceid, syscosmosticks::TEXT) as eventtoken, datacategory, actiontype, eventinstant, -- syscosmosticks
+    COUNT(*) as dupl_count
+FROM fact.deviceevent
+GROUP BY locationid, coalesce(eventtoken, deviceid, syscosmosticks::TEXT), datacategory, actiontype, eventinstant--, syscosmosticks
+HAVING COUNT(*) > 1
+)
+SELECT locationid, 
+    coalesce(de.eventtoken, de.syscosmosticks::TEXT, de.deviceid) as eventtoken, 
+    datacategory, 
+    actiontype, 
+    eventinstant, 
+    COUNT(*) OVER(PARTITION BY locationid, coalesce(de.eventtoken, de.deviceid, de.syscosmosticks::TEXT), datacategory, actiontype, eventinstant) as dupl_count --syscosmosticks, 
 FROM fact.deviceevent as de
-WHERE userbehaviour.locationid             = de.locationid
-  AND userbehaviour.ordersessionidentifier = de.eventtoken
-  AND userbehaviour.eventcategory          = de.datacategory
-  AND userbehaviour.eventtype              = de.actiontype
-  AND userbehaviour.eventinstant           = de.eventinstant
-  AND userbehaviour.deviceid               = ''
+WHERE EXISTS (SELECT 1 FROM dupl_records as dr 
+              WHERE dr.locationid   = de.locationid
+                AND dr.eventtoken   = coalesce(de.eventtoken, de.deviceid, de.syscosmosticks::TEXT) 
+                AND dr.datacategory = de.datacategory
+                AND dr.actiontype   = de.actiontype
+                AND dr.eventinstant = de.eventinstant)
+ORDER BY locationid, eventtoken, datacategory, actiontype, eventinstant, dupl_count DESC
+LIMIT 100
+
+SELECT *
+FROM fact.deviceevent
+WHERE syscosmosts > 1779001410
+ORDER BY syscosmosts DESC
+LIMIT 100
 
 
-WITH ub AS (
-    SELECT id, 
-        fact.safe_conversion_to_jsonb(eventdata) as eventdata,
-        TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'view') as viewname
-    FROM fact.userbehaviour
-    WHERE fact.safe_conversion_to_jsonb(eventdata) IS NOT NULL 
-      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'view'), '') IS NOT NULL
-), ub_view AS (
-    SELECT ub.*, v.viewid
-    FROM ub 
-    INNER JOIN dim.view as v 
-            ON v.viewname = ub.viewname
+-- How many duplicate sets and how many extra rows?
+SELECT
+    COUNT(*)                    AS duplicate_key_sets,
+    SUM(cnt - 1)                AS rows_to_delete,
+    MAX(cnt)                    AS worst_case_copies
+FROM (
+    SELECT COUNT(*) AS cnt
+    FROM fact.deviceevent
+    GROUP BY locationid, eventtoken, datacategory, actiontype, eventinstant
+    HAVING COUNT(*) > 1
+) dups;
+--duplicate_key_sets    rows_to_delete  worst_case_copies
+--433,658	            1,116,961	    206
+--53,091	            92,684	        37
+-- Sample the duplicates to understand what's different between copies
+
+SELECT
+    locationid,
+    eventtoken,
+    datacategory,
+    actiontype,
+    eventinstant,
+    syscosmosts,
+    syscosmosticks,
+    sysinserttime,
+    COUNT(*) OVER (
+        PARTITION BY locationid, eventtoken, datacategory, actiontype, eventinstant
+    ) AS copies
+FROM fact.deviceevent
+WHERE (locationid, eventtoken, datacategory, actiontype, eventinstant) IN (
+    SELECT locationid, eventtoken, datacategory, actiontype, eventinstant
+    FROM fact.deviceevent
+    GROUP BY locationid, eventtoken, datacategory, actiontype, eventinstant
+    HAVING COUNT(*) > 1
 )
-UPDATE fact.userbehaviour
-SET viewidentifier = ub.viewid, --UPDATE 625,314, Total execution time: 00:01:19.169
-    sysupdatetime = NOW() :: TIMESTAMP
-FROM ub_view as ub
-WHERE userbehaviour.id = ub.id;
+ORDER BY locationid, eventtoken, datacategory, actiontype, eventinstant, sysinserttime
+LIMIT 100;
 
 
-WITH ub AS (
-    SELECT id, 
-        fact.safe_conversion_to_jsonb(eventdata) as eventdata,
-        TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'element') as elementname,
-        TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'elementId') as sourceelementid
-    FROM fact.userbehaviour
-    WHERE fact.safe_conversion_to_jsonb(eventdata) IS NOT NULL 
-      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'element'), '')   IS NOT NULL
-      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'elementId'), '') IS NOT NULL
-), ub_element AS (
-    SELECT ub.*, e.elementid
-    FROM ub 
-    INNER JOIN dim.element as e
-            ON e.sourceelementid = ub.sourceelementid
-           AND e.elementname     = ub.elementname
+--DELETE FROM fact.deviceevent --7,530,035 SELECT COUNT(*) --R=92,684--took 51 seconds
+WHERE EXISTS (--1,116,953 rows deleted from 7,530,035 record table, however rows_to_delete was 1,116,961
+    SELECT 1
+    FROM fact.deviceevent b
+    WHERE b.locationid   = fact.deviceevent.locationid
+      AND b.eventtoken   = fact.deviceevent.eventtoken
+      AND b.datacategory = fact.deviceevent.datacategory
+      AND b.actiontype   = fact.deviceevent.actiontype
+      AND b.eventinstant = fact.deviceevent.eventinstant
+      AND (
+            -- b is strictly better than the current row
+            b.syscosmosts > fact.deviceevent.syscosmosts
+            OR (    b.syscosmosts      IS NOT DISTINCT FROM fact.deviceevent.syscosmosts
+                AND b.syscosmosticks   >  fact.deviceevent.syscosmosticks)
+            OR (    b.syscosmosts      IS NOT DISTINCT FROM fact.deviceevent.syscosmosts
+                AND b.syscosmosticks   IS NOT DISTINCT FROM fact.deviceevent.syscosmosticks
+                AND b.ctid             >  fact.deviceevent.ctid)  -- tiebreaker for Type C NULLs
+      )
 )
-UPDATE fact.userbehaviour
-SET elementidentifier = ub.elementid, --UPDATE 211,534, Total execution time: 00:00:51.772
-    sysupdatetime = NOW() :: TIMESTAMP
-FROM ub_element as ub
-WHERE userbehaviour.id = ub.id;
+--LIMIT 100;
 
-UPDATE fact.userbehaviour
-SET ordertype     = th.ordertype,   --UPDATE 548,850, Total execution time: 00:00:41.540
-    sysupdatetime = NOW() :: TIMESTAMP
-FROM fact.transactionheader as th
-WHERE userbehaviour.locationid             = th.locationid
-  AND userbehaviour.ordersessionidentifier = th.ordersessionid;
+
+SELECT * FROM fact.deviceevent --DELETE 8 rows got deleted
+WHERE eventtoken IS NULL
+  AND ctid NOT IN (
+        SELECT DISTINCT ON (locationid, datacategory, actiontype, eventinstant)
+            ctid
+        FROM fact.deviceevent
+        WHERE eventtoken IS NULL
+        ORDER BY
+            locationid, datacategory, actiontype, eventinstant,
+            syscosmosts    DESC NULLS LAST,
+            syscosmosticks DESC NULLS LAST
+  );
+
+
+-- Should return zero rows
+SELECT COUNT(*)
+FROM fact.deviceevent
+WHERE 1=1                 --6,413,074
+  --AND eventtoken IS NULL  --1,335
+  AND deviceid   IS NULL; --no simultaneous NUL eventtoken and deviceid, but standalone NULL deviceid exists - 36 rows
+
+
+-- Confirm clean
+SELECT COUNT(*) FROM fact.deviceevent WHERE eventtoken IS NULL OR eventtoken = '';
+-- Must return 0
+
+--fact.userbehaviour
 
 /*
-INSERT 0 1036943
+INSERT 0 1,036,943
 Total execution time: 00:01:33.442
+
+Reg env:
+INSERT 0 473,077
+Total execution time: 00:00:23.637
 */
     WITH parsed_events AS (
         SELECT
@@ -214,6 +261,102 @@ Total execution time: 00:01:33.442
         eventdata
     FROM extracted;
 
+
+
+
+
+UPDATE fact.userbehaviour
+SET deviceid = de.deviceid,
+    sysupdatetime = NOW() :: TIMESTAMP
+FROM fact.deviceevent as de
+WHERE userbehaviour.locationid             = de.locationid
+  AND userbehaviour.ordersessionidentifier = de.eventtoken
+  AND userbehaviour.eventcategory          = de.datacategory
+  AND userbehaviour.eventtype              = de.actiontype
+  AND userbehaviour.eventinstant           = de.eventinstant
+  AND userbehaviour.deviceid               = ''
+
+
+SELECT * FROM dim.view ORDER BY viewid DESC;
+SELECT * FROM dim.element /*WHERE sourceelementid = '' OR sourceelementid IS NULL*/ ORDER BY elementid DESC; --0 rows
+
+    
+    DROP TABLE IF EXISTS tmp_view;
+    CREATE TEMP TABLE tmp_view AS --SELECT 286,181 Total execution time: 00:00:28.129
+    SELECT DISTINCT
+        NULLIF(TRIM(eventdata::jsonb->>'view'), '') AS viewname
+    FROM (SELECT fact.safe_conversion_to_jsonb(eventdata) as eventdata FROM fact.userbehaviour /*WHERE dim.is_valid_jsonb(eventdata)*/) as ub
+    WHERE NULLIF(TRIM(eventdata::jsonb->>'view'), '') IS NOT NULL;
+
+    CREATE INDEX ix_tmp_view ON tmp_view (viewname);
+    ANALYZE tmp_view;
+
+    SELECT * FROM tmp_view LIMIT 1000;
+
+    --TRUNCATE TABLE dim.view;
+    INSERT INTO dim.view (viewid, viewname, sysinserttime)
+    SELECT
+        ROW_NUMBER() OVER(ORDER BY t.viewname) as new_id, -- nextval('dim.view_id_seq'),
+        t.viewname,
+        NOW()::TIMESTAMP as sysinserttime
+    FROM tmp_view t
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dim.view v
+        WHERE v.viewname = t.viewname
+    );
+
+
+WITH ub AS (
+    SELECT id, 
+        fact.safe_conversion_to_jsonb(eventdata) as eventdata,
+        TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'view') as viewname
+    FROM fact.userbehaviour
+    WHERE fact.safe_conversion_to_jsonb(eventdata) IS NOT NULL 
+      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'view'), '') IS NOT NULL
+), ub_view AS (
+    SELECT ub.*, v.viewid
+    FROM ub 
+    INNER JOIN dim.view as v 
+            ON v.viewname = ub.viewname
+)
+UPDATE fact.userbehaviour
+SET viewidentifier = ub.viewid, --UPDATE 625,314, Total execution time: 00:01:19.169 --R=UPDATE 312,645, Total execution time: 00:00:25.319
+    sysupdatetime = NOW() :: TIMESTAMP
+FROM ub_view as ub
+WHERE userbehaviour.id = ub.id;
+
+
+WITH ub AS (
+    SELECT id, 
+        fact.safe_conversion_to_jsonb(eventdata) as eventdata,
+        TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'element') as elementname,
+        TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'elementId') as sourceelementid
+    FROM fact.userbehaviour
+    WHERE fact.safe_conversion_to_jsonb(eventdata) IS NOT NULL 
+      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'element'), '')   IS NOT NULL
+      AND NULLIF(TRIM(fact.safe_conversion_to_jsonb(eventdata)::jsonb->>'elementId'), '') IS NOT NULL
+), ub_element AS (
+    SELECT ub.*, e.elementid
+    FROM ub 
+    INNER JOIN dim.element as e
+            ON e.sourceelementid = ub.sourceelementid
+           AND e.elementname     = ub.elementname
+)
+UPDATE fact.userbehaviour
+SET elementidentifier = ub.elementid, --UPDATE 211,534, Total execution time: 00:00:51.772, --R=UPDATE 113,866, Total execution time: 00:00:13.915
+    sysupdatetime = NOW() :: TIMESTAMP
+FROM ub_element as ub
+WHERE userbehaviour.id = ub.id;
+
+UPDATE fact.userbehaviour
+SET ordertype     = th.ordertype,   --UPDATE 548,850, Total execution time: 00:00:41.540, R=UPDATE 198,042, Total execution time: 00:00:04.868
+    sysupdatetime = NOW() :: TIMESTAMP
+FROM fact.transactionheader as th
+WHERE userbehaviour.locationid             = th.locationid
+  AND userbehaviour.ordersessionidentifier = th.ordersessionid;
+
+
 --639165814406676069	1,780,984,640
 EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
 SELECT DISTINCT ON (
@@ -236,135 +379,6 @@ WHERE ske.syscosmosts > 1779001410  -- substitute your current watermark
 SELECT to_timestamp(1779001410), to_timestamp(2000000000)
 
 
-WITH dupl_records AS (
-SELECT locationid, coalesce(eventtoken, deviceid, syscosmosticks::TEXT) as eventtoken, datacategory, actiontype, eventinstant, -- syscosmosticks
-    COUNT(*) as dupl_count
-FROM fact.deviceevent
-GROUP BY locationid, coalesce(eventtoken, deviceid, syscosmosticks::TEXT), datacategory, actiontype, eventinstant--, syscosmosticks
-HAVING COUNT(*) > 1
-)
-SELECT locationid, 
-    coalesce(de.eventtoken, de.syscosmosticks::TEXT, de.deviceid) as eventtoken, 
-    datacategory, 
-    actiontype, 
-    eventinstant, 
-    COUNT(*) OVER(PARTITION BY locationid, coalesce(de.eventtoken, de.deviceid, de.syscosmosticks::TEXT), datacategory, actiontype, eventinstant) as dupl_count --syscosmosticks, 
-FROM fact.deviceevent as de
-WHERE EXISTS (SELECT 1 FROM dupl_records as dr 
-              WHERE dr.locationid   = de.locationid
-                AND dr.eventtoken   = coalesce(de.eventtoken, de.deviceid, de.syscosmosticks::TEXT) 
-                AND dr.datacategory = de.datacategory
-                AND dr.actiontype   = de.actiontype
-                AND dr.eventinstant = de.eventinstant)
-ORDER BY locationid, eventtoken, datacategory, actiontype, eventinstant, dupl_count DESC
-LIMIT 100
-
-SELECT *
-FROM fact.deviceevent
-WHERE syscosmosts > 1779001410
-ORDER BY syscosmosts DESC
-LIMIT 100
-
-
--- How many duplicate sets and how many extra rows?
-SELECT
-    COUNT(*)                    AS duplicate_key_sets,
-    SUM(cnt - 1)                AS rows_to_delete,
-    MAX(cnt)                    AS worst_case_copies
-FROM (
-    SELECT COUNT(*) AS cnt
-    FROM fact.deviceevent
-    GROUP BY locationid, eventtoken, datacategory, actiontype, eventinstant
-    HAVING COUNT(*) > 1
-) dups;
---duplicate_key_sets    rows_to_delete  worst_case_copies
---433,658	            1,116,961	    206
--- Sample the duplicates to understand what's different between copies
-
-SELECT
-    locationid,
-    eventtoken,
-    datacategory,
-    actiontype,
-    eventinstant,
-    syscosmosts,
-    syscosmosticks,
-    sysinserttime,
-    COUNT(*) OVER (
-        PARTITION BY locationid, eventtoken, datacategory, actiontype, eventinstant
-    ) AS copies
-FROM fact.deviceevent
-WHERE (locationid, eventtoken, datacategory, actiontype, eventinstant) IN (
-    SELECT locationid, eventtoken, datacategory, actiontype, eventinstant
-    FROM fact.deviceevent
-    GROUP BY locationid, eventtoken, datacategory, actiontype, eventinstant
-    HAVING COUNT(*) > 1
-)
-ORDER BY locationid, eventtoken, datacategory, actiontype, eventinstant, sysinserttime
-LIMIT 100;
-
-
-DELETE FROM fact.deviceevent --7,530,035 SELECT COUNT(*)
-WHERE EXISTS (--1,116,953 rows deleted from 7,530,035 record table, however rows_to_delete was 1,116,961
-    SELECT 1
-    FROM fact.deviceevent b
-    WHERE b.locationid   = fact.deviceevent.locationid
-      AND b.eventtoken   = fact.deviceevent.eventtoken
-      AND b.datacategory = fact.deviceevent.datacategory
-      AND b.actiontype   = fact.deviceevent.actiontype
-      AND b.eventinstant = fact.deviceevent.eventinstant
-      AND (
-            -- b is strictly better than the current row
-            b.syscosmosts > fact.deviceevent.syscosmosts
-            OR (    b.syscosmosts      IS NOT DISTINCT FROM fact.deviceevent.syscosmosts
-                AND b.syscosmosticks   >  fact.deviceevent.syscosmosticks)
-            OR (    b.syscosmosts      IS NOT DISTINCT FROM fact.deviceevent.syscosmosts
-                AND b.syscosmosticks   IS NOT DISTINCT FROM fact.deviceevent.syscosmosticks
-                AND b.ctid             >  fact.deviceevent.ctid)  -- tiebreaker for Type C NULLs
-      )
-)
---LIMIT 100;
-
-
-SELECT * FROM fact.deviceevent --DELETE 8 rows got deleted
-WHERE eventtoken IS NULL
-  AND ctid NOT IN (
-        SELECT DISTINCT ON (locationid, datacategory, actiontype, eventinstant)
-            ctid
-        FROM fact.deviceevent
-        WHERE eventtoken IS NULL
-        ORDER BY
-            locationid, datacategory, actiontype, eventinstant,
-            syscosmosts    DESC NULLS LAST,
-            syscosmosticks DESC NULLS LAST
-  );
-
-
--- Should return zero rows
-SELECT COUNT(*)
-FROM fact.deviceevent
-WHERE 1=1                 --6,413,074
-  --AND eventtoken IS NULL  --1,335
-  AND deviceid   IS NULL; --no simultaneous NUL eventtoken and deviceid, but standalone NULL deviceid exists - 36 rows
-
-UPDATE fact.deviceevent
-SET eventtoken = COALESCE(NULLIF(eventtoken, ''), deviceid)   -- ← DISTINCT ON key
-WHERE eventtoken IS NULL OR eventtoken = '';
--- 1,335 rows
-
--- Confirm clean
-SELECT COUNT(*) FROM fact.deviceevent WHERE eventtoken IS NULL OR eventtoken = '';
--- Must return 0
-
-
-
-CREATE UNIQUE INDEX CONCURRENTLY uq_deviceevent_natkey_idx --DROP INDEX IF EXISTS
-    ON fact.deviceevent
-    (locationid, eventtoken, datacategory, actiontype, eventinstant); --47seconds for 6,413,074 rows
-
-ALTER TABLE fact.deviceevent
-    ADD CONSTRAINT uq_deviceevent_natural_key
-    UNIQUE USING INDEX uq_deviceevent_natkey_idx;
 
 
 
@@ -505,7 +519,7 @@ ALTER TABLE IF EXISTS fact.userbehaviour_bkp
 
 
 --INSERT INTO fact.userbehaviour_bkp 
---SELECT * FROM fact.userbehaviour;
+SELECT * FROM fact.userbehaviour;
 
 
 /*

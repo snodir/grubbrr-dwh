@@ -13,6 +13,207 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/DimensionWeatherInfo')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Locations",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "InsertLocations",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": "select distinct concat(city, ' ', coalesce(state, '')) as city \r\nfrom dim.location \r\nwhere 1=1\r\nand state = 'Florida'\r\nand city in ('West Palm Beach','Tampa','Fort Lauderdale');",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbLocation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "LoopThroughCities",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "Locations",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Locations').output.value",
+                                "type": "Expression"
+                            },
+                            "isSequential": true,
+                            "activities": [
+                                {
+                                    "name": "Get WeatherInfo",
+                                    "type": "WebActivity",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "v_city",
+                                            "dependencyConditions": [
+                                                "Succeeded"
+                                            ]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "method": "GET",
+                                        "headers": {
+                                            "Accept-Language": "en-us",
+                                            "Content-Type": "application/json"
+                                        },
+                                        "url": {
+                                            "value": "@concat('https://api.weatherapi.com/v1/history.json?', 'key=', pipeline().parameters.p_api_key,'&q=',variables('v_city'),'&dt=',substring(addDays(utcNow(), mul(pipeline().parameters.p_days_to_go_back, -1)), 0, 10))",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "UpdateDimWeather",
+                                    "type": "Lookup",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "Get WeatherInfo",
+                                            "dependencyConditions": [
+                                                "Succeeded"
+                                            ]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "AzurePostgreSqlSource",
+                                            "query": {
+                                                "value": "@concat('update dim.weather set weatherinfo = ''',  replace(string(activity('Get WeatherInfo').output.forecast.forecastday[0]), '\\',''), ''' :: jsonb, locationinfo = ''',\nreplace(string(activity('Get WeatherInfo').output.location), '\\',''), ''' :: jsonb, timezone = coalesce(timezone, ''', \nactivity('Get WeatherInfo').output.location.tz_id, \n'''), sysupdatetime = now() where city = ''', variables('v_city'), ''' and apicalldate = (current_date - ', string(pipeline().parameters.p_days_to_go_back), \n' * INTERVAL ''1 day'') :: date; select 1 as rn;')",
+                                                "type": "Expression"
+                                            },
+                                            "partitionOption": "None"
+                                        },
+                                        "dataset": {
+                                            "referenceName": "dimWeatherAnalyticsDb",
+                                            "type": "DatasetReference",
+                                            "parameters": {}
+                                        },
+                                        "firstRowOnly": true
+                                    }
+                                },
+                                {
+                                    "name": "v_city",
+                                    "type": "SetVariable",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "variableName": "v_city",
+                                        "value": {
+                                            "value": "@item().city",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "InsertLocations",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "insert into dim.weather(organizationid,locationid,city,timezone,apicalldate,sysinserttime)\nselect distinct \n       companyid, \n       locationid, \n       concat(city, ' ', coalesce(state, '')) as city,\n       timezone, \n       (current_date - @{pipeline().parameters.p_days_to_go_back} * INTERVAL '1 day') :: date as apicalldate, \n       now() as sysinserttime\nfrom dim.location\nwhere (current_date - (@{pipeline().parameters.p_days_to_go_back} + 1) * INTERVAL '1 day') :: date = (select max(apicalldate) from dim.weather);\n\nselect 1 as rn;",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "dimWeatherAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "parameters": {
+                    "p_days_to_go_back": {
+                        "type": "int",
+                        "defaultValue": 1
+                    },
+                    "p_api_key": {
+                        "type": "string",
+                        "defaultValue": "9226d12474ac477a92e75611251704"
+                    }
+                },
+                "variables": {
+                    "v_city": {
+                        "type": "String",
+                        "defaultValue": "Boca Raton Florida"
+                    }
+                },
+                "folder": {
+                    "name": "Dimensions"
+                },
+                "annotations": [],
+                "lastPublishTime": "2025-06-25T17:34:45Z"
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/MasterStoredProcedures')]",
             "type": "Microsoft.DataFactory/factories/pipelines",
             "apiVersion": "2018-06-01",
@@ -13288,184 +13489,6 @@
                         "          categoryid,",
                         "          categoryname",
                         "     )) ~> UpdateDimItemCategory"
-                    ]
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/DevicesAndPeripherals')]",
-            "type": "Microsoft.DataFactory/factories/dataflows",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "folder": {
-                    "name": "Service-GSH"
-                },
-                "type": "MappingDataFlow",
-                "typeProperties": {
-                    "sources": [
-                        {
-                            "dataset": {
-                                "referenceName": "DeviceFromGshPG",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gshDevices"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "PeripheralFromGsh",
-                                "type": "DatasetReference"
-                            },
-                            "name": "gshPeripheral"
-                        }
-                    ],
-                    "sinks": [
-                        {
-                            "dataset": {
-                                "referenceName": "dimDeviceAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "dimDevice"
-                        },
-                        {
-                            "dataset": {
-                                "referenceName": "dimPeripheralAnalyticsDb",
-                                "type": "DatasetReference"
-                            },
-                            "name": "dimPeripheral"
-                        }
-                    ],
-                    "transformations": [
-                        {
-                            "name": "UpsertPolicy"
-                        },
-                        {
-                            "name": "UpsertPolicy2"
-                        }
-                    ],
-                    "scriptLines": [
-                        "source(output(",
-                        "          id as long,",
-                        "          deviceid as string,",
-                        "          devicetype as string,",
-                        "          devicename as string,",
-                        "          locationid as string,",
-                        "          companyid as string,",
-                        "          currentversion as string,",
-                        "          ipaddress as string,",
-                        "          state as string,",
-                        "          previousstate as string,",
-                        "          statechangedate as timestamp,",
-                        "          enrollmentdate as timestamp,",
-                        "          disenrollmentdate as timestamp,",
-                        "          disenrollmentreason as string,",
-                        "          testmode as boolean",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> gshDevices",
-                        "source(output(",
-                        "          id as long,",
-                        "          deviceid as long,",
-                        "          peripheralid as string,",
-                        "          peripheraltype as string,",
-                        "          state as string,",
-                        "          previousstate as string,",
-                        "          statechangedate as timestamp,",
-                        "          description as string,",
-                        "          model as string,",
-                        "          serial as string,",
-                        "          ipaddress as string",
-                        "     ),",
-                        "     allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     isolationLevel: 'READ_UNCOMMITTED',",
-                        "     format: 'table') ~> gshPeripheral",
-                        "gshDevices alterRow(upsertIf(true())) ~> UpsertPolicy",
-                        "gshPeripheral alterRow(upsertIf(true())) ~> UpsertPolicy2",
-                        "UpsertPolicy sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          id as long,",
-                        "          deviceid as string,",
-                        "          devicetype as string,",
-                        "          devicename as string,",
-                        "          locationid as string,",
-                        "          companyid as string,",
-                        "          currentversion as string,",
-                        "          ipaddress as string,",
-                        "          state as string,",
-                        "          previousstate as string,",
-                        "          statechangedate as timestamp,",
-                        "          enrollmentdate as timestamp,",
-                        "          disenrollmentdate as timestamp,",
-                        "          disenrollmentreason as string,",
-                        "          testmode as boolean",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:false,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['deviceid','locationid','companyid'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 1,",
-                        "     mapColumn(",
-                        "          id,",
-                        "          deviceid,",
-                        "          devicetype,",
-                        "          devicename,",
-                        "          locationid,",
-                        "          companyid,",
-                        "          currentversion,",
-                        "          ipaddress,",
-                        "          state,",
-                        "          previousstate,",
-                        "          statechangedate,",
-                        "          enrollmentdate,",
-                        "          disenrollmentdate,",
-                        "          disenrollmentreason,",
-                        "          testmode",
-                        "     )) ~> dimDevice",
-                        "UpsertPolicy2 sink(allowSchemaDrift: true,",
-                        "     validateSchema: false,",
-                        "     input(",
-                        "          id as long,",
-                        "          deviceid as long,",
-                        "          peripheralid as string,",
-                        "          peripheraltype as string,",
-                        "          state as string,",
-                        "          previousstate as string,",
-                        "          statechangedate as timestamp,",
-                        "          description as string,",
-                        "          model as string,",
-                        "          serial as string,",
-                        "          ipaddress as string",
-                        "     ),",
-                        "     deletable:false,",
-                        "     insertable:false,",
-                        "     updateable:false,",
-                        "     upsertable:true,",
-                        "     keys:['deviceid','peripheralid'],",
-                        "     format: 'table',",
-                        "     skipDuplicateMapInputs: true,",
-                        "     skipDuplicateMapOutputs: true,",
-                        "     saveOrder: 2,",
-                        "     mapColumn(",
-                        "          id,",
-                        "          deviceid,",
-                        "          peripheralid,",
-                        "          peripheraltype,",
-                        "          state,",
-                        "          previousstate,",
-                        "          statechangedate,",
-                        "          description,",
-                        "          model,",
-                        "          serial,",
-                        "          ipaddress",
-                        "     )) ~> dimPeripheral"
                     ]
                 }
             },

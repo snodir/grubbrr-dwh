@@ -13,6 +13,42 @@
     },
     "resources": [
         {
+            "name": "[concat(parameters('factoryName'), '/SilverModifierImpressionsParquet')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "ADLSgas",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "p_ds_date": {
+                        "type": "string",
+                        "defaultValue": "2026-05-15"
+                    },
+                    "p_ds_hour": {
+                        "type": "string",
+                        "defaultValue": "12"
+                    }
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@concat('orders/modifierimpressions/date=', dataset().p_ds_date, '/hour=', dataset().p_ds_hour)",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "silver"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
+            },
+            "dependsOn": []
+        },
+        {
             "name": "[concat(parameters('factoryName'), '/SilverModifierInteractionsJson')]",
             "type": "Microsoft.DataFactory/factories/datasets",
             "apiVersion": "2018-06-01",
@@ -2678,37 +2714,6 @@
                         }
                     }
                 }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/TestBronzeOrdersJSON')]",
-            "type": "Microsoft.DataFactory/factories/datasets",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "linkedServiceName": {
-                    "referenceName": "ADLSgas",
-                    "type": "LinkedServiceReference"
-                },
-                "parameters": {
-                    "p_ds_partition_path": {
-                        "type": "string",
-                        "defaultValue": "orders/raw/2026/04/01/11"
-                    }
-                },
-                "annotations": [],
-                "type": "Json",
-                "typeProperties": {
-                    "location": {
-                        "type": "AzureBlobFSLocation",
-                        "folderPath": {
-                            "value": "@dataset().p_ds_partition_path",
-                            "type": "Expression"
-                        },
-                        "fileSystem": "bronze"
-                    }
-                },
-                "schema": {}
             },
             "dependsOn": []
         }

@@ -10,7 +10,7 @@
 -- Name: usp_refresh_item_modifiergroup_modifier_mapping(text); Type: PROCEDURE; Schema: ml; Owner: citus
 --
 
-CREATE PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(IN p_organizationid text)
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(IN p_organizationid text)
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -107,7 +107,7 @@ ALTER PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(IN p_organiza
 -- Name: usp_refresh_menu_entities(); Type: PROCEDURE; Schema: ml; Owner: citus
 --
 
-CREATE PROCEDURE ml.usp_refresh_menu_entities()
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_menu_entities()
     LANGUAGE plpgsql
     AS $BODY$
 BEGIN
@@ -162,7 +162,9 @@ BEGIN
         mi.is_deleted,
         mi.gms_created_on,
         mi.gms_modified_on,
-        NOW()::TIMESTAMP     AS sysinserttime
+        NOW()::TIMESTAMP     AS sysinserttime,
+        mi.average_rating,
+        mi.rating_count
     FROM category_hierarchy AS mi;
 
 END;
@@ -176,7 +178,7 @@ ALTER PROCEDURE ml.usp_refresh_menu_entities() OWNER TO citus;
 -- Name: usp_refresh_modifier_impressions(integer); Type: PROCEDURE; Schema: ml; Owner: citus
 --
 
-CREATE PROCEDURE ml.usp_refresh_modifier_impressions(IN p_refresh_mode integer DEFAULT 1)
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_modifier_impressions(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
     AS $BODY$
 DECLARE
@@ -288,7 +290,7 @@ ALTER PROCEDURE ml.usp_refresh_modifier_impressions(IN p_refresh_mode integer) O
 -- Name: usp_refresh_modifier_interactions(integer); Type: PROCEDURE; Schema: ml; Owner: citus
 --
 
-CREATE PROCEDURE ml.usp_refresh_modifier_interactions(IN p_refresh_mode integer DEFAULT 1)
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_modifier_interactions(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
     AS $BODY$
 DECLARE
@@ -439,7 +441,7 @@ ALTER PROCEDURE ml.usp_refresh_modifier_interactions(IN p_refresh_mode integer) 
 -- Name: usp_refresh_transactions(integer); Type: PROCEDURE; Schema: ml; Owner: citus
 --
 
-CREATE PROCEDURE ml.usp_refresh_transactions(IN p_refresh_mode integer DEFAULT 1)
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_transactions(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
     AS $BODY$
 DECLARE
@@ -543,7 +545,7 @@ ALTER PROCEDURE ml.usp_refresh_transactions(IN p_refresh_mode integer) OWNER TO 
 -- Name: usp_refresh_upsell_analysis(integer); Type: PROCEDURE; Schema: ml; Owner: citus
 --
 
-CREATE PROCEDURE ml.usp_refresh_upsell_analysis(IN p_refresh_mode integer DEFAULT 1)
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_upsell_analysis(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
     AS $BODY$
 DECLARE
@@ -627,7 +629,7 @@ ALTER PROCEDURE ml.usp_refresh_upsell_analysis(IN p_refresh_mode integer) OWNER 
 -- Name: usp_refresh_weather(integer); Type: PROCEDURE; Schema: ml; Owner: citus
 --
 
-CREATE PROCEDURE ml.usp_refresh_weather(IN p_refresh_mode integer DEFAULT 1)
+CREATE OR REPLACE PROCEDURE ml.usp_refresh_weather(IN p_refresh_mode integer DEFAULT 1)
     LANGUAGE plpgsql
     AS $BODY$
 DECLARE
