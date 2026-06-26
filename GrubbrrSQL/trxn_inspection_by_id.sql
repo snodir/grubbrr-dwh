@@ -1,17 +1,45 @@
-SELECT *--count(*)
+SELECT ol.organizationname, ol.locationname, th.*--count(*)
 FROM fact.transactionheader as th 
+INNER JOIN dim.organizationlocation as ol
+        ON ol.locationid       = th.locationid
+       AND ol.organizationtype = 0
 WHERE 1=1 
---AND th.locationid = 'loc-bf92520f-bd20-4316-8f12-d1d4406b201d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+AND th.locationid = 'loc-137c453f-b207-441c-ad04-781f4982fa4d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
 --AND th.transactionheaderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-KPMXKSRVLP86J2YR','ordevt-NMN4RZR6NQ31W8HW','ordevt-2MUIURL3MQPSDTWN')
 AND th.orderstatus = 'order-placed'
---AND th.businessdate = '2026-05-21'
+AND th.businessdate >= '2026-06-22'
 ORDER BY th.orderdatelocal DESC
-LIMIT 100;
+LIMIT 1000;
 
-SELECT * FROM stg.silver_transaction_header 
+SELECT ol.organizationname, ol.locationname, ds.*
+FROM fact.devicestate as ds 
+INNER JOIN dim.organizationlocation as ol
+        ON ol.locationid       = ds.locationid
+       AND ol.organizationtype = 0
+WHERE ds.locationid = 'loc-137c453f-b207-441c-ad04-781f4982fa4d'
+ORDER BY id DESC
+LIMIT 1000;
+
+SELECT ol.organizationname, ol.locationname, dt.*
+FROM fact.devicetelemetry as dt 
+INNER JOIN dim.organizationlocation as ol
+        ON ol.locationid       = dt.locationid
+       AND ol.organizationtype = 0
+WHERE dt.locationid = 'loc-137c453f-b207-441c-ad04-781f4982fa4d'
+ORDER BY sysinserttime DESC NULLS LAST
+LIMIT 1000;
+
+SELECT de.datacategory, de.actiontype, de.eventinstant, th.*
+FROM stg.silver_transaction_header as th
+INNER JOIN fact.deviceevent as de
+        ON de.locationid = th.locationid
+       AND de.eventtoken = th.ordersessionid
 WHERE 1=1
+
 --AND locationid = 'loc-6f86a91c-8257-4f2c-9af5-0116546fccfd'
-AND transactionheaderid = 'ordevt-XKL8CL81PD512JUQ'
+--AND transactionheaderid = 'ordevt-XKL8CL81PD512JUQ'
+ORDER BY de.eventinstant
+
 
 SELECT *
 FROM dim.ordertype

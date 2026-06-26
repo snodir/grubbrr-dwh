@@ -3559,7 +3559,7 @@ BEGIN
             ske.eventinstant,
             ske.username,
             ske.userid,
-            CASE WHEN ske.device LIKE 'ksk-%' OR  ske.device <> '' THEN ske.device 
+            CASE WHEN ske.device     LIKE 'ksk-%'   OR ske.device <> '' THEN ske.device 
                  WHEN ske.devicename LIKE 'ksk-%' THEN ske.devicename 
                  ELSE ske.device END AS device,
             ske.devicename,
@@ -3733,7 +3733,15 @@ BEGIN
         FROM new_events AS ne
         WHERE ne.data IS NOT NULL
           AND ne.data <> ''
-
+          AND NOT EXISTS (
+                SELECT 1
+                FROM fact.userbehaviour AS ub
+                WHERE ub.locationid             = ne.locationid
+                  AND ub.ordersessionidentifier = ne.ordersessionidentifier
+                  AND ub.eventcategory          = ne.eventcategory
+                  AND ub.eventtype              = ne.eventtype
+                  AND ub.eventinstant           = ne.eventinstant
+              )
     ), enriched AS (
 
         SELECT
@@ -3820,8 +3828,7 @@ BEGIN
             deviceid,
             syscosmosticks
         FROM enriched
-        ON CONFLICT (locationid, ordersessionidentifier, eventcategory, eventtype, eventinstant)
-            DO NOTHING
+        -- No ON CONFLICT clause: NOT EXISTS above guarantees no duplicates reach here        
         RETURNING syscosmosts
 
     )

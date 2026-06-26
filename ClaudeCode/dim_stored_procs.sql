@@ -181,7 +181,7 @@ SELECT
     kd.preorder_popup_text,
     kd.perform_pos_status_check,
     kd.sysinserttime
-from (select * from dim.kioskdetails WHERE dim.is_valid_jsonb(kiosks)) as kd
+from (SELECT * FROM dim.kioskdetails WHERE dim.is_valid_jsonb(kiosks)) as kd
 cross join LATERAL jsonb_each(kd.kiosks :: jsonb) AS kiosk_entry(kiosk_key, kiosk_data)
 ), total as (
 select distinct  
@@ -191,7 +191,7 @@ select distinct
        ol.locationname as location_name,
        dd.kiosk_id,
        dd.kiosk_name,
-       case when dd.kiosk_hardware_id like 'kiosk-hardware-%' then substring(dd.kiosk_hardware_id, 16, length(dd.kiosk_hardware_id)) else dd.kiosk_hardware_id end kiosk_hardware_id,
+       CASE WHEN dd.kiosk_hardware_id like 'kiosk-hardware-%' then substring(dd.kiosk_hardware_id, 16, length(dd.kiosk_hardware_id)) else dd.kiosk_hardware_id end kiosk_hardware_id,
        dd.kiosk_software_version,
        dd.os_type,
        dd.serial_number,
@@ -207,9 +207,9 @@ select distinct
        dd.is_activated,
        dd.payment_integration_configs,
        dd.printer_configs,
-       case dd.kiosk_activation when 1 then 'Auto' when 2 then 'Manual' end as kiosk_activation,
-       case when k.devicedeletedon is not null then True else False end as is_kiosk_deleted,
-       case dd.kiosk_mode when 1 then 'Live' when 2 then 'Demo' when 3 then 'Test' end as kiosk_mode,
+       CASE dd.kiosk_activation WHEN 1 then 'Auto' WHEN 2 then 'Manual' end as kiosk_activation,
+       case WHEN k.devicedeletedon IS NOT NULL THEN True else False end as is_kiosk_deleted,
+       CASE dd.kiosk_mode WHEN 1 then 'Live' WHEN 2 then 'Demo' WHEN 3 then 'Test' end as kiosk_mode,
        dd.kiosk_logging,
        dd.is_goast_kiosk,
        dd.loyalty_login_otp,
@@ -218,14 +218,14 @@ select distinct
        '' as payment_device_type,
        dd.loyalty_provider,
        dd.scanners,
-       case org.status when 0 then 'Draft' when 1 then 'Onboarding' when 2 then 'Live' when 3 then 'Cancelled' end as organization_status,
-       case loc.status when 0 then 'Draft' when 1 then 'Onboarding' when 2 then 'Live' when 3 then 'Cancelled' end as location_status,
+       case org.status WHEN 0 then 'Draft' WHEN 1 then 'Onboarding' WHEN 2 then 'Live' WHEN 3 then 'Cancelled' end as organization_status,
+       case loc.status WHEN 0 then 'Draft' WHEN 1 then 'Onboarding' WHEN 2 then 'Live' WHEN 3 then 'Cancelled' end as location_status,
        org.active as is_org_active,
        loc.active as is_loc_active,
        org.isdeleted as is_org_deleted,
        loc.isdeleted as is_loc_deleted,
-       case when org.status = 2 then org.modifiedon end as org_go_live_date,
-       case when loc.status = 2 then loc.modifiedon end as loc_go_live_date,
+       case WHEN org.status = 2 then org.modifiedon end as org_go_live_date,
+       case WHEN loc.status = 2 then loc.modifiedon end as loc_go_live_date,
        org.createdon as org_created_date, 
        loc.createdon as loc_created_date,
        org.is_ecm_enabled as is_org_ecm_enabled,
@@ -327,16 +327,16 @@ select distinct
        dd.show_category_highlighted_color,
        org.cep_subscriptions :: jsonb as cep_subscriptions,
        dd.perform_pos_status_check
-from device_details as dd
-left join array_order_types as aot
+FROM device_details as dd
+LEFT JOIN array_order_types as aot
         on dd.location_id = aot.locationid
-inner join dim.kiosk as k 
+INNER JOIN dim.kiosk as k 
         on dd.location_id = k.locationid and dd.kiosk_id = k.kioskid 
-inner join (select * from dim.organizationlocation where organizationtype = 0) as ol 
+INNER JOIN (SELECT * FROM dim.organizationlocation where organizationtype = 0) as ol 
         on dd.location_id = ol.locationid
-inner join dim.organization as org
+INNER JOIN dim.organization as org
         on ol.organizationid = org.id
-inner join dim.organization as loc
+INNER JOIN dim.organization as loc
         on ol.locationid = loc.id
 )
 INSERT INTO dim.vw_grubbrrinstallbase
@@ -391,8 +391,8 @@ SELECT
     (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeStateOptional') :: BOOLEAN as make_state_optional,
     (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeZipCodeOptional') :: BOOLEAN as make_zipcode_optional,
     (order_type.order_data -> 'orderIdentity' -> 'nameIdSettings' ->> 'makeCountryOptional') :: BOOLEAN as make_country_optional
-from (select locationid, order_types from dim.kioskdetails WHERE dim.is_valid_jsonb(order_types)) as kd
-cross join LATERAL jsonb_each(kd.order_types :: jsonb -> 'options') AS order_type(order_key, order_data)
+FROM (SELECT locationid, order_types from dim.kioskdetails WHERE dim.is_valid_jsonb(order_types)) as kd
+CROSS JOIN LATERAL jsonb_each(kd.order_types :: jsonb -> 'options') AS order_type(order_key, order_data)
 ), json_order_types as (
 SELECT locationid,
 jsonb_build_object('order_type_id', order_type_id,
@@ -530,17 +530,17 @@ SELECT
     kd.preorder_popup_text,
     kd.perform_pos_status_check,
     kd.sysinserttime
-from (select * from dim.kioskdetails WHERE dim.is_valid_jsonb(kiosks)) as kd
-cross join LATERAL jsonb_each(kd.kiosks :: jsonb) AS kiosk_entry(kiosk_key, kiosk_data)
+FROM (SELECT * FROM dim.kioskdetails WHERE dim.is_valid_jsonb(kiosks)) as kd
+CROSS JOIN LATERAL jsonb_each(kd.kiosks :: jsonb) AS kiosk_entry(kiosk_key, kiosk_data)
 ), total as (
-select distinct  
+SELECT DISTINCT  
        ol.organizationid as organization_id,
        ol.organizationname as organization_name,
        ol.locationid as location_id,
        ol.locationname as location_name,
        dd.kiosk_id,
        dd.kiosk_name,
-       case when dd.kiosk_hardware_id like 'kiosk-hardware-%' then substring(dd.kiosk_hardware_id, 16, length(dd.kiosk_hardware_id)) else dd.kiosk_hardware_id end kiosk_hardware_id,
+       CASE WHEN dd.kiosk_hardware_id LIKE 'kiosk-hardware-%' THEN substring(dd.kiosk_hardware_id, 16, LENGTH(dd.kiosk_hardware_id)) ELSE dd.kiosk_hardware_id END kiosk_hardware_id,
        dd.kiosk_software_version,
        dd.os_type,
        dd.serial_number,
@@ -556,9 +556,9 @@ select distinct
        dd.is_activated,
        dd.payment_integration_configs,
        dd.printer_configs,
-       case dd.kiosk_activation when 1 then 'Auto' when 2 then 'Manual' end as kiosk_activation,
-       case when k.devicedeletedon is not null then True else False end as is_kiosk_deleted,
-       case dd.kiosk_mode when 1 then 'Live' when 2 then 'Demo' when 3 then 'Test' end as kiosk_mode,
+       CASE dd.kiosk_activation WHEN 1 then 'Auto' WHEN 2 THEN 'Manual' END as kiosk_activation,
+       CASE WHEN k.devicedeletedon IS NOT NULL THEN True ELSE False END as is_kiosk_deleted,
+       CASE dd.kiosk_mode WHEN 1 then 'Live' WHEN 2 THEN 'Demo' WHEN 3 then 'Test' end as kiosk_mode,
        dd.kiosk_logging,
        dd.is_goast_kiosk,
        dd.loyalty_login_otp,
@@ -567,14 +567,14 @@ select distinct
        '' as payment_device_type,
        dd.loyalty_provider,
        dd.scanners,
-       case org.status when 0 then 'Draft' when 1 then 'Onboarding' when 2 then 'Live' when 3 then 'Cancelled' end as organization_status,
-       case loc.status when 0 then 'Draft' when 1 then 'Onboarding' when 2 then 'Live' when 3 then 'Cancelled' end as location_status,
+       CASE org.status WHEN 0 THEN 'Draft' WHEN 1 THEN 'Onboarding' WHEN 2 THEN 'Live' WHEN 3 THEN 'Cancelled' END as organization_status,
+       CASE loc.status WHEN 0 THEN 'Draft' WHEN 1 THEN 'Onboarding' WHEN 2 THEN 'Live' WHEN 3 THEN 'Cancelled' END as location_status,
        org.active as is_org_active,
        loc.active as is_loc_active,
        org.isdeleted as is_org_deleted,
        loc.isdeleted as is_loc_deleted,
-       case when org.status = 2 then org.modifiedon end as org_go_live_date,
-       case when loc.status = 2 then loc.modifiedon end as loc_go_live_date,
+       CASE WHEN org.status = 2 THEN org.modifiedon END as org_go_live_date,
+       CASE WHEN loc.status = 2 THEN loc.modifiedon END as loc_go_live_date,
        org.createdon as org_created_date, 
        loc.createdon as loc_created_date,
        org.is_ecm_enabled as is_org_ecm_enabled,
@@ -676,16 +676,16 @@ select distinct
        dd.show_category_highlighted_color,
        org.cep_subscriptions :: jsonb as cep_subscriptions,
        dd.perform_pos_status_check
-from device_details as dd
-left join array_order_types as aot
+FROM device_details as dd
+LEFT JOIN array_order_types as aot
         on dd.location_id = aot.locationid
-inner join dim.kiosk as k 
+INNER JOIN dim.kiosk as k 
         on dd.location_id = k.locationid and dd.kiosk_id = k.kioskid 
-inner join (select * from dim.organizationlocation where organizationtype = 0) as ol 
+INNER JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
         on dd.location_id = ol.locationid
-inner join dim.organization as org
+INNER JOIN dim.organization as org
         on ol.organizationid = org.id
-inner join dim.organization as loc
+INNER JOIN dim.organization as loc
         on ol.locationid = loc.id
 )
 INSERT INTO dim.vw_grubbrrinstallbase_all_devices
@@ -720,7 +720,7 @@ TRUNCATE TABLE dim.duplicate_items_master;
 
 WITH duplicate_items AS (
     SELECT *, 
-           count(*) over(PARTITION BY locationid, trim(lower(menuitemname))) as dupl
+           count(*) OVER(PARTITION BY locationid, trim(lower(menuitemname))) as dupl
     FROM dim.category_hierarchy
 )
 INSERT INTO dim.duplicate_items_master (
@@ -1611,7 +1611,7 @@ BEGIN
 
     -- ── Step 3: UPDATE changed attributes ────────────────────
     -- serialnumber intentionally excluded – no source value.
-    -- Only fires when at least one mutable column has changed.
+    -- Only fires WHEN at least one mutable column has changed.
     UPDATE dim.kiosk d
     SET
         kioskname       = t.kioskname,
@@ -2484,7 +2484,7 @@ BEGIN
     );
 
     -- ── Step 3: UPDATE changed attributes ────────────────────
-    -- Only fires when at least one mutable column has changed.
+    -- Only fires WHEN at least one mutable column has changed.
     UPDATE dim.occasionsurvey d
     SET
         surveyname     = t.surveyname,
@@ -2781,7 +2781,7 @@ BEGIN
 
     -- ── Step 3: UPDATE changed attributes ────────────────────
     -- roundupforcharity intentionally excluded – owned by Step 4.
-    -- Only fires when at least one mutable column has changed.
+    -- Only fires WHEN at least one mutable column has changed.
     UPDATE dim.organizationlocation d
     SET
         organizationname = t.organizationname,

@@ -1,6 +1,6 @@
 SELECT * FROM stg.silver_kiosk_events LIMIT 100;
 
-SELECT *, ctid FROM fact.deviceevent WHERE syscosmosts IS NOT NULL ORDER BY syscosmosts DESC LIMIT 1000;
+SELECT *, ctid FROM fact.deviceevent WHERE syscosmosts IS NOT NULL ORDER BY syscosmosts DESC LIMIT 100;
 SELECT *, ctid FROM fact.userbehaviour /*WHERE syscosmosts IS NOT NULL*/ ORDER BY id DESC LIMIT 100;
 
 ALTER TABLE IF EXISTS fact.deviceevent
@@ -19,11 +19,11 @@ ADD COLUMN IF NOT EXISTS eventdata TEXT;
 
 --TRUNCATE TABLE fact.userbehaviour;
 
-SELECT *--count(*) --DISTINCT de.datacategory, de.actiontype
-FROM fact.userbehaviour as ub --5,707,284***252,036---R=2,236,236***163,019
+SELECT count(*), max(id) --DISTINCT de.datacategory, de.actiontype
+FROM fact.userbehaviour as ub --_reload --5,707,284***252,036---R=2,236,236***163,019---S=159,156,684
 WHERE 1=1 
 --AND eventcategory IN ('insight','Order','StoreTiming','BusinessHours','Session') 
-AND syscosmosticks IS NOT NULL
+--AND syscosmosticks IS NOT NULL
 --AND deviceid = ''
 ORDER BY id DESC
 LIMIT 1000;
@@ -49,6 +49,12 @@ SET eventtoken = COALESCE(NULLIF(eventtoken, ''), deviceid),   -- ← DISTINCT O
 WHERE eventtoken IS NULL OR eventtoken = '';
 -- 1,335 rows
 
+UPDATE fact.userbehaviour
+SET id            = new_id, --T=UPDATE 1,059,149, Total execution time: 00:00:47.145
+    sysupdatetime = NOW() :: TIMESTAMP --P=
+FROM (SELECT *, ROW_NUMBER() OVER(ORDER BY id) as new_id
+      FROM fact.userbehaviour) AS ub 
+WHERE userbehaviour.id = ub.id;
 
 
 WITH dupl_records AS (

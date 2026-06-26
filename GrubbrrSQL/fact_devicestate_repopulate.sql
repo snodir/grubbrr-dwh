@@ -27,7 +27,7 @@ ALTER TABLE IF EXISTS fact.devicestate_bkp
 
 
 ALTER TABLE IF EXISTS fact.devicestate
-ALTER COLUMN duration TYPE NUMERIC(10,3),
+ALTER COLUMN duration TYPE NUMERIC(12,3),
 ADD COLUMN IF NOT EXISTS sysinserttime  TIMESTAMP,
 ADD COLUMN IF NOT EXISTS status         TEXT,  --added on 2026-06-19 for enhanced System Health Report
 ADD COLUMN IF NOT EXISTS statusmessage  TEXT,  --added on 2026-06-19 for enhanced System Health Report
@@ -42,7 +42,12 @@ ADD CONSTRAINT locationid_deviceid_lasteventtime_unq UNIQUE (locationid, devicei
 SELECT id, count(*)
 FROM fact.devicestate
 GROUP BY id
-HAVING count(*) > 1
+HAVING count(*) > 1;
+
+SELECT locationid, deviceid, lasteventtime, COUNT(*) AS cnt
+FROM fact.devicestate
+GROUP BY locationid, deviceid, lasteventtime
+HAVING COUNT(*) > 1;
 
 
 SELECT *,
@@ -51,10 +56,10 @@ FROM fact.devicestate
 ORDER BY dupl DESC, locationid, deviceid, lasteventtime
 LIMIT 1000;
 
-SELECT *--count(*) 
-FROM fact.devicestate --606,739/after de-duplication --534,561
+SELECT *--count(*), max(id) --P=889,060	889,060
+FROM fact.devicestate --606,739/after de-duplication --534,561***P=792,244
 ORDER BY id DESC
-LIMIT 10000;
+LIMIT 1000;
 
 -- How many duplicate sets and how many extra rows?
 SELECT
@@ -68,26 +73,30 @@ FROM (
     HAVING COUNT(*) > 1
 ) dups;
 --duplicate_key_sets    rows_to_delete  worst_case_copies
---18,539	            72,033	        13
-
-SELECT id, count(*) --> 1
-FROM fact.devicestate
+--18,539	            72,033	        13--Reg
+--403	                479	            6 --Stage
+--427	                503	            6 --Prod
+SELECT count(*) --> 1
+FROM fact.devicestate_bkp
 GROUP BY id 
 HAVING count(*) > 1
 
+
+
 UPDATE fact.devicestate
-SET id = new_id, --UPDATE 548,119, Total execution time: 00:00:16.925
-    sysupdatetime = NOW() :: TIMESTAMP
+SET id            = new_id, --UPDATE 548,119, Total execution time: 00:00:16.925, S=UPDATE 797,397, Total execution time: 00:00:28.937
+    sysupdatetime = NOW() :: TIMESTAMP --P=
 FROM (SELECT *, ROW_NUMBER() OVER(ORDER BY id) as new_id
       FROM fact.devicestate) AS ds 
 WHERE devicestate.id = ds.id;
 
---INSERT INTO fact.devicestate_bkp --INSERT 0 534,706, Total execution time: 00:00:01.299
---SELECT * FROM fact.devicestate;
+--INSERT INTO fact.devicestate_bkp --INSERT 0 534,706, Total execution time: 00:00:01.299***S=INSERT 0 791,718
+--SELECT * FROM fact.devicestate;  --P=INSERT 0 881,821, Total execution time: 00:00:01.892
+--DELETE --FROM fact.devicestate WHERE lasteventtime IS NULL
 
 --TRUNCATE TABLE fact.devicestate;
 
-INSERT INTO fact.devicestate (
+INSERT INTO fact.devicestate (--S=INSERT 0 791,718***P=INSERT 0 881,821, Total execution time: 00:00:08.931
     id,
     companyid,
     locationid,
@@ -145,7 +154,7 @@ HAVING COUNT(*) > 1
 ORDER BY cnt DESC;
 
 -- ── STEP 3: Delete ─────────────────────────────────────────────────────────
-DELETE FROM fact.devicestate
+DELETE FROM fact.devicestate --S=479 rows deleted, ***P=DELETE 503 rows deleted
 WHERE ctid IN (
     SELECT ctid
     FROM (
@@ -169,7 +178,7 @@ LIMIT 1000;
 SELECT *
 FROM fact.devicestate
 ORDER BY id DESC
-LIMIT 1000;
+LIMIT 100;
 
 
 
@@ -203,7 +212,7 @@ ORDER BY ds.lasteventtime DESC
     -- ----------------------------------------------------------
     -- Step 2 — Insert qualifying rows into fact.devicestate
     -- ----------------------------------------------------------
-WITH delta AS (
+WITH delta AS (--S=INSERT 0 119,842, Total execution time: 00:00:05.192 --P=INSERT 0 7,239, Total execution time: 00:00:02.647
     SELECT DISTINCT ON (stg.locationid, stg.deviceid, stg.healthdatatime)
         stg.id,
         stg.companyid,
@@ -267,24 +276,70 @@ SELECT
     healthdatatype,
     NOW()::timestamp
 FROM delta
-ON CONFLICT ON CONSTRAINT locationid_deviceid_lasteventtime_unq
-DO UPDATE SET
-    companyid        = EXCLUDED.companyid,
-    dateid           = EXCLUDED.dateid,
-    state            = EXCLUDED.state,
-    statuschangetime = EXCLUDED.statuschangetime,
-    duration         = EXCLUDED.duration,
-    status           = EXCLUDED.status,
-    statusmessage    = EXCLUDED.statusmessage,
-    healthdatatype   = EXCLUDED.healthdatatype,
+WHERE NOT EXISTS (SELECT 1 FROM fact.devicestate as ds
+                  WHERE ds.locationid    = delta.locationid
+                    AND ds.deviceid      = delta.deviceid
+                    AND ds.lasteventtime = delta.lasteventtime);
+--ON CONFLICT ON CONSTRAINT locationid_deviceid_lasteventtime_unq
+
+
+
+WITH delta AS (--P=UPDATE 159,937, Total execution time: 00:00:08.578
+    SELECT DISTINCT ON (stg.locationid, stg.deviceid, stg.healthdatatime)
+        stg.id,
+        stg.companyid,
+        stg.locationid,
+        stg.deviceid,
+        stg.healthdatatime                                          AS lasteventtime,
+        stg.statuschangetime,
+        ROUND(
+            GREATEST(
+                0,
+                EXTRACT(EPOCH FROM (stg.healthdatatime - stg.statuschangetime)) / 60.0
+            )::numeric, 3
+        )                                                           AS duration,
+        REPLACE(
+            REPLACE(
+                REPLACE(SUBSTRING(stg.healthdatatime::text, 1, 13),
+                        '-', ''),
+                ' ', ''),
+            'T', ''
+        ) :: INTEGER                                                AS dateid,
+        CASE stg.status
+            WHEN 'Ok'      THEN 'Up'
+            WHEN 'Dormant' THEN 'Caution'
+            WHEN 'Unknown' THEN 'Down'
+            ELSE                'PartialUp'
+        END                                                         AS state,
+        stg.status,
+        stg.statusmessage,
+        stg.healthdatatype
+    FROM  stg.fact_devicestate AS stg
+    ORDER BY stg.locationid, stg.deviceid, stg.healthdatatime, stg.statuschangetime DESC
+)
+UPDATE fact.devicestate 
+SET
+    companyid        = delta.companyid,
+    dateid           = delta.dateid,
+    state            = delta.state,
+    statuschangetime = delta.statuschangetime,
+    duration         = delta.duration,
+    status           = delta.status,
+    statusmessage    = delta.statusmessage,
+    healthdatatype   = delta.healthdatatype,
     sysupdatetime    = NOW()::timestamp
-WHERE (
-       fact.devicestate.state            IS DISTINCT FROM EXCLUDED.state
-    OR fact.devicestate.status           IS DISTINCT FROM EXCLUDED.status
-    OR fact.devicestate.statusmessage    IS DISTINCT FROM EXCLUDED.statusmessage
-    OR fact.devicestate.statuschangetime IS DISTINCT FROM EXCLUDED.statuschangetime
-    OR fact.devicestate.duration         IS DISTINCT FROM EXCLUDED.duration
-    OR fact.devicestate.healthdatatype   IS DISTINCT FROM EXCLUDED.healthdatatype
+FROM delta
+WHERE  fact.devicestate.locationid       = delta.locationid
+   AND fact.devicestate.deviceid         = delta.deviceid
+   AND fact.devicestate.lasteventtime    = delta.lasteventtime
+   AND 
+(
+       fact.devicestate.state            IS DISTINCT FROM delta.state
+    OR fact.devicestate.status           IS DISTINCT FROM delta.status
+    OR fact.devicestate.statusmessage    IS DISTINCT FROM delta.statusmessage
+    OR fact.devicestate.statuschangetime IS DISTINCT FROM delta.statuschangetime
+    OR fact.devicestate.duration         IS DISTINCT FROM delta.duration
+    OR fact.devicestate.healthdatatype   IS DISTINCT FROM delta.healthdatatype
 );
 
     -- ----------------------------------------------------------
@@ -297,10 +352,3 @@ WHERE (
         WHERE  watermarktablename = 'fact.devicestate'
           AND  source             = 'gsh';
 
-
-
-END;
-$BODY$;
-
-
-ALTER PROCEDURE fact.usp_gsh_devicehealth_to_fact_devicestate() OWNER TO citus;
