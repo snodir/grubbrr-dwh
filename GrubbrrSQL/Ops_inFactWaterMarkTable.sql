@@ -57,9 +57,9 @@ WHERE watermarktable.watermarktablename = tr.tablename
 
 
 UPDATE fact.watermarktable
-SET ts = 1779235200--1775002010
+SET ts = 1782480851--1775002010
 WHERE watermarktablename = 'fact.transactionheader'-- IN ('fact.modifier_interactions')--,'fact.modifier_recommendations','fact.modifier_impressions','fact.modifier_interactions')
-  AND source = 'gem'-- IN ('nge-Interactions')--,'nge')
+  AND source = 'nge'--'gem' IN ('nge-Interactions')--,'nge')
 
 --UPDATE fact.watermarktable
 SET ts = 1600000300

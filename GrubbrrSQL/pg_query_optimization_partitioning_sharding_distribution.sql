@@ -1,3 +1,24 @@
+SELECT * FROM pg_stat_activity;
+
+SELECT
+    pg_size_pretty(pg_relation_size('fact.deviceevent')) AS table_only,
+    pg_size_pretty(pg_indexes_size('fact.deviceevent')) AS indexes,
+    pg_size_pretty(pg_total_relation_size('fact.deviceevent')) AS total_with_indexes
+;
+
+-- Raw table size (no indexes, no TOAST)
+SELECT pg_relation_size('fact.deviceevent');
+
+-- Table size including TOAST but excluding indexes
+SELECT pg_table_size('your_table');
+
+-- Index size only
+SELECT pg_indexes_size('your_table');
+
+-- Total size (table + indexes + TOAST)
+SELECT pg_total_relation_size('your_table');
+
+
 SELECT *
     /*logicalrelid::text AS table_name,
     distribution_column,

@@ -40,6 +40,10 @@ WHERE 1=1
 --AND transactionheaderid = 'ordevt-XKL8CL81PD512JUQ'
 ORDER BY de.eventinstant
 
+SELECT * 
+FROM fact.itemmodifier AS itm
+WHERE itm.transactionheaderid = 'ordevt-4EM84VCUQAC9LJXM'
+  AND itm.itemid              = 'orditm-g-cyk0J6lC';
 
 SELECT *
 FROM dim.ordertype

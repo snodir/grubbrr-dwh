@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Item / Modifier Group — SQL schema correlation</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+  </script>
+  <style>
+    :root {
+      --bg: #f7f7f8;
+      --card: #fff;
+      --text: #1a1a1c;
+      --muted: #5c5c66;
+      --border: #e2e2e6;
+      --code-bg: #f0f0f3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+      color: var(--text);
+      background: var(--bg);
+      margin: 0;
+      padding: 2rem 1.5rem 3rem;
+      max-width: 52rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 {
+      font-size: 1.65rem;
+      font-weight: 650;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--border);
+    }
+    p, li { margin: 0.65rem 0; }
+    ul { padding-left: 1.25rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin: 1rem 0;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    code { font-family: "Cascadia Code", Consolas, "Ubuntu Mono", monospace; }
+    .mermaid {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    strong { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Item / modifier group — SQL schema correlation</h1>
+  <p class="meta">Grubbrr menu service tables: <code>item_master</code>, <code>item_modifier_group_glue</code>, <code>modifier_group_master</code>, <code>modifier_group_modifier_glue</code>, <code>modifier_master</code>, <code>modifier_nested_modifier_group_glue</code></p>
+
+  <h2>What the base query does</h2>
+  <p>You start from <strong><code>item_modifier_group_glue</code> (<code>img</code>)</strong>: one row means this <strong>item</strong> (or variation) uses this <strong>modifier group</strong> in this <strong>catalog</strong>, with <strong>group-level</strong> rules on the item (<code>min_selection</code>, <code>max_selection</code>, <code>free_count</code>, etc.).</p>
+  <p>You join <strong><code>modifier_group_modifier_glue</code> (<code>mg</code>)</strong> on <strong><code>catalog_id</code> + <code>modifier_group_master_id</code></strong>. That adds every <strong>modifier option</strong> that belongs to that group (one row per modifier in the group), with <strong>per-modifier</strong> rules (<code>min_quantity</code>, <code>max_quantity</code>, <code>is_default</code>, …).</p>
+  <p>For filters on one catalog, one item, and one modifier group, you get <strong>one row per modifier</strong> in that group, each repeating the same <code>img</code> columns. That is expected.</p>
+  <p>Filtering by <code>img.item_master_id</code> does not change how many modifiers appear; it only ensures the item is attached to that group.</p>
+
+  <h2>How tables relate</h2>
+  <div class="mermaid">
+erDiagram
+    item_master ||--o{ item_modifier_group_glue : "catalog_id + id = item_master_id"
+    modifier_group_master ||--o{ item_modifier_group_glue : "catalog_id + id = modifier_group_master_id"
+    modifier_group_master ||--o{ modifier_group_modifier_glue : "catalog_id + id = modifier_group_master_id"
+    modifier_master ||--o{ modifier_group_modifier_glue : "catalog_id + id = modifier_master_id"
+    modifier_master ||--o{ modifier_nested_modifier_group_glue : "modifier_master_id"
+    modifier_group_master ||--o{ modifier_nested_modifier_group_glue : "nested group modifier_group_master_id"
+  </div>
+
+  <div class="card">
+    <ul>
+      <li><strong><code>item_master</code></strong> — menu item; join with <code>im.catalog_id = img.catalog_id</code> and <code>im.id = img.item_master_id</code>.</li>
+      <li><strong><code>modifier_group_master</code></strong> — the group’s master record; join with <code>mgm.catalog_id = img.catalog_id</code> and <code>mgm.id = img.modifier_group_master_id</code>.</li>
+      <li><strong><code>modifier_master</code></strong> — the modifier option; join with <code>mm.catalog_id = mg.catalog_id</code> and <code>mm.id = mg.modifier_master_id</code>.</li>
+    </ul>
+  </div>
+
+  <h2><code>modifier_nested_modifier_group_glue</code></h2>
+  <p>That table is not part of “item → group → modifiers.” It means: on a given modifier, attach a <strong>child</strong> modifier group (<code>modifier_master_id</code> + <code>modifier_group_master_id</code> + <code>catalog_id</code>).</p>
+  <ul>
+    <li><strong><code>img</code> ⋈ <code>mg</code></strong> path = flat options for the group on the item.</li>
+    <li><strong><code>modifier_nested_modifier_group_glue</code></strong> = sub-groups hanging off a specific modifier.</li>
+  </ul>
+
+  <h2>Example: extended query</h2>
+  <pre><code>SELECT DISTINCT
+       img.catalog_id AS catalogid,
+       img.item_master_id AS menuitemid,
+       im.name AS item_name,
+       img.modifier_group_master_id AS modifiergroupid,
+       mgm.name AS modifier_group_name,
+       mg.modifier_master_id AS modifierid,
+       mm.name AS modifier_name,
+       img.min_selection AS itm_modgrp_min_selection,
+       img.max_selection AS itm_modgrp_max_selection,
+       img.free_count AS itm_modgrp_free_count,
+       img.is_active AS is_itm_modgrp_active,
+       img.is_deleted AS is_itm_modgrp_deleted,
+       img.created_on AS itm_modgrp_created_on,
+       img.modified_on AS itm_modgrp_modified_on,
+       img.is_invisible AS is_itm_modgrp_invisible,
+       mg.is_default,
+       mg.min_quantity,
+       mg.max_quantity,
+       mg.allow_quantity_increment,
+       mg.increment_step,
+       mg.default_quantity,
+       mg.is_active AS is_modgrp_modfr_active,
+       mg.is_deleted AS is_modgrp_modfr_deleted,
+       mg.created_on AS modgrp_modfr_created_on,
+       mg.modified_on AS modgrp_modfr_modified_on,
+       mg.is_invisible AS is_modgrp_modfr_invisible
+FROM public.item_modifier_group_glue AS img
+INNER JOIN public.item_master AS im
+        ON im.catalog_id = img.catalog_id
+       AND im.id = img.item_master_id
+INNER JOIN public.modifier_group_master AS mgm
+        ON mgm.catalog_id = img.catalog_id
+       AND mgm.id = img.modifier_group_master_id
+INNER JOIN public.modifier_group_modifier_glue AS mg
+        ON img.catalog_id = mg.catalog_id
+       AND img.modifier_group_master_id = mg.modifier_group_master_id
+LEFT JOIN public.modifier_master AS mm
+        ON mm.catalog_id = mg.catalog_id
+       AND mm.id = mg.modifier_master_id
+WHERE img.catalog_id = 'catlg-72d9629f-b501-4707-84c9-cd31943837b7'
+  AND img.item_master_id = 'itm-bfc98578-a9c7-4d82-a6f6-1fc187e43476'
+  AND img.modifier_group_master_id = 'modgrp-58788338-8abb-4418-8fb7-1920e92dc527'
+LIMIT 100;</code></pre>
+
+  <p><strong>Note:</strong> <code>item_modifier_group_glue</code> can use <code>item_variation_master_id</code> instead of <code>item_master_id</code> (mutually exclusive). If nothing returns, check for a variation row instead.</p>
+</body>
+</html>

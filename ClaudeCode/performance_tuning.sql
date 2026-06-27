@@ -1,3 +1,17 @@
+SELECT * FROM pg_stat_activity;
+
+-- Raw table size (no indexes, no TOAST)
+SELECT pg_relation_size('your_table');
+
+-- Table size including TOAST but excluding indexes
+SELECT pg_table_size('your_table');
+
+-- Index size only
+SELECT pg_indexes_size('your_table');
+
+-- Total size (table + indexes + TOAST)
+SELECT pg_total_relation_size('your_table');
+
 -- ============================================================
 -- Performance Tuning: Recommended Indexes
 -- Generated: 2026-06-02

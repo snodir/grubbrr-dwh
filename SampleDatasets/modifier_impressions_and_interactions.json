@@ -1,5 +1,4 @@
-[
-    {
+[{
         "kioskSessionId": "8F0HYY2OL2FU183R",
         "totals": {
             "subTotal": 4.25,
@@ -25,8 +24,7 @@
             "fees": [],
             "taxes": []
         },
-        "items": [
-            {
+        "items": [{
                 "orderItemId": "orditm-GFZG1Rg8_J",
                 "categoryId": "cat-6af654d5-86fc-44d6-8624-35ac111e60f2",
                 "categoryName": "Garlic Bread",
@@ -58,8 +56,7 @@
             }
         ],
         "combos": [],
-        "paymentDetails": [
-            {
+        "paymentDetails": [{
                 "amount": 4.55,
                 "paymentIntegrationId": "payment-integration-clover",
                 "transactionId": "HPQNDTJT6X72T",
@@ -151,8 +148,7 @@
         "_etag": "\"0b00e2e0-0000-0100-0000-69d35f3c0000\"",
         "_attachments": "attachments/",
         "_ts": 1775460156
-    },
-    {
+    }, {
         "kioskSessionId": "HG5FLB0RY37FYVCR",
         "totals": {
             "subTotal": 16.49,
@@ -178,8 +174,7 @@
             "fees": [],
             "taxes": []
         },
-        "items": [
-            {
+        "items": [{
                 "orderItemId": "orditm-YNs75QBbJE",
                 "categoryId": "cat-c365f07b-8c25-4651-b63d-6058bbdce394",
                 "categoryName": "Sandwiches",
@@ -214,8 +209,7 @@
             }
         ],
         "combos": [],
-        "paymentDetails": [
-            {
+        "paymentDetails": [{
                 "amount": 21.18,
                 "paymentIntegrationId": "payment-integration-cash",
                 "transactionId": "",
@@ -295,8 +289,7 @@
         "_etag": "\"eb00e175-0000-0100-0000-69cf88c60000\"",
         "_attachments": "attachments/",
         "_ts": 1775208646
-    },
-    {
+    }, {
         "kioskSessionId": "RDNOLBCL2HQDCLN2",
         "totals": {
             "subTotal": 13.83,
@@ -308,20 +301,17 @@
             "serviceCharge": 0,
             "charityAmount": 0,
             "fees": [],
-            "taxes": [
-                {
+            "taxes": [{
                     "label": "State Tax",
                     "amount": 0,
                     "taxId": "3",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Reduced State Tax",
                     "amount": 0,
                     "taxId": "2",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Municipal Tax",
                     "amount": 0,
                     "taxId": "1",
@@ -339,20 +329,17 @@
             "serviceCharge": 0,
             "charityAmount": 0,
             "fees": [],
-            "taxes": [
-                {
+            "taxes": [{
                     "label": "State Tax",
                     "amount": 0,
                     "taxId": "3",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Reduced State Tax",
                     "amount": 0,
                     "taxId": "2",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Municipal Tax",
                     "amount": 0,
                     "taxId": "1",
@@ -360,8 +347,7 @@
                 }
             ]
         },
-        "items": [
-            {
+        "items": [{
                 "orderItemId": "orditm-qOMGZLhTXs",
                 "categoryId": "cat-298def8f-602f-4402-a53a-31efe6ac6f5e",
                 "categoryName": "Pizza",
@@ -375,8 +361,7 @@
                         "es": ""
                     }
                 },
-                "options": [
-                    {
+                "options": [{
                         "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
@@ -410,8 +395,7 @@
                                 "es": "Añadir"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
@@ -445,8 +429,7 @@
                                 "es": "Añadir"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
@@ -480,8 +463,7 @@
                                 "es": "Añadir"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
@@ -515,8 +497,7 @@
                                 "es": "Queso de prueba (modificador Grp)"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-a3a01ab4-50b5-47d6-b6d9-88e8ae3a33dd",
@@ -550,8 +531,7 @@
                                 "es": "Topping"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-feb4196e-1d95-49fd-9f81-6e9b3f2b3678",
@@ -607,8 +587,7 @@
             }
         ],
         "combos": [],
-        "paymentDetails": [
-            {
+        "paymentDetails": [{
                 "amount": 16.17,
                 "paymentIntegrationId": "payment-integration-cash",
                 "transactionId": "",
@@ -655,11 +634,9 @@
         "loyaltyUser": null,
         "guestCount": 1,
         "upsellInformation": {
-            "upsellPrompt": [
-                {
+            "upsellPrompt": [{
                     "promptId": "805ab872-d7f8-4e45-9344-043218fe41f7",
-                    "offeredItems": [
-                        {
+                    "offeredItems": [{
                             "itemId": "itm-95172b19-41bd-479b-83df-091e962ddb52",
                             "upsellGroupId": "upslg-d64b53a8-55e7-425c-8750-69fe4469d19f",
                             "upsellLevel": "Order",
@@ -671,15 +648,13 @@
                     "modalVersion": ""
                 }
             ],
-            "modifierImpressions": [
-                {
+            "modifierImpressions": [{
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
                             "score": 0,
                             "position": 0,
@@ -687,8 +662,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
                             "score": 0,
                             "position": 1,
@@ -696,8 +670,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
                             "score": 0,
                             "position": 2,
@@ -705,8 +678,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33",
                             "score": 0,
                             "position": 3,
@@ -714,8 +686,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d",
                             "score": 0,
                             "position": 4,
@@ -728,8 +699,7 @@
                     "context": null
                 }
             ],
-            "modifierInteractions": [
-                {
+            "modifierInteractions": [{
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
                     "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
@@ -738,8 +708,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
                     "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
@@ -748,8 +717,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
                     "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
@@ -790,8 +758,7 @@
         "_etag": "\"e4006e00-0000-0100-0000-69cedca90000\"",
         "_attachments": "attachments/",
         "_ts": 1775164585
-    },
-    {
+    }, {
         "kioskSessionId": "W6QVJKYYYIVZSRIA",
         "totals": {
             "subTotal": 10.45,
@@ -803,20 +770,17 @@
             "serviceCharge": 0,
             "charityAmount": 0,
             "fees": [],
-            "taxes": [
-                {
+            "taxes": [{
                     "label": "State Tax",
                     "amount": 0,
                     "taxId": "3",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Reduced State Tax",
                     "amount": 0,
                     "taxId": "2",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Municipal Tax",
                     "amount": 0,
                     "taxId": "1",
@@ -834,20 +798,17 @@
             "serviceCharge": 0,
             "charityAmount": 0,
             "fees": [],
-            "taxes": [
-                {
+            "taxes": [{
                     "label": "State Tax",
                     "amount": 0,
                     "taxId": "3",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Reduced State Tax",
                     "amount": 0,
                     "taxId": "2",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Municipal Tax",
                     "amount": 0,
                     "taxId": "1",
@@ -855,8 +816,7 @@
                 }
             ]
         },
-        "items": [
-            {
+        "items": [{
                 "orderItemId": "orditm-ijutExtEER",
                 "categoryId": "cat-298def8f-602f-4402-a53a-31efe6ac6f5e",
                 "categoryName": "Pizza",
@@ -870,8 +830,7 @@
                         "es": ""
                     }
                 },
-                "options": [
-                    {
+                "options": [{
                         "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
@@ -905,8 +864,7 @@
                                 "es": "Queso de prueba (modificador Grp)"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-a3a01ab4-50b5-47d6-b6d9-88e8ae3a33dd",
@@ -940,8 +898,7 @@
                                 "es": "Topping"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-feb4196e-1d95-49fd-9f81-6e9b3f2b3678",
@@ -997,8 +954,7 @@
             }
         ],
         "combos": [],
-        "paymentDetails": [
-            {
+        "paymentDetails": [{
                 "amount": 12.22,
                 "paymentIntegrationId": "payment-integration-cash",
                 "transactionId": "",
@@ -1045,11 +1001,9 @@
         "loyaltyUser": null,
         "guestCount": 1,
         "upsellInformation": {
-            "upsellPrompt": [
-                {
+            "upsellPrompt": [{
                     "promptId": "5fe2c2cb-fd30-4a68-b5bb-704707efd4d1",
-                    "offeredItems": [
-                        {
+                    "offeredItems": [{
                             "itemId": "itm-95172b19-41bd-479b-83df-091e962ddb52",
                             "upsellGroupId": "upslg-d64b53a8-55e7-425c-8750-69fe4469d19f",
                             "upsellLevel": "Order",
@@ -1061,15 +1015,13 @@
                     "modalVersion": ""
                 }
             ],
-            "modifierImpressions": [
-                {
+            "modifierImpressions": [{
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
                             "score": 0,
                             "position": 0,
@@ -1077,8 +1029,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
                             "score": 0,
                             "position": 1,
@@ -1086,8 +1037,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
                             "score": 0,
                             "position": 2,
@@ -1095,8 +1045,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33",
                             "score": 0,
                             "position": 3,
@@ -1104,8 +1053,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d",
                             "score": 0,
                             "position": 4,
@@ -1149,8 +1097,7 @@
         "_etag": "\"e3005cd6-0000-0100-0000-69ced9a90000\"",
         "_attachments": "attachments/",
         "_ts": 1775163817
-    },
-    {
+    }, {
         "kioskSessionId": "U1QT5OXZ3GRW48Y6",
         "totals": {
             "subTotal": 18.04,
@@ -1162,20 +1109,17 @@
             "serviceCharge": 0,
             "charityAmount": 0,
             "fees": [],
-            "taxes": [
-                {
+            "taxes": [{
                     "label": "State Tax",
                     "amount": 0,
                     "taxId": "3",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Reduced State Tax",
                     "amount": 0,
                     "taxId": "2",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Municipal Tax",
                     "amount": 0,
                     "taxId": "1",
@@ -1193,20 +1137,17 @@
             "serviceCharge": 0,
             "charityAmount": 0,
             "fees": [],
-            "taxes": [
-                {
+            "taxes": [{
                     "label": "State Tax",
                     "amount": 0,
                     "taxId": "3",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Reduced State Tax",
                     "amount": 0,
                     "taxId": "2",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Municipal Tax",
                     "amount": 0,
                     "taxId": "1",
@@ -1214,8 +1155,7 @@
                 }
             ]
         },
-        "items": [
-            {
+        "items": [{
                 "orderItemId": "orditm-SN1klTEST2",
                 "categoryId": "cat-298def8f-602f-4402-a53a-31efe6ac6f5e",
                 "categoryName": "Pizza",
@@ -1229,8 +1169,7 @@
                         "es": ""
                     }
                 },
-                "options": [
-                    {
+                "options": [{
                         "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
@@ -1264,8 +1203,7 @@
                                 "es": "Añadir"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
@@ -1299,8 +1237,7 @@
                                 "es": "Añadir"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
@@ -1334,8 +1271,7 @@
                                 "es": "Haz tu talla"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-34a41569-3913-44f2-ba1c-909dbc130b29",
@@ -1369,8 +1305,7 @@
                                 "es": "Haz tu talla"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-85ff1f8a-b2cf-4fd0-a027-390d18687f06",
@@ -1393,8 +1328,7 @@
                         "totalPrice": 5,
                         "unitPriceCents": 500,
                         "totalPriceCents": 500,
-                        "options": [
-                            {
+                        "options": [{
                                 "modifierGroupId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597",
                                 "modifierGroupPosId": null,
                                 "modifierId": "modfr-9c2f882c-0918-4b82-99ab-50caefd3ba1a",
@@ -1440,8 +1374,7 @@
                                 "es": "Queso de prueba (modificador Grp)"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-a3a01ab4-50b5-47d6-b6d9-88e8ae3a33dd",
@@ -1475,8 +1408,7 @@
                                 "es": "Topping"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-feb4196e-1d95-49fd-9f81-6e9b3f2b3678",
@@ -1532,8 +1464,7 @@
             }
         ],
         "combos": [],
-        "paymentDetails": [
-            {
+        "paymentDetails": [{
                 "amount": 21.11,
                 "paymentIntegrationId": "payment-integration-cash",
                 "transactionId": "",
@@ -1580,11 +1511,9 @@
         "loyaltyUser": null,
         "guestCount": 1,
         "upsellInformation": {
-            "upsellPrompt": [
-                {
+            "upsellPrompt": [{
                     "promptId": "285392c9-7676-4a3a-ab50-285aad14cd95",
-                    "offeredItems": [
-                        {
+                    "offeredItems": [{
                             "itemId": "itm-95172b19-41bd-479b-83df-091e962ddb52",
                             "upsellGroupId": "upslg-d64b53a8-55e7-425c-8750-69fe4469d19f",
                             "upsellLevel": "Order",
@@ -1596,15 +1525,13 @@
                     "modalVersion": ""
                 }
             ],
-            "modifierImpressions": [
-                {
+            "modifierImpressions": [{
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-667d144f-1609-4445-a00e-14385a589632",
                             "score": 0,
                             "position": 0,
@@ -1612,8 +1539,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
                             "score": 0,
                             "position": 1,
@@ -1621,8 +1547,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
                             "score": 0,
                             "position": 2,
@@ -1630,8 +1555,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33",
                             "score": 0,
                             "position": 3,
@@ -1639,8 +1563,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d",
                             "score": 0,
                             "position": 4,
@@ -1651,15 +1574,13 @@
                         }
                     ],
                     "context": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-97be03f7-768e-44b5-91c3-bd613b93ac0e",
                             "score": 0,
                             "position": 0,
@@ -1667,8 +1588,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
                             "score": 0,
                             "position": 1,
@@ -1676,8 +1596,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-34a41569-3913-44f2-ba1c-909dbc130b29",
                             "score": 0,
                             "position": 2,
@@ -1688,15 +1607,13 @@
                         }
                     ],
                     "context": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
                             "score": 0,
                             "position": 0,
@@ -1704,8 +1621,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-85ff1f8a-b2cf-4fd0-a027-390d18687f06",
                             "score": 0,
                             "position": 1,
@@ -1713,8 +1629,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-cd69f484-f7a0-4bd2-b536-ca6463ad69d6",
                             "score": 0,
                             "position": 2,
@@ -1722,8 +1637,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-ba2bfe83-e648-4f0a-a16b-f3e32a070d69",
                             "score": 0,
                             "position": 3,
@@ -1734,15 +1648,13 @@
                         }
                     ],
                     "context": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-3e9f2fba-fd1c-44f8-9c2d-c687e0cdb010_modfr-228aff62-842c-42c9-a135-6dd58f894e86",
                             "score": 0,
                             "position": 0,
@@ -1750,8 +1662,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-3e9f2fba-fd1c-44f8-9c2d-c687e0cdb010_modfr-8d7924f9-3228-4e85-a84f-bad3a1995e36",
                             "score": 0,
                             "position": 1,
@@ -1762,15 +1673,13 @@
                         }
                     ],
                     "context": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597_modfr-9c2f882c-0918-4b82-99ab-50caefd3ba1a",
                             "score": 0,
                             "position": 0,
@@ -1778,8 +1687,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597_modfr-57e754c8-0faa-4b2c-83c1-b71874ce5a68",
                             "score": 0,
                             "position": 1,
@@ -1792,8 +1700,7 @@
                     "context": null
                 }
             ],
-            "modifierInteractions": [
-                {
+            "modifierInteractions": [{
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-667d144f-1609-4445-a00e-14385a589632",
                     "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
@@ -1802,8 +1709,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
                     "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
@@ -1812,8 +1718,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
                     "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
@@ -1822,8 +1727,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-34a41569-3913-44f2-ba1c-909dbc130b29",
                     "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
@@ -1832,8 +1736,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-85ff1f8a-b2cf-4fd0-a027-390d18687f06",
                     "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
@@ -1842,8 +1745,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
                     "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
@@ -1852,8 +1754,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
                     "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
@@ -1862,8 +1763,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
                     "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
@@ -1872,8 +1772,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
                     "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
@@ -1882,8 +1781,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
                     "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
@@ -1892,8 +1790,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597_modfr-9c2f882c-0918-4b82-99ab-50caefd3ba1a",
                     "modifierGroupId": "modgrp-114b2901-a804-41e5-aea8-ea4003d27597",
@@ -1934,8 +1831,7 @@
         "_etag": "\"e300d945-0000-0100-0000-69cecfac0000\"",
         "_attachments": "attachments/",
         "_ts": 1775161260
-    },
-    {
+    }, {
         "kioskSessionId": "8QIJH9CFJ4WXUN2N",
         "totals": {
             "subTotal": 18.04,
@@ -1947,20 +1843,17 @@
             "serviceCharge": 0,
             "charityAmount": 0,
             "fees": [],
-            "taxes": [
-                {
+            "taxes": [{
                     "label": "State Tax",
                     "amount": 0,
                     "taxId": "3",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Reduced State Tax",
                     "amount": 0,
                     "taxId": "2",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Municipal Tax",
                     "amount": 0,
                     "taxId": "1",
@@ -1978,20 +1871,17 @@
             "serviceCharge": 0,
             "charityAmount": 0,
             "fees": [],
-            "taxes": [
-                {
+            "taxes": [{
                     "label": "State Tax",
                     "amount": 0,
                     "taxId": "3",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Reduced State Tax",
                     "amount": 0,
                     "taxId": "2",
                     "total": 0
-                },
-                {
+                }, {
                     "label": "Municipal Tax",
                     "amount": 0,
                     "taxId": "1",
@@ -1999,8 +1889,7 @@
                 }
             ]
         },
-        "items": [
-            {
+        "items": [{
                 "orderItemId": "orditm-kpt6z6UhAs",
                 "categoryId": "cat-298def8f-602f-4402-a53a-31efe6ac6f5e",
                 "categoryName": "Pizza",
@@ -2014,8 +1903,7 @@
                         "es": ""
                     }
                 },
-                "options": [
-                    {
+                "options": [{
                         "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-667d144f-1609-4445-a00e-14385a589632",
@@ -2049,8 +1937,7 @@
                                 "es": "Añadir"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
@@ -2084,8 +1971,7 @@
                                 "es": "Añadir"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
@@ -2119,8 +2005,7 @@
                                 "es": "Haz tu talla"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
@@ -2154,8 +2039,7 @@
                                 "es": "Queso de prueba (modificador Grp)"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-cd69f484-f7a0-4bd2-b536-ca6463ad69d6",
@@ -2178,8 +2062,7 @@
                         "totalPrice": 1,
                         "unitPriceCents": 100,
                         "totalPriceCents": 100,
-                        "options": [
-                            {
+                        "options": [{
                                 "modifierGroupId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7",
                                 "modifierGroupPosId": null,
                                 "modifierId": "modfr-cca74f10-eb49-4b70-a393-0b3f28f56646",
@@ -2225,8 +2108,7 @@
                                 "es": "Queso de prueba (modificador Grp)"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-ba2bfe83-e648-4f0a-a16b-f3e32a070d69",
@@ -2249,8 +2131,7 @@
                         "totalPrice": 3,
                         "unitPriceCents": 300,
                         "totalPriceCents": 300,
-                        "options": [
-                            {
+                        "options": [{
                                 "modifierGroupId": "modgrp-bca99758-24ec-452c-a82c-013be817abab",
                                 "modifierGroupPosId": null,
                                 "modifierId": "modfr-c05421c5-75e4-4eba-9b85-904e403bfd62",
@@ -2296,8 +2177,7 @@
                                 "es": "Queso de prueba (modificador Grp)"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-a3a01ab4-50b5-47d6-b6d9-88e8ae3a33dd",
@@ -2331,8 +2211,7 @@
                                 "es": "Topping"
                             }
                         }
-                    },
-                    {
+                    }, {
                         "modifierGroupId": "modgrp-9ece4ac1-fdd6-4671-a213-69aee9acc3c4",
                         "modifierGroupPosId": null,
                         "modifierId": "modfr-feb4196e-1d95-49fd-9f81-6e9b3f2b3678",
@@ -2388,8 +2267,7 @@
             }
         ],
         "combos": [],
-        "paymentDetails": [
-            {
+        "paymentDetails": [{
                 "amount": 21.11,
                 "paymentIntegrationId": "payment-integration-cash",
                 "transactionId": "",
@@ -2436,11 +2314,9 @@
         "loyaltyUser": null,
         "guestCount": 1,
         "upsellInformation": {
-            "upsellPrompt": [
-                {
+            "upsellPrompt": [{
                     "promptId": "dd5a319a-d5c8-4b60-a26d-f7f8733fc20d",
-                    "offeredItems": [
-                        {
+                    "offeredItems": [{
                             "itemId": "itm-95172b19-41bd-479b-83df-091e962ddb52",
                             "upsellGroupId": "upslg-d64b53a8-55e7-425c-8750-69fe4469d19f",
                             "upsellLevel": "Order",
@@ -2452,15 +2328,13 @@
                     "modalVersion": ""
                 }
             ],
-            "modifierImpressions": [
-                {
+            "modifierImpressions": [{
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-667d144f-1609-4445-a00e-14385a589632",
                             "score": 0,
                             "position": 0,
@@ -2468,8 +2342,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
                             "score": 0,
                             "position": 1,
@@ -2477,8 +2350,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-761dff41-eec7-4ee0-942c-15dffef94b00",
                             "score": 0,
                             "position": 2,
@@ -2486,8 +2358,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-792ab6ea-2bc7-49bd-9236-e6dd1d487a33",
                             "score": 0,
                             "position": 3,
@@ -2495,8 +2366,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-d4467e17-2dee-4d64-a597-9f1c702baf4d",
                             "score": 0,
                             "position": 4,
@@ -2507,15 +2377,13 @@
                         }
                     ],
                     "context": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-97be03f7-768e-44b5-91c3-bd613b93ac0e",
                             "score": 0,
                             "position": 0,
@@ -2523,8 +2391,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
                             "score": 0,
                             "position": 1,
@@ -2532,8 +2399,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-34a41569-3913-44f2-ba1c-909dbc130b29",
                             "score": 0,
                             "position": 2,
@@ -2544,15 +2410,13 @@
                         }
                     ],
                     "context": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-9f1bc231-882d-4b7f-b391-3b7704367e9d",
                             "score": 0,
                             "position": 0,
@@ -2560,8 +2424,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-85ff1f8a-b2cf-4fd0-a027-390d18687f06",
                             "score": 0,
                             "position": 1,
@@ -2569,8 +2432,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-cd69f484-f7a0-4bd2-b536-ca6463ad69d6",
                             "score": 0,
                             "position": 2,
@@ -2578,8 +2440,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-ba2bfe83-e648-4f0a-a16b-f3e32a070d69",
                             "score": 0,
                             "position": 3,
@@ -2590,15 +2451,13 @@
                         }
                     ],
                     "context": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-3e9f2fba-fd1c-44f8-9c2d-c687e0cdb010_modfr-228aff62-842c-42c9-a135-6dd58f894e86",
                             "score": 0,
                             "position": 0,
@@ -2606,8 +2465,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-3e9f2fba-fd1c-44f8-9c2d-c687e0cdb010_modfr-8d7924f9-3228-4e85-a84f-bad3a1995e36",
                             "score": 0,
                             "position": 1,
@@ -2618,15 +2476,13 @@
                         }
                     ],
                     "context": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7_modfr-c00bce5e-dd37-40c6-9b47-4a39eb0e47fa",
                             "score": 0,
                             "position": 0,
@@ -2634,8 +2490,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7_modfr-cca74f10-eb49-4b70-a393-0b3f28f56646",
                             "score": 0,
                             "position": 1,
@@ -2646,15 +2501,13 @@
                         }
                     ],
                     "context": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "selectionType": "default",
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "strategy": "default",
-                    "recommendations": [
-                        {
+                    "recommendations": [{
                             "modifierId": "modgrp-bca99758-24ec-452c-a82c-013be817abab_modfr-760d2a8d-8803-4a83-b55e-db9012e8bed1",
                             "score": 0,
                             "position": 0,
@@ -2662,8 +2515,7 @@
                             "preDeselected": null,
                             "confirmedRemoved": null,
                             "preSelected": null
-                        },
-                        {
+                        }, {
                             "modifierId": "modgrp-bca99758-24ec-452c-a82c-013be817abab_modfr-c05421c5-75e4-4eba-9b85-904e403bfd62",
                             "score": 0,
                             "position": 1,
@@ -2676,8 +2528,7 @@
                     "context": null
                 }
             ],
-            "modifierInteractions": [
-                {
+            "modifierInteractions": [{
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-667d144f-1609-4445-a00e-14385a589632",
                     "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
@@ -2686,8 +2537,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63_modfr-e8effaad-58cc-4e00-8b74-ce6e7db44a69",
                     "modifierGroupId": "modgrp-d9ca644e-0da9-4674-a763-5bf9841d7d63",
@@ -2696,8 +2546,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8_modfr-8c3a40c9-288c-48ae-8210-d0a2161e1635",
                     "modifierGroupId": "modgrp-213648f3-9f1e-4665-988b-6189527de3d8",
@@ -2706,8 +2555,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-cd69f484-f7a0-4bd2-b536-ca6463ad69d6",
                     "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
@@ -2716,8 +2564,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029_modfr-ba2bfe83-e648-4f0a-a16b-f3e32a070d69",
                     "modifierGroupId": "modgrp-6f546abb-2683-407f-a765-7ab7f1226029",
@@ -2726,8 +2573,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7_modfr-c00bce5e-dd37-40c6-9b47-4a39eb0e47fa",
                     "modifierGroupId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7",
@@ -2736,8 +2582,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7_modfr-cca74f10-eb49-4b70-a393-0b3f28f56646",
                     "modifierGroupId": "modgrp-52014b79-ebe8-4de4-adc5-6f3f4edaced7",
@@ -2746,8 +2591,7 @@
                     "nestingDepth": 0,
                     "parentModifierId": null,
                     "recordedAt": null
-                },
-                {
+                }, {
                     "itemId": "itm-5d097ea8-f777-4133-9611-78a242c27a62",
                     "modifierId": "modgrp-bca99758-24ec-452c-a82c-013be817abab_modfr-c05421c5-75e4-4eba-9b85-904e403bfd62",
                     "modifierGroupId": "modgrp-bca99758-24ec-452c-a82c-013be817abab",
