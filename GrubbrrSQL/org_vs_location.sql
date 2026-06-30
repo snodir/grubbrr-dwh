@@ -17,17 +17,20 @@ SELECT *
 FROM dim.organization
 WHERE id = 'loc-0be64e65-c6e8-460f-bc14-6c5558eef57e'
 
-SELECT DISTINCT o.id, o.name, k.kioskid, k.kioskname, o.organizationtype, o.status,
+SELECT DISTINCT o.id, o.name, k.kioskid, k.kioskname, o.organizationtype, 
+       k.appversion as kiosk_app_version, k.istestkiosk, k.devicedeletedon,
+       o.status as loc_status,
        CASE o.status 
        WHEN 0 THEN 'Draft' 
        WHEN 1 THEN 'Onboarding' 
        WHEN 2 THEN 'Live' 
-       WHEN 3 THEN 'Cancelled' END as location_status
+       WHEN 3 THEN 'Cancelled' END as location_status 
 FROM dim.organization as o
 INNER JOIN dim.kiosk as k 
         ON o.id = k.locationid
-WHERE o.active = True 
-  AND o.status = 2
+WHERE k.locationid  = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
+  AND o.active      = True
+  AND o.status      = 2     --LocationStatus: 0=Draft, 1=Onboarding, 2=Live, 3=Cancelled
   AND k.istestkiosk = False;
 
 
@@ -40,8 +43,19 @@ INNER JOIN (SELECT * FROM dim.organization /*WHERE status = 0*/) as loc
         ON o.locationid = loc.id
 WHERE 1=1
   --AND o.active = False
-  AND o.organizationname ILIKE 'houston%hot%'
+  AND o.organizationname ILIKE '%bojangles%'
 ORDER by createdon desc;
+
+SELECT ol.organizationid, ol.organizationname, ol.locationid, ol.locationname,
+    count(DISTINCT catalogid) as catalog_count
+FROM dim.catalog as c 
+INNER JOIN dim.organizationlocation as ol 
+    ON ol.organizationid   = c.organizationid
+   AND ol.locationid       = c.gem_location_id
+   AND ol.organizationid   = 'org-5cf80db5-7a28-4dcf-846b-8cdf5f362269'
+   AND ol.organizationtype = 0
+GROUP BY ol.organizationid, ol.organizationname, ol.locationid, ol.locationname
+ORDER BY catalog_count DESC
 
 /*
 CASE dd.kiosk_mode 

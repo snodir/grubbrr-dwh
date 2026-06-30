@@ -4,6 +4,11 @@ SELECT pid, usename, state, state_change
 FROM pg_stat_activity
 WHERE state = 'idle'; --AND state_change < NOW() - INTERVAL '5 minutes';
 
+-- Kill the entire session (forces rollback if transaction is open)
+SELECT pg_terminate_backend(<pid>);
+
+-- Cancel the running query (session stays alive)
+SELECT pg_cancel_backend(<pid>);
 
 DO
 $$

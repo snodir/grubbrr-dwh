@@ -12,6 +12,7 @@ AND status IN ('completed','not found')
   --AND dateid >= TO_CHAR(NOW() - INTERVAL '6 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
   --AND dateid <= TO_CHAR(NOW() - INTERVAL '1 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files
 ORDER BY dateid DESC
+LIMIT 24;
 --SELECT LENGTH('orders/raw/2026/05/15/23')
 
 

@@ -30,6 +30,10 @@ FROM gsh.devicehealth
 WHERE statuschangetime < '4713-01-01 BC' OR statuschangetime > '294276-12-31'
 or healthdatatime < '4713-01-01 BC' OR healthdatatime > '294276-12-31';
 
+SELECT *
+FROM gsh.devicehealth
+WHERE locationid = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
+
 
 select count(*) from gsh.devicehealth where healthdatatime <> '-infinity';
 select max(id) from gsh.devicehealth_bkp

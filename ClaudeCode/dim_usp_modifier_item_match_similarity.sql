@@ -85,18 +85,18 @@ $BODY$;
 -- GIN indexes on ml source tables
 -- Generated columns survive DELETE/INSERT cycles in the refresh SPs
 -- ============================================================================
-ALTER TABLE ml.item_modifiergroup_modifier_mapping --T=2m:56s--S=Total execution time: 00:00:05.084
+ALTER TABLE ml.item_modifiergroup_modifier_mapping --T=2m:56s***R=Total execution time: 00:00:56.585***S=Total execution time: 00:00:05.084
     ADD COLUMN IF NOT EXISTS norm_ts_name TEXT
         GENERATED ALWAYS AS (dim.token_sort(dim.ml_normalize(modifiername))) STORED;
 
-CREATE INDEX IF NOT EXISTS ix_ml_imm_norm_ts_name --T=Total execution time: 00:00:56.019
+CREATE INDEX IF NOT EXISTS ix_ml_imm_norm_ts_name --T=Total execution time: 00:00:56.019***R=Total execution time: 00:00:10.539
     ON ml.item_modifiergroup_modifier_mapping USING GIN (norm_ts_name gin_trgm_ops);
 
-ALTER TABLE ml.menu_entities    --T=Total execution time: 00:00:15.071
+ALTER TABLE ml.menu_entities    --T=Total execution time: 00:00:15.071***R=Total execution time: 00:00:10.519
     ADD COLUMN IF NOT EXISTS norm_ts_name TEXT
         GENERATED ALWAYS AS (dim.token_sort(dim.ml_normalize(menuitemname))) STORED;
 
-CREATE INDEX IF NOT EXISTS ix_ml_me_norm_ts_name    --T=Total execution time: 00:00:03.327
+CREATE INDEX IF NOT EXISTS ix_ml_me_norm_ts_name    --T=Total execution time: 00:00:03.327***R=Total execution time: 00:00:02.484
     ON ml.menu_entities USING GIN (norm_ts_name gin_trgm_ops);
 
 

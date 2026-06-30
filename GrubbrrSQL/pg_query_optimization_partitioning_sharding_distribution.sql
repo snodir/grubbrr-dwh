@@ -1,5 +1,10 @@
 SELECT * FROM pg_stat_activity;
 
+-- In your second session, find and kill it:
+SELECT *-- pg_cancel_backend(pid)
+FROM pg_stat_activity
+WHERE query LIKE '%duplicate_key_sets%' AND state = 'active';
+
 SELECT
     pg_size_pretty(pg_relation_size('fact.deviceevent')) AS table_only,
     pg_size_pretty(pg_indexes_size('fact.deviceevent')) AS indexes,

@@ -38,6 +38,31 @@ ALTER TABLE IF EXISTS fact.devicestate --DROP CONSTRAINT locationid_deviceid_las
 ADD CONSTRAINT devicestate_id_pkey PRIMARY KEY (id),
 ADD CONSTRAINT locationid_deviceid_lasteventtime_unq UNIQUE (locationid, deviceid, lasteventtime);
 
+SELECT DISTINCT
+            o.id      AS locationid, o.name as locationname,
+            k.kioskid AS deviceid, k.kioskname
+FROM  dim.organization AS o
+INNER JOIN dim.kiosk   AS k ON o.id = k.locationid
+WHERE k.locationid  = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
+  AND o.active      = true
+  AND o.status      = 2
+  AND k.istestkiosk = false
+
+SELECT * FROM dim.organization
+WHERE id = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
+  
+
+SELECT *--count(*), max(id)
+FROM fact.devicestate
+--WHERE locationid = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d';
+ORDER BY id DESC
+LIMIT 100;
+
+
+SELECT *
+FROM dim.organizationlocation
+WHERE locationid = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
+
 
 SELECT id, count(*)
 FROM fact.devicestate

@@ -6,33 +6,65 @@ SELECT *, ctid FROM fact.userbehaviour /*WHERE syscosmosts IS NOT NULL*/ ORDER B
 ALTER TABLE IF EXISTS fact.deviceevent
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
+DROP INDEX IF EXISTS deviceeventuidx;
+DROP INDEX IF EXISTS ux_deviceevent_nk;
+
+-- Then build the new one:
+SET maintenance_work_mem             = '2GB';
+SET max_parallel_maintenance_workers = 3;
+
+/*
+Started executing query at Line 16
+ALTER TABLE--fact.deviceevent
+Total execution time: 00:13:51.441
+
+Started executing query at Line 27
+ALTER TABLE--fact.userbehaviour
+Total execution time: 00:02:54.701
+*/
+
 ALTER TABLE IF EXISTS fact.deviceevent --Total execution time: 00:00:56.279  R=Total execution time: 00:00:15.928
 ADD CONSTRAINT locationid_eventtoken_datacategory_actiontype_eventinstant_unq UNIQUE (locationid, eventtoken, datacategory, actiontype, eventinstant)
+
+
 
 ALTER TABLE IF EXISTS fact.userbehaviour --Total execution time: 00:00:05.004
 ADD CONSTRAINT locationid_eventtoken_eventcategory_eventtype_eventinstant_unq UNIQUE (locationid, ordersessionidentifier, eventcategory, eventtype, eventinstant)
 
 ALTER TABLE IF EXISTS fact.userbehaviour
-ADD COLUMN IF NOT EXISTS deviceid TEXT,
-ADD COLUMN IF NOT EXISTS syscosmosticks BIGINT,
-ADD COLUMN IF NOT EXISTS eventdata TEXT;
+ADD COLUMN IF NOT EXISTS deviceid        TEXT,
+ADD COLUMN IF NOT EXISTS syscosmosticks  BIGINT,
+ADD COLUMN IF NOT EXISTS eventdata       TEXT,
+ADD COLUMN IF NOT EXISTS viewname        TEXT,
+ADD COLUMN IF NOT EXISTS elementname     TEXT,
+ADD COLUMN IF NOT EXISTS sourceelementid TEXT;
+
+ALTER TABLE IF EXISTS fact.userbehaviour
+DROP COLUMN IF EXISTS eventdata,
+DROP COLUMN IF EXISTS viewname,
+DROP COLUMN IF EXISTS elementname,
+DROP COLUMN IF EXISTS sourceelementid;
+
 
 --TRUNCATE TABLE fact.userbehaviour;
 
-SELECT count(*), max(id) --DISTINCT de.datacategory, de.actiontype
-FROM fact.userbehaviour as ub --_reload --5,707,284***252,036---R=2,236,236***163,019---S=159,156,684
+SELECT *--count(*), max(id) --DISTINCT de.datacategory, de.actiontype
+FROM fact.userbehaviour as ub --_reload --5,707,284***252,036---R=2,236,236***163,019---S=159,156,684/159,331,487--Total execution time: 00:01:17.866
 WHERE 1=1 
 --AND eventcategory IN ('insight','Order','StoreTiming','BusinessHours','Session') 
+--AND viewidentifier IS NOT NULL
+--AND elementidentifier IS NOT NULL
 --AND syscosmosticks IS NOT NULL
 --AND deviceid = ''
 ORDER BY id DESC
 LIMIT 1000;
 
 SELECT count(*) --*--DISTINCT de.datacategory, de.actiontype
-FROM fact.deviceevent as de --6,413,074***1,036,943---R=2,725,650***473,077
+FROM fact.deviceevent as de --6,413,074***1,036,943---R=2,725,650***473,077---S=178,165,004***36,334,104
 WHERE 1=1--
-AND de.datacategory IN ('insight','Order','StoreTiming','BusinessHours','Session') --IN ('insight','Order')--
---AND (de.eventtoken = '' OR de.eventtoken IS NULL) --R=228,727
+AND de.moduleid     = 'kiosk'---S=36,334,104--Total execution time: 00:03:29.938
+AND de.datacategory IN ('insight','Order','StoreTiming','BusinessHours','Session') --S=36,334,104--Total execution time: 00:01:04.870
+AND (de.eventtoken = '' OR de.eventtoken IS NULL) --R=228,727, S=0 rows after de-dup--Total execution time: 00:01:08.533
 AND (de.deviceid = '' OR de.deviceid IS NULL) --R=2,069,735---UPDATE 2,069,735---Total execution time: 00:01:22.617, empty/missing deviceids
 --AND (de.eventdata LIKE '%"view"%' OR de.eventdata LIKE '%"element"%' OR de.eventdata LIKE '%"elementId"%')
 LIMIT 100;
@@ -186,7 +218,7 @@ Total execution time: 00:00:23.637
 */
     WITH parsed_events AS (
         SELECT
-            fact.parse_iso_timestamp(de.eventinstant)                               AS busdate,
+            fact.parse_iso_timestamp(de.eventinstant)                                AS busdate,
             de.locationid                                                            AS locationid,
             REPLACE(REPLACE(SUBSTRING(de.eventinstant, 1, 13), '-', ''), 'T', '')
                 ::INTEGER                                                            AS dateid,

@@ -1,3 +1,95 @@
+--SELECT stats_reset FROM pg_stat_database WHERE datname = current_database();
+
+SELECT phase, tuples_done, tuples_total,
+       round(100.0 * blocks_done / NULLIF(blocks_total, 0), 1) AS pct
+FROM pg_stat_progress_create_index;
+
+SELECT CONCAT(schemaname, '.', relname) AS table_name,
+       pg_size_pretty(pg_relation_size(CONCAT(schemaname, '.', relname))) AS table_only,
+       pg_size_pretty(pg_indexes_size(CONCAT(schemaname, '.', relname))) AS indexes,
+       pg_size_pretty(pg_total_relation_size(CONCAT(schemaname, '.', relname))) AS total_with_indexes,
+       indexrelname AS index_name,
+       pg_size_pretty(pg_relation_size(indexrelid)) AS index_size,
+       idx_scan AS times_used,
+       idx_tup_read AS rows_read_from_index,
+       idx_tup_fetch AS rows_fetched_from_table,
+       *
+FROM pg_stat_user_indexes
+WHERE 1=1
+  AND schemaname = 'fact'
+  AND relname    IN ('deviceevent', 'userbehaviour')
+ORDER BY table_name;
+/*
+=======Stage GAS============
+index_name                      index_size  times_used  rows_read_from_index    rows_fetched_from_table
+deviceeventidx	                1529 MB	    797	        232873769	            183458282
+deviceeventuidx	                48 GB	      0	        0	                    0
+ix_deviceevent_journey_lookup	  204 MB	    0	        0	                    0
+ix_deviceevent_syscosmosts_brin	2512 kB	    0	        0	                    0
+
+=========Prod GAS============
+index_name                      index_size  times_used  rows_read_from_index    rows_fetched_from_table
+deviceeventidx	                2048 MB	    0	        0	                    0
+deviceeventuidx	                61 GB	      0	        0	                    0
+ix_deviceevent_journey_lookup	  286 MB	    0	        0	                    0
+
+table_name        table_only    indexes     total_with_indexes index_name                      index_size  times_used  rows_read_from_index    rows_fetched_from_table
+fact.deviceevent	103 GB	      63 GB	      292 GB	           deviceeventidx	                 2048 MB	0	0	0	19896	19901	fact	deviceevent	deviceeventidx	0	NULL	0	0
+fact.deviceevent	103 GB	      63 GB	      292 GB	           deviceeventuidx	               61 GB	0	0	0	19896	19902	fact	deviceevent	deviceeventuidx	0	NULL	0	0
+fact.deviceevent	103 GB	      63 GB	      292 GB	           ix_deviceevent_journey_lookup	 286 MB	0	0	0	19896	23803773	fact	deviceevent	ix_deviceevent_journey_lookup	0	NULL	0	0
+
+=======Stage GAS after De-dup============
+fact.deviceevent	80 GB	        25 GB	      203 GB	           deviceeventidx	1529 MB	797	232873769	183458282	546025	546030	fact	deviceevent	deviceeventidx	797	2026-06-29 04:31:03.071979+00	232873769	183458282
+fact.deviceevent	80 GB	        25 GB	      203 GB	           ix_deviceevent_journey_lookup	204 MB	0	0	0	546025	29680098	fact	deviceevent	ix_deviceevent_journey_lookup	0	NULL	0	0
+fact.deviceevent	80 GB	        25 GB	      203 GB	           ix_deviceevent_syscosmosts_brin	2512 kB	0	0	0	546025	37434142	fact	deviceevent	ix_deviceevent_syscosmosts_brin	0	NULL	0	0
+fact.deviceevent	80 GB	        25 GB	      203 GB	           locationid_eventtoken_datacategory_actiontype_eventinstant_unq	24 GB	0	0	0	546025	38258291	fact	deviceevent	locationid_eventtoken_datacategory_actiontype_eventinstant_unq	0	NULL	0	0
+
+*/
+
+/*
+fact.deviceevent	5622 MB	1059 MB	8066 MB	locationid_eventtoken_datacategory_actiontype_eventinstant_unq	921 MB	271524	1278	1278	32922	4591604	fact	deviceevent	locationid_eventtoken_datacategory_actiontype_eventinstant_unq	271524	2026-06-28 09:40:35.461787+00	1278	1278
+fact.deviceevent	5622 MB	1059 MB	8066 MB	deviceeventidx	131 MB	1348	157302215	157302215	32922	32927	fact	deviceevent	deviceeventidx	1348	2026-06-14 10:00:00.906403+00	157302215	157302215
+fact.deviceevent	5622 MB	1059 MB	8066 MB	ix_deviceevent_syscosmosts_brin	152 kB	9	15690290	0	32922	3605477	fact	deviceevent	ix_deviceevent_syscosmosts_brin	9	2026-06-23 10:17:53.547016+00	15690290	0
+fact.deviceevent	5622 MB	1059 MB	8066 MB	ix_deviceevent_journey_lookup	6352 kB	0	0	0	32922	2198165	fact	deviceevent	ix_deviceevent_journey_lookup	0	NULL	0	0
+*/
+--very useful query to see which indexes are actually being used
+--a very humbling big experience learned from fact.deviceevent
+
+
+--SQL SERVER Equivalent
+
+SELECT
+    CONCAT(s.name, '.', t.name)                          AS table_name,
+    i.name                                               AS index_name,
+    i.type_desc                                          AS index_type,
+    CAST(SUM(ps.used_page_count) * 8 / 1024.0
+         AS DECIMAL(18,2))                               AS index_size_mb,
+    ISNULL(us.user_seeks,   0)
+  + ISNULL(us.user_scans,   0)
+  + ISNULL(us.user_lookups, 0)                           AS times_used,
+    us.user_seeks,
+    us.user_scans,
+    us.user_lookups,
+    us.user_updates                                      AS maintenance_writes,
+    us.last_user_seek,
+    us.last_user_scan
+FROM sys.indexes i
+JOIN sys.tables   t ON t.object_id = i.object_id
+JOIN sys.schemas  s ON s.schema_id = t.schema_id
+LEFT JOIN sys.dm_db_partition_stats ps
+       ON ps.object_id = i.object_id AND ps.index_id = i.index_id
+LEFT JOIN sys.dm_db_index_usage_stats us
+       ON us.object_id   = i.object_id
+      AND us.index_id    = i.index_id
+      AND us.database_id = DB_ID()
+WHERE s.name = 'fact'
+  AND t.name IN ('deviceevent', 'userbehaviour')
+  AND i.type > 0                       -- exclude the heap
+GROUP BY s.name, t.name, i.name, i.type_desc,
+         us.user_seeks, us.user_scans, us.user_lookups,
+         us.user_updates, us.last_user_seek, us.last_user_scan
+ORDER BY times_used DESC;
+
 /*
 Great topic — indexing strategy in a Data Warehouse is quite different from an OLTP system. Here's a breakdown:
 
@@ -117,6 +209,8 @@ SELECT * --schemaname, tablename, indexname, idx_scan
 FROM pg_stat_user_indexes
 WHERE idx_scan > 0
 --ORDER BY schemaname, tablename;
+
+
 
 
 /*```
