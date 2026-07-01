@@ -1309,6 +1309,26 @@ CREATE INDEX IF NOT EXISTS ix_dim_modifiergroup_catalogid
     ON dim.modifier_group(catalogid);
 
 
+CREATE INDEX IF NOT EXISTS ix_ml_mim_catalogid
+    ON ml.modifier_item_match USING btree
+    (catalogid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: ix_ml_mim_locationid
+
+-- DROP INDEX IF EXISTS ml.ix_ml_mim_locationid;
+
+CREATE INDEX IF NOT EXISTS ix_ml_mim_locationid
+    ON ml.modifier_item_match USING btree
+    (locationid COLLATE pg_catalog."default" ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: ix_ml_mim_tsr_score
+
+-- DROP INDEX IF EXISTS ml.ix_ml_mim_tsr_score;
+
+CREATE INDEX IF NOT EXISTS ix_ml_mim_tsr_score
+    ON ml.modifier_item_match USING btree
+    (organizationid COLLATE pg_catalog."default" ASC NULLS LAST, tsr_score DESC NULLS FIRST)
+    TABLESPACE pg_default;
 
 --
 -- TOC entry 6384 (class 2606 OID 3327449)

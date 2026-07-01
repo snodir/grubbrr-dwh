@@ -8,7 +8,7 @@ CREATE INDEX IF NOT EXISTS ix_transactionheader_syscosmosts_brin
     ON fact.transactionheader USING brin (syscosmosts)
     WITH (pages_per_range = 128);
 
-SELECT * FROM stg.silver_transaction_header WHERE transactionheaderid = 'ordevt-N9LAXQ8VPIDH49PW';
+SELECT * FROM stg.silver_transaction_header LIMIT 100;-- WHERE transactionheaderid = 'ordevt-N9LAXQ8VPIDH49PW';
 SELECT * FROM fact.transactionheader ORDER BY createddate DESC LIMIT 100
 SELECT * FROM dim.ordertype WHERE locationid = 'loc-1fb25c39-043f-4fe1-99d8-6e4086e24586'
 

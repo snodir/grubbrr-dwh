@@ -15,15 +15,16 @@ ORDER BY dateid DESC
 LIMIT 24;
 --SELECT LENGTH('orders/raw/2026/05/15/23')
 
+SELECT DISTINCT entity, partition_year, partition_month FROM etl.bronze_partition_registry ORDER BY partition_month
 
-SELECT * DELETE
+SELECT * --DELETE
 FROM etl.bronze_partition_registry
 WHERE 1=1 
   AND entity = 'orders'
-  AND dateid BETWEEN 2026061108 AND 2026061207 -- 2026060708 AND 2026060807
-  AND status IN ('completed', 'not found')
+  AND dateid BETWEEN 2026070100 AND 2026070123 -- 2026060708 AND 2026060807
+  --AND status IN ('completed', 'not found')
 ORDER BY dateid DESC
-LIMIT 10;
+LIMIT 50;
 
 SELECT 
     dateid, 
@@ -149,8 +150,8 @@ SELECT
     NULL :: TIMESTAMP as sysupdatetime
 FROM dim.datedim as dt
 WHERE 1=1
-  --AND dt.yearval = 2026 AND dt.monthval IN (5, 6)
-  AND dateid BETWEEN 2026061108 AND 2026061207 -- 2026060708 AND 2026060807
+  AND dt.yearval = 2026 AND dt.monthval IN (7, 8, 9, 10, 11, 12)
+  --AND dateid BETWEEN 2026061108 AND 2026061207 -- 2026060708 AND 2026060807
 
 UNION ALL
 
@@ -179,6 +180,6 @@ SELECT
     NULL :: TIMESTAMP as sysupdatetime
 FROM dim.datedim as dt
 WHERE 1=1
-  AND dt.yearval = 2026 AND dt.monthval IN (5, 6);
+  AND dt.yearval = 2026 AND dt.monthval IN (7, 8, 9, 10, 11, 12);
   --AND dt.dateid BETWEEN 2026060708 AND 2026060807;
 --SELECT '01'::INTEGER;

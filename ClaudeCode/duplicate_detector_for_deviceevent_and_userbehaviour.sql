@@ -46,6 +46,11 @@ DROP COLUMN IF EXISTS elementname,
 DROP COLUMN IF EXISTS sourceelementid;
 
 
+VACUUM (VERBOSE, ANALYZE) fact.userbehaviour;
+--VACUUM (VERBOSE, ANALYZE, PARALLEL 4) fact.userbehaviour;
+VACUUM (INDEX_CLEANUP OFF) fact.userbehaviour;
+VACUUM (FREEZE) fact.userbehaviour;
+
 --TRUNCATE TABLE fact.userbehaviour;
 
 SELECT *--count(*), max(id) --DISTINCT de.datacategory, de.actiontype

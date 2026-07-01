@@ -2,8 +2,35 @@ SELECT * FROM fact.deviceevent
 WHERE syscosmosts IS NOT NULL 
 ORDER BY syscosmosts DESC LIMIT 100;
 
-CALL fact.usp_silver_kiosk_events_to_fact_deviceevent();
+--CALL fact.usp_silver_kiosk_events_to_fact_deviceevent();
+    UPDATE fact.watermarktable
+    SET ts            = (SELECT max(syscosmosts) FROM fact.deviceevent),
+        sysupdatetime = NOW() :: TIMESTAMP
+    WHERE watermarktablename = 'fact.deviceevent'
+      AND source             = 'gem';
 
+/*
+Started executing query at Line 6
+UPDATE 1
+Total execution time: 00:03:31.380
+*/
+
+    UPDATE fact.watermarktable
+    SET ts            = (SELECT max(syscosmosts) FROM fact.userbehaviour),
+        sysupdatetime = NOW() :: TIMESTAMP
+    WHERE watermarktablename = 'fact.userbehaviour'
+      AND source             = 'gem';
+
+/*
+Started executing query at Line 18
+UPDATE 1
+Total execution time: 00:01:39.136
+*/
+
+SELECT *, CONCAT('UPDATE ', watermarktablename, 
+                 ' SET ts = (SELECT MAX(', watermarkcolumn, ') FROM ', watermarktablename, 
+                 ', sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = ''', watermarktablename, ''' AND source = ''', source, ''';')
+FROM fact.watermarktable
 -- Table: fact.deviceevent
 
 -- DROP TABLE IF EXISTS fact.deviceevent;

@@ -54,14 +54,14 @@ WHERE id = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
 
 SELECT *--count(*), max(id)
 FROM fact.devicestate
---WHERE locationid = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d';
+WHERE locationid = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
 ORDER BY id DESC
 LIMIT 100;
 
 
 SELECT *
 FROM dim.organizationlocation
-WHERE locationid = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
+WHERE locationid = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d';
 
 
 SELECT id, count(*)
@@ -101,6 +101,7 @@ FROM (
 --18,539	            72,033	        13--Reg
 --403	                479	            6 --Stage
 --427	                503	            6 --Prod
+
 SELECT count(*) --> 1
 FROM fact.devicestate_bkp
 GROUP BY id 
@@ -200,7 +201,7 @@ FROM stg.fact_devicestate
 ORDER BY id ASC
 LIMIT 1000;
 
-SELECT *
+SELECT *--count(*), max(id)
 FROM fact.devicestate
 ORDER BY id DESC
 LIMIT 100;

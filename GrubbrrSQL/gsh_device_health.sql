@@ -34,6 +34,29 @@ SELECT *
 FROM gsh.devicehealth
 WHERE locationid = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
 
+SELECT
+    dh.id,
+    dh.healthdatatype,
+    dh.locationid,
+    dh.companyid,
+    dh.deviceid,
+    dh.devicetype,
+    dh.status,
+    dh.statusmessage,
+    dh.healthdatatime,
+    dh.statuschangetime,
+    dh.inserttime,
+    dh.version,
+    dh.devicedatatime,
+    NOW() :: TIMESTAMP AS sysinserttime
+FROM gsh.devicehealth AS dh
+INNER JOIN gsh.device AS d
+        ON d.deviceid = dh.deviceid
+       AND d.state NOT IN ('New', 'Deleted')
+WHERE dh.deviceid       <> 'no-serial'
+  AND dh.healthdatatime <> '-infinity' :: TIMESTAMP
+  AND dh.locationid = 'loc-bc073bb4-866a-4d07-80c1-3a4d510b368d'
+
 
 select count(*) from gsh.devicehealth where healthdatatime <> '-infinity';
 select max(id) from gsh.devicehealth_bkp

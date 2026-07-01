@@ -3573,6 +3573,48 @@ ALTER TABLE IF EXISTS ml.weather OWNER TO citus;
 
 
 
+CREATE TABLE IF NOT EXISTS ml.modifier_item_match
+(
+    organizationid text COLLATE pg_catalog."default" NOT NULL,
+    locationid text COLLATE pg_catalog."default" NOT NULL,
+    catalogid text COLLATE pg_catalog."default" NOT NULL,
+    modifierid text COLLATE pg_catalog."default" NOT NULL,
+    modifiername text COLLATE pg_catalog."default" NOT NULL,
+    matched_menuitemid text COLLATE pg_catalog."default" NOT NULL,
+    matched_menuitemname text COLLATE pg_catalog."default" NOT NULL,
+    tsr_score numeric(5,2) NOT NULL,
+    match_confidence_tier text COLLATE pg_catalog."default" NOT NULL,
+    match_direction text COLLATE pg_catalog."default",
+    matched_menuitems jsonb NOT NULL DEFAULT '[]'::jsonb,
+    modifiergroup_occurrence_count integer,
+    modifier_price numeric(12,4),
+    item_price numeric(12,3),
+    price_delta numeric(14,4),
+    item_entity_type text COLLATE pg_catalog."default",
+    item_calories text COLLATE pg_catalog."default",
+    item_categoryid text COLLATE pg_catalog."default",
+    item_categoryname text COLLATE pg_catalog."default",
+    item_is_alcoholic boolean,
+    item_is_vegetarian boolean,
+    item_is_vegan boolean,
+    item_has_allergen boolean,
+    item_average_rating numeric(3,2),
+    item_rating_count integer,
+    modifier_is_default boolean,
+    modifier_calories text COLLATE pg_catalog."default",
+    modifier_max_quantity integer,
+    modifier_min_quantity integer,
+    is_size_variant boolean NOT NULL DEFAULT false,
+    matched_at timestamp with time zone DEFAULT now(),
+    pipeline_version text COLLATE pg_catalog."default" DEFAULT 'v1'::text,
+    CONSTRAINT modifier_item_match_pkey PRIMARY KEY (organizationid, locationid, catalogid, modifierid)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS ml.modifier_item_match
+    OWNER to citus;
+
 --
 -- TOC entry 495 (class 1259 OID 3588996)
 -- Name: dim_catalog; Type: TABLE; Schema: stg; Owner: citus

@@ -11,6 +11,17 @@ OWNER to citus;
 ALTER TABLE fact.transactionheader
 ADD sourceid INTEGER;
 
+--TRUNCATE TABLE dim.grubbrr_source_lookup;
+INSERT INTO dim.grubbrr_source_lookup(id, source, description)
+VALUES
+      (1, 'nge', 'Next Generation Enterprise'),
+      (2, 'gem', 'Grubbrr Event Management'),
+      (3, 'gsh', 'Grubbrr System Health'),
+      (4, 'gou', 'Grubbrr Organizations and Users'),
+      (5, 'nge-Interactions','NGE Modifier Interactions'),
+      (6, 'nge-Options','NGE Modifier Options'),
+      (7, 'gxs', 'Grubbrr Transaction Service')
+
 SELECT * FROM dim.grubbrr_source_lookup;
 
 ALTER TABLE fact.occasionsurveydetail
@@ -27,7 +38,8 @@ ALTER COLUMN description TYPE text COLLATE pg_catalog."default";
 
 INSERT INTO dim.grubbrr_source_lookup
 VALUES(5,'nge-Interactions','NGE Modifier Interactions'),
-      (6,'nge-Options','NGE Modifier Options')
+      (6,'nge-Options','NGE Modifier Options'),
+      (7,'gxs','Grubbrr Transaction Service')
 
 ALTER TABLE fact.occasionsurveydetail
 ADD CONSTRAINT sourceid_fk FOREIGN KEY (sourceid) REFERENCES dim.grubbrr_source_lookup(id)
@@ -56,13 +68,7 @@ WHERE 1=1-- ti.transactionheaderid not like 'ordevt-%'
 AND ti.orderdateutc :: timestamp > now()
 ORDER BY orderdateutc desc LIMIT 1000
 
-INSERT INTO dim.grubbrr_source_lookup(id, source, description)
-VALUES
-      (1, 'nge', 'Next Generation Enterprise'),
-      (2, 'gem', 'Grubbrr Event Management'),
-      (3, 'gsh', 'Grubbrr System Health'),
-      (4, 'gou', 'Grubbrr Organizations and Users'),
-      (5, 'gxs', 'Grubbrr Transaction Service')
+
 
 
 update fact.transactionheader

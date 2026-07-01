@@ -22,12 +22,87 @@ SET client_min_messages = warning;
 SET row_security = off;
 */
 
-SELECT * FROM fact.watermarktable;
+SELECT watermarktablename, source, ts as maxts_nge
+FROM fact.watermarktable
+WHERE watermarktablename = 'fact.itemssurvey'
+  AND source             = 'nge'
+
+SELECT *, TO_TIMESTAMP(ts) as ts_datetime,
+    CONCAT('UPDATE fact.watermarktable ', 
+           'SET ts = (SELECT MAX(', watermarkcolumn, ') FROM ', watermarktablename, '), '
+           'sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = ''', watermarktablename, ''' AND source = ''', source, ''';') as update_statement
+FROM fact.watermarktable;
+
+    UPDATE fact.watermarktable
+    SET ts            = (SELECT max(syscosmosts) FROM fact.deviceevent),
+        sysupdatetime = NOW() :: TIMESTAMP
+    WHERE watermarktablename = 'fact.deviceevent'
+      AND source             = 'gem';
+
+/*
+Started executing query at Line 6
+UPDATE 1
+Total execution time: 00:03:31.380
+*/
+
+    UPDATE fact.watermarktable
+    SET ts            = (SELECT max(syscosmosts) FROM fact.userbehaviour),
+        sysupdatetime = NOW() :: TIMESTAMP
+    WHERE watermarktablename = 'fact.userbehaviour'
+      AND source             = 'gem';
+
+/*
+Started executing query at Line 18
+UPDATE 1
+Total execution time: 00:01:39.136
+*/
+
+--UPDATE fact.watermarktable SET watermarkcolumn = 'syscosmosts' WHERE watermarktablename = 'fact.userbehaviour' AND source = 'gem'
+--UPDATE fact.watermarktable SET watermarkcolumn = 'syscosmosts' WHERE watermarktablename = 'fact.userbehaviour' AND source = 'gem'
+
 
 --
 -- TOC entry 6063 (class 0 OID 33011)
 -- Dependencies: 399
 -- Data for Name: watermarktable; Type: TABLE DATA; Schema: fact; Owner: citus
+
+SELECT * FROM dim.grubbrr_source_lookup;
+
+/*
+1	nge	             Next Generation Enterprise
+2	gem	             Grubbrr Event Management
+3	gsh	             Grubbrr System Health
+4	gou	             Grubbrr Organizations and Users
+5	nge-Interactions NGE Modifier Interactions
+6	nge-Options	     NGE Modifier Options
+7	gxs	             Grubbrr Transaction Service
+*/
+
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM dim.abtests),                                                    sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'dim.abtests' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.transactionitem WHERE transactionheaderid LIKE 'ordevt-%'), sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.transactionitem' AND source = 'nge';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.transactionpayment),                                        sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.transactionpayment' AND source = 'nge';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.gem_failed_order_job_notifications),                        sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.gem_failed_order_job_notifications' AND source = 'gem-Job';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.cep_incidents),                                             sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.cep_incidents' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.itemmodifier),                                              sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.itemmodifier' AND source = 'nge';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.transactionrefunds),                                        sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.transactionrefunds' AND source = 'nge';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.recommendations),                                           sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.recommendations' AND source = 'nge';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.modifier_recommendations),                                  sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.modifier_recommendations' AND source = 'nge';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.modifier_interactions WHERE sourceid = 5),                  sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Interactions';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.modifier_interactions WHERE sourceid = 6),                  sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.modifier_interactions' AND source = 'nge-Options';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.modifier_impressions),                                      sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.modifier_impressions' AND source = 'nge';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.transactionheader WHERE sourceid = 2),                      sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.transactionheader' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(gem_syscosmosts) FROM fact.sent_surveys),                                          sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.sent_surveys' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(gem_syscosmosts) FROM fact.itemssurvey),                                           sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.itemssurvey' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.occasionsurveydetail WHERE sourceid = 1),                   sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.occasionsurveydetail' AND source = 'nge';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.occasionsurveydetail WHERE sourceid = 2),                   sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.occasionsurveydetail' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(nge_syscosmosts) FROM fact.itemssurvey),                                           sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.itemssurvey' AND source = 'nge';
+UPDATE fact.watermarktable SET watermarkvalue = (SELECT MAX(lasteventtime) FROM fact.devicestate),                                 sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.devicestate' AND source = 'gsh';
+UPDATE fact.watermarktable SET watermarkvalue = (SELECT LEAST(MAX(cputimestamp), MAX(memorytimestamp)) FROM fact.devicetelemetry), sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.devicetelemetry' AND source = 'gsh';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.ordertiming),                                               sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.ordertiming' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.usercheckedin),                                             sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.usercheckedin' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.deviceevent),                                               sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.deviceevent' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.userbehaviour),                                             sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.userbehaviour' AND source = 'gem';
+UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.transactionheader WHERE sourceid = 1),                      sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.transactionheader' AND source = 'nge';
 --
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source, sysinserttime) VALUES ('fact.transactionitem', 'syscosmosts', NULL, NULL, 1720000300, 'nge', NOW() :: TIMESTAMP);
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source, sysinserttime) VALUES ('fact.transactionpayment', 'syscosmosts', NULL, NULL, 1720000300, 'nge', NOW() :: TIMESTAMP);
@@ -62,5 +137,5 @@ INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkv
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Ld8m5lfuQGP2c19BD1gmbusczTi0Gmj5Z9lyqXtLAD1mDro4NuVLjmVOMS9D05v
+--\unrestrict Ld8m5lfuQGP2c19BD1gmbusczTi0Gmj5Z9lyqXtLAD1mDro4NuVLjmVOMS9D05v
 

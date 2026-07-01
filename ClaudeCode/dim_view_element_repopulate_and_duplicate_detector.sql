@@ -289,6 +289,10 @@ WHERE userbehaviour.viewname       = v.viewname
 Started executing query at Line 73
 UPDATE 23,076,364
 Total execution time: 00:29:25.611
+--After importing some more views from Test GAS
+Started executing query at Line 282
+UPDATE 3,284,184
+Total execution time: 00:34:35.712
 */
 
 

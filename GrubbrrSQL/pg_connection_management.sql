@@ -4,6 +4,23 @@ SELECT pid, usename, state, state_change
 FROM pg_stat_activity
 WHERE state = 'idle'; --AND state_change < NOW() - INTERVAL '5 minutes';
 
+SELECT CONCAT(schemaname, '.', relname) AS table_name,
+       pg_size_pretty(pg_relation_size(CONCAT(schemaname, '.', relname))) AS table_only,
+       pg_size_pretty(pg_indexes_size(CONCAT(schemaname, '.', relname))) AS indexes,
+       pg_size_pretty(pg_total_relation_size(CONCAT(schemaname, '.', relname))) AS total_with_indexes,
+       indexrelname AS index_name,
+       pg_size_pretty(pg_relation_size(indexrelid)) AS index_size,
+       idx_scan AS times_used,
+       idx_tup_read AS rows_read_from_index,
+       idx_tup_fetch AS rows_fetched_from_table,
+       *
+FROM pg_stat_user_indexes
+WHERE 1=1
+  AND schemaname = 'fact'
+  AND relname    IN ('deviceevent', 'userbehaviour')
+ORDER BY table_name;
+--2,858,904 --idx_scan
+
 -- Kill the entire session (forces rollback if transaction is open)
 SELECT pg_terminate_backend(<pid>);
 

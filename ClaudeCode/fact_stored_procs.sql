@@ -5746,7 +5746,7 @@ WHERE watermarktable.watermarktablename = tr.tablename
   AND watermarktable.source = 'gem';
 
 UPDATE fact.watermarktable
-SET ts = (SELECT coalesce(max(nge_syscosmosts), 1720000300) - 10 FROM fact.itemssurvey),
+SET ts = (SELECT coalesce(max(nge_syscosmosts), 1720000300) FROM fact.itemssurvey),
     sysupdatetime = NOW() :: TIMESTAMP
 WHERE watermarktablename = 'fact.itemssurvey'
   AND source = 'nge';
