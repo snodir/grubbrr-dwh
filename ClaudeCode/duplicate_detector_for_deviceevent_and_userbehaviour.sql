@@ -53,9 +53,9 @@ VACUUM (FREEZE) fact.userbehaviour;
 
 --TRUNCATE TABLE fact.userbehaviour;
 
-SELECT *--count(*), max(id) --DISTINCT de.datacategory, de.actiontype
+SELECT max(id), count(*) --DISTINCT de.datacategory, de.actiontype S=36,875,506--after 1June--36,334,104, maxid=36,714,158, count=36,714,158 (after id re-alignment on 2026-07-04)
 FROM fact.userbehaviour as ub --_reload --5,707,284***252,036---R=2,236,236***163,019---S=159,156,684/159,331,487--Total execution time: 00:01:17.866
-WHERE 1=1 
+WHERE 1=1 --P=211,468,927	211,515,235, Total execution time: 00:01:09.713
 --AND eventcategory IN ('insight','Order','StoreTiming','BusinessHours','Session') 
 --AND viewidentifier IS NOT NULL
 --AND elementidentifier IS NOT NULL
@@ -65,9 +65,9 @@ ORDER BY id DESC
 LIMIT 1000;
 
 SELECT count(*) --*--DISTINCT de.datacategory, de.actiontype
-FROM fact.deviceevent as de --6,413,074***1,036,943---R=2,725,650***473,077---S=178,165,004***36,334,104
-WHERE 1=1--
-AND de.moduleid     = 'kiosk'---S=36,334,104--Total execution time: 00:03:29.938
+FROM fact.deviceevent as de --T=6,413,074  ***1,036,943---R=2,725,650***473,077---S=178,165,004***36,334,104
+WHERE 1=1                   --P=237,271,369***47,776,614, --Total execution time: 00:04:20.802***Total execution time: 00:04:21.329
+--AND de.moduleid     = 'kiosk'---S=36,334,104--Total execution time: 00:03:29.938
 AND de.datacategory IN ('insight','Order','StoreTiming','BusinessHours','Session') --S=36,334,104--Total execution time: 00:01:04.870
 AND (de.eventtoken = '' OR de.eventtoken IS NULL) --R=228,727, S=0 rows after de-dup--Total execution time: 00:01:08.533
 AND (de.deviceid = '' OR de.deviceid IS NULL) --R=2,069,735---UPDATE 2,069,735---Total execution time: 00:01:22.617, empty/missing deviceids
@@ -90,9 +90,13 @@ UPDATE fact.userbehaviour
 SET id            = new_id, --T=UPDATE 1,059,149, Total execution time: 00:00:47.145
     sysupdatetime = NOW() :: TIMESTAMP --P=
 FROM (SELECT *, ROW_NUMBER() OVER(ORDER BY id) as new_id
-      FROM fact.userbehaviour) AS ub 
+      FROM fact.userbehaviour) AS ub --WHERE id > 36334104 37,255,560, UPDATE 380,054, --TotExT: 26.487s
 WHERE userbehaviour.id = ub.id;
 
+
+SELECT 
+FROM fact.userbehaviour
+GROUP BY createddate 
 
 WITH dupl_records AS (
 SELECT locationid, coalesce(eventtoken, deviceid, syscosmosticks::TEXT) as eventtoken, datacategory, actiontype, eventinstant, -- syscosmosticks

@@ -1110,6 +1110,7 @@ CREATE INDEX IF NOT EXISTS ix_deviceevent_journey_lookup ON fact.deviceevent USI
 
 CREATE INDEX IF NOT EXISTS ix_deviceevent_syscosmosts_brin ON fact.deviceevent USING brin (syscosmosts) WITH (pages_per_range='128');
 
+CREATE INDEX IF NOT EXISTS ix_userbehaviour_createddate_brin ON fact.userbehaviour USING brin (createddate) WITH (pages_per_range='128');
 
 --
 -- TOC entry 6193 (class 1259 OID 3617347)
@@ -1117,6 +1118,13 @@ CREATE INDEX IF NOT EXISTS ix_deviceevent_syscosmosts_brin ON fact.deviceevent U
 --
 
 CREATE INDEX IF NOT EXISTS ix_transactionheader_syscosmosts_brin ON fact.transactionheader USING brin (syscosmosts) WITH (pages_per_range='128');
+
+
+CREATE INDEX IF NOT EXISTS ix_upsell_recommendations_syscosmosts_brin ON fact.recommendations USING brin (syscosmosts) WITH (pages_per_range='128');
+
+CREATE INDEX IF NOT EXISTS ix_itemmodifier_syscosmosts_brin ON fact.itemmodifier USING brin (syscosmosts) WITH (pages_per_range='128');
+
+CREATE INDEX IF NOT EXISTS ix_modifier_recommendations_syscosmosts_brin ON fact.modifier_recommendations USING brin (syscosmosts) WITH (pages_per_range='128');
 
 
 --

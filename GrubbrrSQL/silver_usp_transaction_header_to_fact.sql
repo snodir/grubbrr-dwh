@@ -8,11 +8,23 @@ CREATE INDEX IF NOT EXISTS ix_transactionheader_syscosmosts_brin
     ON fact.transactionheader USING brin (syscosmosts)
     WITH (pages_per_range = 128);
 
-SELECT * FROM stg.silver_transaction_header LIMIT 100;-- WHERE transactionheaderid = 'ordevt-N9LAXQ8VPIDH49PW';
-SELECT * FROM fact.transactionheader ORDER BY createddate DESC LIMIT 100
+SELECT * FROM stg.silver_transaction_header
+WHERE locationid = 'loc-73ad6e86-1f5c-4123-adbb-4b12339ea171' 
+  AND businessdate IN ('2026-06-09T00:00:00', '2026-06-10T00:00:00')
+LIMIT 10000;-- WHERE transactionheaderid = 'ordevt-N9LAXQ8VPIDH49PW';
+
+SELECT * FROM fact.transactionheader 
+WHERE locationid = 'loc-73ad6e86-1f5c-4123-adbb-4b12339ea171' 
+  AND businessdate IN ('2026-06-09', '2026-06-10')  
+  AND orderstatus = 'order-placed' 
+ORDER BY createddate DESC 
+LIMIT 1000;
+
 SELECT * FROM dim.ordertype WHERE locationid = 'loc-1fb25c39-043f-4fe1-99d8-6e4086e24586'
 
-SELECT max(orderdatelocal), max(createddate) FROM fact.transactionheader; --2026-05-21 15:00:03.193	2026-05-21 10:58:59.134653
+SELECT max(orderdatelocal), max(createddate) 
+FROM fact.transactionheader
+WHERE orderstatus = 'order-placed'; --2026-05-21 15:00:03.193	2026-05-21 10:58:59.134653
 
 SELECT *
 FROM fact.transactionheader as th

@@ -11,47 +11,47 @@ SELECT '2026-06-01 00:00:00+00' :: TIMESTAMP;
 -- GROUP 1: sysinserttime (23 tables)
 -- ============================================================
 
-DELETE FROM fact.gem_failed_order_job_notifications WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --542
+DELETE FROM fact.gem_failed_order_job_notifications WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --542***2026-07-04=43
 
-DELETE FROM fact.cep_incidents WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --65
+DELETE FROM fact.cep_incidents WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --65***2026-07-04===240
 
-DELETE FROM fact.customer_menu_preferences WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP;
+DELETE FROM fact.customer_menu_preferences WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP;--***2026-07-04=0
 
-DELETE FROM fact.devicestate WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --1,239
+DELETE FROM fact.devicestate WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --1,239***2026-07-04===5,820
 
-DELETE FROM fact.devicetelemetry WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; 
+DELETE FROM fact.devicetelemetry WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --***2026-07-04===2
 
-DELETE FROM fact.itemmodifier WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --58,334
+DELETE FROM fact.itemmodifier WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --58,334--***2026-07-04===56,977
 
-DELETE FROM fact.itemssurvey WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0
+DELETE FROM fact.itemssurvey WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0***2026-07-04===0
 
-DELETE FROM fact.location_menu_preferences WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP;
+DELETE FROM fact.location_menu_preferences WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP;--***2026-07-04=0
 
-DELETE FROM fact.modifier_impressions WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0
+DELETE FROM fact.modifier_impressions WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0***2026-07-04===162
 
-DELETE FROM fact.modifier_interactions WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0
+DELETE FROM fact.modifier_interactions WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0***2026-07-04===57,136
 
-DELETE FROM fact.modifier_recommendations WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0
+DELETE FROM fact.modifier_recommendations WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0***2026-07-04===0
 
-DELETE FROM fact.occasionsurveydetail WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --1,902
+DELETE FROM fact.occasionsurveydetail WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --1,902***2026-07-04===14,265
 
-DELETE FROM fact.ordertiming WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --20,616
+DELETE FROM fact.ordertiming WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --20,616***2026-07-04===61,858
 
-DELETE FROM fact.recommendations WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --12,686
+DELETE FROM fact.recommendations WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --12,686***2026-07-04=12,383
 
-DELETE FROM fact.recommendations_bkp WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP;
+DELETE FROM fact.recommendations_bkp WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP;--***2026-07-04=0
 
-DELETE FROM fact.sent_surveys WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP;
+DELETE FROM fact.sent_surveys WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP;--***2026-07-04===1
 
-DELETE FROM fact.transactionitem WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --31,974
+DELETE FROM fact.transactionitem WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --31,974***2026-07-04===46,477
 
-DELETE FROM fact.transactionpayment WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --12,889
+DELETE FROM fact.transactionpayment WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --12,889***2026-07-04===13,264
 
-DELETE FROM fact.transactionrefunds WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --8
+DELETE FROM fact.transactionrefunds WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --8***2026-07-04===11
 
-DELETE FROM fact.usercheckedin WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0
+DELETE FROM fact.usercheckedin WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --0***2026-07-04===0
 
-DELETE FROM fact.vw_offer_analysis WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --4,793
+DELETE FROM fact.vw_offer_analysis WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --4,793***2026-07-04===23,435
 
 -- ⚠️  watermarktable is an ETL control table — confirm this is intentional
 -- DELETE FROM fact.watermarktable WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP;
@@ -61,13 +61,15 @@ DELETE FROM fact.vw_offer_analysis WHERE sysinserttime >= '2026-06-01 00:00:00+0
 -- GROUP 2: createddate (3 tables)
 -- ============================================================
 
-DELETE FROM fact.transactionheader WHERE createddate >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --16,436
+DELETE FROM fact.transactionheader WHERE createddate >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --16,436***2026-07-04===29,781
 
-DELETE FROM fact.userbehaviour WHERE createddate >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --174,803***2m:35s
+DELETE FROM fact.userbehaviour WHERE createddate >= '2026-06-30 00:00:00.000' :: TIMESTAMP; --174,803***2m:35s***2026-07-04===541,402***04m:52s
 
-DELETE FROM fact.deviceevent WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --1,325,932***7m:12s
+--2026-06-29 12:57:24.408227
 
-DELETE FROM fact.userbehaviour_exceptions WHERE createddate >= '2026-06-01 00:00:00+00' :: TIMESTAMP;
+DELETE FROM fact.deviceevent WHERE sysinserttime >= '2026-06-01 00:00:00+00' :: TIMESTAMP; --1,325,932***7m:12s***2026-07-04=4,305,544***04m:56s
+
+DELETE FROM fact.userbehaviour_exceptions WHERE createddate >= '2026-06-01 00:00:00+00' :: TIMESTAMP;--***2026-07-04=
 
 
 -- ============================================================

@@ -132,6 +132,8 @@ FROM pg_stat_user_indexes
 WHERE relname = 'deviceevent'
 ORDER BY idx_scan DESC;
 
+VACUUM (VERBOSE, ANALYZE) fact.deviceevent;
+
 /* ---------------------------------------------------------------------------
    STEP 4  DEDUP fact.deviceevent  (in-place, batched per location)
 

@@ -5,19 +5,20 @@ SELECT ol.organizationId, ol.organizationname,
        count(1) as ordercounts, sum(ordertotal) as amtspent, avg(ordertotal) as avg_amtspent,
 	   min(orderdatelocal) as first_order_time,
 	   max(orderdatelocal) as latest_order_time
-FROM (SELECT * FROM fact.transactionheader WHERE businessdate >= '2024-01-01') as th
+FROM (SELECT * FROM fact.transactionheader WHERE businessdate >= '2026-06-09' AND businessdate <= '2026-06-10') as th
 INNER JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
         on th.locationid = ol.locationid
 WHERE 1=1
-and ol.organizationid = 'org-490e23ce-6f23-4d3d-8544-8728f0965cfc'
---and th.locationid = 'loc-8ead49a8-798b-4786-988a-90bbbb4775c7'-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
+--and ol.organizationid = 'org-490e23ce-6f23-4d3d-8544-8728f0965cfc'
+and th.locationid = 'loc-73ad6e86-1f5c-4123-adbb-4b12339ea171'-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
 and th.orderstatus = 'order-placed'
 --and th.businessdate = '2026-03-30' :: DATE-- BETWEEN '2023-01-01' and CURRENT_DATE :: date--'2025-07-13' --
 GROUP BY ol.organizationId, ol.organizationname, th.locationid, ol.locationname--, th.businessdate
    		 --EXTRACT(YEAR FROM th.businessdate)::INTEGER
          --EXTRACT(WEEK FROM th.businessdate)::INTEGER
 ORDER BY ordercounts DESC-- first_order_time ASC--, ordercounts DESC--, 
-
+--S=org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-73ad6e86-1f5c-4123-adbb-4b12339ea171	1020 - Charlotte, NC	71	1144.610	16.1212676056338028	2026-06-09 06:33:55.447	2026-06-10 21:26:49.067
+--P=org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-73ad6e86-1f5c-4123-adbb-4b12339ea171	1020 - Charlotte, NC	211	3884.850	18.4116113744075829	2026-06-09 06:33:55.447	2026-06-10 21:26:49.067
 --SELECT max(orderdatelocal) FROM fact.transactionheader
 
 SELECT * FROM fact.transactionheader WHERE locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992'
@@ -29,6 +30,55 @@ FROM fact.transactionheader as th
 WHERE th.businessdate >= CAST('2026-05-01' AS DATE)
 GROUP BY th.businessdate
 ORDER BY th.businessdate DESC;
+
+WITH aggr_trxns_by_hour AS (
+	SELECT bronze_folderpath, MAX(syscosmosts) as max_sys, MIN(syscosmosts) as min_sys
+	FROM stg.silver_transaction_header
+	GROUP BY bronze_folderpath
+)
+SELECT th1.bronze_folderpath, th2.bronze_folderpath AS prvs_folderpath,
+	th1.max_sys, th2.max_sys AS prvs_hour_max, ROUND((th1.max_sys - th2.max_sys) :: NUMERIC(10,2) / 60, 2) AS is_max_correct, 
+	th1.min_sys, th2.min_sys AS prvs_hour_min, ROUND((th1.min_sys - th2.min_sys) :: NUMERIC(10,2) / 60, 2) AS is_min_correct,
+	ROUND((th1.min_sys - th2.max_sys) :: NUMERIC(10,2) / 60, 2) AS is_cross_hour_sequence_correct
+FROM 	  (SELECT *, ROW_NUMBER() OVER(ORDER BY bronze_folderpath) AS rn FROM aggr_trxns_by_hour) as th1
+LEFT JOIN (SELECT *, ROW_NUMBER() OVER(ORDER BY bronze_folderpath) AS rn FROM aggr_trxns_by_hour) as th2
+	ON th2.rn = th1.rn - 1
+ORDER BY th1.bronze_folderpath;
+
+
+WITH aggr_trxns_by_hour AS (
+	SELECT bronze_folderpath, MAX(syscosmosts) as max_sys, MIN(syscosmosts) as min_sys
+	FROM stg.silver_transaction_header
+	GROUP BY bronze_folderpath
+)
+SELECT th1.bronze_folderpath, th2.bronze_folderpath AS prvs_folderpath,
+	TO_TIMESTAMP(th1.max_sys) as current_hour_max, TO_TIMESTAMP(th2.max_sys) AS prvs_hour_max, ROUND((th1.max_sys - th2.max_sys) :: NUMERIC(10,2) / 60, 2) AS is_max_correct, 
+	TO_TIMESTAMP(th1.min_sys) as current_hour_min, TO_TIMESTAMP(th2.min_sys) AS prvs_hour_min, ROUND((th1.min_sys - th2.min_sys) :: NUMERIC(10,2) / 60, 2) AS is_min_correct,
+	ROUND((th1.min_sys - th2.max_sys) :: NUMERIC(10,2) / 60, 2) AS is_cross_hour_sequence_correct
+FROM 	  (SELECT *, ROW_NUMBER() OVER(ORDER BY bronze_folderpath) AS rn FROM aggr_trxns_by_hour) as th1
+LEFT JOIN (SELECT *, ROW_NUMBER() OVER(ORDER BY bronze_folderpath) AS rn FROM aggr_trxns_by_hour) as th2
+	ON th2.rn = th1.rn - 1
+ORDER BY th1.bronze_folderpath;
+
+
+WITH aggr_trxns_by_hour AS (
+	SELECT (to_char(orderdateutc :: TIMESTAMP, 'YYYYMMDDHH24'::TEXT))::INTEGER AS dateid, 
+		MAX(syscosmosts) as max_sys, MIN(syscosmosts) as min_sys,
+		MAX(createddate) as max_etl, MIN(createddate) as min_etl
+	FROM fact.transactionheader
+	WHERE dateid >= 2026050100 AND dateid <= 2026060100
+	  AND orderstatus = 'order-placed'
+	GROUP BY (to_char(orderdateutc :: TIMESTAMP, 'YYYYMMDDHH24'::TEXT))::INTEGER
+)
+SELECT th1.dateid, th2.dateid AS prvs_folderpath,
+	TO_TIMESTAMP(th1.max_sys) as current_hour_max, TO_TIMESTAMP(th2.max_sys) AS prvs_hour_max, ROUND((th1.max_sys - th2.max_sys) :: NUMERIC(10,2) / 60, 2) AS is_max_correct, 
+	TO_TIMESTAMP(th1.min_sys) as current_hour_min, TO_TIMESTAMP(th2.min_sys) AS prvs_hour_min, ROUND((th1.min_sys - th2.min_sys) :: NUMERIC(10,2) / 60, 2) AS is_min_correct,
+	ROUND((th1.min_sys - th2.max_sys) :: NUMERIC(10,2) / 60, 2) AS is_cross_hour_sequence_correct,
+	th1.min_etl, th1.max_etl, th2.min_etl, th2.max_etl
+FROM 	  (SELECT *, ROW_NUMBER() OVER(ORDER BY dateid) AS rn FROM aggr_trxns_by_hour) as th1
+LEFT JOIN (SELECT *, ROW_NUMBER() OVER(ORDER BY dateid) AS rn FROM aggr_trxns_by_hour) as th2
+	ON th2.rn = th1.rn - 1
+ORDER BY th1.dateid;
 
 WITH trxn_by_day_parts AS (
 	SELECT *, 

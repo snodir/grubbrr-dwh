@@ -15,8 +15,8 @@ ORDER by createdon desc;
 
 SELECT * 
 FROM dim.organization
-WHERE id = 'loc-0be64e65-c6e8-460f-bc14-6c5558eef57e'
-
+WHERE id = 'loc-73ad6e86-1f5c-4123-adbb-4b12339ea171' -- Charlotte - 1020, Bojangles 'loc-0be64e65-c6e8-460f-bc14-6c5558eef57e'
+--loc-73ad6e86-1f5c-4123-adbb-4b12339ea171	1020 - Charlotte, NC	2810, Coliseum Centre Drive, Eagle Lake, Mecklenburg County, 3252 True	America/New_York	(-80.9155219,35.1894515)
 SELECT DISTINCT o.id, o.name, k.kioskid, k.kioskname, o.organizationtype, 
        k.appversion as kiosk_app_version, k.istestkiosk, k.devicedeletedon,
        o.status as loc_status,

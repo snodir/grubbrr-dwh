@@ -85,7 +85,7 @@ WITH part as (
       AND th.frequentcustomerid is not null
 ), dayparts AS (
     SELECT th.frequentcustomerid, ti.transactionheaderid, ti.itemid, ti.locationid, th.orderdatelocal,
-        CASE WHEN ti.itemtype = 'item' AND ti.dimmenuitemid is not null THEN ti.dimmenuitemid
+        CASE WHEN ti.itemtype = 'item' AND ti.dimmenuitemid IS NOT NULL THEN ti.dimmenuitemid
              WHEN ti.itemtype <> 'item' AND ti.comboid is not null THEN ti.comboid end as dimmenuitemid,
         CASE 
             WHEN EXTRACT(HOUR FROM th.orderdatelocal) BETWEEN 6 AND 10  THEN 'Breakfast'
@@ -1041,7 +1041,7 @@ BEGIN
           AND stg.application   = 'nge'
           AND stg.token         > ''
           AND stg.token         IS NOT NULL
-          AND stg.syscosmosts   > v_watermark
+          --AND stg.syscosmosts   > v_watermark --Removed this logic after realizing that cross-hour syscosmosts values can't always be reliable, 2026-07-03
           AND (
                   (LOWER(stg.eventcategory) = 'session'  AND LOWER(stg.eventtype) = 'started')
                OR (LOWER(stg.eventcategory) = 'service'  AND LOWER(stg.eventtype) = 'select')
@@ -1237,7 +1237,12 @@ BEGIN
         WHERE ke.eventcategory = 'Survey'
           AND ke.eventtype     = 'Sent'
           AND ke.token         > ''
-          AND ke.syscosmosts   > v_max_gem_syscosmosts
+          --AND ke.syscosmosts   > v_max_gem_syscosmosts
+          AND NOT EXISTS (
+            SELECT 1 FROM fact.sent_surveys AS fs
+            WHERE fs.locationid     = ke.locationid
+              AND fs.ordersessionid = ke.token
+            )        
         ORDER BY locationid, token, syscosmosts DESC
 
     )
@@ -1269,12 +1274,7 @@ BEGIN
     FROM delta_sent AS ds
     LEFT JOIN dim.organizationlocation AS ol
         ON  ol.locationid       = ds.locationid
-        AND ol.organizationtype = 0
-    WHERE NOT EXISTS (
-        SELECT 1 FROM fact.sent_surveys AS fs
-        WHERE fs.locationid     = ds.locationid
-          AND fs.ordersessionid = ds.ordersessionid
-    );
+        AND ol.organizationtype = 0;
 
     UPDATE fact.watermarktable
     SET ts = (SELECT COALESCE(MAX(gem_syscosmosts), 1775002010) FROM fact.sent_surveys),
@@ -1410,7 +1410,7 @@ BEGIN
         FROM  stg.silver_kiosk_events AS stg
         WHERE LOWER(stg.eventtype)  = 'usercheckedin'
           AND LOWER(stg.severity)   = 'information'
-          AND stg.syscosmosts        > v_watermark
+          --AND stg.syscosmosts        > v_watermark
           AND stg.data               IS NOT NULL
           AND EXISTS (
                   SELECT 1
@@ -2545,7 +2545,7 @@ DECLARE
     v_max_nge_syscosmosts BIGINT;
 BEGIN
 
-    SELECT COALESCE(ts, 1775002010) - 10
+    SELECT COALESCE(ts, 1775002010) - 86400
     INTO v_max_nge_syscosmosts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.itemssurvey'
@@ -2565,7 +2565,7 @@ BEGIN
             surveycompletedtimestamp,
             nge_syscosmosts
         FROM stg.fact_itemssurvey
-        WHERE nge_syscosmosts > v_max_nge_syscosmosts
+        --WHERE nge_syscosmosts > v_max_nge_syscosmosts
         ORDER BY locationid, orderid, surveyid, itemid, nge_syscosmosts DESC
 
     )
@@ -2638,7 +2638,7 @@ DECLARE
     v_max_syscosmosts BIGINT;
 BEGIN
 
-    SELECT COALESCE(ts, 1775002010) - 10
+    SELECT COALESCE(ts, 1775002010) - 86400
     INTO v_max_syscosmosts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.recommendations'
@@ -2926,7 +2926,7 @@ DECLARE
     v_max_gem_syscosmosts BIGINT;
 BEGIN
 
-    SELECT COALESCE(ts, 1775002010) - 10
+    SELECT COALESCE(ts, 1775002010) - 86400
     INTO v_max_gem_syscosmosts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.itemssurvey'
@@ -3190,7 +3190,7 @@ BEGIN
         AND dk.istestkiosk = false
     WHERE ke.eventcategory IN ('Order', 'insight')
       AND ke.eventtype     IN ('Cancelled', 'OrderCancelled', 'Abandoned', 'Exception')
-      AND ke.syscosmosts   > v_max_syscosmosts
+      --AND ke.syscosmosts   > v_max_syscosmosts
       -- Skip sessions already written as aborted orders
       AND NOT EXISTS (
           SELECT 1 FROM fact.transactionheader AS th
@@ -3449,7 +3449,7 @@ BEGIN
           AND options_modifierid      IS NOT NULL
           AND options_modifiergroupid IS NOT NULL
           AND orderitemid             IS NOT NULL
-          AND syscosmosts > v_max_syscosmosts
+          --AND syscosmosts > v_max_syscosmosts  --Removed this logic after realizing that cross-hour syscosmosts values can't always be reliable, 2026-07-03
         ORDER BY
             transactionheaderid,
             orderitemid,
@@ -3568,13 +3568,13 @@ BEGIN
             ske.syscosmosticks,
             ske.syscosmosts
         FROM stg.silver_kiosk_events            AS ske
-        WHERE ske.syscosmosts > v_max_syscosmosts
-          AND EXISTS (
+        WHERE EXISTS (
                 SELECT 1
                 FROM dim.organizationlocation   AS ol
                 WHERE ol.locationid     = ske.locationid
                   AND ol.organizationid = ske.companyid
               )
+          --AND ske.syscosmosts > v_max_syscosmosts
         ORDER BY
             ske.locationid,
             COALESCE(NULLIF(ske.token, ''), NULLIF(ske.device, ''), ske.syscosmosticks :: TEXT),         
@@ -3695,7 +3695,7 @@ BEGIN
         FROM stg.silver_kiosk_events AS ske
         WHERE ske.eventmodule    = 'kiosk'
           AND ske.eventcategory IN ('insight', 'Order', 'StoreTiming', 'BusinessHours', 'Session')
-          AND ske.syscosmosts    > v_max_syscosmosts
+          --AND ske.syscosmosts    > v_max_syscosmosts
           AND EXISTS (
                 SELECT 1
                 FROM dim.organization AS o
@@ -3892,13 +3892,13 @@ BEGIN
             stg.notificationtypeid,
             stg.syscosmosts
         FROM stg.gem_failed_order_job_notifications     AS stg
-        WHERE stg.syscosmosts   > v_max_syscosmosts
-          AND NOT EXISTS (
+        WHERE NOT EXISTS (
                 SELECT 1
                 FROM fact.gem_failed_order_job_notifications    AS f
                 WHERE f.incidentid = stg.incidentid :: BIGINT
                   AND f.eventtoken = stg.eventtoken
               )
+          --AND stg.syscosmosts   > v_max_syscosmosts
         ORDER BY
             stg.incidentid,
             stg.eventtoken,
@@ -3999,8 +3999,7 @@ BEGIN
             sci.data,
             sci.syscosmosts
         FROM stg.silver_cep_incidents               AS sci
-        WHERE sci.syscosmosts   > v_max_syscosmosts
-          AND NOT EXISTS (
+        WHERE NOT EXISTS (
                 SELECT 1
                 FROM fact.cep_incidents              AS ci
                 WHERE ci.incidentkey = sci.id :: BIGINT
@@ -4012,6 +4011,7 @@ BEGIN
                 WHERE ol.locationid     = sci.locationid
                   AND ol.organizationid = sci.companyid
               )
+          --AND sci.syscosmosts   > v_max_syscosmosts
         ORDER BY
             sci.id,
             sci.token,
@@ -4141,7 +4141,7 @@ BEGIN
         FROM stg.silver_modifier_impressions
         WHERE (is_test_order = FALSE OR is_test_order IS NULL)
           AND modifierid IS NOT NULL
-          AND syscosmosts > v_watermark_impressions
+          --AND syscosmosts > v_watermark_impressions  --Removed this logic after realizing that cross-hour syscosmosts values can't always be reliable, 2026-07-03
         ORDER BY
             locationid,
             transactionheaderid,
@@ -4243,13 +4243,13 @@ BEGIN
     -- ----------------------------------------------------------
     -- Capture both watermarks upfront before any DML
     -- ----------------------------------------------------------
-    SELECT COALESCE(ts, 1775002010) - 10
+    SELECT COALESCE(ts, 1775002010) - 86400
     INTO v_watermark_interactions
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.modifier_interactions'
       AND source             = 'nge-Interactions';
 
-    SELECT COALESCE(ts, 1775002010) - 10
+    SELECT COALESCE(ts, 1775002010) - 86400
     INTO v_watermark_options
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.modifier_interactions'
@@ -4288,7 +4288,7 @@ BEGIN
             sysinserttime
         FROM stg.silver_modifier_interactions
         WHERE (is_test_order = FALSE OR is_test_order IS NULL)
-          AND syscosmosts > v_watermark_interactions
+          --AND syscosmosts > v_watermark_interactions  --Removed this logic after realizing that cross-hour syscosmosts values can't always be reliable, 2026-07-03
         ORDER BY
             transactionheaderid,
             modifiergroupid,
@@ -4470,7 +4470,7 @@ BEGIN
             syscosmosts
         FROM stg.silver_modifier_recommendations
         WHERE (is_test_order = FALSE OR is_test_order IS NULL)
-          AND syscosmosts        >  v_max_syscosmosts
+          --AND syscosmosts        >  v_max_syscosmosts  --Removed this logic after realizing that cross-hour syscosmosts values can't always be reliable, 2026-07-03
           -- mirror CosmosDB source filter: skip orders with no impressions data
           AND modifier_impressions IS NOT NULL
           AND modifier_impressions <> '[]'
@@ -4589,7 +4589,7 @@ BEGIN
             syscosmosts
         FROM stg.silver_transaction_header
         WHERE (is_test_order = False OR is_test_order IS NULL)
-          AND syscosmosts > v_max_syscosmosts
+          --AND syscosmosts > v_max_syscosmosts  --Removed this logic after realizing that cross-hour syscosmosts values can't always be reliable, 2026-07-03
         ORDER BY locationid, transactionheaderid, orderdateutc DESC
 
     ), qualified_trxns AS (
@@ -4850,8 +4850,8 @@ BEGIN
                 frequentcustomerid,
                 syscosmosts
             FROM stg.silver_transaction_item
-            WHERE syscosmosts > v_max_syscosmosts
-              AND (is_test_order = false OR is_test_order IS NULL)
+            WHERE (is_test_order = false OR is_test_order IS NULL)
+              --AND syscosmosts > v_max_syscosmosts 
             ORDER BY
                 transactionheaderid,
                 COALESCE(orderitemid, itemsessionid, menuitemid),
@@ -4887,8 +4887,8 @@ BEGIN
                 frequentcustomerid,
                 syscosmosts
             FROM stg.silver_transaction_combo_items
-            WHERE syscosmosts > v_max_syscosmosts
-              AND (is_test_order = false OR is_test_order IS NULL)
+            WHERE (is_test_order = false OR is_test_order IS NULL)
+              --AND syscosmosts > v_max_syscosmosts 
             ORDER BY
                 transactionheaderid,
                 combo_order_item_id,
@@ -4924,8 +4924,8 @@ BEGIN
                 frequentcustomerid,
                 syscosmosts
             FROM stg.silver_transaction_combo_items
-            WHERE syscosmosts > v_max_syscosmosts
-              AND (is_test_order = false OR is_test_order IS NULL)
+            WHERE (is_test_order = false OR is_test_order IS NULL)
+              --AND syscosmosts > v_max_syscosmosts 
               AND component_item_order_item_id IS NOT NULL
               AND component_item_name          IS NOT NULL
             ORDER BY
@@ -5166,7 +5166,7 @@ BEGIN
             syscosmosts
         FROM stg.silver_transaction_payment
         WHERE (is_test_order = False OR is_test_order IS NULL)
-          AND syscosmosts > v_max_syscosmosts
+          --AND syscosmosts > v_max_syscosmosts     --Removed this logic after realizing that cross-hour syscosmosts values can't always be reliable, 2026-07-03
         ORDER BY locationid, transactionheaderid, payment_transactionid, syscosmosts DESC
     )
     INSERT INTO fact.transactionpayment (
@@ -5259,11 +5259,11 @@ BEGIN
             fact.parse_iso_timestamp(orderdateutc) AS orderdateutc,
             syscosmosts
         FROM stg.silver_transaction_refunds as tr
-        WHERE syscosmosts > v_watermark
-        AND EXISTS (SELECT 1 FROM fact.transactionpayment as tp 
+        WHERE EXISTS (SELECT 1 FROM fact.transactionpayment as tp 
                     WHERE tp.locationid = tr.locationid
                       AND tp.orderid    = tr.orderid
                     )
+          --AND syscosmosts > v_max_syscosmosts 
         ORDER BY locationid, transactionheaderid, syscosmosts DESC
     )
     INSERT INTO fact.transactionrefunds (
@@ -5354,7 +5354,7 @@ DECLARE
     v_max_syscosmosts BIGINT;
 BEGIN
 
-    SELECT COALESCE(ts, 1775002010) - 10
+    SELECT COALESCE(ts, 1775002010) - 86400
     INTO v_max_syscosmosts
     FROM fact.watermarktable
     WHERE watermarktablename = 'fact.recommendations'
@@ -5377,8 +5377,8 @@ BEGIN
             prompttimestamp,
             syscosmosts
         FROM stg.silver_upsell_recommendations
-        WHERE syscosmosts > v_max_syscosmosts
-          AND (is_test_order = false OR is_test_order IS NULL)
+        WHERE (is_test_order = false OR is_test_order IS NULL)
+        --AND syscosmosts > v_max_syscosmosts 
           AND recommendationid IS NOT NULL
           AND offered_items    IS NOT NULL
         ORDER BY
@@ -5511,15 +5511,16 @@ BEGIN
     INNER JOIN dim.occasionsurvey AS os
         ON  os.organizationid = ol.organizationid
         AND os.surveyid       = stg.surveyid
-    WHERE stg.syscosmosts   > v_max_syscosmosts_nge
-    AND NOT EXISTS (
+    WHERE NOT EXISTS (
         SELECT 1
         FROM fact.occasionsurveydetail AS f
         WHERE f.locationid      = stg.locationid
             AND f.surveytransid = stg.surveytransid
             AND f.orderid       = stg.orderid
             AND f.sourceid      = 2
-    );
+        )
+      --AND syscosmosts > v_max_syscosmosts 
+    ;
 
     -- ================================================================
     -- Stream 2: GEM Skipped Surveys (sourceid = 2)      [MODIFIED]
@@ -5547,7 +5548,7 @@ BEGIN
           AND eventcategory             = 'Survey'
           AND eventtype                 = 'SurveySkipped'
           AND token                     > ''
-          AND syscosmosts               > v_max_syscosmosts_gem
+          --AND syscosmosts               > v_max_syscosmosts_gem   --Removed this logic after realizing that cross-hour syscosmosts values can't always be reliable, 2026-07-03
         ORDER BY locationid, token, syscosmosts DESC
 
     )
