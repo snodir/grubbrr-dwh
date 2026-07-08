@@ -1,4 +1,5 @@
 CALL fact.usp_update_datetime_fields();
+CALL fact.usp_update_occasion_survey_datetime_fields();
 SELECT 1 as rn;
 
 CREATE OR REPLACE PROCEDURE fact.usp_update_datetime_fields()

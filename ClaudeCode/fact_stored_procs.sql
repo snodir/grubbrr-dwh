@@ -2554,7 +2554,7 @@ BEGIN
 
     WITH delta_responses AS (
 
-        SELECT DISTINCT ON (locationid, orderid, surveyid, itemid)
+        SELECT DISTINCT ON (locationid, orderid, itemid, surveyid, surveytransid)
             locationid,
             orderid,
             surveyid,
@@ -2562,11 +2562,11 @@ BEGIN
             itemid,
             itemrating,
             surveytransstatus,
-            surveycompletedtimestamp,
+            COALESCE(surveycompletedtimestamp, TO_TIMESTAMP(nge_syscosmosts) :: TEXT) AS surveycompletedtimestamp,
             nge_syscosmosts
         FROM stg.fact_itemssurvey
         --WHERE nge_syscosmosts > v_max_nge_syscosmosts
-        ORDER BY locationid, orderid, surveyid, itemid, nge_syscosmosts DESC
+        ORDER BY locationid, orderid, itemid, surveyid, surveytransid, nge_syscosmosts DESC
 
     )
     UPDATE fact.itemssurvey AS f
@@ -2584,7 +2584,7 @@ BEGIN
     INNER JOIN fact.transactionheader AS th
         ON  th.locationid          = dr.locationid
         AND th.transactionheaderid = dr.orderid
-        AND th.orderstatus         = 'order-placed'
+        --AND th.orderstatus         = 'order-placed'
     INNER JOIN dim.organizationlocation AS ol
         ON  ol.locationid       = dr.locationid
         AND ol.organizationtype = 0
@@ -2593,8 +2593,9 @@ BEGIN
         AND os.surveyid       = dr.surveyid
     WHERE f.locationid    = dr.locationid
       AND f.orderid       = dr.orderid
-      AND f.surveyid      = dr.surveyid
       AND f.itemid        = dr.itemid
+      AND f.surveyid      = dr.surveyid
+      --AND f.surveytransid = dr.surveytransid
       AND f.sysupdatetime IS NULL;
 
     UPDATE fact.watermarktable
@@ -3050,9 +3051,9 @@ BEGIN
 
     )
     INSERT INTO temp_delta_sent_surveys
-    SELECT DISTINCT ON (locationid, transactionheaderid, surveyid, itemid) * 
+    SELECT DISTINCT ON (locationid, transactionheaderid, itemid, surveyid) * 
     FROM joined_surveys_with_items
-    ORDER BY locationid, transactionheaderid, surveyid, itemid, gem_syscosmosts DESC;
+    ORDER BY locationid, transactionheaderid, itemid, surveyid, gem_syscosmosts DESC;
 
     INSERT INTO fact.itemssurvey (
         organizationid,
@@ -3090,11 +3091,10 @@ BEGIN
     FROM temp_delta_sent_surveys AS tds
     WHERE NOT EXISTS (
         SELECT 1 FROM fact.itemssurvey AS its
-        WHERE its.organizationid = tds.organizationid
-          AND its.locationid     = tds.locationid
+        WHERE its.locationid     = tds.locationid
           AND its.orderid        = tds.transactionheaderid
-          AND its.surveyid       = tds.surveyid
           AND its.itemid         = tds.itemid
+          AND its.surveyid       = tds.surveyid
     )
       AND EXISTS (
         SELECT 1 FROM fact.transactionheader AS th
@@ -5481,30 +5481,31 @@ BEGIN
         syscosmosts,
         sourceid
     )
-    SELECT DISTINCT ON (stg.locationid, stg.surveytransid, stg.orderid)
+    SELECT DISTINCT ON (stg.locationid, stg.orderid, stg.surveyid, stg.surveytransid)
         ol.organizationid,
         stg.locationid,
         stg.dateid,
         stg.surveyid,
         stg.surveytransid,
         stg.orderid,
-        COALESCE(stg.ordersessionid, th.ordersessionid)                     AS ordersessionid,
+        COALESCE(stg.ordersessionid, th.ordersessionid)                       AS ordersessionid,
         stg.surveyrating,
         stg.surveytransstatus,
-        stg.surveycompletedtimestamp,
+        COALESCE(stg.surveycompletedtimestamp, 
+                 TO_TIMESTAMP(stg.syscosmosts) :: TEXT)                       AS surveycompletedtimestamp,
         stg.surveylocaltimestamp,
         COALESCE(
             stg.surveytype,
             CASE WHEN stg.surveyrating ~ '^\d+$' THEN 1 ELSE 2 END
-        )                                                                   AS surveytype,
-        now() :: TIMESTAMP                                                  AS sysinserttime,
+        )                                                                     AS surveytype,
+        now() :: TIMESTAMP                                                    AS sysinserttime,
         stg.syscosmosts,
-        1                                                                   AS sourceid
+        1                                                                     AS sourceid
     FROM stg.fact_occasionsurveydetail AS stg
     INNER JOIN fact.transactionheader AS th
         ON  th.locationid          = stg.locationid
         AND th.transactionheaderid = stg.orderid
-        AND th.orderstatus         = 'order-placed'
+        --AND th.orderstatus         = 'order-placed'
     LEFT JOIN dim.organizationlocation AS ol
         ON  ol.locationid       = stg.locationid
         AND ol.organizationtype = 0
@@ -5514,13 +5515,14 @@ BEGIN
     WHERE NOT EXISTS (
         SELECT 1
         FROM fact.occasionsurveydetail AS f
-        WHERE f.locationid      = stg.locationid
-            AND f.surveytransid = stg.surveytransid
-            AND f.orderid       = stg.orderid
-            AND f.sourceid      = 2
+        WHERE f.locationid    = stg.locationid
+          AND f.orderid       = stg.orderid
+          AND f.surveyid      = stg.surveyid
+          AND f.surveytransid = stg.surveytransid
+          AND f.sourceid      = 1
         )
       --AND syscosmosts > v_max_syscosmosts 
-    ;
+    ORDER BY stg.locationid, stg.orderid, stg.surveyid, stg.surveytransid, stg.syscosmosts DESC;
 
     -- ================================================================
     -- Stream 2: GEM Skipped Surveys (sourceid = 2)      [MODIFIED]
@@ -5583,9 +5585,9 @@ BEGIN
     WHERE NOT EXISTS (
         SELECT 1
         FROM fact.occasionsurveydetail AS f
-        WHERE f.locationid    = ds.locationid
+        WHERE f.locationid     = ds.locationid
           AND f.ordersessionid = ds.ordersessionid
-          AND f.sourceid      = 2
+          AND f.sourceid       = 2
     );
 
     UPDATE fact.watermarktable
@@ -5682,50 +5684,78 @@ CREATE OR REPLACE PROCEDURE fact.usp_update_occasion_survey_datetime_fields()
 
 BEGIN
 
+--fact.occasionsurveydetail
 UPDATE fact.occasionsurveydetail
 SET organizationid = ol.organizationid
 FROM (select * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
 WHERE occasionsurveydetail.locationid = ol.locationid 
-  and occasionsurveydetail.organizationid is null;
+  and occasionsurveydetail.organizationid IS NULL;
+
+
+UPDATE fact.occasionsurveydetail
+   SET surveycompletedtimestamp = COALESCE(surveycompletedtimestamp, TO_TIMESTAMP(syscosmosts) :: TEXT)
+WHERE  surveycompletedtimestamp IS NULL;
+
+
+UPDATE fact.occasionsurveydetail
+SET surveylocaltimestamp = surveycompletedtimestamp :: TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, CASE WHEN timezone IS NULL OR timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
+WHERE occasionsurveydetail.locationid = l.locationid
+  and occasionsurveydetail.surveylocaltimestamp IS NULL;
+
+UPDATE fact.occasionsurveydetail
+SET surveylocaltimestamp = surveycompletedtimestamp :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'
+WHERE surveylocaltimestamp IS NULL;
+
+UPDATE fact.occasionsurveydetail
+SET dateid = COALESCE(CAST(TO_CHAR(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER),
+                      CAST(TO_CHAR((surveyissuedtimestamp :: TIMESTAMPTZ AT TIME ZONE l.timezone), 'YYYYMMDDHH24') as INTEGER)
+                     )
+FROM (SELECT id as locationid, CASE WHEN timezone IS NULL OR timezone='' THEN 'America/New_York' ELSE timezone END as timezone 
+      FROM dim.organization) as l 
+WHERE occasionsurveydetail.locationid = l.locationid
+  AND occasionsurveydetail.dateid     IS NULL;
+
+
+--fact.itemssurvey
 
 UPDATE fact.itemssurvey
 SET organizationid = ol.organizationid
 FROM (select * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
 WHERE itemssurvey.locationid = ol.locationid 
-  and itemssurvey.organizationid is null;
+  and itemssurvey.organizationid IS NULL;
 
-UPDATE fact.occasionsurveydetail
-SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone
-FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
-WHERE occasionsurveydetail.locationid = l.locationid
-  and occasionsurveydetail.surveylocaltimestamp is null;
-
-UPDATE fact.occasionsurveydetail
-SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'
-WHERE surveylocaltimestamp is null;
 
 UPDATE fact.itemssurvey
-SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE l.timezone
-FROM (select distinct locationid, case when timezone is null or timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
+SET    surveycompletedtimestamp = COALESCE(surveycompletedtimestamp, TO_TIMESTAMP(nge_syscosmosts) :: TEXT)
+WHERE  surveycompletedtimestamp IS NULL;
+
+UPDATE fact.itemssurvey
+SET surveylocaltimestamp = surveycompletedtimestamp :: TIMESTAMPTZ AT TIME ZONE l.timezone
+FROM (select distinct locationid, case when timezone IS NULL OR timezone='' then 'America/New_York' else timezone end as timezone FROM dim.location) as l
 WHERE itemssurvey.locationid = l.locationid
-  and itemssurvey.surveylocaltimestamp is null;
+  and itemssurvey.surveylocaltimestamp IS NULL;
 
 UPDATE fact.itemssurvey
-SET surveylocaltimestamp = surveycompletedtimestamp::TIMESTAMPTZ AT TIME ZONE 'America/New_York'
-WHERE surveylocaltimestamp is null;
+SET surveylocaltimestamp = surveycompletedtimestamp :: TIMESTAMPTZ AT TIME ZONE 'America/New_York'
+WHERE surveylocaltimestamp IS NULL;
 
-UPDATE fact.occasionsurveydetail
-SET dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)
-WHERE dateid is null;
 
 UPDATE fact.itemssurvey
-SET dateid = cast(to_char(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER)
-WHERE dateid is null;
+SET dateid = COALESCE(CAST(TO_CHAR(surveylocaltimestamp, 'YYYYMMDDHH24') as INTEGER),
+                      CAST(TO_CHAR((surveyissuedtimestamp :: TIMESTAMPTZ AT TIME ZONE l.timezone), 'YYYYMMDDHH24') as INTEGER)
+                     )
+FROM (SELECT id as locationid, CASE WHEN timezone IS NULL OR timezone='' THEN 'America/New_York' ELSE timezone END as timezone 
+      FROM dim.organization) as l 
+WHERE itemssurvey.locationid = l.locationid
+  AND itemssurvey.dateid     IS NULL;
 
+/*
 DELETE FROM fact.occasionsurveydetail as osd
 WHERE NOT EXISTS (SELECT 1 FROM dim.occasionsurvey as os 
                 WHERE os.organizationid = osd.organizationid
                   AND os.surveyid = osd.surveyid);
+*/
 
 DELETE FROM fact.itemssurvey as its 
 WHERE NOT EXISTS (SELECT 1 FROM dim.occasionsurvey as os 

@@ -34,9 +34,9 @@ deviceeventuidx	                61 GB	      0	        0	                    0
 ix_deviceevent_journey_lookup	  286 MB	    0	        0	                    0
 
 table_name        table_only    indexes     total_with_indexes index_name                      index_size  times_used  rows_read_from_index    rows_fetched_from_table
-fact.deviceevent	103 GB	      63 GB	      292 GB	           deviceeventidx	                 2048 MB	0	0	0	19896	19901	fact	deviceevent	deviceeventidx	0	NULL	0	0
-fact.deviceevent	103 GB	      63 GB	      292 GB	           deviceeventuidx	               61 GB	0	0	0	19896	19902	fact	deviceevent	deviceeventuidx	0	NULL	0	0
-fact.deviceevent	103 GB	      63 GB	      292 GB	           ix_deviceevent_journey_lookup	 286 MB	0	0	0	19896	23803773	fact	deviceevent	ix_deviceevent_journey_lookup	0	NULL	0	0
+fact.deviceevent	103 GB	      63 GB	      292 GB	           deviceeventidx	                 2048 MB	   0	         0	  0	            19896	19901	fact	deviceevent	deviceeventidx	0	NULL	0	0
+fact.deviceevent	103 GB	      63 GB	      292 GB	           deviceeventuidx	               61 GB	     0	         0	  0	19896	19902	fact	deviceevent	deviceeventuidx	0	NULL	0	0
+fact.deviceevent	103 GB	      63 GB	      292 GB	           ix_deviceevent_journey_lookup	 286 MB	     0	         0	  0	19896	23803773	fact	deviceevent	ix_deviceevent_journey_lookup	0	NULL	0	0
 
 =======Stage GAS after De-dup============
 fact.deviceevent	80 GB	        25 GB	      203 GB	           deviceeventidx	1529 MB	797	232873769	183458282	546025	546030	fact	deviceevent	deviceeventidx	797	2026-06-29 04:31:03.071979+00	232873769	183458282

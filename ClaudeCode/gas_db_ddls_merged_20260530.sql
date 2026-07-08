@@ -1375,7 +1375,8 @@ ALTER TABLE IF EXISTS dim.organization OWNER TO citus;
 ALTER TABLE IF EXISTS dim.organization
 ADD COLUMN IF NOT EXISTS cep_subscriptions TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
-ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
+ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP,
+ALTER COLUMN timezone TYPE TEXT;
 
 --
 -- TOC entry 384 (class 1259 OID 32888)

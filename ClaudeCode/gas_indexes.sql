@@ -955,8 +955,9 @@ CREATE INDEX IF NOT EXISTS deviceeventidx ON fact.deviceevent USING btree (compa
 -- TOC entry 6176 (class 1259 OID 32928)
 -- Name: deviceeventuidx; Type: INDEX; Schema: fact; Owner: citus
 --
+--Removed this index deviceeventuidx entirely since it has been used 0 times
 
-CREATE INDEX IF NOT EXISTS deviceeventuidx ON fact.deviceevent USING btree (application, companyid, locationid, moduleid, eventtoken, datacategory, actiontype, eventinstant);
+--CREATE INDEX IF NOT EXISTS deviceeventuidx ON fact.deviceevent USING btree (application, companyid, locationid, moduleid, eventtoken, datacategory, actiontype, eventinstant);
 
 
 --

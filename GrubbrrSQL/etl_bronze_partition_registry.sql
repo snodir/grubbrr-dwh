@@ -21,8 +21,8 @@ SELECT * --DELETE
 FROM etl.bronze_partition_registry
 WHERE 1=1 
   AND entity = 'orders'
-  AND dateid BETWEEN 2026070100 AND 2026070123 -- 2026060708 AND 2026060807
-  --AND status IN ('completed', 'not found')
+  --AND dateid BETWEEN 2026070100 AND 2026070123 -- 2026060708 AND 2026060807
+  AND status IN ('completed', 'not found')
 ORDER BY dateid DESC
 LIMIT 50;
 

@@ -207,20 +207,27 @@ SELECT
 FROM enriched;
 
 
-WITH dupl_records AS (
-SELECT sourceelementid, elementname, count(*) as dupl_count
+SELECT sourceelementid, elementname, COUNT(*)
+    --COUNT(*) OVER(PARTITION BY sourceelementid, elementname) as dupl_count
 FROM dim.element
 GROUP BY sourceelementid, elementname
 HAVING count(*) > 1
+
+
+WITH dupl_records AS (
+SELECT *, --sourceelementid, elementname, COUNT(*)
+  count(*) OVER(PARTITION BY sourceelementid, elementname) as dupl_count
+FROM dim.element
+--GROUP BY sourceelementid, elementname
+--HAVING count(*) > 1
 ), flattened_duplicates AS (
 SELECT *, ROW_NUMBER() OVER(PARTITION BY sourceelementid, elementname ORDER BY elementid) as row_num
 FROM dim.element as el 
 WHERE EXISTS(SELECT 1 FROM dupl_records as dr 
-             WHERE dr.sourceelementid = el.sourceelementid
-               AND dr.elementname     = el.elementname)
+             WHERE el.elementid = dr.elementid)
 --ORDER BY el.sourceelementid, el.elementname
 )
-SELECT *-- DELETE 
+SELECT *-- DELETE --
 FROM dim.element as el 
 WHERE EXISTS(SELECT 1 FROM flattened_duplicates as fd 
              WHERE fd.elementid = el.elementid
@@ -271,8 +278,8 @@ WHERE view.viewid = v.viewid;
 ALTER TABLE IF EXISTS dim.view
 ADD CONSTRAINT viewname_unq UNIQUE (viewname);
 
-SELECT * FROM dim.view    ORDER BY viewid    DESC LIMIT 100;
-SELECT * FROM dim.element ORDER BY elementid DESC LIMIT 100;
+SELECT * FROM dim.view    ORDER BY viewid    DESC LIMIT 1000;
+SELECT * FROM dim.element ORDER BY elementid DESC LIMIT 1000;
 
 SELECT viewname, COUNT(*)
 FROM dim.view
