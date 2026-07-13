@@ -1431,6 +1431,18 @@
                         },
                         {
                             "name": "GetItemID"
+                        },
+                        {
+                            "name": "RowNum2"
+                        },
+                        {
+                            "name": "filter2"
+                        },
+                        {
+                            "name": "RowNum1"
+                        },
+                        {
+                            "name": "filter1"
                         }
                     ],
                     "scriptLines": [
@@ -1783,10 +1795,10 @@
                         "          itemunitprice as double",
                         "     ),",
                         "     errors: true) ~> Casts",
-                        "OnlyNewItems, ExistingsOrders exists(CosmosOrdersItemsToPG@transactionheaderid == ExistingsOrders@transactionheaderid,",
+                        "filter1, ExistingsOrders exists(CosmosOrdersItemsToPG@transactionheaderid == ExistingsOrders@transactionheaderid,",
                         "     negate:false,",
                         "     broadcast: 'auto')~> ExistingOrdertems",
-                        "OnlyNewModifiers, ExistingsOrders exists(Modifiers@transactionheaderid == ExistingsOrders@transactionheaderid,",
+                        "filter2, ExistingsOrders exists(Modifiers@transactionheaderid == ExistingsOrders@transactionheaderid,",
                         "     negate:false,",
                         "     broadcast: 'auto')~> UseExistingModifiers",
                         "OnlyNewPayments, ExistingsOrders exists(CosmosOrdersPaymentsToPg@transactionheaderid == ExistingsOrders@transactionheaderid,",
@@ -1798,7 +1810,7 @@
                         "     ignoreSpaces: false,",
                         "     broadcast: 'auto')~> GETMenuID",
                         "ExistingOrders derive(itemtype = 'combocomponent',",
-                        "          itemquantity = case(toString(itemquantity) == '0' || toString(itemquantity) == 'false', toInteger(0),\r",
+                        "          itemquantity = case(toString(itemquantity) == '0' || toString(itemquantity) == 'false', toInteger(0),",
                         "case(toString(itemquantity) == '1' || toString(itemquantity) == 'true', toInteger(1), toInteger(toString(itemquantity))))) ~> derivedColumn1",
                         "derivedColumn1 select(mapColumn(",
                         "          transactionheaderid,",
@@ -1959,6 +1971,19 @@
                         "OnlyNeededElements derive(sysinserttime = currentTimestamp(),",
                         "          businessdate = toDate(substring(businessdate, 1, 10), 'yyyy-MM-dd')) ~> sysinserttime3",
                         "CosmosOrdersItemsToPG derive(itemid1 = coalesce(itemid1, itemsessionid1, menuitemid1)) ~> GetItemID",
+                        "OnlyNewModifiers window(over(transactionheaderid,",
+                        "          orderitemid,",
+                        "          modifiergroupid,",
+                        "          modifierid),",
+                        "     desc(syscosmosts, true),",
+                        "     row_num = rowNumber()) ~> RowNum2",
+                        "RowNum2 filter(row_num == 1) ~> filter2",
+                        "OnlyNewItems window(over(transactionheaderid,",
+                        "          itemid1,",
+                        "          itemname1),",
+                        "     desc(syscosmosts, true),",
+                        "     row_num = rowNumber()) ~> RowNum1",
+                        "RowNum1 filter(row_num == 1) ~> filter1",
                         "sysinserttime2 sink(allowSchemaDrift: true,",
                         "     validateSchema: false,",
                         "     input(",

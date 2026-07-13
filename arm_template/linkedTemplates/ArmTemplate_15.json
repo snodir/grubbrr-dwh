@@ -3689,7 +3689,7 @@
                         "typeProperties": {
                             "source": {
                                 "type": "AzurePostgreSqlSource",
-                                "query": "SELECT \r\n    dateid, \r\n    layer, \r\n    entity, \r\n    partition_path,\r\n    SUBSTRING(partition_path, 1, 21) as partition_date_path,\r\n    partition_date :: TEXT AS partition_date,\r\n    partition_year, \r\n    partition_month, \r\n    partition_day, \r\n    partition_hour,\r\n    SUBSTRING(partition_path, 23, 2) as partition_hh\r\nFROM etl.bronze_partition_registry\r\nWHERE entity = 'events'\r\n  --AND dateid >= 2026061408 AND dateid <= 2026061602\r\n  AND dateid > (SELECT coalesce(max(dateid), 2026060109)\r\n                FROM etl.bronze_partition_registry \r\n                WHERE entity = 'events' \r\n                  AND status IN ('completed','not found'))\r\n  AND dateid < TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER\r\n  AND status = 'pending'\r\nORDER BY dateid\r\nLIMIT 500;",
+                                "query": "SELECT \r\n    dateid, \r\n    layer, \r\n    entity, \r\n    partition_path,\r\n    SUBSTRING(partition_path, 1, 21) as partition_date_path,\r\n    partition_date :: TEXT AS partition_date,\r\n    partition_year, \r\n    partition_month, \r\n    partition_day, \r\n    partition_hour,\r\n    SUBSTRING(partition_path, 23, 2) as partition_hh\r\nFROM etl.bronze_partition_registry\r\nWHERE entity = 'events'\r\n  --AND dateid >= 2026061408 AND dateid <= 2026061602\r\n  AND dateid >= (SELECT coalesce(max(dateid), 2026060109)\r\n                FROM etl.bronze_partition_registry \r\n                WHERE entity = 'events' \r\n                  AND status IN ('completed','not found'))\r\n  AND dateid <= TO_CHAR(NOW(), 'YYYYMMDDHH24') :: INTEGER \r\n  --AND dateid < TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER\r\n  --AND status = 'pending'\r\nORDER BY dateid\r\nLIMIT 500;",
                                 "partitionOption": "None",
                                 "queryTimeout": "02:00:00"
                             },
@@ -5947,7 +5947,7 @@
                         "typeProperties": {
                             "source": {
                                 "type": "AzurePostgreSqlSource",
-                                "query": "SELECT \r\n    dateid, \r\n    layer, \r\n    entity, \r\n    partition_path,\r\n    SUBSTRING(partition_path, 1, 21) as partition_date_path,\r\n    partition_date :: TEXT AS partition_date,\r\n    partition_year, \r\n    partition_month, \r\n    partition_day, \r\n    partition_hour,\r\n    SUBSTRING(partition_path, 23, 2) as partition_hh\r\nFROM etl.bronze_partition_registry\r\nWHERE entity = 'orders'\r\n  --AND dateid >= 2026061511 AND dateid <= 2026061602\r\n  AND dateid > (SELECT coalesce(max(dateid), 2026060109)\r\n                FROM etl.bronze_partition_registry \r\n                WHERE entity = 'orders' \r\n                  AND status IN ('completed','not found'))\r\n  AND dateid < TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER\r\n  AND status = 'pending'\r\nORDER BY dateid\r\nLIMIT 500;",
+                                "query": "SELECT \r\n    dateid, \r\n    layer, \r\n    entity, \r\n    partition_path,\r\n    SUBSTRING(partition_path, 1, 21) as partition_date_path,\r\n    partition_date :: TEXT AS partition_date,\r\n    partition_year, \r\n    partition_month, \r\n    partition_day, \r\n    partition_hour,\r\n    SUBSTRING(partition_path, 23, 2) as partition_hh\r\nFROM etl.bronze_partition_registry\r\nWHERE entity = 'orders'\r\n  --AND dateid >= 2026061511 AND dateid <= 2026061602\r\n  AND dateid >= (SELECT coalesce(max(dateid), 2026060109)\r\n                FROM etl.bronze_partition_registry \r\n                WHERE entity = 'orders' \r\n                  AND status IN ('completed','not found'))\r\n  AND dateid <= TO_CHAR(NOW(), 'YYYYMMDDHH24') :: INTEGER \r\n  --AND dateid < TO_CHAR((NOW() - INTERVAL '1 hour'), 'YYYYMMDDHH24') :: INTEGER\r\n  --AND status = 'pending'\r\nORDER BY dateid\r\nLIMIT 500;",
                                 "partitionOption": "None",
                                 "queryTimeout": "02:00:00"
                             },
@@ -18306,7 +18306,7 @@
                     }
                 },
                 "folder": {
-                    "name": "Master/ML"
+                    "name": "ML"
                 },
                 "annotations": [],
                 "lastPublishTime": "2025-07-15T13:24:48Z"
@@ -24046,7 +24046,7 @@
                         "type": "Lookup",
                         "dependsOn": [
                             {
-                                "activity": "CopyItemModfrMapping",
+                                "activity": "uspItemModifierSimilarityMatch",
                                 "dependencyConditions": [
                                     "Succeeded"
                                 ]
@@ -24077,6 +24077,42 @@
                             },
                             "firstRowOnly": false
                         }
+                    },
+                    {
+                        "name": "uspItemModifierSimilarityMatch",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "CopyItemModfrMapping",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "CALL ml.usp_refresh_item_modifier_matching(p_organizationid => '@{activity('OrgLocPath').output.firstRow.organizationid}');\nSELECT 1 AS rn;",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "mlTransactionsAnalyticsDb",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        }
                     }
                 ],
                 "policy": {
@@ -24097,7 +24133,7 @@
                     }
                 },
                 "folder": {
-                    "name": "Master/ML"
+                    "name": "ML"
                 },
                 "annotations": [],
                 "lastPublishTime": "2026-04-24T13:53:04Z"

@@ -17,7 +17,7 @@ SELECT CONCAT(schemaname, '.', relname) AS table_name,
 FROM pg_stat_user_indexes
 WHERE 1=1
   AND schemaname = 'fact'
-  AND relname    IN ('deviceevent', 'userbehaviour')
+  AND relname    IN ('deviceevent', 'userbehaviour', 'transactionheader')
 ORDER BY table_name;
 /*
 =======Stage GAS============

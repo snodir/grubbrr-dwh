@@ -1247,6 +1247,13 @@ CREATE INDEX IF NOT EXISTS ix_ml_trx_locid_yyyy_ww ON ml.transactions USING btre
 
 CREATE INDEX IF NOT EXISTS ix_ml_ua_businessdate ON ml.upsell_analysis USING btree (businessdate);
 
+CREATE INDEX IF NOT EXISTS ix_ml_trxn_businessdate ON ml.transactions USING btree (businessdate);
+
+CREATE INDEX IF NOT EXISTS ix_ml_trx_org_loc_item ON ml.transactions USING btree (organizationid, locationid, menuitemid) INCLUDE (item_class_type, itemunitprice);
+
+CREATE INDEX IF NOT EXISTS ix_ml_modfr_impressions_businessdate ON ml.modifier_impressions USING btree (businessdate);
+
+CREATE INDEX IF NOT EXISTS ix_ml_modfr_interactions_businessdate ON ml.modifier_interactions USING btree (businessdate);
 
 --
 -- TOC entry 6324 (class 1259 OID 3042199)

@@ -2642,15 +2642,15 @@ CREATE TABLE IF NOT EXISTS fact.ordertiming (
     paymentstart timestamp without time zone,
     paymentend timestamp without time zone,
     orderend timestamp without time zone,
-    starttomenu NUMERIC(9,3),
-    menutoitem NUMERIC(9,3),
-    itemtocheckout NUMERIC(9,3),
-    checkouttopayment NUMERIC(9,3),
-    paytopaid NUMERIC(9,3),
-    payendtoend NUMERIC(9,3),
-    starttocheckout NUMERIC(9,3),
-    checkouttoend NUMERIC(9,3),
-    totalordertime NUMERIC(9,3),
+    starttomenu NUMERIC(10,3),
+    menutoitem NUMERIC(10,3),
+    itemtocheckout NUMERIC(10,3),
+    checkouttopayment NUMERIC(10,3),
+    paytopaid NUMERIC(10,3),
+    payendtoend NUMERIC(10,3),
+    starttocheckout NUMERIC(10,3),
+    checkouttoend NUMERIC(10,3),
+    totalordertime NUMERIC(10,3),
     sysinserttime timestamp without time zone,
     syscosmosts bigint,
     sysupdatetime TIMESTAMP,
@@ -2667,15 +2667,15 @@ ALTER TABLE IF EXISTS fact.ordertiming OWNER TO citus;
 
 -- Schema evolution: fact.ordertiming
 ALTER TABLE IF EXISTS fact.ordertiming
-ALTER COLUMN starttomenu       TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN menutoitem        TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN itemtocheckout    TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN checkouttopayment TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN paytopaid         TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN payendtoend       TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN starttocheckout   TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN checkouttoend     TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN totalordertime    TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN starttomenu       TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN menutoitem        TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN itemtocheckout    TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN checkouttopayment TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN paytopaid         TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN payendtoend       TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN starttocheckout   TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN checkouttoend     TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN totalordertime    TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
@@ -2940,12 +2940,12 @@ ALTER COLUMN ordertip TYPE NUMERIC(12, 3),
 ALTER COLUMN orderdiscount TYPE NUMERIC(12, 3),
 ALTER COLUMN orderbalance TYPE NUMERIC(12, 3),
 ALTER COLUMN charityamount TYPE NUMERIC(12, 3),
-ALTER COLUMN precheckouttime TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN postcheckouttime TYPE NUMERIC(10,3),--Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN menupagetime TYPE NUMERIC(10,3),    --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN reviewpagetime TYPE NUMERIC(10,3),  --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN paymentpagetime TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN totalordertime TYPE NUMERIC(10,3),  --Changed NUMERIC(7,3) to NUMERIC(9,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN precheckouttime TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN postcheckouttime TYPE NUMERIC(10,3),--Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN menupagetime TYPE NUMERIC(10,3),    --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN reviewpagetime TYPE NUMERIC(10,3),  --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN paymentpagetime TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN totalordertime TYPE NUMERIC(10,3),  --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
 ADD COLUMN IF NOT EXISTS customername CHARACTER VARYING(100) COLLATE pg_catalog."default",
 ALTER COLUMN updateddate DROP NOT NULL,
 ALTER COLUMN updateddate DROP DEFAULT;

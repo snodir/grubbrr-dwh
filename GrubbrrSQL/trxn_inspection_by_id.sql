@@ -4,12 +4,14 @@ INNER JOIN dim.organizationlocation as ol
         ON ol.locationid       = th.locationid
        AND ol.organizationtype = 0
 WHERE 1=1 
-AND th.locationid = 'loc-137c453f-b207-441c-ad04-781f4982fa4d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+--AND th.locationid = 'loc-137c453f-b207-441c-ad04-781f4982fa4d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
 --AND th.transactionheaderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-KPMXKSRVLP86J2YR','ordevt-NMN4RZR6NQ31W8HW','ordevt-2MUIURL3MQPSDTWN')
 AND th.orderstatus = 'order-placed'
 AND th.businessdate >= '2026-06-22'
 ORDER BY th.orderdatelocal DESC
 LIMIT 1000;
+
+
 
 SELECT ol.organizationname, ol.locationname, ds.*
 FROM fact.devicestate as ds 
@@ -63,8 +65,26 @@ AND os.orderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-K
 
 SELECT * FROM dim.organizationlocation WHERE organizationid LIKE 'org-1211fa46%'
 
-SELECT * FROM fact.recommendations
-WHERE 1=1 AND locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
+
+SELECT th.businessdate, rc.* 
+FROM fact.recommendations as rc 
+INNER JOIN fact.transactionheader as th 
+    ON th.locationid          = rc.locationid
+   AND th.transactionheaderid = rc.transactionheaderid
+WHERE 1=1 
+AND rc.locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --Phoenix -  Camelback
+AND th.businessdate BETWEEN '2026-06-18' AND '2026-07-10'
+ORDER BY syscosmosts DESC
+LIMIT 100;
+
+SELECT th.businessdate, oa.* 
+FROM fact.vw_offer_analysis as oa 
+INNER JOIN fact.transactionheader as th 
+    ON th.locationid          = oa.locationid
+   AND th.transactionheaderid = oa.transactionheaderid
+WHERE 1=1 
+AND oa.locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --Phoenix -  Camelback
+AND th.businessdate BETWEEN '2026-06-18' AND '2026-07-10'
 ORDER BY syscosmosts DESC
 LIMIT 100;
 

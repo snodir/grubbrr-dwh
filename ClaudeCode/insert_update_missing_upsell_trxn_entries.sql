@@ -22,7 +22,26 @@ FROM fact.transactionheader as th
 WHERE th.locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' 
   AND th.transactionheaderid = 'ordevt-P5LOYP1V6SCAK6FP'
 
+SELECT *
+FROM fact.transactionitem
+WHERE 1=1 
+AND locationid          = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --Phoenix -  Camelback
+AND transactionheaderid LIKE 'ordevt-%'
+AND businessdate        BETWEEN '2026-06-18' AND '2026-07-10'
+LIMIT 1000;
 
+UPDATE fact.transactionitem
+SET upselllevel = CASE WHEN upselllevel = 'AIItem' THEN 'AI-Item' WHEN upselllevel = 'AIOrder' THEN 'AI-Order' ELSE upselllevel END
+WHERE 1=1 
+AND locationid          = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --Phoenix -  Camelback
+AND transactionheaderid LIKE 'ordevt-%'
+AND upselllevel         IN ('AIItem', 'AIOrder')
+AND businessdate        BETWEEN '2026-06-18' AND '2026-07-10';
+
+/*
+UPDATE 112
+Total execution time: 00:00:02.672
+*/
 
 SELECT th.businessdate, rc.*
 FROM fact.recommendations as rc 

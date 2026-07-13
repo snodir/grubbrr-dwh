@@ -1929,7 +1929,7 @@ FROM Ranked2 WHERE rn <= 10
 --ORDER BY item_selection_frequency desc;
 )
 INSERT INTO fact.location_menu_preferences
-SELECT * from total
+SELECT * FROM total
 --WHERE fc_organizationid <> ol_organizationid
 --ORDER BY item_selection_frequency desc
 
@@ -1952,98 +1952,113 @@ BEGIN
 TRUNCATE TABLE fact.location_statistics;
 
 WITH org_loc_lookup AS (
-    SELECT DISTINCT ol.organizationid, ol.organizationname, 
+    SELECT DISTINCT ol.organizationid, ol.organizationname,
            ol.locationid, ol.locationname
     FROM dim.organizationlocation AS ol
-    WHERE 1=1 
-      --AND (CASE WHEN 'com-3owh66znkd' NOT LIKE 'loc-%' THEN ol.organizationid ELSE ol.locationid END) = 'com-3owh66znkd'
-      AND ol.organizationtype = 0
-), order_items AS (
-    SELECT ti.*
-    FROM (
-        SELECT ol.organizationid, ol.organizationname, ol.locationname, ti.* 
-        FROM fact.transactionitem AS ti
-        INNER JOIN org_loc_lookup as ol
-			ON ti.locationid = ol.locationid
-        WHERE 1=1
-          AND ti.transactionheaderid LIKE 'ordevt-%'
-    ) as ti
-), frequent_customers as (
-    SELECT fc.organizationid, 
-           count(*) as number_of_frequent_customers,
-           sum(fc.ordercount) as orders_placed_by_freq_customers,
-           sum(fc.amountspent) as amount_spent_by_freq_customers,
-           sum(fc.amountspent) / case when sum(fc.ordercount) > 0 then sum(fc.ordercount) else 1 end as avg_amount_spent_by_freq_customers
+    WHERE ol.organizationtype = 0
+),
+
+frequent_customers AS (
+    SELECT fc.organizationid,
+           COUNT(*) as number_of_frequent_customers,
+           SUM(fc.ordercount) as orders_placed_by_freq_customers,
+           SUM(fc.amountspent) as amount_spent_by_freq_customers,
+           ROUND(SUM(fc.amountspent) / COALESCE(NULLIF(SUM(fc.ordercount), 0), 1), 3) as avg_amount_spent_by_freq_customers
     FROM dim.frequentcustomer as fc
     GROUP BY fc.organizationid
-), org_agg_trxn as (
-	SELECT ol.organizationid, 
+),
+
+-- Reverted to fact.transactionheader: it's already header-grain with a PK on
+-- (locationid, transactionheaderid), so no dedup is needed and row count is
+-- an order of magnitude smaller than item-grain ml.transactions. Deduping
+-- ml.transactions here would cost more than the join it avoids.
+org_agg_trxn AS (
+    SELECT ol.organizationid,
            count(*) as org_total_order_count,
            sum(th.ordertotal) as org_total_sales_amount,
            round(avg(th.ordertotal), 3) as org_avg_order_amount
-	FROM fact.transactionheader as th 
+    FROM fact.transactionheader as th
     INNER JOIN org_loc_lookup as ol
             ON th.locationid = ol.locationid
     WHERE th.orderstatus = 'order-placed'
-	GROUP BY organizationid
-), loc_agg_trxn as (
-	SELECT th.locationid, 
+    GROUP BY ol.organizationid
+),
+
+loc_agg_trxn AS (
+    SELECT th.locationid,
            count(*) as loc_total_order_count,
            sum(th.ordertotal) as loc_total_sales_amount,
            round(avg(th.ordertotal), 3) as loc_avg_order_amount
-	FROM fact.transactionheader as th 
+    FROM fact.transactionheader as th
     WHERE th.orderstatus = 'order-placed'
-	GROUP BY th.locationid
-), loc_agg as (
-	SELECT organizationid, locationid, 
+    GROUP BY th.locationid
+),
+
+-- NOTE: still worth confirming - ml.transactions only contains 'order-placed'
+-- rows (filtered at refresh time), while the original order_items had no status
+-- filter (just transactionheaderid LIKE 'ordevt-%'). This CTE now implicitly
+-- excludes cancelled/pending items from popularity stats where the original
+-- didn't. Flagging again since it's unchanged from before.
+loc_agg AS (
+    SELECT organizationid, locationid,
            count(*) as total_items_ordered_within_loc
-	FROM order_items
-	GROUP BY organizationid, locationid
-), loc_itm_agg as (
-	SELECT organizationid, locationid, dimmenuitemid, 
-    count(*) as item_selection_frequency_within_loc,
-    max(itemunitprice) as itemunitprice
-	FROM order_items
-	GROUP BY organizationid, locationid, dimmenuitemid
-), item_statistics AS (
-	SELECT lia.organizationid, lia.locationid, lia.dimmenuitemid, lia.itemunitprice,
+    FROM ml.transactions
+    GROUP BY organizationid, locationid
+),
+
+loc_itm_agg AS (
+    SELECT organizationid, locationid, menuitemid AS dimmenuitemid,
+           min(item_class_type) as item_class_type,
+           count(*) as item_selection_frequency_within_loc,
+           max(itemunitprice) as itemunitprice
+    FROM ml.transactions
+    GROUP BY organizationid, locationid, menuitemid
+),
+
+item_statistics AS (
+    SELECT lia.organizationid, lia.locationid, lia.dimmenuitemid, lia.item_class_type, lia.itemunitprice,
            lia.item_selection_frequency_within_loc,
            la.total_items_ordered_within_loc,
            100 * lia.item_selection_frequency_within_loc :: NUMERIC(8,3) / la.total_items_ordered_within_loc as pct_item_selection_freq_within_loc,
            dense_rank() OVER(PARTITION by lia.locationid ORDER BY item_selection_frequency_within_loc DESC) as loc_item_popularity
-	FROM loc_itm_agg as lia
-    INNER JOIN loc_agg as la 
+    FROM loc_itm_agg as lia
+    INNER JOIN loc_agg as la
             ON lia.organizationid = la.organizationid
            AND lia.locationid = la.locationid
-), item_details AS (
-    SELECT its.organizationid, its.locationid, 
+),
+
+item_details AS (
+    SELECT its.organizationid, its.locationid,
     jsonb_agg(
         jsonb_build_object(
-            'menuitemid', its.dimmenuitemid, 
+            'menuitemid', its.dimmenuitemid,
             'x_times_selected', its.item_selection_frequency_within_loc,
             'total_items_selected', its.total_items_ordered_within_loc,
-            'pct_of_all_items',  its.pct_item_selection_freq_within_loc,
-            'item_class_type', mi.item_class_type,
+            'pct_of_all_items',  ROUND(its.pct_item_selection_freq_within_loc, 3),
+            'item_class_type', its.item_class_type,
             'itemunitprice', COALESCE(its.itemunitprice, mi.itemunitprice),
             'loc_item_popularity', loc_item_popularity
         ) ORDER BY loc_item_popularity ASC, item_selection_frequency_within_loc DESC
     ) as loc_item_popularity
-    FROM item_statistics as its 
+    FROM item_statistics as its
     LEFT JOIN dim.menuitem as mi
            ON its.dimmenuitemid = mi.menuitemid
     WHERE loc_item_popularity <= 20
     GROUP BY its.organizationid, its.locationid
-), order_types AS (
-SELECT locationid, jsonb_agg(value->>'label') AS order_type_labels
-FROM (SELECT * FROM dim.kioskdetails 
-      WHERE dim.is_valid_jsonb(order_types) 
-        AND locationid IN (SELECT locationid FROM org_loc_lookup)
-      ) as ld
-CROSS JOIN LATERAL jsonb_each(ld.order_types :: jsonb -> 'options')
-GROUP BY locationid
+),
+
+order_types AS (
+    SELECT locationid, jsonb_agg(value->>'label') AS order_type_labels
+    FROM (SELECT * FROM dim.kioskdetails
+          WHERE dim.is_valid_jsonb(order_types)
+            AND locationid IN (SELECT locationid FROM org_loc_lookup)
+          ) as ld
+    CROSS JOIN LATERAL jsonb_each(ld.order_types :: jsonb -> 'options')
+    GROUP BY locationid
 )
+
 INSERT INTO fact.location_statistics
-SELECT DISTINCT 
+SELECT DISTINCT
 olk.organizationid,
 olk.organizationname,
 olk.locationid,
@@ -2073,11 +2088,11 @@ LEFT JOIN order_types as ot
        ON olk.locationid = ot.locationid
 LEFT JOIN item_details as itd
        ON olk.locationid = itd.locationid
-LEFT JOIN loc_agg_trxn as la 
+LEFT JOIN loc_agg_trxn as la
        ON olk.locationid = la.locationid
 LEFT JOIN org_agg_trxn as oa
        ON olk.organizationid = oa.organizationid
-LEFT JOIN frequent_customers as fc 
+LEFT JOIN frequent_customers as fc
        ON olk.organizationid = fc.organizationid;
 
 END;
@@ -2085,7 +2100,6 @@ $BODY$;
 
 
 ALTER PROCEDURE fact.usp_location_statistics() OWNER TO citus;
-
 --
 -- TOC entry 525 (class 1255 OID 2951716)
 -- Name: usp_modifier_impression_analysis(); Type: PROCEDURE; Schema: fact; Owner: citus
@@ -4976,7 +4990,7 @@ BEGIN
             fact.parse_iso_timestamp(eventinstant) :: TIMESTAMP AS eventtime
         FROM stg.silver_kiosk_events ub
         WHERE ub.eventtype IN (
-            'ItemCustomizeClicked', 'CustomizeItemSelected', 'ComboCustomizeClicked',
+            'ItemCustomizeClicked', 'CustomizeItemSelected',      'ComboCustomizeClicked',
             'RegularItemSelected',  'ComboComponentItemSelected', 'AddToCartClicked',
             'ComboSizeSelected',    'ComboItemSelected',          'AddAsIsSelected'
         )
@@ -5058,7 +5072,8 @@ BEGIN
         r.itemname,
         r.itemquantity,
         r.itemunitprice,
-        r.upselllevel,
+        CASE WHEN lower(r.upselllevel) IN ('aiitem', 'ai-item')         THEN 'AI-Item' 
+             WHEN lower(r.upselllevel) IN ('aiorder', 'ai-order', 'ai') THEN 'AI-Order' ELSE r.upselllevel END AS upselllevel,
         r.upsellpromptitemid,
         th.orderid,
         r.itemtype,
@@ -5068,7 +5083,7 @@ BEGIN
         t.itemselectedtime,
         t.addtocarttime,
         ABS(COALESCE(
-            EXTRACT(EPOCH FROM (t.addtocarttime - t.itemselectedtime)) :: NUMERIC(7,3),
+            EXTRACT(EPOCH FROM (t.addtocarttime - t.itemselectedtime)) :: NUMERIC(10,3),
             0
         ))                                                                           AS totaltime,
         r.orderdateutc,

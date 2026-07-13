@@ -1407,7 +1407,7 @@
                     "elapsedTimeMetric": {}
                 },
                 "folder": {
-                    "name": "Master/ML"
+                    "name": "ML"
                 },
                 "annotations": [],
                 "lastPublishTime": "2026-04-26T14:59:46Z"
@@ -1822,7 +1822,7 @@
                     }
                 },
                 "folder": {
-                    "name": "Master/ML"
+                    "name": "ML"
                 },
                 "annotations": [],
                 "lastPublishTime": "2025-11-27T06:26:28Z"
@@ -2361,7 +2361,7 @@
                     }
                 },
                 "folder": {
-                    "name": "Master/ML"
+                    "name": "ML"
                 },
                 "annotations": [],
                 "lastPublishTime": "2026-01-12T12:59:59Z"
@@ -9787,7 +9787,7 @@
                     }
                 },
                 "folder": {
-                    "name": "Master/ML"
+                    "name": "ML"
                 },
                 "annotations": [],
                 "lastPublishTime": "2026-01-16T13:37:01Z"

@@ -2,15 +2,15 @@ SELECT ol.organizationId, ol.organizationname,
        th.locationid, ol.locationname, --th.businessdate,
 	   --EXTRACT(YEAR FROM th.businessdate)::INTEGER as yyyy,
        --EXTRACT(WEEK FROM th.businessdate)::INTEGER as ww,
-       count(1) as ordercounts, sum(ordertotal) as amtspent, avg(ordertotal) as avg_amtspent,
+       count(1) as ordercounts, sum(ordertotal) as amtspent, round(avg(ordertotal), 3) as avg_amtspent,
 	   min(orderdatelocal) as first_order_time,
 	   max(orderdatelocal) as latest_order_time
-FROM (SELECT * FROM fact.transactionheader WHERE businessdate >= '2026-06-09' AND businessdate <= '2026-06-10') as th
+FROM 	   (SELECT * FROM fact.transactionheader /*WHERE businessdate >= '2026-06-09' AND businessdate <= '2026-06-10'*/) as th
 INNER JOIN (SELECT * FROM dim.organizationlocation WHERE organizationtype = 0) as ol 
         on th.locationid = ol.locationid
 WHERE 1=1
 --and ol.organizationid = 'org-490e23ce-6f23-4d3d-8544-8728f0965cfc'
-and th.locationid = 'loc-73ad6e86-1f5c-4123-adbb-4b12339ea171'-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
+and th.locationid  IN ('loc-d45f4b24-0d3a-4ed2-a2c1-836ffd78e021','loc-2bd29e8d-b962-472e-9e01-1ff06b6f9172')-- 'loc-26335157-cfac-40a3-b901-2bca43618bc6'-- 'loc-353c730c-36ca-4575-95f8-38516cdc9de7'
 and th.orderstatus = 'order-placed'
 --and th.businessdate = '2026-03-30' :: DATE-- BETWEEN '2023-01-01' and CURRENT_DATE :: date--'2025-07-13' --
 GROUP BY ol.organizationId, ol.organizationname, th.locationid, ol.locationname--, th.businessdate
@@ -22,6 +22,21 @@ ORDER BY ordercounts DESC-- first_order_time ASC--, ordercounts DESC--,
 --SELECT max(orderdatelocal) FROM fact.transactionheader
 
 SELECT * FROM fact.transactionheader WHERE locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992'
+
+SELECT * FROM dim.organizationlocation 
+WHERE lower(organizationname) LIKE '%grubbrr%demo%'
+AND organizationtype = 0;
+
+/*
+org-d4efebe6-0ab3-4f44-a113-b9653a58c1d2	GRUBBRR Demos	loc-d45f4b24-0d3a-4ed2-a2c1-836ffd78e021	Pico Burrito Demo
+org-d4efebe6-0ab3-4f44-a113-b9653a58c1d2	GRUBBRR Demos	loc-2bd29e8d-b962-472e-9e01-1ff06b6f9172	Fat Slice Demo
+*/
+
+SELECT *
+FROM ml.menu_entities
+WHERE locationid = 'loc-2bd29e8d-b962-472e-9e01-1ff06b6f9172' --Fat Slice Demo -- 'loc-d45f4b24-0d3a-4ed2-a2c1-836ffd78e021'--Pico Burrito Demo
+
+
 
 SELECT th.businessdate, 
 	   count(DISTINCT th.locationid) as locations,
