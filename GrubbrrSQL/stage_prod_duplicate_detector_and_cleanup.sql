@@ -47,18 +47,22 @@ SELECT table_name, citus_table_type, distribution_column
 FROM   citus_tables
 WHERE  table_name::text IN ('fact.deviceevent', 'fact.userbehaviour');
 
-SELECT COUNT(*) FROM fact.deviceevent;   -- S=180,073,590, TimeTaken=03m:31s
-SELECT COUNT(*) FROM fact.userbehaviour; -- S=159,156,684, TimeTaken=01m:18s
+SELECT COUNT(*) FROM fact.deviceevent;            -- S=180,073,590, TimeTaken=03m:31s; P=262,118,533, TimeTaken=07m:45s--2026-07-15
+SELECT COUNT(*), MAX(id) FROM fact.userbehaviour; -- S=159,156,684, TimeTaken=01m:18s; P=236,316,091/maxid=236,362,399, TimeTaken=08m:48s--2026-07-15
 
-SELECT locationid, COUNT(*) AS rowcount_by_location
+SELECT locationid, COUNT(*) AS rowcount
 FROM fact.deviceevent
 GROUP BY locationid
-ORDER BY rowcount_by_location DESC;      -- S=769 locations, TimeTaken=03m:31s
+ORDER BY rowcount DESC;      
+-- S=769 locations, TimeTaken=03m:31s
+-- P=934 locations, TimeTaken=02m:34s --2026-07-16
 
-SELECT companyid, locationid, COUNT(*) AS rowcount_by_location
+SELECT companyid, locationid, COUNT(*) AS rowcount
 FROM fact.deviceevent
 GROUP BY companyid, locationid
-ORDER BY rowcount_by_location DESC;      -- S=769 locations, TimeTaken=03m:32s
+ORDER BY rowcount DESC;      
+-- S=769 locations, TimeTaken=03m:32s
+-- P=934 locations, TimeTaken=02m:34s --2026-07-16
 
 SELECT 'fact.deviceevent' AS table_name,
     pg_size_pretty(pg_relation_size('fact.deviceevent')) AS table_only,
@@ -135,54 +139,6 @@ SELECT COUNT(*) FROM fact.deviceevent   WHERE eventtoken IS NULL OR eventtoken =
 SELECT COUNT(*) FROM fact.userbehaviour WHERE ordersessionidentifier IS NULL OR ordersessionidentifier = ''; -- must be 0
 
 
-/* ---------------------------------------------------------------------------
-   STEP 3  DEDUP — Method A (recommended at 82% disk: in-place, batched per shard)
-   ROW_NUMBER() keeps ONE row per key (latest), scoped per locationid so each
-   DELETE is a single-shard router query and each location is its own COMMIT.
-   Idempotent: a rerun deletes 0 from already-clean locations.
---------------------------------------------------------------------------- */
-
-CREATE OR REPLACE PROCEDURE fact.usp_dedup_by_location(
-    p_table        regclass,
-    p_partition_by text,    -- NK columns after locationid, e.g. 'eventtoken, datacategory, actiontype, eventinstant'
-    p_order_by     text DEFAULT 'syscosmosts DESC NULLS LAST, syscosmosticks DESC NULLS LAST, ctid DESC'
-)
-LANGUAGE plpgsql
-AS $proc$
-DECLARE
-    r_loc     record;
-    v_deleted bigint;
-    v_total   bigint := 0;
-BEGIN
-    FOR r_loc IN EXECUTE format('SELECT DISTINCT locationid FROM %s ORDER BY locationid', p_table)
-    LOOP
-        EXECUTE format($q$
-            WITH ranked AS (
-                SELECT ctid,
-                       row_number() OVER (PARTITION BY locationid, %s ORDER BY %s) AS rn
-                FROM   %s
-                WHERE  locationid = %L
-            )
-            DELETE FROM %s t USING ranked r
-            WHERE t.ctid = r.ctid AND r.rn > 1
-        $q$, p_partition_by, p_order_by, p_table, r_loc.locationid, p_table);
-
-        GET DIAGNOSTICS v_deleted = ROW_COUNT;
-        v_total := v_total + v_deleted;
-        COMMIT;   -- bounded, shard-local transaction per location
-        RAISE NOTICE 'loc % -> deleted % (running total %)', r_loc.locationid, v_deleted, v_total;
-    END LOOP;
-    RAISE NOTICE 'DONE %  -> removed % rows', p_table, v_total;
-END;
-$proc$;
-
--- Run (these CALLs must be top-level, autocommit on):
-CALL fact.usp_dedup_by_location('fact.deviceevent',   'eventtoken, datacategory, actiontype, eventinstant');
-CALL fact.usp_dedup_by_location('fact.userbehaviour', 'ordersessionidentifier, eventcategory, eventtype, eventinstant');
-
--- The total reported by each CALL must equal rows_to_delete from STEP 1.
--- If any single location is huge, add a dateid sub-loop inside the procedure
--- (PARTITION key is unchanged; you just add "AND dateid BETWEEN ..." to the WHERE).
 
 
 /* ---------------------------------------------------------------------------

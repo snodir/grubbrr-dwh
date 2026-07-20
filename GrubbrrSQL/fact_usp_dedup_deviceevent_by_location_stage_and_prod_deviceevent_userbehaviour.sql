@@ -165,11 +165,16 @@ SELECT DISTINCT organizationid, locationid FROM dim.organizationlocation WHERE o
 
 --DROP TABLE IF EXISTS fact.deviceevent_org_loc;
 CREATE TABLE IF NOT EXISTS fact.deviceevent_org_loc(
-    organizationid TEXT,
+    companyid      TEXT,
     locationid     TEXT,
     rowcount       INTEGER,
     sysinserttime  TIMESTAMP DEFAULT NOW() :: TIMESTAMP
 );
+
+SELECT * FROM fact.userbehaviour ORDER BY id DESC LIMIT 100;
+--loc-704c0f96-3b03-414d-a620-be6e12fde2be
+SELECT * FROM fact.deviceevent_org_loc 
+WHERE locationid = 'loc-57b8ac62-9c05-46d2-b270-8cc26c5e5bbe';
 
 CREATE OR REPLACE PROCEDURE fact.usp_dedup_deviceevent_by_location()
 LANGUAGE plpgsql
@@ -190,8 +195,9 @@ BEGIN
     FROM fact.deviceevent_org_loc;
 
     FOR r_loc IN
-        SELECT DISTINCT organizationid AS companyid, locationid, rowcount
+        SELECT DISTINCT companyid, locationid, rowcount
         FROM fact.deviceevent_org_loc
+        --WHERE rowcount < 160291
         ORDER BY rowcount DESC
     LOOP
         v_count := v_count + 1;
@@ -231,15 +237,11 @@ $BODY$;
 
 ALTER PROCEDURE fact.usp_dedup_deviceevent_by_location() OWNER TO citus;
 
+SET work_mem = '1GB';
+
+SHOW work_mem;
 -- Run (top-level, autocommit ON):
 CALL fact.usp_dedup_deviceevent_by_location();
-
--- STEP 5: VACUUM (reclaim dead space, refresh stats)
-VACUUM (VERBOSE, ANALYZE) fact.deviceevent;
-
--- The reported total gives you the rows_to_delete count you couldn't get from STEP 1a.
--- If the largest location (6.4M rows) takes too long, add a dateid sub-loop:
---   add "AND dateid BETWEEN ... AND ..." inside the WHERE clause.
 
 
 /* ---------------------------------------------------------------------------
@@ -259,6 +261,11 @@ VACUUM (VERBOSE, ANALYZE) fact.deviceevent;
 SET maintenance_work_mem             = '2GB';
 SET max_parallel_maintenance_workers = 3;  -- 4 vCores -> 3 parallel workers
 
+ALTER SEQUENCE fact.userbehaviour_id_seq RESTART WITH 1;
+
+SET work_mem = '1GB';
+
+SHOW work_mem;
 
 CREATE OR REPLACE PROCEDURE fact.usp_rebuild_userbehaviour_by_location()
 LANGUAGE plpgsql AS $BODY$
@@ -275,18 +282,19 @@ BEGIN
     SELECT COUNT(*) INTO v_locs FROM fact.deviceevent_org_loc;
 
     -- one-time truncate, committed before the loop begins
-    --TRUNCATE TABLE fact.userbehaviour;
+    --TRUNCATE TABLE --fact.userbehaviour;
     --COMMIT;
 
     FOR r_loc IN
-        SELECT DISTINCT organizationid AS companyid, locationid, rowcount
+        SELECT companyid, locationid, rowcount
         FROM fact.deviceevent_org_loc
+        --WHERE rowcount < 895595
         ORDER BY rowcount DESC
     LOOP
         v_count := v_count + 1;
 
         -- idempotent: clears any partial rows from a prior crashed run on this location
-        DELETE FROM fact.userbehaviour WHERE locationid = r_loc.locationid;
+        --DELETE FROM --fact.userbehaviour WHERE locationid = r_loc.locationid;
 
         WITH parsed AS (
             SELECT
@@ -298,15 +306,16 @@ BEGIN
                 de.syscosmosts,
                 de.syscosmosticks,
                 de.deviceid                                                                     AS source_deviceid,
-                fact.parse_iso_timestamp(de.eventinstant)                                       AS busdate,
+                fact.parse_iso_timestamp(de.eventinstant) :: TIMESTAMP                          AS busdate,
                 REPLACE(REPLACE(SUBSTRING(de.eventinstant, 1, 13), '-', ''), 'T', '')::INTEGER  AS dateid,
-                de.eventdata,
+                --de.eventdata,
                 -- *** plug in your already-validated safe_jsonb parsing CTE here ***
-                NULLIF(TRIM(fact.safe_jsonb(de.eventdata)->>'view'), '')                        AS viewname,
-                COALESCE(NULLIF(TRIM(fact.safe_jsonb(de.eventdata)->>'element'), ''), 'None')    AS elementname,
-                COALESCE(NULLIF(TRIM(fact.safe_jsonb(de.eventdata)->>'elementId'), ''), 'None')  AS sourceelementid,
-                NULLIF(TRIM(fact.safe_jsonb(de.eventdata)->>'itemSessionId'), '')                AS itemsessionidentifier,
-                NULLIF(TRIM(fact.safe_jsonb(de.eventdata)->>'quantity'), '')::INTEGER            AS quantity
+                NULLIF(TRIM(fact.safe_conversion_to_jsonb(de.eventdata)->>'view'), '')                        AS viewname,
+                COALESCE(NULLIF(TRIM(fact.safe_conversion_to_jsonb(de.eventdata)->>'element'), ''), 'None')    AS elementname,
+                COALESCE(NULLIF(TRIM(fact.safe_conversion_to_jsonb(de.eventdata)->>'elementId'), ''), 'None')  AS sourceelementid,
+                NULLIF(TRIM(fact.safe_conversion_to_jsonb(de.eventdata)->>'itemSessionId'), '')                AS itemsessionidentifier,
+                NULLIF(TRIM(fact.safe_conversion_to_jsonb(de.eventdata)->>'quantity'), '')::INTEGER            AS quantity,
+                de.sysinserttime
             FROM fact.deviceevent de
             WHERE de.companyid  = r_loc.companyid
               AND de.locationid = r_loc.locationid
@@ -315,15 +324,15 @@ BEGIN
         enriched AS (
             SELECT
                 p.*,
-                th.ordertype,
-                th.kioskid       AS th_deviceid,
+                --th.ordertype,
+                --th.kioskid       AS th_deviceid,
                 v.viewid         AS viewidentifier,
                 el.elementid     AS elementidentifier
             FROM parsed p
-            LEFT JOIN fact.transactionheader th
+            /*LEFT JOIN fact.transactionheader th
                    ON  th.locationid    = p.locationid
                   AND th.ordersessionid = p.ordersessionidentifier
-                  AND th.orderstatus    = 'order-placed'
+                  AND th.orderstatus    = 'order-placed'*/
             LEFT JOIN dim.view v
                    ON v.viewname = p.viewname
             LEFT JOIN dim.element el
@@ -331,18 +340,18 @@ BEGIN
                   AND el.elementname     = p.elementname
         )
         INSERT INTO fact.userbehaviour (
-            id, busdate, locationid, dateid, daypart, ordertype, eventtype,
+            id, busdate, locationid, dateid, daypart, /*ordertype,*/ eventtype,
             ordersessionidentifier, itemsessionidentifier, elementidentifier,
             viewidentifier, quantity, createddate, syscosmosts, eventinstant,
-            eventcategory, deviceid, syscosmosticks, eventdata,
+            eventcategory, deviceid, syscosmosticks, --eventdata,
             viewname, elementname, sourceelementid, sysupdatetime
         )
         SELECT
             nextval('fact.userbehaviour_id_seq'),
-            busdate, locationid, dateid, 'None', ordertype, eventtype,
+            busdate, locationid, dateid, 'None', /*ordertype,*/ eventtype,
             ordersessionidentifier, itemsessionidentifier, elementidentifier,
-            viewidentifier, quantity, NOW()::timestamp, syscosmosts, eventinstant,
-            eventcategory, COALESCE(th_deviceid, source_deviceid), syscosmosticks, eventdata,
+            viewidentifier, quantity, sysinserttime, syscosmosts, eventinstant,
+            eventcategory, source_deviceid, syscosmosticks, --eventdata,
             viewname, elementname, sourceelementid, NOW()::timestamp
         FROM enriched;
 
@@ -358,6 +367,15 @@ BEGIN
                  v_total, v_count, clock_timestamp() - v_start;
 END;
 $BODY$;
+
+ALTER PROCEDURE fact.usp_rebuild_userbehaviour_by_location() OWNER TO citus;
+
+SET work_mem = '4GB';
+SET max_parallel_maintenance_workers = 6;  -- 4 vCores -> 3 parallel workers
+
+SHOW work_mem;
+-- Run (top-level, autocommit ON):
+CALL fact.usp_rebuild_userbehaviour_by_location();
 
 
 /* ---------------------------------------------------------------------------

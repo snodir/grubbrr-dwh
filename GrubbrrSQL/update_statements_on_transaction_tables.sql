@@ -4,19 +4,23 @@
 --VACUUM ANALYZE fact.transactionitem;
 --VACUUM ANALYZE fact.itemmodifier;
 
-SELECT *
+SELECT *--count(*)
 FROM fact.transactionheader as th
-WHERE th.orderid = 'ord-'
+WHERE th.orderid = 'ord-' 
+   OR th.ordersessionid = ''
 ORDER BY createddate DESC
+LIMIT 100;
 
 UPDATE fact.transactionheader
-SET orderid = CONCAT(orderid, ordersessionid)
+SET orderid = CONCAT(orderid, ordersessionid),
+    updateddate = NOW() :: TIMESTAMP
 WHERE orderid         = 'ord-'
   AND ordersessionid <> '';
 
 
 UPDATE fact.transactionheader
-   SET orderid = CONCAT(orderid, SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid)))
+   SET orderid = CONCAT(orderid, SUBSTRING(transactionheaderid, 8, LENGTH(transactionheaderid))),
+       updateddate = NOW() :: TIMESTAMP
 WHERE orderid        = 'ord-'
   AND ordersessionid = '' 
   AND orderstatus    = 'order-placed';

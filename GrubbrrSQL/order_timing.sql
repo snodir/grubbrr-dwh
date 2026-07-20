@@ -14,10 +14,35 @@ and th.reviewpagetime < 0 --262
 order by th.orderdateutc desc --ol.organizationname-- 
 limit 1000
 
+SELECT ot.locationid, ot.eventtoken, ot.deviceid, ot.dateid,
+    COUNT(*) as dupl
+FROM fact.ordertiming as ot
+GROUP BY ot.locationid, ot.eventtoken, ot.deviceid, ot.dateid
+HAVING COUNT(*) > 1
+ORDER BY dupl DESC
+LIMIT 100;
+
+ALTER TABLE IF EXISTS fact.ordertiming DROP CONSTRAINT IF EXISTS locationid_eventtoken_unq;
+ALTER TABLE IF EXISTS fact.ordertiming ADD CONSTRAINT locationid_eventtoken_unq UNIQUE (locationid, eventtoken, deviceid, sessionstart);
+
+
+
+UPDATE fact.ordertiming
+SET id = new_id
+FROM (SELECT *, ROW_NUMBER() OVER(ORDER BY id) as new_id FROM fact.ordertiming) as ot 
+WHERE ordertiming.id = ot.id
+
+/*Production
+Started executing query at Line 29
+UPDATE 4,385,707
+Total execution time: 00:01:33.791
+*/
+
 select th.locationid, th.transactionheaderid, count(*)
 from fact.transactionheader as th 
 GROUP BY th.locationid, th.transactionheaderid 
 HAVING count(*)>1
+
 
 SELECT *--count(*)
 from fact.transactionheader as th

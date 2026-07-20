@@ -3,6 +3,9 @@ SELECT * FROM stg.silver_kiosk_events LIMIT 100;
 SELECT *, ctid FROM fact.deviceevent WHERE syscosmosts IS NOT NULL ORDER BY syscosmosts DESC LIMIT 100;
 SELECT *, ctid FROM fact.userbehaviour /*WHERE syscosmosts IS NOT NULL*/ ORDER BY id DESC LIMIT 100;
 
+SELECT * FROM fact.deviceevent_org_loc 
+WHERE locationid = 'loc-57b8ac62-9c05-46d2-b270-8cc26c5e5bbe';
+
 ALTER TABLE IF EXISTS fact.deviceevent
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
@@ -23,13 +26,46 @@ ALTER TABLE--fact.userbehaviour
 Total execution time: 00:02:54.701
 */
 
+SET maintenance_work_mem = '4GB';        -- this IS the right knob here — index build, not row-scan
+SET max_parallel_maintenance_workers = 6; -- lets the btree build sort in parallel
+--SET statement_timeout = 0;                -- don't let this get killed mid-build
+--SET lock_timeout = '5s';                  -- fail fast if something else is holding a conflicting lock, rather than queuing indefinitely and blocking everyone behind it
+
 ALTER TABLE IF EXISTS fact.deviceevent --Total execution time: 00:00:56.279  R=Total execution time: 00:00:15.928
 ADD CONSTRAINT locationid_eventtoken_datacategory_actiontype_eventinstant_unq UNIQUE (locationid, eventtoken, datacategory, actiontype, eventinstant)
 
+/* Production--fact.deviceevent
+Started executing query at Line 31
+ALTER TABLE
+Total execution time: 00:14:13.354
+*/
 
 
 ALTER TABLE IF EXISTS fact.userbehaviour --Total execution time: 00:00:05.004
 ADD CONSTRAINT locationid_eventtoken_eventcategory_eventtype_eventinstant_unq UNIQUE (locationid, ordersessionidentifier, eventcategory, eventtype, eventinstant)
+
+/* Production--fact.userbehaviour
+Started executing query at Line 44
+ALTER TABLE
+Total execution time: 00:02:18.037
+*/
+
+-- Index: userbehaviour_locationid_dateid_idx
+
+-- DROP INDEX IF EXISTS fact.userbehaviour_locationid_dateid_idx;
+
+CREATE INDEX IF NOT EXISTS userbehaviour_locationid_dateid_idx
+    ON fact.userbehaviour USING btree
+    (locationid COLLATE pg_catalog."default" ASC NULLS LAST, dateid ASC NULLS LAST)
+    INCLUDE(ordersessionidentifier, viewidentifier, itemsessionidentifier, elementidentifier)
+    TABLESPACE pg_default;
+
+/* Production--fact.userbehaviour/index
+Started executing query at Line 57
+CREATE INDEX
+Total execution time: 00:01:33.674
+*/
+
 
 ALTER TABLE IF EXISTS fact.userbehaviour
 ADD COLUMN IF NOT EXISTS deviceid        TEXT,
@@ -64,24 +100,32 @@ WHERE 1=1 --P=211,468,927	211,515,235, Total execution time: 00:01:09.713
 ORDER BY id DESC
 LIMIT 1000;
 
-SELECT count(*) --*--DISTINCT de.datacategory, de.actiontype
-FROM fact.deviceevent as de --T=6,413,074  ***1,036,943---R=2,725,650***473,077---S=178,165,004***36,334,104
+
+--P=262,118,533***52,795,667 ('insight','Order','StoreTiming','BusinessHours','Session')--2026-07-16
+--Total execution time: 00:02:34.478
+--no empty eventtoken, no NULL eventtoken
+--missing deviceid = 81,491,987
+SELECT *--count(*) --*--DISTINCT de.datacategory, de.actiontype
+FROM fact.deviceevent as de --T=6,413,074  ***1,036,943  ---R=2,725,650***473,077---S=178,165,004***36,334,104
 WHERE 1=1                   --P=237,271,369***47,776,614, --Total execution time: 00:04:20.802***Total execution time: 00:04:21.329
 --AND de.moduleid     = 'kiosk'---S=36,334,104--Total execution time: 00:03:29.938
-AND de.datacategory IN ('insight','Order','StoreTiming','BusinessHours','Session') --S=36,334,104--Total execution time: 00:01:04.870
-AND (de.eventtoken = '' OR de.eventtoken IS NULL) --R=228,727, S=0 rows after de-dup--Total execution time: 00:01:08.533
-AND (de.deviceid = '' OR de.deviceid IS NULL) --R=2,069,735---UPDATE 2,069,735---Total execution time: 00:01:22.617, empty/missing deviceids
+--AND de.datacategory IN ('insight','Order','StoreTiming','BusinessHours','Session') --S=36,334,104--Total execution time: 00:01:04.870
+--AND (de.eventtoken = '' OR de.eventtoken IS NULL) --R=228,727, S=0 rows after de-dup--Total execution time: 00:01:08.533
+--AND (de.deviceid = '' OR de.deviceid IS NULL) --R=2,069,735---UPDATE 2,069,735---Total execution time: 00:01:22.617, empty/missing deviceids
+AND de.deviceid <> '' 
+--AND de.devicename LIKE 'ksk-%'
 --AND (de.eventdata LIKE '%"view"%' OR de.eventdata LIKE '%"element"%' OR de.eventdata LIKE '%"elementId"%')
-LIMIT 100;
+LIMIT 10;
 
 
 
 UPDATE fact.deviceevent
-SET deviceid = CASE WHEN deviceid LIKE 'ksk-%' OR  deviceid <> '' THEN deviceid WHEN devicename LIKE 'ksk-%' THEN devicename ELSE deviceid END
-WHERE deviceid = '';
+SET deviceid = CASE WHEN devicename LIKE 'ksk-%' THEN devicename ELSE deviceid END
+WHERE deviceid = ''
+  AND devicename LIKE 'ksk-%'; --P=UPDATE 81,456,411; Total execution time: 00:25:26.259
 
 UPDATE fact.deviceevent
-SET eventtoken = COALESCE(NULLIF(eventtoken, ''), deviceid),   -- ← DISTINCT ON key
+SET eventtoken = COALESCE(NULLIF(eventtoken, ''), NULLIF(deviceid, ''), syscosmosticks :: TEXT),   -- ← DISTINCT ON key
     sysupdatetime = NOW() :: TIMESTAMP
 WHERE eventtoken IS NULL OR eventtoken = '';
 -- 1,335 rows

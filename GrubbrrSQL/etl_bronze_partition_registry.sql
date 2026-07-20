@@ -4,7 +4,7 @@ WHERE dt.yearval = 2026
   AND dt.monthval = 5;
 
 CREATE SCHEMA IF NOT EXISTS etl;
---30 days * 24 hours * 2 (events/orders)
+--30 days * 24 hours * 2 (events/orders)  
 SELECT *--, dateid, layer, entity, partition_path, partition_date, partition_year, partition_month, partition_day, partition_hour
 FROM etl.bronze_partition_registry
 WHERE entity = 'orders'
@@ -123,7 +123,7 @@ ALTER TABLE IF EXISTS etl.bronze_partition_registry
     OWNER TO citus;
 
 --DELETE FROM etl.bronze_partition_registry WHERE entity = 'events'
-
+--TRUNCATE TABLE etl.bronze_partition_registry;
 INSERT INTO etl.bronze_partition_registry
 SELECT 
     dt.dateid,

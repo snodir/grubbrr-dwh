@@ -78,6 +78,7 @@ SELECT * FROM dim.grubbrr_source_lookup;
 7	gxs	             Grubbrr Transaction Service
 */
 
+
 UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM dim.abtests),                                                       sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'dim.abtests' AND source = 'gem';
 UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.transactionitem WHERE transactionheaderid LIKE 'ordevt-%'),    sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.transactionitem' AND source = 'nge';
 UPDATE fact.watermarktable SET ts = (SELECT MAX(syscosmosts) FROM fact.transactionpayment),                                           sysupdatetime = NOW() :: TIMESTAMP WHERE watermarktablename = 'fact.transactionpayment' AND source = 'nge';
@@ -130,6 +131,8 @@ INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkv
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.transactionheader', 'syscosmosts', NULL, NULL, 1779480374, 'gem');
 INSERT INTO fact.watermarktable (watermarktablename, watermarkcolumn, watermarkvalue, ticks, ts, source) VALUES ('fact.itemmodifier', 'syscosmosts', NULL, NULL, 1779289519, 'nge');
 
+
+SELECT MAX(orderdateutc) FROM fact.transactionheader --2026-07-16 04:15:20.688
 
 -- Completed on 2026-05-28 11:00:23
 

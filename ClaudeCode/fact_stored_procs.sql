@@ -1035,6 +1035,13 @@ BEGIN
             stg.eventcategory,
             stg.eventtype,
             fact.parse_iso_timestamp(stg.eventinstant) :: TIMESTAMP AS eventinstant,
+            REPLACE(
+                REPLACE(
+                    REPLACE(SUBSTRING(stg.eventinstant :: TEXT, 1, 13), 
+                            '-', ''),
+                    ' ', ''),
+                'T', ''
+            ) :: INTEGER                                                AS dateid,
             stg.syscosmosts
         FROM  stg.silver_kiosk_events AS stg
         WHERE stg.eventmodule   = 'kiosk'
@@ -1056,11 +1063,10 @@ BEGIN
     aggregated AS (
         SELECT
             locationid,
-            MIN(companyid)                                                                                             AS companyid,
             token                                                                                                      AS eventtoken,
-            MIN(device)                                                                                                AS deviceid,
-            MIN(CASE WHEN LOWER(eventcategory) = 'session' AND LOWER(eventtype) = 'started'
-                     THEN TO_CHAR(eventinstant, 'YYYYMMDDHH24') :: INTEGER END)                  AS dateid,
+            device                                                                                                     AS deviceid,
+            MIN(companyid)                                                                                             AS companyid,
+            MIN(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'started'    THEN dateid       END) AS dateid,
             MIN(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'started'    THEN eventinstant END) AS sessionstart,
             MIN(CASE WHEN LOWER(eventcategory) = 'service'  AND LOWER(eventtype) = 'select'     THEN eventinstant END) AS menustart,
             MIN(CASE WHEN LOWER(eventcategory) = 'item'     AND LOWER(eventtype) = 'selected'   THEN eventinstant END) AS itemstart,
@@ -1070,7 +1076,7 @@ BEGIN
             MAX(CASE WHEN LOWER(eventcategory) = 'session'  AND LOWER(eventtype) = 'closed'     THEN eventinstant END) AS orderend,
             MAX(syscosmosts)                                                                                           AS syscosmosts
         FROM  new_events
-        GROUP BY locationid, token
+        GROUP BY locationid, token, deviceid
     )
 
     INSERT INTO fact.ordertiming (
@@ -1126,7 +1132,7 @@ BEGIN
         syscosmosts
     FROM aggregated                          -- ← no semicolon here, INSERT continues below
 
-    ON CONFLICT (locationid, eventtoken)
+    ON CONFLICT (locationid, eventtoken, deviceid, sessionstart)
     DO UPDATE SET
         -- Fill NULL timing fields with newly arrived event timestamps
         sessionstart      = COALESCE(fact.ordertiming.sessionstart,  EXCLUDED.sessionstart),
@@ -4075,8 +4081,15 @@ BEGIN
         gfojn.incidenttype,
         gfojn.incidentcount,
         nee.eventinstant,
-        fact.parse_iso_timestamp(gfojn.firstoccurred) :: TIMESTAMP          AS firstoccurred,
-        fact.parse_iso_timestamp(gfojn.lastoccurred) :: TIMESTAMP           AS firstoccurred,
+        CASE WHEN gfojn.firstoccurred LIKE '%AM' OR gfojn.firstoccurred LIKE '%PM' 
+             THEN TO_TIMESTAMP(gfojn.firstoccurred, 'MM/DD/YYYY HH12:MI:SS AM') :: TIMESTAMP  
+             ELSE fact.parse_iso_timestamp(gfojn.firstoccurred) :: TIMESTAMP          
+             END                                                            AS firstoccurred,
+        
+        CASE WHEN gfojn.lastoccurred LIKE '%AM' OR gfojn.lastoccurred LIKE '%PM' 
+             THEN TO_TIMESTAMP(gfojn.lastoccurred, 'MM/DD/YYYY HH12:MI:SS AM') :: TIMESTAMP  
+             ELSE fact.parse_iso_timestamp(gfojn.lastoccurred) :: TIMESTAMP          
+             END                                                            AS lastoccurred,
         gfojn.notificationtypeid,
         nee.data                                                            AS incidentdata,
         nee.syscosmosts,

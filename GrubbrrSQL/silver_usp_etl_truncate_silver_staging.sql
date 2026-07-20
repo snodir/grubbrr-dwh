@@ -65,3 +65,4 @@ BEGIN
 END;
 $BODY$;
 
+ALTER PROCEDURE etl.truncate_silver_staging() OWNER TO citus;

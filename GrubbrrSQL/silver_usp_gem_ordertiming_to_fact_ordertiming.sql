@@ -10,6 +10,17 @@ ALTER TABLE IF EXISTS fact.ordertiming
     ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
 
 
+SELECT ot.locationid, ot.eventtoken, ot.deviceid, ot.dateid,
+    COUNT(*) as dupl
+FROM fact.ordertiming as ot
+GROUP BY ot.locationid, ot.eventtoken, ot.deviceid, ot.dateid
+HAVING COUNT(*) > 1
+ORDER BY dupl DESC
+LIMIT 100;
+
+ALTER TABLE IF EXISTS fact.ordertiming DROP CONSTRAINT IF EXISTS locationid_eventtoken_unq;
+ALTER TABLE IF EXISTS fact.ordertiming ADD CONSTRAINT locationid_eventtoken_unq UNIQUE (locationid, eventtoken, deviceid, sessionstart);
+
 --DELETE FROM fact.ordertiming WHERE sysinserttime = (SELECT max(sysinserttime) FROM fact.ordertiming)
 
 -- Table: fact.ordertiming

@@ -21,11 +21,18 @@ ORDER BY ordercounts DESC-- first_order_time ASC--, ordercounts DESC--,
 --P=org-5cf80db5-7a28-4dcf-846b-8cdf5f362269	Bojangles	loc-73ad6e86-1f5c-4123-adbb-4b12339ea171	1020 - Charlotte, NC	211	3884.850	18.4116113744075829	2026-06-09 06:33:55.447	2026-06-10 21:26:49.067
 --SELECT max(orderdatelocal) FROM fact.transactionheader
 
-SELECT * FROM fact.transactionheader WHERE locationid = 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992'
+SELECT * FROM fact.transactionheader 
+WHERE locationid = 'loc-7e11383c-03a8-40bb-866e-ec596d780773'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992'
+AND frequentcustomerid IS NOT NULL
+LIMIT 1000;
+
 
 SELECT * FROM dim.organizationlocation 
 WHERE lower(organizationname) LIKE '%grubbrr%demo%'
 AND organizationtype = 0;
+--org-642556df-6d2c-42cc-81cc-83c1e490a458	GRUBBRR AI DEMO PICO BURRITO	loc-7e11383c-03a8-40bb-866e-ec596d780773	Pico Burrito Demo
+
+
 
 /*
 org-d4efebe6-0ab3-4f44-a113-b9653a58c1d2	GRUBBRR Demos	loc-d45f4b24-0d3a-4ed2-a2c1-836ffd78e021	Pico Burrito Demo
@@ -45,6 +52,14 @@ FROM fact.transactionheader as th
 WHERE th.businessdate >= CAST('2026-05-01' AS DATE)
 GROUP BY th.businessdate
 ORDER BY th.businessdate DESC;
+
+SELECT locationid, kioskid, ordersessionid, COUNT(*)
+FROM fact.transactionheader
+--WHERE orderstatus = 'order-placed'
+GROUP BY locationid, kioskid, ordersessionid
+HAVING COUNT(*) > 1
+--P=199,196 dupl (having more than double of it)
+
 
 WITH aggr_trxns_by_hour AS (
 	SELECT bronze_folderpath, MAX(syscosmosts) as max_sys, MIN(syscosmosts) as min_sys

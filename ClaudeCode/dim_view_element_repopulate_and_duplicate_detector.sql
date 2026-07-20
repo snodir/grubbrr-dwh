@@ -216,22 +216,26 @@ HAVING count(*) > 1
 
 WITH dupl_records AS (
 SELECT *, --sourceelementid, elementname, COUNT(*)
-  count(*) OVER(PARTITION BY sourceelementid, elementname) as dupl_count
+  COUNT(*) OVER(PARTITION BY sourceelementid, elementname) as dupl_count,
+  ROW_NUMBER() OVER(PARTITION BY sourceelementid, elementname ORDER BY elementid) as row_num
 FROM dim.element
 --GROUP BY sourceelementid, elementname
 --HAVING count(*) > 1
-), flattened_duplicates AS (
-SELECT *, ROW_NUMBER() OVER(PARTITION BY sourceelementid, elementname ORDER BY elementid) as row_num
+/*), flattened_duplicates AS (
+SELECT *
 FROM dim.element as el 
 WHERE EXISTS(SELECT 1 FROM dupl_records as dr 
-             WHERE el.elementid = dr.elementid)
---ORDER BY el.sourceelementid, el.elementname
+             WHERE dr.elementid = el.elementid 
+               AND dr.dupl_count > 1
+               AND dr.row_num > 1)
+--ORDER BY el.sourceelementid, el.elementname*/
 )
-SELECT *-- DELETE --
+SELECT * -- DELETE --
 FROM dim.element as el 
-WHERE EXISTS(SELECT 1 FROM flattened_duplicates as fd 
-             WHERE fd.elementid = el.elementid
-               AND fd.row_num   > 1);
+WHERE EXISTS(SELECT 1 FROM dupl_records as dr 
+             WHERE dr.elementid = el.elementid
+               AND dr.dupl_count > 1
+               AND dr.row_num > 1);
 
 
 UPDATE dim.element
@@ -253,21 +257,26 @@ Total execution time: 00:00:11.230
 
 
 WITH dupl_records AS (
-    SELECT viewname, COUNT(*)
+    SELECT *, --viewname, 
+    COUNT(*) OVER(PARTITION BY viewname ORDER BY viewid) as dupl_count,
+    ROW_NUMBER() OVER(PARTITION BY viewname ORDER BY viewid) as row_num
     FROM dim.view
-    GROUP BY viewname
-    HAVING COUNT(*) > 1
-), flattened_duplicates AS (
-    SELECT *, ROW_NUMBER() OVER(ORDER BY viewid) as row_num
+    --GROUP BY viewname
+    --HAVING COUNT(*) > 1
+/*), flattened_duplicates AS (
+    SELECT *
     FROM dim.view as v 
     WHERE EXISTS (SELECT 1 FROM dupl_records as dr 
-                  WHERE dr.viewname = v.viewname)
+                  WHERE dr.viewid = v.viewid
+                    AND dr.dupl_count > 1
+                    AND dr.row_num > 1)*/
 )
-SELECT * --DELETE-- 
+SELECT * -- DELETE--
 FROM dim.view as v 
-WHERE EXISTS (SELECT 1 FROM flattened_duplicates as fd
-              WHERE fd.viewid  = v.viewid
-                AND fd.row_num > 1);
+WHERE EXISTS(SELECT 1 FROM dupl_records as dr 
+             WHERE dr.viewid = v.viewid
+               AND dr.dupl_count > 1
+               AND dr.row_num > 1);
 
 UPDATE dim.view 
 SET viewid = new_id,

@@ -1,0 +1,8 @@
+organizationname,organizationid,frequentcustomerid,firstname,lastname,email,phone,source,createddate,lastorderdate,ordercount,amountspent
+GRUBBRR AI DEMO PICO BURRITO,org-642556df-6d2c-42cc-81cc-83c1e490a458,gfc-202607150833669,Matt ,Turner,,6125626619,grubbrrFrequentCustomer,NULL,NULL,0,0
+GRUBBRR AI DEMO PICO BURRITO,org-642556df-6d2c-42cc-81cc-83c1e490a458,gfc-202607150834768,Tim,Ream,,6462713111,grubbrrFrequentCustomer,NULL,NULL,0,0
+GRUBBRR AI DEMO PICO BURRITO,org-642556df-6d2c-42cc-81cc-83c1e490a458,gfc-202607150835654,Alex,Freeman,,3026187675,grubbrrFrequentCustomer,NULL,NULL,0,0
+GRUBBRR AI DEMO PICO BURRITO,org-642556df-6d2c-42cc-81cc-83c1e490a458,gfc-202607150836727,Chris,Richards,,3473929868,grubbrrFrequentCustomer,NULL,NULL,0,0
+GRUBBRR AI DEMO PICO BURRITO,org-642556df-6d2c-42cc-81cc-83c1e490a458,gfc-202607150841657,Aakash,Shina,,8604612213,grubbrrFrequentCustomer,NULL,NULL,0,0
+GRUBBRR AI DEMO PICO BURRITO,org-642556df-6d2c-42cc-81cc-83c1e490a458,gfc-202607150844485,Auston,Trusty,,8647685194,grubbrrFrequentCustomer,NULL,NULL,0,0
+GRUBBRR AI DEMO PICO BURRITO,org-642556df-6d2c-42cc-81cc-83c1e490a458,gfc-202607150634244,James Roy,,,6465180948,grubbrrFrequentCustomer,NULL,NULL,0,0

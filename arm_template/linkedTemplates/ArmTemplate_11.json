@@ -1401,6 +1401,80 @@
                                 "parameters": {}
                             }
                         }
+                    },
+                    {
+                        "name": "MasterKeysForDuplicateItems",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "ModifierImpressionsML",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "CALL dim.usp_master_keys_for_duplicate_items();\nSELECT 1 AS rn;",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbOrganizationLocation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "GetLocationAndItemStatistics",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "MasterKeysForDuplicateItems",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzurePostgreSqlSource",
+                                "query": {
+                                    "value": "CALL fact.usp_location_statistics();\nSELECT 1 AS rn;",
+                                    "type": "Expression"
+                                },
+                                "partitionOption": "None",
+                                "queryTimeout": "02:00:00"
+                            },
+                            "dataset": {
+                                "referenceName": "AnalyticsDbOrganizationLocation",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
                     }
                 ],
                 "policy": {

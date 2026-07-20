@@ -7,7 +7,7 @@ WHERE 1=1
 --AND th.locationid = 'loc-137c453f-b207-441c-ad04-781f4982fa4d'-- 'loc-ca0632a9-5362-426a-8534-09681bb0f042'-- 'loc-bc017a27-667a-4bcd-b10c-a0e21794d992' --'loc-dad8a3d8-74bd-4d72-a06a-56a51df8d208'
 --AND th.transactionheaderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-KPMXKSRVLP86J2YR','ordevt-NMN4RZR6NQ31W8HW','ordevt-2MUIURL3MQPSDTWN')
 AND th.orderstatus = 'order-placed'
-AND th.businessdate >= '2026-06-22'
+AND th.businessdate >= '2026-07-16'
 ORDER BY th.orderdatelocal DESC
 LIMIT 1000;
 

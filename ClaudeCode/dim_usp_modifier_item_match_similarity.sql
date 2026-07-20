@@ -92,7 +92,7 @@ ALTER TABLE ml.item_modifiergroup_modifier_mapping --T=2m:56s***R=Total executio
 CREATE INDEX IF NOT EXISTS ix_ml_imm_norm_ts_name --T=Total execution time: 00:00:56.019***R=Total execution time: 00:00:10.539
     ON ml.item_modifiergroup_modifier_mapping USING GIN (norm_ts_name gin_trgm_ops);
 
-ALTER TABLE ml.menu_entities    --T=Total execution time: 00:00:15.071***R=Total execution time: 00:00:10.519
+ALTER TABLE ml.menu_entities    --T=Total execution time: 00:00:15.071***R=Total execution time: 00:00:10.519***P=Total execution time: 00:00:15.756
     ADD COLUMN IF NOT EXISTS norm_ts_name TEXT
         GENERATED ALWAYS AS (dim.token_sort(dim.ml_normalize(menuitemname))) STORED;
 

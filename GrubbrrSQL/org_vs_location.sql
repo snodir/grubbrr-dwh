@@ -15,8 +15,57 @@ ORDER by createdon desc;
 
 SELECT * 
 FROM dim.organization
-WHERE id = 'loc-73ad6e86-1f5c-4123-adbb-4b12339ea171' -- Charlotte - 1020, Bojangles 'loc-0be64e65-c6e8-460f-bc14-6c5558eef57e'
+--WHERE id = 'loc-73ad6e86-1f5c-4123-adbb-4b12339ea171' -- Charlotte - 1020, Bojangles 'loc-0be64e65-c6e8-460f-bc14-6c5558eef57e'
 --loc-73ad6e86-1f5c-4123-adbb-4b12339ea171	1020 - Charlotte, NC	2810, Coliseum Centre Drive, Eagle Lake, Mecklenburg County, 3252 True	America/New_York	(-80.9155219,35.1894515)
+ORDER BY sysinserttime DESC NULLS LAST
+
+
+SELECT * 
+FROM dim.organizationlocation
+WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
+AND locationid = 'loc-7e11383c-03a8-40bb-866e-ec596d780773'
+
+
+--https://gcc.grubbrr.com/organization/org-642556df-6d2c-42cc-81cc-83c1e490a458/location/loc-7e11383c-03a8-40bb-866e-ec596d780773/insights/glance
+
+SELECT o.name as organizationname, fc.organizationid,
+  fc.frequentcustomerid, fc.firstname, fc.lastname, fc.email, fc.phone,
+  fc.source, fc.createddate, fc.lastorderdate, fc.ordercount, fc.amountspent  
+FROM dim.frequentcustomer as fc
+INNER JOIN dim.organization as o 
+        ON o.id = fc.organizationid
+WHERE fc.organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
+
+SELECT *
+FROM dim.catalog 
+WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'-- 'org-3e6b2c73-99b3-4e54-bc56-bec5aeded650'; 
+
+
+
+SELECT *
+FROM dim.modifier --menuitem
+WHERE 1=1 
+--AND catalogid = 'catlg-61ae84b4-1b60-469c-91ca-fb43998d06e9';
+AND catalogid IN (
+  SELECT catalogid
+  FROM dim.catalog 
+  WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'-- 'org-3e6b2c73-99b3-4e54-bc56-bec5aeded650'; 
+)
+
+SELECT *
+FROM dim.menuitem
+WHERE 1=1 
+--AND catalogid = 'catlg-61ae84b4-1b60-469c-91ca-fb43998d06e9';
+AND catalogid IN (
+  SELECT catalogid
+  FROM dim.catalog 
+  WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'-- 'org-3e6b2c73-99b3-4e54-bc56-bec5aeded650'; 
+)
+
+SELECT *
+FROM ml.menu_entities
+WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'-- 'org-3e6b2c73-99b3-4e54-bc56-bec5aeded650';
+
 SELECT DISTINCT o.id, o.name, k.kioskid, k.kioskname, o.organizationtype, 
        k.appversion as kiosk_app_version, k.istestkiosk, k.devicedeletedon,
        o.status as loc_status,

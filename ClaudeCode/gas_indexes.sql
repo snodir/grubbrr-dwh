@@ -948,7 +948,7 @@ CREATE INDEX IF NOT EXISTS surveytransstatus_idx ON dim.feedbackstatus USING btr
 -- Name: deviceeventidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS deviceeventidx ON fact.deviceevent USING btree (companyid, locationid);
+--CREATE INDEX IF NOT EXISTS deviceeventidx ON fact.deviceevent USING btree (companyid, locationid);
 
 
 --
@@ -965,7 +965,7 @@ CREATE INDEX IF NOT EXISTS deviceeventidx ON fact.deviceevent USING btree (compa
 -- Name: devicehealth_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS devicehealth_idx ON fact.devicehealth USING btree (deviceid, locationid, companyid) INCLUDE (devicetype, status, healthdatatype, healthdatatime, statuschangetime);
+--CREATE INDEX IF NOT EXISTS devicehealth_idx ON fact.devicehealth USING btree (deviceid, locationid, companyid) INCLUDE (devicetype, status, healthdatatype, healthdatatime, statuschangetime);
 
 
 --
@@ -973,7 +973,7 @@ CREATE INDEX IF NOT EXISTS devicehealth_idx ON fact.devicehealth USING btree (de
 -- Name: deviceid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS deviceid_idx ON fact.devicehealth USING btree (deviceid);
+--CREATE INDEX IF NOT EXISTS deviceid_idx ON fact.devicehealth USING btree (deviceid);
 
 
 --
@@ -981,7 +981,7 @@ CREATE INDEX IF NOT EXISTS deviceid_idx ON fact.devicehealth USING btree (device
 -- Name: idx_devicehealth_deviceid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid ON fact.devicehealth USING btree (deviceid);
+--CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid ON fact.devicehealth USING btree (deviceid);
 
 
 --
@@ -989,7 +989,7 @@ CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid ON fact.devicehealth USING 
 -- Name: idx_devicehealth_deviceid_status_time; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid_status_time ON fact.devicehealth USING btree (deviceid, status, healthdatatime DESC);
+--CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid_status_time ON fact.devicehealth USING btree (deviceid, status, healthdatatime DESC);
 
 
 --
@@ -997,7 +997,7 @@ CREATE INDEX IF NOT EXISTS idx_devicehealth_deviceid_status_time ON fact.deviceh
 -- Name: idx_devicehealth_locationid; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS idx_devicehealth_locationid ON fact.devicehealth USING btree (locationid);
+--CREATE INDEX IF NOT EXISTS idx_devicehealth_locationid ON fact.devicehealth USING btree (locationid);
 
 
 --
@@ -1029,7 +1029,7 @@ CREATE INDEX IF NOT EXISTS idx_devicestate_locationid ON fact.devicestate USING 
 -- Name: idx_devicetelemetry; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS idx_devicetelemetry ON fact.devicetelemetry USING btree (locationid, deviceid);
+--CREATE INDEX IF NOT EXISTS idx_devicetelemetry ON fact.devicetelemetry USING btree (locationid, deviceid);
 
 
 --
@@ -1109,7 +1109,7 @@ CREATE INDEX IF NOT EXISTS ix_deviceevent_journey_lookup ON fact.deviceevent USI
 -- Name: ix_deviceevent_syscosmosts_brin; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS ix_deviceevent_syscosmosts_brin ON fact.deviceevent USING brin (syscosmosts) WITH (pages_per_range='128');
+--CREATE INDEX IF NOT EXISTS ix_deviceevent_syscosmosts_brin ON fact.deviceevent USING brin (syscosmosts) WITH (pages_per_range='128');
 
 CREATE INDEX IF NOT EXISTS ix_userbehaviour_createddate_brin ON fact.userbehaviour USING brin (createddate) WITH (pages_per_range='128');
 
@@ -1141,7 +1141,7 @@ CREATE INDEX IF NOT EXISTS ix_userbehaviour_syscosmosts_brin ON fact.userbehavio
 -- Name: locationid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS locationid_idx ON fact.vw_offer_analysis USING btree (locationid);
+--CREATE INDEX IF NOT EXISTS locationid_idx ON fact.vw_offer_analysis USING btree (locationid);
 
 
 --
@@ -1173,7 +1173,7 @@ CREATE INDEX IF NOT EXISTS transactionheader_locationid_dateid_idx ON fact.trans
 -- Name: transactionheaderid_idx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS transactionheaderid_idx ON fact.itemmodifier USING btree (transactionheaderid);
+--CREATE INDEX IF NOT EXISTS transactionheaderid_idx ON fact.itemmodifier USING btree (transactionheaderid);
 
 
 --
@@ -1181,7 +1181,7 @@ CREATE INDEX IF NOT EXISTS transactionheaderid_idx ON fact.itemmodifier USING bt
 -- Name: transactionpaymentuidx; Type: INDEX; Schema: fact; Owner: citus
 --
 
-CREATE INDEX IF NOT EXISTS transactionpaymentuidx ON fact.transactionpayment USING btree (transactionheaderid, paymentintegrationid, paymentid);
+--CREATE INDEX IF NOT EXISTS transactionpaymentuidx ON fact.transactionpayment USING btree (transactionheaderid, paymentintegrationid, paymentid);
 
 
 --
