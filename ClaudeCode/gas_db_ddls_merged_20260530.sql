@@ -2655,7 +2655,7 @@ CREATE TABLE IF NOT EXISTS fact.ordertiming (
     syscosmosts bigint,
     sysupdatetime TIMESTAMP,
     CONSTRAINT ordertiming_pkey PRIMARY KEY (id),    
-    CONSTRAINT locationid_eventtoken_unq UNIQUE (locationid, eventtoken)
+    CONSTRAINT locationid_eventtoken_unq UNIQUE (locationid, eventtoken, deviceid, sessionstart)
 
 );
 

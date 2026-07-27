@@ -62,11 +62,38 @@ CREATE TABLE IF NOT EXISTS ml.transactions_pico_burrito_demo (
     ww integer,
     yyww INTEGER,
     sysinserttime TIMESTAMP DEFAULT NOW() :: TIMESTAMP
-)
+);
 
+CREATE TABLE IF NOT EXISTS ml.transactions_square_trade_show_reg_env (
+    locationid text COLLATE pg_catalog."default",
+    frequentcustomerid text COLLATE pg_catalog."default",
+    transactionheaderid text COLLATE pg_catalog."default",
+    menuitemid text COLLATE pg_catalog."default",
+    itemname text COLLATE pg_catalog."default",
+    item_class_type integer,
+    itemquantity integer,
+    itemunitprice numeric(12,3),
+    numberofitems integer,
+    ordersubtotal numeric(14,4),
+    ordertypelabel text COLLATE pg_catalog."default",
+    orderdatelocal timestamp without time zone,
+    businessdate date,
+    yyyy integer,
+    mm integer,
+    dd integer,
+    hh integer,
+    ww integer,
+    yyww INTEGER,
+    sysinserttime TIMESTAMP DEFAULT NOW() :: TIMESTAMP
+);
+
+--org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77	Square Trade Show	loc-c896e94d-f5ee-4466-b4c0-399bbc287fb0	Square Trade
+SELECT * FROM dim.frequentcustomer WHERE organizationid = 'org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77'
 SELECT DISTINCT locationid FROM ml.transactions_pico_burrito_demo;
 SELECT DISTINCT businessdate FROM ml.transactions_pico_burrito_demo ORDER BY businessdate DESC;
-
+SELECT * FROM ml.transactions_square_trade_show_reg_env 
+--WHERE frequentcustomerid <> '' 
+ORDER BY orderdatelocal DESC LIMIT 1000;
 --SELECT DISTINCT organizationid, locationid FROM ml.transactions WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
 
 INSERT INTO ml.transactions(
@@ -82,7 +109,9 @@ INSERT INTO ml.transactions(
     itemquantity,
     itemunitprice,
     numberofitems,
+    ordertotal,
     ordersubtotal,
+    ordertax,
     ordertypelabel,
     orderdatelocal,
     businessdate,
@@ -105,7 +134,9 @@ SELECT pb.frequentcustomerid,
     pb.itemquantity,
     pb.itemunitprice,
     pb.numberofitems,
+    pb.ordersubtotal / 0.9         AS ordertotal,
     pb.ordersubtotal,
+    pb.ordersubtotal / 9           AS ordertax,
     pb.ordertypelabel,
     pb.orderdatelocal :: TIMESTAMP AS orderdatelocal,
     pb.businessdate   :: DATE      AS businessdate,
@@ -115,7 +146,7 @@ SELECT pb.frequentcustomerid,
     pb.hh             :: INTEGER   AS hh,
     pb.ww             :: INTEGER   AS ww,
     pb.sysinserttime  :: TIMESTAMP AS sysinserttime
-FROM ml.transactions_pico_burrito_demo as pb 
+FROM ml.transactions_square_trade_show_reg_env as pb --pico_burrito_demo as pb 
 INNER JOIN dim.organizationlocation as ol 
         ON ol.locationid = pb.locationid
        AND ol.organizationtype = 0;
@@ -138,7 +169,7 @@ SELECT pb.locationid,
     MAX(pb.orderdatelocal :: TIMESTAMP) AS orderdatelocal,
     MAX(pb.businessdate   :: DATE)      AS businessdate,
     MAX(pb.sysinserttime  :: TIMESTAMP) AS sysinserttime
-FROM ml.transactions_pico_burrito_demo as pb 
+FROM ml.transactions_square_trade_show_reg_env as pb --pico_burrito_demo as pb 
 GROUP BY locationid, CONCAT('ordevt-', SUBSTRING(transactionheaderid, 5, (LENGTH(transactionheaderid))))
 )
 
@@ -152,14 +183,16 @@ INSERT INTO fact.transactionheader (
     orderstatus,
     paymentstatus,
     numberofitems,
+    ordertotal,
     ordersubtotal,
+    ordertax,
     orderdatelocal,
     dateid,
     businessdate,
     createddate
 )
 SELECT 
-    ROW_NUMBER() OVER(ORDER BY orderdatelocal) + (SELECT MAX(id) FROM fact.transactionheader) as id,
+    nextval('fact.transactionheader_id_seq')           AS id,
     locationid,
     transactionheaderid,
     frequentcustomerid,
@@ -168,7 +201,9 @@ SELECT
     'order-placed' AS orderstatus,
     'Paid'         AS paymentstatus,
     numberofitems,
+    ordersubtotal / 0.9                             AS ordertotal,
     ordersubtotal,
+    ordersubtotal / 9                               AS ordertax,
     orderdatelocal,
     TO_CHAR(orderdatelocal, 'YYYYMMDDHH24') :: INTEGER AS dateid,
     businessdate,
@@ -215,7 +250,7 @@ SELECT DISTINCT ON (transactionheaderid, menuitemid, itemname)
     pb.orderdatelocal :: TIMESTAMP AS orderdatelocal,
     pb.businessdate   :: DATE      AS businessdate,
     pb.sysinserttime  :: TIMESTAMP AS sysinserttime
-FROM ml.transactions_pico_burrito_demo as pb 
+FROM ml.transactions_square_trade_show_reg_env as pb --pico_burrito_demo as pb 
 INNER JOIN dim.menuitem as mi 
         ON mi.menuitemid = pb.menuitemid
 ORDER BY transactionheaderid, menuitemid, itemname, orderdatelocal DESC;

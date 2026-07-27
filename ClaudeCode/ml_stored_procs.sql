@@ -106,7 +106,7 @@ ALTER PROCEDURE ml.usp_refresh_item_modifiergroup_modifier_mapping(IN p_organiza
 -- TOC entry 981 (class 1255 OID 3044530)
 -- Name: usp_refresh_menu_entities(); Type: PROCEDURE; Schema: ml; Owner: citus
 --
-
+-- CALL ml.usp_refresh_menu_entities();
 CREATE OR REPLACE PROCEDURE ml.usp_refresh_menu_entities()
     LANGUAGE plpgsql
     AS $BODY$

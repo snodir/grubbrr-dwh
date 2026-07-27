@@ -22,10 +22,10 @@ ORDER BY sysinserttime DESC NULLS LAST
 
 SELECT * 
 FROM dim.organizationlocation
-WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
+WHERE organizationid = 'org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77'-- 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
 AND locationid = 'loc-7e11383c-03a8-40bb-866e-ec596d780773'
-
-
+--org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77	Square Trade Show	loc-c896e94d-f5ee-4466-b4c0-399bbc287fb0	Square Trade
+--https://reg.gcc.grubbrr.com/organization/org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77/location/loc-c896e94d-f5ee-4466-b4c0-399bbc287fb0/settings/kiosks
 --https://gcc.grubbrr.com/organization/org-642556df-6d2c-42cc-81cc-83c1e490a458/location/loc-7e11383c-03a8-40bb-866e-ec596d780773/insights/glance
 
 SELECT o.name as organizationname, fc.organizationid,
@@ -38,8 +38,8 @@ WHERE fc.organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
 
 SELECT *
 FROM dim.catalog 
-WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'-- 'org-3e6b2c73-99b3-4e54-bc56-bec5aeded650'; 
-
+WHERE organizationid = 'org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77'-- 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
+--catlg-c3c0ccc7-4b78-4e29-8653-e1ad80dc52f6	Square Trade Catalog	org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77	False
 
 
 SELECT *
@@ -49,7 +49,7 @@ WHERE 1=1
 AND catalogid IN (
   SELECT catalogid
   FROM dim.catalog 
-  WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'-- 'org-3e6b2c73-99b3-4e54-bc56-bec5aeded650'; 
+  WHERE organizationid = 'org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77'-- 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
 )
 
 SELECT *
@@ -59,12 +59,25 @@ WHERE 1=1
 AND catalogid IN (
   SELECT catalogid
   FROM dim.catalog 
-  WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'-- 'org-3e6b2c73-99b3-4e54-bc56-bec5aeded650'; 
+  WHERE organizationid = 'org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77'-- 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
 )
 
 SELECT *
+FROM dim.category_hierarchy
+WHERE 1=1 
+--AND catalogid = 'catlg-61ae84b4-1b60-469c-91ca-fb43998d06e9';
+AND catalogid IN (
+  SELECT catalogid
+  FROM dim.catalog 
+  WHERE organizationid = 'org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77'-- 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
+)
+
+
+SELECT *
 FROM ml.menu_entities
-WHERE organizationid = 'org-642556df-6d2c-42cc-81cc-83c1e490a458'-- 'org-3e6b2c73-99b3-4e54-bc56-bec5aeded650';
+WHERE organizationid = 'org-30b00f49-c9a7-462a-bc5f-c113f4fb8a77'-- 'org-642556df-6d2c-42cc-81cc-83c1e490a458'
+
+
 
 SELECT DISTINCT o.id, o.name, k.kioskid, k.kioskname, o.organizationtype, 
        k.appversion as kiosk_app_version, k.istestkiosk, k.devicedeletedon,
