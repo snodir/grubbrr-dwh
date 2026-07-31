@@ -31,6 +31,11 @@ WHERE dt.locationid = 'loc-137c453f-b207-441c-ad04-781f4982fa4d'
 ORDER BY sysinserttime DESC NULLS LAST
 LIMIT 1000;
 
+
+SELECT *
+FROM stg.silver_all_transaction_entities
+ORDER BY sysinserttime DESC;
+
 SELECT de.datacategory, de.actiontype, de.eventinstant, th.*
 FROM stg.silver_transaction_header as th
 INNER JOIN fact.deviceevent as de

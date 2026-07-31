@@ -7,8 +7,8 @@ CREATE SCHEMA IF NOT EXISTS etl;
 --30 days * 24 hours * 2 (events/orders)  
 SELECT *--, dateid, layer, entity, partition_path, partition_date, partition_year, partition_month, partition_day, partition_hour
 FROM etl.bronze_partition_registry
-WHERE entity = 'orders'
-AND status IN ('completed','not found')
+WHERE entity = 'events'
+AND status IN ('completed', 'not found') --'completed',
   --AND dateid >= TO_CHAR(NOW() - INTERVAL '6 hours', 'YYYYMMDDHH24') :: BIGINT  --processed partitions will be skipped anyway by status = 'pending'
   --AND dateid <= TO_CHAR(NOW() - INTERVAL '1 hours', 'YYYYMMDDHH24') :: BIGINT  --1 hour of deduction because of late-arriving files
 ORDER BY dateid DESC
