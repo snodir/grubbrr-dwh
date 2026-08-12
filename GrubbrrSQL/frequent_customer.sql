@@ -18,11 +18,10 @@ create table dim.frequentcustomer
     sysupdatetime timestamp
 );
 
-ALTER TABLE IF EXISTS dim.frequentcustomer
---ALTER COLUMN customerkey DROP IDENTITY,
---DROP CONSTRAINT customerkey_pk
---DROP CONSTRAINT frequentcustomerid_unq UNIQUE (frequentcustomerid)
-ADD CONSTRAINT customerkey_pk PRIMARY KEY (frequentcustomerid),
+ALTER TABLE IF EXISTS dim.frequentcustomer ALTER COLUMN customerkey DROP IDENTITY IF EXISTS;
+ALTER TABLE IF EXISTS dim.frequentcustomer ADD CONSTRAINT organizationid_frequentcustomerid_unq UNIQUE (organizationid, frequentcustomerid);
+ALTER TABLE IF EXISTS dim.frequentcustomer ADD CONSTRAINT frequentcustomerid_unq UNIQUE (frequentcustomerid);
+ALTER TABLE IF EXISTS dim.frequentcustomer ADD CONSTRAINT customerkey_pk PRIMARY KEY (customerkey);
 
 -- Table: dim.frequentcustomer
 
@@ -56,7 +55,8 @@ ALTER TABLE IF EXISTS dim.frequentcustomer_bkp
 --INSERT INTO dim.frequentcustomer_bkp --178,238
 SELECT *--count(*) 
 FROM dim.frequentcustomer --227,642
-ORDER BY ordercount DESC LIMIT 100
+ORDER BY ordercount DESC 
+LIMIT 100;
 --TRUNCATE TABLE dim.frequentcustomer
 
 /*

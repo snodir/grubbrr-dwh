@@ -8,8 +8,8 @@ WHERE 1=1
 --AND th.transactionheaderid IN ('ordevt-78CRBGTRPVGELYOO','ordevt-LB8Q7XLXENKGJVZI','ordevt-KPMXKSRVLP86J2YR','ordevt-NMN4RZR6NQ31W8HW','ordevt-2MUIURL3MQPSDTWN')
 AND th.orderstatus = 'order-placed'
 AND th.businessdate >= '2026-07-16'
-ORDER BY th.orderdatelocal DESC
-LIMIT 1000;
+ORDER BY th.totalordertime DESC NULLS LAST
+LIMIT 100;
 
 
 
@@ -35,6 +35,11 @@ LIMIT 1000;
 SELECT *
 FROM stg.silver_all_transaction_entities
 ORDER BY sysinserttime DESC;
+
+SELECT *
+FROM stg.silver_transaction_header
+ORDER BY usd_amount DESC
+LIMIT 100;
 
 SELECT de.datacategory, de.actiontype, de.eventinstant, th.*
 FROM stg.silver_transaction_header as th

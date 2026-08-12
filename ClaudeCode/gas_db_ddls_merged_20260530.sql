@@ -2275,7 +2275,7 @@ CREATE TABLE IF NOT EXISTS fact.devicestate (
     state          TEXT,
     lasteventtime  TIMESTAMP,
     statuschangetime TIMESTAMP,
-    duration       NUMERIC(10,3),
+    duration       NUMERIC(12,3),
     sysinserttime  TIMESTAMP,
     status         TEXT, --added on 2026-06-19 for enhanced System Health Report
     statusmessage  TEXT, --added on 2026-06-19 for enhanced System Health Report
@@ -2642,15 +2642,15 @@ CREATE TABLE IF NOT EXISTS fact.ordertiming (
     paymentstart timestamp without time zone,
     paymentend timestamp without time zone,
     orderend timestamp without time zone,
-    starttomenu NUMERIC(10,3),
-    menutoitem NUMERIC(10,3),
-    itemtocheckout NUMERIC(10,3),
-    checkouttopayment NUMERIC(10,3),
-    paytopaid NUMERIC(10,3),
-    payendtoend NUMERIC(10,3),
-    starttocheckout NUMERIC(10,3),
-    checkouttoend NUMERIC(10,3),
-    totalordertime NUMERIC(10,3),
+    starttomenu NUMERIC(15,3),
+    menutoitem NUMERIC(15,3),
+    itemtocheckout NUMERIC(15,3),
+    checkouttopayment NUMERIC(15,3),
+    paytopaid NUMERIC(15,3),
+    payendtoend NUMERIC(15,3),
+    starttocheckout NUMERIC(15,3),
+    checkouttoend NUMERIC(15,3),
+    totalordertime NUMERIC(15,3),
     sysinserttime timestamp without time zone,
     syscosmosts bigint,
     sysupdatetime TIMESTAMP,
@@ -2667,15 +2667,15 @@ ALTER TABLE IF EXISTS fact.ordertiming OWNER TO citus;
 
 -- Schema evolution: fact.ordertiming
 ALTER TABLE IF EXISTS fact.ordertiming
-ALTER COLUMN starttomenu       TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN menutoitem        TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN itemtocheckout    TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN checkouttopayment TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN paytopaid         TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN payendtoend       TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN starttocheckout   TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN checkouttoend     TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN totalordertime    TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN starttomenu       TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN menutoitem        TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN itemtocheckout    TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN checkouttopayment TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN paytopaid         TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN payendtoend       TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN starttocheckout   TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN checkouttoend     TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN totalordertime    TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
 ADD COLUMN IF NOT EXISTS sysinserttime TIMESTAMP,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,
 ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP;
@@ -2903,12 +2903,12 @@ CREATE TABLE IF NOT EXISTS fact.transactionheader (
     checkouttime timestamp without time zone,
     paystarttime timestamp without time zone,
     sessionendtime timestamp without time zone,
-    precheckouttime NUMERIC(10,3),
-    postcheckouttime NUMERIC(10,3),
-    menupagetime NUMERIC(10,3),
-    reviewpagetime NUMERIC(10,3),
-    paymentpagetime NUMERIC(10,3),
-    totalordertime NUMERIC(10,3),
+    precheckouttime NUMERIC(15,3),
+    postcheckouttime NUMERIC(15,3),
+    menupagetime NUMERIC(15,3),
+    reviewpagetime NUMERIC(15,3),
+    paymentpagetime NUMERIC(15,3),
+    totalordertime NUMERIC(15,3),
     businessdate date,
     frequentcustomerid text,
     abtestid bigint,
@@ -2940,12 +2940,12 @@ ALTER COLUMN ordertip TYPE NUMERIC(12, 3),
 ALTER COLUMN orderdiscount TYPE NUMERIC(12, 3),
 ALTER COLUMN orderbalance TYPE NUMERIC(12, 3),
 ALTER COLUMN charityamount TYPE NUMERIC(12, 3),
-ALTER COLUMN precheckouttime TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN postcheckouttime TYPE NUMERIC(10,3),--Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN menupagetime TYPE NUMERIC(10,3),    --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN reviewpagetime TYPE NUMERIC(10,3),  --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN paymentpagetime TYPE NUMERIC(10,3), --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
-ALTER COLUMN totalordertime TYPE NUMERIC(10,3),  --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN precheckouttime  TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN postcheckouttime TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN menupagetime     TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN reviewpagetime   TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN paymentpagetime  TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
+ALTER COLUMN totalordertime   TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-06-24 for orders sessions with larger durations
 ADD COLUMN IF NOT EXISTS customername CHARACTER VARYING(100) COLLATE pg_catalog."default",
 ALTER COLUMN updateddate DROP NOT NULL,
 ALTER COLUMN updateddate DROP DEFAULT;
@@ -2975,7 +2975,7 @@ CREATE TABLE IF NOT EXISTS fact.transactionitem (
     asis boolean,
     itemselectedtime timestamp without time zone,
     addtocarttime timestamp without time zone,
-    totaltime NUMERIC(10,3),
+    totaltime NUMERIC(15,3),
     orderdateutc text,
     sysinserttime timestamp without time zone,
     sysupdatetime timestamp without time zone,
@@ -2997,7 +2997,7 @@ ADD COLUMN IF NOT EXISTS sysupdatetime TIMESTAMP WITHOUT TIME ZONE,
 ADD COLUMN IF NOT EXISTS dimmenuitemid TEXT COLLATE pg_catalog."default",
 ADD COLUMN IF NOT EXISTS locationid TEXT COLLATE pg_catalog."default",
 ALTER COLUMN itemunitprice TYPE NUMERIC(12,3),
-ALTER COLUMN totaltime     TYPE NUMERIC(10,3),  --Changed NUMERIC(7,3) to NUMERIC(10,3) on 2026-07-02 for orders sessions with larger durations
+ALTER COLUMN totaltime     TYPE NUMERIC(15,3), --Changed NUMERIC(7,3) to NUMERIC(15,3) on 2026-07-02 for orders sessions with larger durations
 ADD COLUMN IF NOT EXISTS orderdatelocal TIMESTAMP,
 ADD COLUMN IF NOT EXISTS businessdate DATE,
 ADD COLUMN IF NOT EXISTS syscosmosts BIGINT,

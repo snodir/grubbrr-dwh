@@ -89,7 +89,7 @@ VACUUM (FREEZE) fact.userbehaviour;
 
 --TRUNCATE TABLE fact.userbehaviour;
 
-SELECT max(id), count(*) --DISTINCT de.datacategory, de.actiontype S=36,875,506--after 1June--36,334,104, maxid=36,714,158, count=36,714,158 (after id re-alignment on 2026-07-04)
+SELECT *--max(id), count(*) --DISTINCT de.datacategory, de.actiontype S=36,875,506--after 1June--36,334,104, maxid=36,714,158, count=36,714,158 (after id re-alignment on 2026-07-04)
 FROM fact.userbehaviour as ub --_reload --5,707,284***252,036---R=2,236,236***163,019---S=159,156,684/159,331,487--Total execution time: 00:01:17.866
 WHERE 1=1 --P=211,468,927	211,515,235, Total execution time: 00:01:09.713
 --AND eventcategory IN ('insight','Order','StoreTiming','BusinessHours','Session') 
@@ -97,9 +97,10 @@ WHERE 1=1 --P=211,468,927	211,515,235, Total execution time: 00:01:09.713
 --AND elementidentifier IS NOT NULL
 --AND syscosmosticks IS NOT NULL
 --AND deviceid = ''
-ORDER BY id DESC
+ORDER BY id --DESC
 LIMIT 1000;
 
+--2026-07-06 05:09:53.780262 max_createddate/sysinserttime StageGAS
 
 --P=262,118,533***52,795,667 ('insight','Order','StoreTiming','BusinessHours','Session')--2026-07-16
 --Total execution time: 00:02:34.478
